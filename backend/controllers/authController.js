@@ -40,6 +40,60 @@ const login = (req, res) => {
   });
 };
 
+// 用戶註冊
+const register = (req, res) => {
+  const { name, email, password } = req.body;
+  
+  // 檢查是否提供所有必要欄位
+  if (!name || !email || !password) {
+    return res.status(400).json({
+      success: false,
+      message: '請提供 name、email 和 password'
+    });
+  }
+  
+  // 檢查 email 是否已被註冊
+  const existingUser = users.find(u => u.email === email);
+  if (existingUser) {
+    return res.status(400).json({
+      success: false,
+      message: '此 email 已被註冊'
+    });
+  }
+  
+  // 模擬註冊成功
+  // 注意：在實際應用中，這裡應該要將用戶資料存入資料庫
+  const newUser = {
+    name,
+    email,
+    password
+  };
+  
+  // 回傳註冊成功訊息
+  res.status(201).json({
+    success: true,
+    message: '註冊成功',
+    token: generateMockToken(),
+    user: {
+      name: newUser.name,
+      email: newUser.email
+    }
+  });
+};
+
+// 獲取用戶資料
+const getUserProfile = (req, res) => {
+  // 從中介層獲取用戶資料
+  const user = req.user;
+  
+  res.json({
+    success: true,
+    user
+  });
+};
+
 module.exports = {
-  login
+  login,
+  register,
+  getUserProfile
 }; 
