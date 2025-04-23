@@ -61,19 +61,23 @@ const CategoryList: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">課程分類</h2>
-      <div className="grid grid-cols-5 gap-4">
-        {categories.map((category) => (
-          <CategoryCard
-            key={category.id}
-            title={category.name}
-            subtitle={category.description}
-            icon={icons[category.name as keyof typeof icons] || "📚"}
-          />
-        ))}
+    <section className="max-w-screen-xl mx-auto px-4 md:px-12 py-8">
+      <h2 className="text-2xl font-bold border-l-4 border-yellow-400 pl-3 mb-6">
+        📚 課程分類
+      </h2>
+      <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {categories.map((category) => (
+            <CategoryCard
+              key={category.id}
+              title={category.name}
+              subtitle={category.description}
+              icon={icons[category.name as keyof typeof icons] || "📚"}
+            />
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 
