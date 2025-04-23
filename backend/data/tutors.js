@@ -37,7 +37,7 @@ const tutors = [
     experience: "6年教學經驗",
     rating: 4.6,
     avatarUrl: "https://randomuser.me/api/portraits/men/4.jpg",
-    isRecommended: false
+    isRecommended: true
   },
   {
     id: 5,
@@ -47,7 +47,7 @@ const tutors = [
     experience: "2年教學經驗",
     rating: 4.5,
     avatarUrl: "https://randomuser.me/api/portraits/women/5.jpg",
-    isRecommended: false
+    isRecommended: true
   },
   {
     id: 6,
@@ -67,7 +67,7 @@ const tutors = [
     experience: "4年教學經驗",
     rating: 4.8,
     avatarUrl: "https://randomuser.me/api/portraits/women/7.jpg",
-    isRecommended: false
+    isRecommended: true
   },
   {
     id: 8,
@@ -78,6 +78,26 @@ const tutors = [
     rating: 4.9,
     avatarUrl: "https://randomuser.me/api/portraits/men/8.jpg",
     isRecommended: true
+  },
+  {
+    id: 9,
+    name: "張小華",
+    subject: "中文",
+    education: "國立台灣師範大學中文系",
+    experience: "8年教學經驗",
+    rating: 4.9,
+    avatarUrl: "https://randomuser.me/api/portraits/women/9.jpg",
+    isRecommended: true
+  },
+  {
+    id: 10,
+    name: "王小龍",
+    subject: "經濟",
+    education: "國立政治大學經濟系",
+    experience: "6年教學經驗",
+    rating: 4.7,
+    avatarUrl: "https://randomuser.me/api/portraits/men/10.jpg",
+    isRecommended: false
   }
 ];
 

@@ -70,6 +70,33 @@ const cases = [
     frequency: "每週 2 次",
     description: "需要有中學英文教學經驗，可以實體教學",
     tags: ["中學", "英文", "北角"]
+  },
+  {
+    id: 9,
+    subject: "DSE 經濟補習",
+    location: "紅磡",
+    fee: "$380/小時",
+    frequency: "每週 2 次",
+    description: "需要有 DSE 經濟教學經驗，可以實體教學",
+    tags: ["DSE", "經濟", "紅磡"]
+  },
+  {
+    id: 10,
+    subject: "A-Level 會計補習",
+    location: "尖沙咀",
+    fee: "$420/小時",
+    frequency: "每週 1 次",
+    description: "需要有 A-Level 會計教學經驗，可以線上教學",
+    tags: ["A-Level", "會計", "尖沙咀", "線上"]
+  },
+  {
+    id: 11,
+    subject: "小學中文補習",
+    location: "黃大仙",
+    fee: "$280/小時",
+    frequency: "每週 2 次",
+    description: "需要有耐心，可以教導小學生",
+    tags: ["小學", "中文", "黃大仙"]
   }
 ];
 

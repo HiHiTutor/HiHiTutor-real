@@ -8,6 +8,9 @@ const searchRoutes = require('./routes/search');
 const hotSubjectRoutes = require('./routes/hotSubjects');
 const authRoutes = require('./routes/auth');
 const contactRoutes = require('./routes/contact');
+const tutorApplicationRoutes = require('./routes/tutorApplications');
+const caseApplicationRoutes = require('./routes/caseApplications');
+const applicationRoutes = require('./routes/applications');
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -25,6 +28,9 @@ app.use('/api/search', searchRoutes);
 app.use('/api/hot-subjects', hotSubjectRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/tutors', tutorApplicationRoutes);
+app.use('/api/cases', caseApplicationRoutes);
+app.use('/api/applications', applicationRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

@@ -3,7 +3,7 @@ const categories = [
     id: 1,
     name: "中小學補習",
     icon: "book",
-    description: "針對性提升學科成績"
+    description: "🔥🔥🔥全新描述內容🔥🔥🔥"
   },
   {
     id: 2,
