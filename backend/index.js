@@ -7,6 +7,7 @@ const categoryRoutes = require('./routes/categories');
 const searchRoutes = require('./routes/search');
 const hotSubjectRoutes = require('./routes/hotSubjects');
 const authRoutes = require('./routes/auth');
+const contactRoutes = require('./routes/contact');
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -23,6 +24,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/hot-subjects', hotSubjectRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
