@@ -1,4 +1,4 @@
-import React from 'react';
+import { FC } from 'react';
 import Link from 'next/link';
 
 interface CategoryCardProps {
@@ -7,10 +7,10 @@ interface CategoryCardProps {
   icon: string;
 }
 
-const CategoryCard: React.FC<CategoryCardProps> = ({ title, subtitle, icon }) => {
+const CategoryCard: FC<CategoryCardProps> = ({ title, subtitle, icon }) => {
   return (
     <Link 
-      href={`/categories/${encodeURIComponent(title)}`}
+      href={`/categories/${title}`}
       className="block h-36 p-4 rounded-xl bg-white shadow-md hover:shadow-lg transition-shadow duration-300"
     >
       <div className="flex flex-col items-center justify-center h-full">

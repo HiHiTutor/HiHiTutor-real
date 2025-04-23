@@ -9,15 +9,12 @@ interface Category {
   description: string;
 }
 
-// TODO: 未來從 .env 讀取
-const BASE_URL = 'http://localhost:3001';
-
 const CategoryList: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const icons = {
+  const icons: Record<string, string> = {
     "幼兒教育": "🧸",
     "中小學教育": "📚",
     "興趣班": "🎭",
@@ -28,13 +25,15 @@ const CategoryList: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/api/categories`);
+        const response = await fetch('/api/categories');
         if (!response.ok) {
           throw new Error('獲取分類失敗');
         }
         const data = await response.json();
         setCategories(data);
+        setError(null);
       } catch (err) {
+        console.error('獲取分類失敗:', err);
         setError(err instanceof Error ? err.message : '未知錯誤');
       } finally {
         setLoading(false);
@@ -62,9 +61,10 @@ const CategoryList: React.FC = () => {
 
   return (
     <section className="max-w-screen-xl mx-auto px-4 md:px-12 py-8">
-      <h2 className="text-2xl font-bold border-l-4 border-yellow-400 pl-3 mb-6">
-        📚 課程分類
-      </h2>
+      <div className="flex items-center gap-2 mb-6">
+        <span className="text-2xl">📚</span>
+        <h2 className="text-2xl font-bold border-l-4 border-yellow-400 pl-3">課程分類</h2>
+      </div>
       <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {categories.map((category) => (
@@ -72,7 +72,7 @@ const CategoryList: React.FC = () => {
               key={category.id}
               title={category.name}
               subtitle={category.description}
-              icon={icons[category.name as keyof typeof icons] || "📚"}
+              icon={icons[category.name] || '📚'}
             />
           ))}
         </div>
