@@ -31,9 +31,11 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
       <div className="relative h-48 w-full mb-4">
         <Image
           src={tutor.avatar || '/avatars/default.png'}
-          alt={tutor.name}
+          alt={`${tutor.name} 的照片`}
           fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover rounded-lg"
+          priority={false}
         />
       </div>
       <div className="flex justify-between items-center">
