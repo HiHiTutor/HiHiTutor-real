@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { mockTutors, sortTutors } from '../route';
 
 // 模擬資料庫中的導師資料
 const recommendedTutors = [
@@ -85,20 +86,7 @@ const recommendedTutors = [
 ];
 
 export async function GET() {
-  try {
-    // 在實際應用中，這裡會從資料庫獲取資料
-    // const tutors = await prisma.tutor.findMany({
-    //   where: { isRecommended: true },
-    //   take: 8,
-    //   orderBy: { rating: 'desc' }
-    // });
-
-    return NextResponse.json(recommendedTutors);
-  } catch (error) {
-    console.error('Error fetching recommended tutors:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch recommended tutors' },
-      { status: 500 }
-    );
-  }
+  const sortedTutors = sortTutors([...mockTutors]);
+  const recommendedTutors = sortedTutors.slice(0, 8);
+  return NextResponse.json(recommendedTutors);
 } 
