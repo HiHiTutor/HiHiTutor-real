@@ -1,10 +1,16 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 
-const CategoryCard = ({ title, subtitle, icon }) => {
+interface CategoryCardProps {
+  title: string;
+  subtitle: string;
+  icon: string;
+}
+
+const CategoryCard: React.FC<CategoryCardProps> = ({ title, subtitle, icon }) => {
   return (
     <Link 
-      to={`/categories/${title}`}
+      href={`/categories/${encodeURIComponent(title)}`}
       className="block h-36 p-4 rounded-xl bg-white shadow-md hover:shadow-lg transition-shadow duration-300"
     >
       <div className="flex flex-col items-center justify-center h-full">

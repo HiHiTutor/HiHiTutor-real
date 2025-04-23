@@ -1,10 +1,21 @@
+'use client';
+
 import React, { useEffect, useState } from 'react';
 import CategoryCard from './CategoryCard';
 
-const CategoryList = () => {
-  const [categories, setCategories] = useState([]);
+interface Category {
+  id: number;
+  name: string;
+  description: string;
+}
+
+// TODO: 未來從 .env 讀取
+const BASE_URL = 'http://localhost:3001';
+
+const CategoryList: React.FC = () => {
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   const icons = {
     "幼兒教育": "🧸",
@@ -17,14 +28,14 @@ const CategoryList = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('/api/categories');
+        const response = await fetch(`${BASE_URL}/api/categories`);
         if (!response.ok) {
           throw new Error('獲取分類失敗');
         }
         const data = await response.json();
         setCategories(data);
       } catch (err) {
-        setError(err.message);
+        setError(err instanceof Error ? err.message : '未知錯誤');
       } finally {
         setLoading(false);
       }
@@ -58,7 +69,7 @@ const CategoryList = () => {
             key={category.id}
             title={category.name}
             subtitle={category.description}
-            icon={icons[category.name]}
+            icon={icons[category.name as keyof typeof icons] || "📚"}
           />
         ))}
       </div>
