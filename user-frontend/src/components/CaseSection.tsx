@@ -1,71 +1,48 @@
-const cases = [
-  {
-    id: 1,
-    title: 'DSE 數學補習',
-    location: '觀塘',
-    price: '$300/小時',
-    duration: '每週 2 次',
-    tags: ['DSE', '數學', '觀塘']
-  },
-  {
-    id: 2,
-    title: 'IB 物理補習',
-    location: '銅鑼灣',
-    price: '$350/小時',
-    duration: '每週 1 次',
-    tags: ['IB', '物理', '銅鑼灣']
-  },
-  {
-    id: 3,
-    title: '英語會話練習',
-    location: '中環',
-    price: '$400/小時',
-    duration: '每週 3 次',
-    tags: ['英語', '會話', '中環']
-  },
-  {
-    id: 4,
-    title: 'A-Level 化學補習',
-    location: '旺角',
-    price: '$320/小時',
-    duration: '每週 2 次',
-    tags: ['A-Level', '化學', '旺角']
-  },
-  {
-    id: 5,
-    title: 'DSE 中文補習',
-    location: '沙田',
-    price: '$330/小時',
-    duration: '每週 2 次',
-    tags: ['DSE', '中文', '沙田']
-  },
-  {
-    id: 6,
-    title: 'IB 生物補習',
-    location: '將軍澳',
-    price: '$340/小時',
-    duration: '每週 1 次',
-    tags: ['IB', '生物', '將軍澳']
-  },
-  {
-    id: 7,
-    title: 'A-Level 經濟補習',
-    location: '北角',
-    price: '$350/小時',
-    duration: '每週 2 次',
-    tags: ['A-Level', '經濟', '北角']
-  },
-  {
-    id: 8,
-    title: 'DSE 英文補習',
-    location: '荃灣',
-    price: '$360/小時',
-    duration: '每週 3 次',
-    tags: ['DSE', '英文', '荃灣']
-  }
-];
+'use client';
+
+import { useEffect, useState } from 'react';
+import { caseApi } from '../services/api';
+
+// 個案資料類型定義
+interface Case {
+  id: number;
+  subject: string;
+  location: string;
+  fee: string;
+  frequency: string;
+  description: string;
+  tags: string[];
+}
 
 const CaseSection = () => {
+  const [cases, setCases] = useState<Case[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCases = async () => {
+      try {
+        setLoading(true);
+        const data = await caseApi.getLatestCases();
+        // 確保 data 是陣列
+        setCases(Array.isArray(data) ? data : []);
+        setError(null);
+      } catch (err) {
+        console.error('獲取最新個案失敗:', err);
+        setError('獲取最新個案失敗，請稍後再試');
+        // 發生錯誤時，設置空陣列
+        setCases([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCases();
+  }, []);
+
+  // 只顯示前 8 個最新個案，確保 cases 是陣列
+  const limitedCases = Array.isArray(cases) ? cases.slice(0, 8) : [];
+
   return (
     <section className="mb-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -73,31 +50,48 @@ const CaseSection = () => {
           最新補習個案
         </h2>
         <div className="bg-yellow-50 p-6 rounded-xl border border-yellow-300">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {cases.map((case_) => (
-              <div
-                key={case_.id}
-                className="bg-white border border-gray-300 rounded-xl shadow-sm p-4 hover:shadow-lg transition-all duration-200"
-              >
-                <h3 className="font-semibold text-gray-900 mb-2">{case_.title}</h3>
-                <div className="space-y-2 text-sm text-gray-600">
-                  <p>地點: {case_.location}</p>
-                  <p>費用: {case_.price}</p>
-                  <p>頻率: {case_.duration}</p>
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+              <p className="mt-2 text-gray-600">載入中...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8 text-red-500">
+              <p>{error}</p>
+            </div>
+          ) : limitedCases.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <p>目前沒有最新個案</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              {limitedCases.map((case_) => (
+                <div
+                  key={case_.id}
+                  className="bg-white border border-gray-300 rounded-xl shadow-sm p-4 hover:shadow-lg transition-all duration-200"
+                >
+                  <h3 className="font-semibold text-gray-900 mb-2">{case_.subject || '未命名個案'}</h3>
+                  <div className="space-y-2 text-sm text-gray-600">
+                    <p>地點: {case_.location || '未指定'}</p>
+                    <p>費用: {case_.fee || '未指定'}</p>
+                    <p>頻率: {case_.frequency || '未指定'}</p>
+                  </div>
+                  {case_.tags && Array.isArray(case_.tags) && case_.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {case_.tags.map((tag, index) => (
+                        <span
+                          key={index}
+                          className="text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-600"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {case_.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-600"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
           <div className="mt-8 text-center">
             <button className="bg-white border border-primary text-primary rounded-md px-4 py-2 hover:bg-gray-50 transition-all duration-200">
               查看更多個案

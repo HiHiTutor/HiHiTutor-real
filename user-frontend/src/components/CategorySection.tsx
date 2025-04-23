@@ -1,11 +1,54 @@
-const categories = [
-  { id: 1, name: '中小學補習', description: '針對性提升學科成績', icon: '📚' },
-  { id: 2, name: '語言學習', description: '英語、日語、韓語等', icon: '🗣️' },
-  { id: 3, name: '音樂藝術', description: '鋼琴、繪畫、舞蹈等', icon: '🎨' },
-  { id: 4, name: '運動健身', description: '游泳、瑜伽、健身等', icon: '🏃' },
-];
+'use client';
+
+import { useEffect, useState } from 'react';
+import { categoryApi } from '../services/api';
+import {
+  BookOpenIcon,
+  LanguageIcon,
+  MusicalNoteIcon,
+  FireIcon,
+} from "@heroicons/react/24/outline";
+
+// 分類資料類型定義
+interface Category {
+  id: number;
+  name: string;
+  description: string;
+  icon: string;
+}
+
+const iconMap: Record<string, JSX.Element> = {
+  book: <BookOpenIcon className="w-8 h-8 text-yellow-500" />,
+  language: <LanguageIcon className="w-8 h-8 text-yellow-500" />,
+  music: <MusicalNoteIcon className="w-8 h-8 text-yellow-500" />,
+  fitness_center: <FireIcon className="w-8 h-8 text-yellow-500" />,
+};
 
 const CategorySection = () => {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        console.log('fetching categories...');
+        setLoading(true);
+        const data = await categoryApi.getAllCategories();
+        console.log('categories:', data);
+        setCategories(data);
+        setError(null);
+      } catch (err) {
+        console.error('獲取課程分類失敗:', err);
+        setError('獲取課程分類失敗，請稍後再試');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   return (
     <section className="mb-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -13,18 +56,35 @@ const CategorySection = () => {
           課程分類
         </h2>
         <div className="bg-yellow-50 p-4 rounded-2xl shadow-sm mt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categories.map((category) => (
-              <div
-                key={category.id}
-                className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200"
-              >
-                <div className="text-4xl mb-4">{category.icon}</div>
-                <h3 className="text-lg font-semibold mb-2">{category.name}</h3>
-                <p className="text-gray-600">{category.description}</p>
-              </div>
-            ))}
-          </div>
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+              <p className="mt-2 text-gray-600">載入中...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8 text-red-500">
+              <p>{error}</p>
+            </div>
+          ) : categories.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <p>目前沒有課程分類</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-4">
+              {categories.map((category) => (
+                <div
+                  key={category.id}
+                  className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm hover:shadow-lg transition-all duration-200"
+                >
+                  <div className="flex items-center justify-center mb-4">
+                    {iconMap[category.icon] ?? <BookOpenIcon className="w-8 h-8 text-gray-400" />}
+                  </div>
+                  <h3 className="text-lg font-semibold text-center">{category.name}</h3>
+                  <p className="text-gray-600 text-sm text-center mt-2">{category.description}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>

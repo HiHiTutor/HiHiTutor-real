@@ -124,33 +124,33 @@ export const cases = [
   }
 ];
 
-export const categories = [
-  {
-    id: 1,
-    name: '推薦',
-    icon: '👍'
-  },
-  {
-    id: 2,
-    name: '幼兒教育',
-    icon: '👶'
-  },
-  {
-    id: 3,
-    name: '中小學教育',
-    icon: '🏫'
-  },
-  {
-    id: 4,
-    name: '興趣班',
-    icon: '🎨'
-  },
-  {
-    id: 5,
-    name: '成人教育',
-    icon: '🎓'
-  }
-];
+// export const categories = [
+//   {
+//     id: 1,
+//     name: '推薦',
+//     icon: '👍'
+//   },
+//   {
+//     id: 2,
+//     name: '幼兒教育',
+//     icon: '👶'
+//   },
+//   {
+//     id: 3,
+//     name: '中小學教育',
+//     icon: '🏫'
+//   },
+//   {
+//     id: 4,
+//     name: '興趣班',
+//     icon: '🎨'
+//   },
+//   {
+//     id: 5,
+//     name: '成人教育',
+//     icon: '🎓'
+//   }
+// ];
 
 export const hotSubjects = [
   {
