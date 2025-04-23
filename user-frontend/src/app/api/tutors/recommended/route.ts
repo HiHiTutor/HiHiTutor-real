@@ -86,7 +86,6 @@ const recommendedTutors = [
 ];
 
 export async function GET() {
-  const sortedTutors = sortTutors([...mockTutors]);
-  const recommendedTutors = sortedTutors.slice(0, 8);
-  return NextResponse.json(recommendedTutors);
+  const sorted = sortTutors([...mockTutors]);
+  return NextResponse.json(sorted.slice(0, 8)); // 只取前 8 位
 } 

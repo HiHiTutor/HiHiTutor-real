@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { hotSubjects } from '@/data/mockData';
@@ -39,9 +40,12 @@ const HeroSection = () => {
               HiHiTutor 幫你配對最合適的導師，讓學習更有效率
             </p>
             <div className="flex gap-4">
-              <button className="bg-yellow-400 text-white font-semibold rounded px-6 py-3 hover:bg-yellow-500 transition-all duration-200">
+              <Link
+                href="/tutors"
+                className="bg-yellow-400 text-white font-semibold rounded px-6 py-3 hover:bg-yellow-500 transition-all duration-200"
+              >
                 立即尋找導師
-              </button>
+              </Link>
               <button className="bg-white text-gray-900 px-6 py-3 rounded font-semibold shadow-sm hover:bg-gray-50 transition-all duration-200 border border-gray-200">
                 了解更多
               </button>

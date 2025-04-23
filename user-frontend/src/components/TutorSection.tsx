@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { tutorApi } from '../services/api';
@@ -112,9 +113,12 @@ const TutorSection = () => {
           )}
         </div>
         <div className="mt-8 text-center">
-          <button className="bg-white border border-primary text-primary rounded-md px-4 py-2 hover:bg-gray-50 transition-all duration-200">
+          <Link
+            href="/tutors"
+            className="inline-block bg-white border border-primary text-primary rounded-md px-4 py-2 hover:bg-gray-50 transition-all duration-200"
+          >
             查看更多導師
-          </button>
+          </Link>
         </div>
       </div>
     </section>
