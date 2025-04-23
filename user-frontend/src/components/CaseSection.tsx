@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { caseApi } from '../services/api';
 
 // 個案資料類型定義
@@ -18,6 +19,7 @@ const CaseSection = () => {
   const [cases, setCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchCases = async () => {
@@ -42,6 +44,10 @@ const CaseSection = () => {
 
   // 只顯示前 8 個最新個案，確保 cases 是陣列
   const limitedCases = Array.isArray(cases) ? cases.slice(0, 8) : [];
+
+  const handleCaseClick = (caseId: number) => {
+    router.push(`/cases/${caseId}`);
+  };
 
   return (
     <section className="mb-6">
@@ -68,7 +74,8 @@ const CaseSection = () => {
               {limitedCases.map((case_) => (
                 <div
                   key={case_.id}
-                  className="bg-white border border-gray-300 rounded-xl shadow-sm p-4 hover:shadow-lg transition-all duration-200"
+                  className="bg-white border border-gray-300 rounded-xl shadow-sm p-4 hover:shadow-md transition-all duration-200 cursor-pointer"
+                  onClick={() => handleCaseClick(case_.id)}
                 >
                   <h3 className="font-semibold text-gray-900 mb-2">{case_.subject || '未命名個案'}</h3>
                   <div className="space-y-2 text-sm text-gray-600">

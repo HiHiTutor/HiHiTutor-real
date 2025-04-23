@@ -36,6 +36,13 @@ export const tutorApi = {
   
   // 獲取單一導師詳情
   getTutorById: (id: number) => fetchApi(`/tutors/${id}`),
+
+  // 申請配對導師
+  applyTutor: (tutorId: number, studentId: number) => 
+    fetchApi(`/tutors/${tutorId}/apply`, {
+      method: 'POST',
+      body: JSON.stringify({ studentId }),
+    }),
 };
 
 // 個案相關 API
@@ -48,6 +55,13 @@ export const caseApi = {
   
   // 獲取單一個案詳情
   getCaseById: (id: number) => fetchApi(`/cases/${id}`),
+
+  // 申請個案
+  applyCase: (caseId: number, tutorId: number) => 
+    fetchApi(`/cases/${caseId}/apply`, {
+      method: 'POST',
+      body: JSON.stringify({ tutorId }),
+    }),
 };
 
 // 導師個案相關 API

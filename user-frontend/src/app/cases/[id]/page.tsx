@@ -1,59 +1,59 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
-import { tutorApi } from '@/services/api';
+import { caseApi } from '@/services/api';
 
-interface Tutor {
+interface Case {
   id: number;
-  name: string;
   subject: string;
-  education: string;
-  experience: string;
-  rating: number;
-  avatarUrl: string;
+  grade: string;
+  location: string;
+  fee: string;
+  frequency: string;
+  mode: string;
+  students: number;
+  requirements: string;
   description?: string;
   tags?: string[];
 }
 
-export default function TutorPage({ params }: { params: { id: string } }) {
-  const [tutor, setTutor] = useState<Tutor | null>(null);
+export default function CasePage({ params }: { params: { id: string } }) {
+  const [caseData, setCaseData] = useState<Case | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [applying, setApplying] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
   const [applySuccess, setApplySuccess] = useState(false);
-  const [imageError, setImageError] = useState(false);
 
-  // Mock 學生 ID
-  const MOCK_STUDENT_ID = 456;
+  // Mock 導師 ID
+  const MOCK_TUTOR_ID = 123;
 
   useEffect(() => {
-    const fetchTutor = async () => {
+    const fetchCase = async () => {
       try {
         setLoading(true);
-        const data = await tutorApi.getTutorById(parseInt(params.id));
-        setTutor(data);
+        const data = await caseApi.getCaseById(parseInt(params.id));
+        setCaseData(data);
         setError(null);
       } catch (err) {
-        console.error('獲取導師資料失敗:', err);
-        setError('獲取導師資料失敗，請稍後再試');
+        console.error('獲取個案資料失敗:', err);
+        setError('未能載入個案資料，請稍後再試');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTutor();
+    fetchCase();
   }, [params.id]);
 
   const handleApply = async () => {
     try {
       setApplying(true);
       setApplyError(null);
-      await tutorApi.applyTutor(parseInt(params.id), MOCK_STUDENT_ID);
+      await caseApi.applyCase(parseInt(params.id), MOCK_TUTOR_ID);
       setApplySuccess(true);
     } catch (err) {
-      console.error('申請配對失敗:', err);
+      console.error('申請個案失敗:', err);
       setApplyError('申請失敗，請稍後再試');
     } finally {
       setApplying(false);
@@ -85,12 +85,12 @@ export default function TutorPage({ params }: { params: { id: string } }) {
     );
   }
 
-  if (!tutor) {
+  if (!caseData) {
     return (
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center py-8 text-gray-500">
-            <p>找不到導師資料</p>
+            <p>找不到個案資料</p>
           </div>
         </div>
       </div>
@@ -101,48 +101,59 @@ export default function TutorPage({ params }: { params: { id: string } }) {
     <main className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* 左側：頭像和基本資訊 */}
-            <div className="md:col-span-1">
-              <div className="relative h-64 w-full mb-4">
-                <Image
-                  src={imageError ? '/avatars/default.png' : (tutor.avatarUrl || '/avatars/default.png')}
-                  alt={tutor.name}
-                  fill
-                  className="object-cover rounded-lg"
-                  onError={() => setImageError(true)}
-                />
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* 左側：基本資訊 */}
+            <div>
+              <h1 className="text-2xl font-bold mb-6">{caseData.subject}</h1>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <h1 className="text-2xl font-bold">{tutor.name}</h1>
-                  <div className="flex items-center">
-                    <span className="text-yellow-400">⭐</span>
-                    <span className="ml-1">{tutor.rating}</span>
-                  </div>
+                  <span className="text-gray-600">年級</span>
+                  <span className="font-medium">{caseData.grade}</span>
                 </div>
-                <p className="text-gray-600">{tutor.subject}</p>
-                <div className="text-sm text-gray-500">
-                  <p>教學年資: {tutor.experience}</p>
-                  <p>學歷: {tutor.education}</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">學生人數</span>
+                  <span className="font-medium">{caseData.students} 人</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">地區</span>
+                  <span className="font-medium">{caseData.location}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">上課模式</span>
+                  <span className="font-medium">{caseData.mode}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">時薪</span>
+                  <span className="font-medium">{caseData.fee}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">上課頻率</span>
+                  <span className="font-medium">{caseData.frequency}</span>
                 </div>
               </div>
             </div>
 
             {/* 右側：詳細資訊 */}
-            <div className="md:col-span-2">
-              {tutor.description && (
+            <div>
+              {caseData.requirements && (
                 <div className="mb-6">
-                  <h2 className="text-lg font-semibold mb-2">關於我</h2>
-                  <p className="text-gray-600">{tutor.description}</p>
+                  <h2 className="text-lg font-semibold mb-2">導師要求</h2>
+                  <p className="text-gray-600">{caseData.requirements}</p>
                 </div>
               )}
 
-              {tutor.tags && tutor.tags.length > 0 && (
+              {caseData.description && (
+                <div className="mb-6">
+                  <h2 className="text-lg font-semibold mb-2">備註</h2>
+                  <p className="text-gray-600">{caseData.description}</p>
+                </div>
+              )}
+
+              {caseData.tags && caseData.tags.length > 0 && (
                 <div>
-                  <h2 className="text-lg font-semibold mb-2">專長領域</h2>
+                  <h2 className="text-lg font-semibold mb-2">標籤</h2>
                   <div className="flex flex-wrap gap-2">
-                    {tutor.tags.map((tag, index) => (
+                    {caseData.tags.map((tag, index) => (
                       <span
                         key={index}
                         className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm"
@@ -160,7 +171,7 @@ export default function TutorPage({ params }: { params: { id: string } }) {
           <div className="mt-8 text-center">
             {applySuccess ? (
               <div className="text-green-600 font-medium">
-                已成功申請配對
+                已成功申請此個案
               </div>
             ) : (
               <div>
@@ -177,7 +188,7 @@ export default function TutorPage({ params }: { params: { id: string } }) {
                       申請中...
                     </div>
                   ) : (
-                    '申請配對此導師'
+                    '我要申請此個案'
                   )}
                 </button>
                 {applyError && (
