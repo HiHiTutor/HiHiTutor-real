@@ -11,7 +11,7 @@ interface Tutor {
   education: string;
   experience: string;
   rating: number;
-  avatar: string;
+  avatarUrl: string;
   description?: string;
   tags?: string[];
 }
@@ -20,6 +20,7 @@ export default function TutorPage({ params }: { params: { id: string } }) {
   const [tutor, setTutor] = useState<Tutor | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     const fetchTutor = async () => {
@@ -85,10 +86,11 @@ export default function TutorPage({ params }: { params: { id: string } }) {
             <div className="md:col-span-1">
               <div className="relative h-64 w-full mb-4">
                 <Image
-                  src={tutor.avatar || '/avatars/default.png'}
+                  src={imageError ? '/avatars/default.png' : (tutor.avatarUrl || '/avatars/default.png')}
                   alt={tutor.name}
                   fill
                   className="object-cover rounded-lg"
+                  onError={() => setImageError(true)}
                 />
               </div>
               <div className="space-y-4">

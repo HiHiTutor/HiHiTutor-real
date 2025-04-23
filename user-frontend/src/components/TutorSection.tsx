@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { tutorApi } from '../services/api';
 
 // 導師資料類型定義
@@ -21,6 +22,7 @@ const TutorSection = () => {
   const [tutors, setTutors] = useState<Tutor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchTutors = async () => {
@@ -43,6 +45,10 @@ const TutorSection = () => {
   // 只顯示前 8 位精選導師
   const limitedTutors = tutors.slice(0, 8);
 
+  const handleTutorClick = (tutorId: number) => {
+    router.push(`/tutors/${tutorId}`);
+  };
+
   return (
     <section className="mb-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -64,7 +70,8 @@ const TutorSection = () => {
               {limitedTutors.map((tutor) => (
                 <div
                   key={tutor.id}
-                  className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm hover:shadow-lg transition-all duration-200"
+                  className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
+                  onClick={() => handleTutorClick(tutor.id)}
                 >
                   <div className="relative h-48 w-full mb-4">
                     <Image
