@@ -1,0 +1,132 @@
+{
+  "info": {
+    "name": "HiHiTutor 註冊流程測試",
+    "description": "測試 HiHiTutor 的驗證碼和註冊流程",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. 發送驗證碼",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "if (jsonData.code) {",
+              "    pm.environment.set('verification_code', jsonData.code);",
+              "    console.log('Verification code saved:', jsonData.code);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"phone\": \"91234567\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/request-verification-code",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "request-verification-code"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. 驗證碼驗證",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "if (jsonData.token) {",
+              "    pm.environment.set('temp_token', jsonData.token);",
+              "    console.log('Token saved:', jsonData.token);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"phone\": \"91234567\",\n  \"code\": \"{{verification_code}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/verify-code",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "verify-code"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3. 完成註冊",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"token\": \"{{temp_token}}\",\n  \"name\": \"測試用戶\",\n  \"password\": \"abc12345\",\n  \"email\": \"test@example.com\",\n  \"userType\": \"personal\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/register",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "register"]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+} 
