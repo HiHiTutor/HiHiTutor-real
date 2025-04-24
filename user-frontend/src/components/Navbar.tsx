@@ -8,9 +8,9 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <header className="bg-white shadow">
+      <div className="max-w-7xl mx-auto px-4 py-3">
+        <div className="flex justify-between items-center">
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link href="/">
@@ -22,6 +22,26 @@ const Navbar = () => {
                 className="h-10 w-auto"
                 priority
               />
+            </Link>
+          </div>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex space-x-6 text-sm text-gray-700">
+            <Link href="/" className="hover:text-primary">主頁</Link>
+            <Link href="/tutors" className="hover:text-primary">尋導師</Link>
+            <Link href="/cases" className="hover:text-primary">招學生</Link>
+            <Link href="/recommendations" className="hover:text-primary">導師推薦</Link>
+            <Link href="/blog" className="hover:text-primary">教育專欄</Link>
+            <Link href="/faq" className="hover:text-primary">常見問題</Link>
+          </nav>
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2">
+            <Link href="/tutors" className="bg-yellow-400 text-white px-4 py-2 rounded-md hover:bg-yellow-500 transition">
+              尋導師
+            </Link>
+            <Link href="/cases" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+              招學生
             </Link>
           </div>
 
@@ -54,44 +74,6 @@ const Navbar = () => {
                 )}
               </svg>
             </button>
-          </div>
-
-          {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-gray-700 hover:text-primary">
-              主頁
-            </Link>
-            <Link href="/tutors" className="text-gray-700 hover:text-primary">
-              尋導師
-            </Link>
-            <Link href="/cases" className="text-gray-700 hover:text-primary">
-              招學生
-            </Link>
-            <Link href="/recommendations" className="text-gray-700 hover:text-primary">
-              導師推薦
-            </Link>
-            <Link href="/blog" className="text-gray-700 hover:text-primary">
-              教育專欄
-            </Link>
-            <Link href="/faq" className="text-gray-700 hover:text-primary">
-              常見問題
-            </Link>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Link
-              href="/tutors"
-              className="bg-yellow-400 text-white px-4 py-2 rounded-md hover:bg-yellow-500 transition-colors"
-            >
-              尋導師
-            </Link>
-            <Link
-              href="/cases"
-              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
-            >
-              招學生
-            </Link>
           </div>
         </div>
 
@@ -137,13 +119,13 @@ const Navbar = () => {
             <div className="mt-4 space-y-2">
               <Link
                 href="/tutors"
-                className="block w-full text-center bg-yellow-400 text-white px-4 py-2 rounded-md hover:bg-yellow-500 transition-colors"
+                className="block w-full text-center bg-yellow-400 text-white px-4 py-2 rounded hover:bg-yellow-500 transition"
               >
                 尋導師
               </Link>
               <Link
                 href="/cases"
-                className="block w-full text-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
+                className="block w-full text-center bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
               >
                 招學生
               </Link>
@@ -151,7 +133,7 @@ const Navbar = () => {
           </div>
         </div>
       </div>
-    </nav>
+    </header>
   );
 };
 

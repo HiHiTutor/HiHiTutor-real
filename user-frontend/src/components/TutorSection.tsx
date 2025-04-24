@@ -1,10 +1,8 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { tutorApi } from '../services/api';
+import TutorCard from './TutorCard';
 
 // 導師資料類型定義
 interface Tutor {
@@ -15,7 +13,6 @@ interface Tutor {
   experience: string;
   rating: number;
   avatarUrl: string;
-  isRecommended: boolean;
   tags?: string[];
 }
 
@@ -23,13 +20,17 @@ const TutorSection = () => {
   const [tutors, setTutors] = useState<Tutor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     const fetchTutors = async () => {
       try {
         setLoading(true);
-        const data = await tutorApi.getRecommendedTutors();
+        const response = await fetch('/api/tutors/recommended');
+        if (!response.ok) {
+          throw new Error('獲取推薦導師失敗');
+        }
+        const data = await response.json();
+        console.log("🔥 導師列表", data);
         setTutors(data);
         setError(null);
       } catch (err) {
@@ -42,13 +43,6 @@ const TutorSection = () => {
 
     fetchTutors();
   }, []);
-
-  // 只顯示前 8 位精選導師
-  const limitedTutors = tutors.slice(0, 8);
-
-  const handleTutorClick = (tutorId: number) => {
-    router.push(`/tutors/${tutorId}`);
-  };
 
   return (
     <section className="max-w-screen-xl mx-auto px-4 md:px-12 py-8">
@@ -68,47 +62,8 @@ const TutorSection = () => {
               <p>{error}</p>
             </div>
           ) : (
-            limitedTutors.map((tutor) => (
-              <div
-                key={tutor.id}
-                className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
-                onClick={() => handleTutorClick(tutor.id)}
-              >
-                <div className="relative h-48 w-full mb-4">
-                  <Image
-                    src={tutor.avatarUrl || '/avatars/default.png'}
-                    alt={tutor.name}
-                    fill
-                    className="object-cover rounded-lg"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-semibold">{tutor.name}</h3>
-                    <div className="flex items-center">
-                      <span className="text-yellow-400">⭐</span>
-                      <span className="ml-1 text-sm">{tutor.rating || 5.0}</span>
-                    </div>
-                  </div>
-                  <p className="text-gray-600">{tutor.subject}</p>
-                  <div className="flex justify-between text-sm text-gray-500">
-                    <span>教學年資: {tutor.experience}</span>
-                    <span>{tutor.education}</span>
-                  </div>
-                  {tutor.tags && tutor.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {tutor.tags.map((tag, index) => (
-                        <span
-                          key={index}
-                          className="text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-600"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
+            tutors.map((tutor) => (
+              <TutorCard key={tutor.id} tutor={tutor} />
             ))
           )}
         </div>

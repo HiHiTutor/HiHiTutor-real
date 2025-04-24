@@ -1,5 +1,5 @@
 // API 基礎 URL
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = '/api';
 
 // 通用 API 請求函數
 const fetchApi = async (endpoint: string, options: RequestInit = {}) => {

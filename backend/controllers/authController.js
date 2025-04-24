@@ -42,6 +42,16 @@ const login = (req, res) => {
 
 // 用戶註冊
 const register = (req, res) => {
+  // 從 Authorization header 讀取令牌
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) {
+    return res.status(401).json({
+      success: false,
+      message: '缺少註冊令牌'
+    });
+  }
+  const token = authHeader.split(' ')[1];
+
   const { name, email, password } = req.body;
   
   // 檢查是否提供所有必要欄位

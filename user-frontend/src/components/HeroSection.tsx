@@ -2,114 +2,94 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { hotSubjects } from '@/data/mockData';
+import {
+  UserIcon,
+  UserPlusIcon,
+  EnvelopeIcon,
+} from '@heroicons/react/24/solid';
 
-const HeroSection = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const router = useRouter();
+const SubjectBar = ({ name, percent }: { name: string; percent: number }) => (
+  <div>
+    <div className="flex justify-between text-sm mb-1">
+      <span>{name}</span>
+      <span>{percent}%</span>
+    </div>
+    <div className="bg-gray-200 h-2 rounded">
+      <div className="bg-yellow-400 h-2 rounded" style={{ width: `${percent}%` }} />
+    </div>
+  </div>
+);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-    }
-  };
-
+export default function HeroSection() {
   return (
-    <section className="mb-6 pt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Hero Banner */}
-        <div className="relative h-[500px] rounded-2xl shadow-sm mb-6 overflow-hidden">
-          {/* Background Image */}
-          <div 
-            className="absolute inset-0 z-0 bg-[url('/hero-illustration.png')] bg-cover bg-center"
+    <section className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 items-start px-4 py-10">
+      {/* 左欄：Hero 圖 & 文案 */}
+      <div className="w-full lg:w-2/3">
+        <div className="relative w-full bg-white">
+          {/* 背景圖片 */}
+          <Image
+            src="/hero-banner.jpg"
+            alt="Hero Illustration"
+            width={1200}
+            height={400}
+            className="w-full object-cover h-[400px] opacity-50"
           />
-          
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 z-10 bg-gradient-to-r from-white/95 via-white/80 to-transparent backdrop-blur-sm" />
-          
-          {/* Content */}
-          <div className="relative z-20 h-full flex flex-col justify-center p-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              找到最適合你的
-              <span className="text-primary"> 私人補習導師</span>
-            </h1>
-            <p className="text-lg text-gray-600 mb-8">
-              HiHiTutor 幫你配對最合適的導師，讓學習更有效率
-            </p>
-            <div className="flex gap-4">
-              <Link
-                href="/tutors"
-                className="bg-yellow-400 text-white font-semibold rounded px-6 py-3 hover:bg-yellow-500 transition-all duration-200"
-              >
-                立即尋找導師
-              </Link>
-              <button className="bg-white text-gray-900 px-6 py-3 rounded font-semibold shadow-sm hover:bg-gray-50 transition-all duration-200 border border-gray-200">
-                了解更多
-              </button>
-            </div>
-          </div>
-        </div>
 
-        {/* Search Bar and Hot Subjects */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Search Bar */}
-          <div className="md:col-span-2">
-            <div className="bg-white border border-yellow-300 p-4 rounded-md shadow-sm">
-              <form onSubmit={handleSearch} className="flex gap-4">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="輸入科目、導師或課程關鍵字"
-                  className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400/50"
-                />
-                <button 
-                  type="submit"
-                  className="bg-yellow-400 text-white px-8 py-2 rounded-lg hover:bg-yellow-500 transition-all duration-200 font-semibold"
+          {/* 疊加內容 */}
+          <div className="absolute top-0 left-0 h-full w-full flex items-center px-8">
+            <div className="max-w-md text-black space-y-6">
+              <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 drop-shadow-md">
+                找到最適合你的 <span className="text-yellow-500">私人補習導師</span>
+              </h1>
+              <p>HiHiTutor 幫你配對最合適的導師，讓學習更有效率。</p>
+              <div className="flex gap-4">
+                <Link
+                  href="/tutors"
+                  className="bg-yellow-400 text-white px-5 py-2 rounded hover:bg-yellow-500 transition-all"
                 >
-                  搜尋
+                  立即尋找導師
+                </Link>
+                <button className="border px-5 py-2 rounded hover:bg-gray-100 transition-all">
+                  了解更多
                 </button>
-              </form>
-            </div>
-          </div>
-
-          {/* Hot Subjects */}
-          <div className="bg-white border rounded-md p-4 shadow-sm">
-            <h3 className="text-lg font-semibold mb-4">熱門科目</h3>
-            <div className="space-y-4">
-              {hotSubjects.map((subject) => (
-                <div key={subject.id} className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="font-medium">{subject.name}</span>
-                    <span className="text-gray-600">{subject.percentage}%</span>
-                  </div>
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-2 bg-yellow-400 rounded-full transition-all duration-500"
-                      style={{ width: `${subject.percentage}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
+              </div>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Advertisement Banners */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-white border border-gray-200 p-4 rounded-lg shadow-sm">
-            廣告位置 1
-          </div>
-          <div className="bg-white border border-gray-200 p-4 rounded-lg shadow-sm">
-            廣告位置 2
+      {/* 右欄：登入註冊卡片 + 熱門科目 */}
+      <div className="w-full lg:w-1/3 space-y-6">
+        <div className="bg-white shadow-md rounded-lg p-4 space-y-3 w-full max-w-xs">
+          <Link
+            href="/login"
+            className="w-full flex items-center gap-2 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition"
+          >
+            <UserIcon className="w-5 h-5" />
+            會員登入
+          </Link>
+          <Link
+            href="/register"
+            className="w-full flex items-center gap-2 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition"
+          >
+            <UserPlusIcon className="w-5 h-5" />
+            會員註冊
+          </Link>
+          <button className="w-full flex items-center gap-2 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition">
+            <EnvelopeIcon className="w-5 h-5" />
+            聯絡我們
+          </button>
+        </div>
+
+        <div className="bg-white shadow rounded-lg p-4">
+          <h2 className="font-bold text-lg mb-4">熱門科目</h2>
+          <div className="space-y-2">
+            <SubjectBar name="數學" percent={90} />
+            <SubjectBar name="英文" percent={70} />
+            <SubjectBar name="中文" percent={60} />
           </div>
         </div>
       </div>
     </section>
   );
-};
-
-export default HeroSection; 
+} 

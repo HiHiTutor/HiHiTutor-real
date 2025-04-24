@@ -9,9 +9,10 @@ interface Tutor {
   id: number;
   name: string;
   subject: string;
+  education: string;
   experience: string;
-  avatar: string;
   rating: number;
+  avatarUrl: string;
   isVip: boolean;
   isTop: boolean;
 }
@@ -26,6 +27,7 @@ export default function TutorsPage() {
       try {
         const response = await fetch('/api/tutors');
         const data = await response.json();
+        console.log("📦 所有導師", data);
         setTutors(data);
         setFilteredTutors(data);
       } catch (error) {
