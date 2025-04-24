@@ -8,7 +8,16 @@ const nextConfig = {
         pathname: '/api/portraits/**',
       }
     ],
+    domains: ['randomuser.me', 'localhost'], // 允許從 randomuser.me 和 localhost 載入圖片
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:3001/api/:path*' // proxy 到 backend
+      }
+    ]
+  }
 };
 
 module.exports = nextConfig; 

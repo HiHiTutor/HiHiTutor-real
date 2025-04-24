@@ -7,8 +7,15 @@ const getAllTutors = (req, res) => {
 
 // 回傳精選導師
 const getRecommendedTutors = (req, res) => {
-  const recommended = tutors.filter(tutor => tutor.isRecommended);
-  res.json(recommended);
+  // 根據 VIP、置頂和評分排序
+  const recommendedTutors = tutors
+    .sort((a, b) => {
+      const scoreA = (a.isVip ? 1000 : 0) + (a.isTop ? 100 : 0) + a.rating;
+      const scoreB = (b.isVip ? 1000 : 0) + (b.isTop ? 100 : 0) + b.rating;
+      return scoreB - scoreA;
+    })
+    .slice(0, 8);
+  res.json(recommendedTutors);
 };
 
 // 根據 ID 回傳特定導師
