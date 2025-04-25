@@ -14,10 +14,10 @@ const getLatestCases = (req, res) => {
     // 取前 8 個
     const latestCases = sortedCases.slice(0, 8);
     
-    console.log("📦 最新個案:", latestCases); // 添加日誌
+    console.log("📦 已返回最新個案數量:", latestCases.length);
     res.json(latestCases);
   } catch (err) {
-    console.error("❌ 最新個案 error:", err);
+    console.error("❌ 獲取最新個案失敗:", err.message);
     res.status(500).json({ message: "Server Error" });
   }
 };
@@ -28,9 +28,11 @@ const getCaseById = (req, res) => {
   const caseItem = cases.find(item => item.id === id);
   
   if (!caseItem) {
+    console.log("❌ 找不到個案 ID:", id);
     return res.status(404).json({ error: 'Case not found' });
   }
   
+  console.log("📦 已返回個案 ID:", id);
   res.json(caseItem);
 };
 

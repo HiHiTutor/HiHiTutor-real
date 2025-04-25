@@ -1,0 +1,27 @@
+[
+  {
+    "id": "user_1",
+    "name": "測試用戶",
+    "email": "test@example.com",
+    "password": "123456",
+    "phone": "0912345678",
+    "createdAt": 1709123456789
+  },
+  {
+    "id": "user_1745516152304",
+    "name": "Try01",
+    "email": "try1@example.com",
+    "password": "888888",
+    "phone": "91111111",
+    "createdAt": 1745516152304,
+    "userType": "personal"
+  },
+  {
+    "id": "user_1745516742657",
+    "name": "Try2",
+    "email": "try2@example.com",
+    "password": "888888",
+    "phone": "91111112",
+    "createdAt": 1745516742657
+  }
+]

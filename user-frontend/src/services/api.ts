@@ -1,10 +1,13 @@
 // API 基礎 URL
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'http://localhost:3001/api';
 
 // 通用 API 請求函數
 const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
   try {
     const url = `${API_BASE_URL}${endpoint}`;
+    console.log('🚀 發送 API 請求:', url);
+    console.log('�� 請求參數:', options);
+
     const response = await fetch(url, {
       ...options,
       headers: {

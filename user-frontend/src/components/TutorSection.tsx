@@ -25,7 +25,7 @@ const TutorSection = () => {
     const fetchTutors = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/tutors/recommended');
+        const response = await fetch('http://localhost:3001/api/tutors/recommended');
         if (!response.ok) {
           throw new Error('獲取推薦導師失敗');
         }

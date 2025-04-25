@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const usersFile = path.join(__dirname, 'users.json');
+const usersFile = path.join(__dirname, '../data/users.json');
 
 // 載入用戶資料
 function loadUsers() {
@@ -24,10 +24,7 @@ function saveUsers(users) {
   }
 }
 
-// 初始化用戶資料
-const users = loadUsers();
-
 module.exports = {
-  users,
+  loadUsers,
   saveUsers
 }; 

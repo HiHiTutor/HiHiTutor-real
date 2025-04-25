@@ -1,46 +1,30 @@
+const jwt = require('jsonwebtoken');
+
 // 模擬驗證 JWT Token
 const verifyToken = (req, res, next) => {
-  // 從 Authorization 標頭獲取 token
   const authHeader = req.headers.authorization;
-  
-  // 檢查是否有 Authorization 標頭
-  if (!authHeader) {
-    return res.status(401).json({
-      success: false,
-      message: '未授權的請求'
-    });
+  if (!authHeader?.startsWith('Bearer ')) {
+    console.log('❌ 驗證失敗: 缺少 Bearer token');
+    return res.status(401).json({ success: false, message: '未授權的請求' });
   }
-  
-  // 檢查 Authorization 標頭格式是否為 "Bearer <token>"
-  const parts = authHeader.split(' ');
-  if (parts.length !== 2 || parts[0] !== 'Bearer') {
-    return res.status(401).json({
-      success: false,
-      message: '未授權的請求'
-    });
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // 確保解碼內容包含必要欄位
+    if (!decoded.id || !decoded.email) {
+      console.log('❌ 驗證失敗: Token 內容不完整');
+      return res.status(401).json({ success: false, message: '無效的 token 內容' });
+    }
+
+    // 附加解碼內容到 req.user
+    req.user = decoded;
+    next();
+  } catch (err) {
+    console.log('❌ 驗證失敗:', err.message);
+    return res.status(401).json({ success: false, message: '無效的 token' });
   }
-  
-  const token = parts[1];
-  
-  // 模擬驗證 token
-  // 注意：在實際應用中，這裡應該要使用 JWT 庫來驗證 token
-  if (!token.startsWith('mocked-jwt-token-')) {
-    return res.status(401).json({
-      success: false,
-      message: '未授權的請求'
-    });
-  }
-  
-  // 模擬從 token 中解出用戶資料
-  // 注意：在實際應用中，這裡應該要從 JWT 中解出用戶資料
-  req.user = {
-    name: '測試用戶',
-    email: 'test@example.com'
-  };
-  
-  next();
 };
 
-module.exports = {
-  verifyToken
-}; 
+module.exports = { verifyToken }; 

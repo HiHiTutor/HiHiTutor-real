@@ -1,12 +1,21 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   UserIcon,
   UserPlusIcon,
   EnvelopeIcon,
 } from '@heroicons/react/24/solid';
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+}
 
 const SubjectBar = ({ name, percent }: { name: string; percent: number }) => (
   <div>
@@ -21,6 +30,32 @@ const SubjectBar = ({ name, percent }: { name: string; percent: number }) => (
 );
 
 export default function HeroSection() {
+  const [user, setUser] = useState<User | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    // 從 localStorage 讀取用戶資料
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const userData = JSON.parse(userStr);
+        setUser(userData);
+      } catch (error) {
+        console.error('解析用戶資料失敗:', error);
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+      }
+    }
+  }, []);
+
+  // 處理登出
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    window.location.reload();
+  };
+
   return (
     <section className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 items-start px-4 py-10">
       {/* 左欄：Hero 圖 & 文案 */}
@@ -60,24 +95,48 @@ export default function HeroSection() {
 
       {/* 右欄：登入註冊卡片 + 熱門科目 */}
       <div className="w-full lg:w-1/3 space-y-6">
-        <div className="bg-white shadow-md rounded-lg p-4 space-y-3 w-full max-w-xs">
-          <Link
-            href="/login"
+        <div className="bg-white shadow-md rounded-lg p-4 space-y-3">
+          {user ? (
+            <>
+              <button
+                onClick={() => router.push('/profile')}
+                className="w-full flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+              >
+                <UserIcon className="w-5 h-5" />
+                👤 我的帳戶
+              </button>
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-2 border border-red-600 text-red-600 px-4 py-2 rounded-lg hover:bg-red-50 transition"
+              >
+                <UserPlusIcon className="w-5 h-5" />
+                🚪 登出
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => router.push('/login')}
+                className="w-full flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+              >
+                <UserIcon className="w-5 h-5" />
+                🔐 會員登入
+              </button>
+              <button
+                onClick={() => router.push('/register')}
+                className="w-full flex items-center gap-2 border border-indigo-600 text-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-50 transition"
+              >
+                <UserPlusIcon className="w-5 h-5" />
+                📝 會員註冊
+              </button>
+            </>
+          )}
+          <button
+            onClick={() => router.push('/contact')}
             className="w-full flex items-center gap-2 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition"
           >
-            <UserIcon className="w-5 h-5" />
-            會員登入
-          </Link>
-          <Link
-            href="/register"
-            className="w-full flex items-center gap-2 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition"
-          >
-            <UserPlusIcon className="w-5 h-5" />
-            會員註冊
-          </Link>
-          <button className="w-full flex items-center gap-2 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition">
             <EnvelopeIcon className="w-5 h-5" />
-            聯絡我們
+            💬 聯絡我們
           </button>
         </div>
 

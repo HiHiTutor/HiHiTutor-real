@@ -3,10 +3,17 @@
 import React, { useEffect, useState } from 'react';
 import CategoryCard from './CategoryCard';
 
+interface Subcategory {
+  id: number;
+  name: string;
+  icon: string;
+}
+
 interface Category {
   id: number;
   name: string;
-  description: string;
+  icon: string;
+  subcategories: Subcategory[];
 }
 
 const CategoryList: React.FC = () => {
@@ -14,18 +21,10 @@ const CategoryList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const icons: Record<string, string> = {
-    "幼兒教育": "🧸",
-    "中小學教育": "📚",
-    "興趣班": "🎭",
-    "大專補習課程": "🎓",
-    "成人教育": "💼"
-  };
-
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('/api/categories');
+        const response = await fetch('http://localhost:3001/api/categories');
         if (!response.ok) {
           throw new Error('獲取分類失敗');
         }
@@ -71,8 +70,8 @@ const CategoryList: React.FC = () => {
             <CategoryCard
               key={category.id}
               title={category.name}
-              subtitle={category.description}
-              icon={icons[category.name] || '📚'}
+              subtitle={`${category.subcategories.length} 個科目`}
+              icon={category.icon}
             />
           ))}
         </div>
