@@ -86,17 +86,25 @@ export default function FindStudentCasesPage() {
 
   const handleSearch = (query: any) => {
     console.log("🔍 搜尋條件：", query);
+    console.log("🎯 重新搜尋 based on allCases，當前 allCases 數量：", allCases.length);
+    
     // 從 allCases 過濾
     const filtered = allCases.filter(caseItem => {
       // 分類篩選
-      if (query.category && caseItem.category !== query.category) return false;
+      if (query.category && caseItem.category !== query.category) {
+        console.log("❌ 分類不匹配：", { caseCategory: caseItem.category, queryCategory: query.category });
+        return false;
+      }
       
       // 子分類篩選
       if (query.subCategory?.length > 0) {
         const hasMatchingSubCategory = query.subCategory.some((sub: string) => 
           caseItem.subCategory?.includes(sub)
         );
-        if (!hasMatchingSubCategory) return false;
+        if (!hasMatchingSubCategory) {
+          console.log("❌ 子分類不匹配：", { caseSubCategory: caseItem.subCategory, querySubCategory: query.subCategory });
+          return false;
+        }
       }
       
       // 地區篩選
@@ -104,17 +112,30 @@ export default function FindStudentCasesPage() {
         const hasMatchingRegion = query.region.some((region: string) => 
           caseItem.region?.includes(region)
         );
-        if (!hasMatchingRegion) return false;
+        if (!hasMatchingRegion) {
+          console.log("❌ 地區不匹配：", { caseRegion: caseItem.region, queryRegion: query.region });
+          return false;
+        }
       }
       
       // 價格範圍篩選
       const price = Number(caseItem.budget?.replace(/[^0-9]/g, ''));
-      if (price < query.priceMin || price > query.priceMax) return false;
+      if (price < query.priceMin || price > query.priceMax) {
+        console.log("❌ 價格不匹配：", { casePrice: price, queryMin: query.priceMin, queryMax: query.priceMax });
+        return false;
+      }
       
+      console.log("✅ 個案符合所有條件：", caseItem);
       return true;
     });
 
-    console.log("🔍 過濾後結果：", filtered);
+    console.log("🔍 過濾後結果：", {
+      totalCases: allCases.length,
+      filteredCount: filtered.length,
+      filteredCases: filtered
+    });
+
+    // 重置並更新顯示的個案
     setCases(filtered.slice(0, CASES_PER_PAGE));
     setCurrentPage(1);
     setHasMore(filtered.length > CASES_PER_PAGE);
@@ -131,7 +152,8 @@ export default function FindStudentCasesPage() {
       console.log("📦 取得新 cases：", {
         startIndex,
         endIndex,
-        newCasesCount: newCases.length
+        newCasesCount: newCases.length,
+        totalCases: allCases.length
       });
 
       if (newCases.length > 0) {
