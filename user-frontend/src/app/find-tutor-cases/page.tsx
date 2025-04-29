@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import CaseFilterBar from '@/components/CaseFilterBar';
+import LoadMoreButton from '@/components/LoadMoreButton';
 
 export default function FindTutorCasesPage() {
   const [cases, setCases] = useState<any[]>([]);
@@ -37,29 +38,26 @@ export default function FindTutorCasesPage() {
   };
 
   const loadMoreCases = async () => {
+    console.log("▶ 正在觸發 loadMoreCases");
     setLoadingMore(true);
     try {
       const response = await fetch(`http://localhost:3001/api/find-tutor-cases?page=${currentPage + 1}&limit=${CASES_PER_PAGE}`);
       if (response.ok) {
         const newCases = await response.json();
-        console.log('新獲取的個案:', newCases);
+        console.log("📦 取得新 cases：", newCases);
         if (newCases.length > 0) {
-          setCases(prevCases => {
-            const updatedCases = [...prevCases, ...newCases];
-            console.log('更新後的個案列表:', updatedCases);
-            return updatedCases;
-          });
+          setCases(prevCases => [...prevCases, ...newCases]);
           setCurrentPage(prev => prev + 1);
           setHasMore(newCases.length === CASES_PER_PAGE);
         } else {
           setHasMore(false);
         }
       } else {
-        console.error('API錯誤:', response.statusText);
+        console.error('API error:', response.statusText);
         setHasMore(false);
       }
     } catch (error) {
-      console.error('loadMoreCases出錯:', error);
+      console.error('loadMoreCases error:', error);
       setHasMore(false);
     } finally {
       setLoadingMore(false);
@@ -90,42 +88,32 @@ export default function FindTutorCasesPage() {
         </div>
         <div className="space-y-6">
           {cases.length > 0 ? (
-            cases.map((caseItem, index) => (
-              <div 
-                key={`${caseItem.id}-${currentPage}-${index}`} 
-                className="bg-blue-100 border border-blue-300 rounded-xl p-6"
-              >
-                <p className="text-gray-600">ID: {caseItem.id}</p>
-                <p className="text-gray-600">科目: {caseItem.subject}</p>
-                <p className="text-gray-600">地點: {caseItem.location}</p>
-                <p className="text-gray-600">收費: {caseItem.budget}</p>
-                <p className="text-gray-600">模式: {caseItem.mode}</p>
-                <p className="text-gray-600">要求: {caseItem.requirement}</p>
-              </div>
-            ))
+            (() => {
+              console.log("🖼 正在 render cases，總數：", cases.length);
+              return cases.map((caseItem, index) => (
+                <div 
+                  key={`${caseItem.id}-${currentPage}-${index}`} 
+                  className="bg-blue-100 border border-blue-300 rounded-xl p-6"
+                >
+                  <p className="text-gray-600">ID: {caseItem.id}</p>
+                  <p className="text-gray-600">科目: {caseItem.subject}</p>
+                  <p className="text-gray-600">地點: {caseItem.location}</p>
+                  <p className="text-gray-600">收費: {caseItem.budget}</p>
+                  <p className="text-gray-600">模式: {caseItem.mode}</p>
+                  <p className="text-gray-600">要求: {caseItem.requirement}</p>
+                </div>
+              ));
+            })()
           ) : (
             <div>目前沒有最新學生搵導師個案</div>
           )}
         </div>
         <div className="mt-8 text-center">
-          {hasMore ? (
-            <button
-              onClick={loadMoreCases}
-              disabled={loadingMore}
-              className={`bg-blue-500 text-white rounded-md px-6 py-2 hover:bg-blue-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center mx-auto gap-2 min-w-[160px]`}
-            >
-              {loadingMore ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
-                  <span>載入中...</span>
-                </>
-              ) : (
-                <span>查看更多個案</span>
-              )}
-            </button>
-          ) : (
-            <p className="text-gray-500">🚫 沒有更多個案</p>
-          )}
+          <LoadMoreButton
+            loading={loadingMore}
+            hasMore={hasMore}
+            onLoad={loadMoreCases}
+          />
         </div>
       </section>
     </>

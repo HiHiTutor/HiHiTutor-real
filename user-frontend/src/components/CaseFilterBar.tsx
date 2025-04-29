@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 const CATEGORY_OPTIONS = [
   { label: '中小學教育', value: '中小學教育', sub: ['小學學科', '中學學科', '數學', '英文', '中文', '物理', '化學', '生物', '通識', '歷史', '地理', '經濟', '倫理與宗教', '科學', '數學延伸'] },
@@ -22,6 +22,7 @@ export default function CaseFilterBar({ onFilter, fetchUrl = '/api/find-tutor-ca
   const [priceRange, setPriceRange] = useState<[number, number]>([PRICE_MIN, PRICE_MAX]);
   const [subOptions, setSubOptions] = useState<string[]>([]);
 
+  // 當分類改變時更新子分類選項
   useEffect(() => {
     if (category) {
       const found = CATEGORY_OPTIONS.find(c => c.value === category);
@@ -33,18 +34,65 @@ export default function CaseFilterBar({ onFilter, fetchUrl = '/api/find-tutor-ca
     }
   }, [category]);
 
-  useEffect(() => {
-    // fetch 篩選結果
+  // 使用 useCallback 來記憶化 fetchFilteredCases 函數
+  const fetchFilteredCases = useCallback(async () => {
     const params = new URLSearchParams();
     if (category) params.append('category', category);
     if (subCategory.length > 0) params.append('subCategory', subCategory.join(','));
     if (region.length > 0) params.append('region', region.join(','));
     params.append('priceMin', priceRange[0].toString());
     params.append('priceMax', priceRange[1].toString());
-    fetch(`${fetchUrl}?${params.toString()}`)
-      .then(res => res.json())
-      .then(data => onFilter(data));
+    
+    try {
+      const response = await fetch(`${fetchUrl}?${params.toString()}`);
+      const data = await response.json();
+      onFilter(data);
+    } catch (error) {
+      console.error('Error fetching filtered cases:', error);
+    }
   }, [category, subCategory, region, priceRange, onFilter, fetchUrl]);
+
+  // 處理分類改變
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCategory(e.target.value);
+    // 分類改變時立即觸發過濾
+    setTimeout(() => fetchFilteredCases(), 0);
+  };
+
+  // 處理子分類改變
+  const handleSubCategoryChange = (sub: string, checked: boolean) => {
+    setSubCategory(prev => {
+      const newSubCategory = checked 
+        ? [...prev, sub]
+        : prev.filter(s => s !== sub);
+      // 子分類改變時立即觸發過濾
+      setTimeout(() => fetchFilteredCases(), 0);
+      return newSubCategory;
+    });
+  };
+
+  // 處理地區改變
+  const handleRegionChange = (r: string, checked: boolean) => {
+    setRegion(prev => {
+      const newRegion = checked 
+        ? [...prev, r]
+        : prev.filter(x => x !== r);
+      // 地區改變時立即觸發過濾
+      setTimeout(() => fetchFilteredCases(), 0);
+      return newRegion;
+    });
+  };
+
+  // 處理價格範圍改變
+  const handlePriceRangeChange = (index: number, value: number) => {
+    setPriceRange(prev => {
+      const newRange = [...prev];
+      newRange[index] = value;
+      // 價格範圍改變時立即觸發過濾
+      setTimeout(() => fetchFilteredCases(), 0);
+      return newRange as [number, number];
+    });
+  };
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-4 mb-4">
@@ -54,7 +102,7 @@ export default function CaseFilterBar({ onFilter, fetchUrl = '/api/find-tutor-ca
           <label className="block text-sm font-medium mb-1">大分類</label>
           <select
             value={category}
-            onChange={e => setCategory(e.target.value)}
+            onChange={handleCategoryChange}
             className="px-2 py-1 border rounded"
           >
             <option value="">全部</option>
@@ -74,13 +122,7 @@ export default function CaseFilterBar({ onFilter, fetchUrl = '/api/find-tutor-ca
                     type="checkbox"
                     value={sub}
                     checked={subCategory.includes(sub)}
-                    onChange={e => {
-                      if (e.target.checked) {
-                        setSubCategory([...subCategory, sub]);
-                      } else {
-                        setSubCategory(subCategory.filter(s => s !== sub));
-                      }
-                    }}
+                    onChange={e => handleSubCategoryChange(sub, e.target.checked)}
                     className="mr-1"
                   />
                   {sub}
@@ -101,13 +143,7 @@ export default function CaseFilterBar({ onFilter, fetchUrl = '/api/find-tutor-ca
                   type="checkbox"
                   value={r}
                   checked={region.includes(r)}
-                  onChange={e => {
-                    if (e.target.checked) {
-                      setRegion([...region, r]);
-                    } else {
-                      setRegion(region.filter(x => x !== r));
-                    }
-                  }}
+                  onChange={e => handleRegionChange(r, e.target.checked)}
                   className="mr-1"
                 />
                 {r}
@@ -124,7 +160,7 @@ export default function CaseFilterBar({ onFilter, fetchUrl = '/api/find-tutor-ca
               min={PRICE_MIN}
               max={priceRange[1]}
               value={priceRange[0]}
-              onChange={e => setPriceRange([Number(e.target.value), priceRange[1]])}
+              onChange={e => handlePriceRangeChange(0, Number(e.target.value))}
               className="w-16 px-1 border rounded"
             />
             <span>-</span>
@@ -133,7 +169,7 @@ export default function CaseFilterBar({ onFilter, fetchUrl = '/api/find-tutor-ca
               min={priceRange[0]}
               max={PRICE_MAX}
               value={priceRange[1]}
-              onChange={e => setPriceRange([priceRange[0], Number(e.target.value)])}
+              onChange={e => handlePriceRangeChange(1, Number(e.target.value))}
               className="w-16 px-1 border rounded"
             />
           </div>
