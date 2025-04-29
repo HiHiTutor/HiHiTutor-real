@@ -41,11 +41,16 @@ export default function FindTutorCasesPage() {
     try {
       const response = await fetch(`http://localhost:3001/api/find-tutor-cases?page=${currentPage + 1}&limit=${CASES_PER_PAGE}`);
       if (response.ok) {
-        const data = await response.json();
-        if (data.length > 0) {
-          setCases(prevCases => [...prevCases, ...data]);
+        const newCases = await response.json();
+        console.log('新獲取的個案:', newCases);
+        if (newCases.length > 0) {
+          setCases(prevCases => {
+            const updatedCases = [...prevCases, ...newCases];
+            console.log('更新後的個案列表:', updatedCases);
+            return updatedCases;
+          });
           setCurrentPage(prev => prev + 1);
-          setHasMore(data.length === CASES_PER_PAGE);
+          setHasMore(newCases.length === CASES_PER_PAGE);
         } else {
           setHasMore(false);
         }
@@ -86,7 +91,10 @@ export default function FindTutorCasesPage() {
         <div className="space-y-6">
           {cases.length > 0 ? (
             cases.map((caseItem, index) => (
-              <div key={`${caseItem.id}-${index}`} className="bg-blue-100 border border-blue-300 rounded-xl p-6">
+              <div 
+                key={`${caseItem.id}-${currentPage}-${index}`} 
+                className="bg-blue-100 border border-blue-300 rounded-xl p-6"
+              >
                 <p className="text-gray-600">ID: {caseItem.id}</p>
                 <p className="text-gray-600">科目: {caseItem.subject}</p>
                 <p className="text-gray-600">地點: {caseItem.location}</p>
