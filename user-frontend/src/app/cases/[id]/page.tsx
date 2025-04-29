@@ -4,17 +4,13 @@ import { useEffect, useState } from 'react';
 import { caseApi } from '@/services/api';
 
 interface Case {
-  id: number;
+  id: string;
   subject: string;
-  grade: string;
+  requirement: string;
   location: string;
-  fee: string;
-  frequency: string;
+  budget: string;
   mode: string;
-  students: number;
-  requirements: string;
   description?: string;
-  tags?: string[];
 }
 
 export default function CasePage({ params }: { params: { id: string } }) {
@@ -32,7 +28,7 @@ export default function CasePage({ params }: { params: { id: string } }) {
     const fetchCase = async () => {
       try {
         setLoading(true);
-        const data = await caseApi.getCaseById(parseInt(params.id));
+        const data = await caseApi.getCaseById(params.id);
         setCaseData(data);
         setError(null);
       } catch (err) {
@@ -50,7 +46,7 @@ export default function CasePage({ params }: { params: { id: string } }) {
     try {
       setApplying(true);
       setApplyError(null);
-      await caseApi.applyCase(parseInt(params.id), MOCK_TUTOR_ID);
+      await caseApi.applyCase(params.id, MOCK_TUTOR_ID);
       setApplySuccess(true);
     } catch (err) {
       console.error('申請個案失敗:', err);
@@ -107,12 +103,8 @@ export default function CasePage({ params }: { params: { id: string } }) {
               <h1 className="text-2xl font-bold mb-6">{caseData.subject}</h1>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">年級</span>
-                  <span className="font-medium">{caseData.grade}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">學生人數</span>
-                  <span className="font-medium">{caseData.students} 人</span>
+                  <span className="text-gray-600">要求</span>
+                  <span className="font-medium">{caseData.requirement}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">地區</span>
@@ -123,45 +115,18 @@ export default function CasePage({ params }: { params: { id: string } }) {
                   <span className="font-medium">{caseData.mode}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">時薪</span>
-                  <span className="font-medium">{caseData.fee}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">上課頻率</span>
-                  <span className="font-medium">{caseData.frequency}</span>
+                  <span className="text-gray-600">費用</span>
+                  <span className="font-medium">{caseData.budget}</span>
                 </div>
               </div>
             </div>
 
             {/* 右側：詳細資訊 */}
             <div>
-              {caseData.requirements && (
-                <div className="mb-6">
-                  <h2 className="text-lg font-semibold mb-2">導師要求</h2>
-                  <p className="text-gray-600">{caseData.requirements}</p>
-                </div>
-              )}
-
               {caseData.description && (
                 <div className="mb-6">
                   <h2 className="text-lg font-semibold mb-2">備註</h2>
                   <p className="text-gray-600">{caseData.description}</p>
-                </div>
-              )}
-
-              {caseData.tags && caseData.tags.length > 0 && (
-                <div>
-                  <h2 className="text-lg font-semibold mb-2">標籤</h2>
-                  <div className="flex flex-wrap gap-2">
-                    {caseData.tags.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
                 </div>
               )}
             </div>

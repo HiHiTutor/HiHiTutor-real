@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useVerificationStore } from '@/stores/verificationStore';
+import { authApi } from '@/services/api';
 
 interface FormData {
   name: string;
@@ -130,29 +131,13 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${tempToken}`
-      };
-      
-      console.log('📤 註冊請求標頭:', headers);
-
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          userType: formData.userType
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || '註冊失敗');
-      }
+      // 使用 authApi 進行註冊
+      const data = await authApi.register(
+        formData.name,
+        formData.email,
+        formData.password,
+        formData.phone
+      );
 
       // 清除臨時令牌並導向登入頁
       clearTempToken();

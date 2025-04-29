@@ -1,12 +1,16 @@
 // API 基礎 URL
-const API_BASE_URL = 'http://localhost:3001/api';
+const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+console.log('🌐 API baseURL:', baseURL);
 
 // 通用 API 請求函數
 const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
   try {
-    const url = `${API_BASE_URL}${endpoint}`;
+    // 確保 endpoint 以 / 開頭
+    const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const url = `${baseURL}/api${normalizedEndpoint}`;
+    
     console.log('🚀 發送 API 請求:', url);
-    console.log('�� 請求參數:', options);
+    console.log('📦 請求參數:', options);
 
     const response = await fetch(url, {
       ...options,
@@ -51,19 +55,45 @@ export const tutorApi = {
 // 個案相關 API
 export const caseApi = {
   // 獲取所有個案
-  getAllCases: () => fetchApi('/cases'),
+  getAllCases: () => fetchApi('/find-tutor-cases'),
   
   // 獲取最新個案
-  getLatestCases: () => fetchApi('/cases/latest'),
+  getLatestCases: () => fetchApi('/find-student-cases?featured=true&limit=8'),
   
   // 獲取單一個案詳情
-  getCaseById: (id: number) => fetchApi(`/cases/${id}`),
+  getCaseById: (id: string) => fetchApi(`/find-student-cases/${id}`),
 
   // 申請個案
-  applyCase: (caseId: number, tutorId: number) => 
-    fetchApi(`/cases/${caseId}/apply`, {
+  applyCase: (caseId: string, tutorId: number) => 
+    fetchApi(`/find-student-cases/${caseId}/apply`, {
       method: 'POST',
       body: JSON.stringify({ tutorId }),
+    }),
+
+  getAllStudentCases: () => fetchApi('/find-student-cases'),
+  getStudentCaseById: (id: string) => fetchApi(`/find-student-cases/${id}`),
+  createStudentCase: (data: any) => fetchApi('/find-student-cases', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+
+  getAllTutorCases: () => fetchApi('/find-student-cases'),
+  getRecommendedTutorCases: () => fetchApi('/find-student-cases?featured=true&limit=8'),
+};
+
+// 學生個案相關 API
+export const studentCaseApi = {
+  // 獲取所有學生個案
+  getAllStudentCases: () => fetchApi('/student-cases'),
+  
+  // 獲取單一學生個案
+  getStudentCaseById: (id: string) => fetchApi(`/student-cases/${id}`),
+  
+  // 創建新的學生個案
+  createStudentCase: (caseData: any) => 
+    fetchApi('/student-cases', {
+      method: 'POST',
+      body: JSON.stringify(caseData),
     }),
 };
 
@@ -71,6 +101,9 @@ export const caseApi = {
 export const tutorCaseApi = {
   // 獲取所有導師個案
   getAllTutorCases: () => fetchApi('/tutor-cases'),
+  
+  // 獲取推薦導師個案
+  getRecommendedTutorCases: () => fetchApi('/tutor-cases/recommended'),
 };
 
 // 分類相關 API
@@ -101,10 +134,10 @@ export const authApi = {
     }),
   
   // 用戶註冊
-  register: (name: string, email: string, password: string) => 
+  register: (name: string, email: string, password: string, phone: string) => 
     fetchApi('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ name, email, password }),
+      body: JSON.stringify({ name, email, password, phone }),
     }),
   
   // 獲取用戶資料

@@ -4,24 +4,7 @@ const { loadTutorCases } = require('../utils/tutorCaseStorage');
 const getAllTutorCases = (req, res) => {
   try {
     const tutorCases = loadTutorCases();
-    
-    // 獲取分頁參數
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    
-    // 計算起始和結束索引
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    
-    // 獲取當前頁的個案
-    const paginatedCases = tutorCases.slice(startIndex, endIndex);
-    
-    // 如果沒有數據，返回空陣列
-    if (!paginatedCases || paginatedCases.length === 0) {
-      return res.json([]);
-    }
-    
-    res.json(paginatedCases);
+    res.json(tutorCases);
   } catch (error) {
     console.error('獲取導師個案錯誤:', error);
     res.status(500).json({ message: '伺服器錯誤，請稍後再試' });

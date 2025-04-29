@@ -24,6 +24,8 @@ const caseApplicationRoutes = require('./routes/caseApplications');
 const applicationRoutes = require('./routes/applications');
 const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/user');
+const studentCasesRouter = require('./src/routes/studentCases');
+const tutorCasesRouter = require('./routes/tutorCases');
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -64,12 +66,15 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/hot-subjects', hotSubjectRoutes);
 app.use('/api/auth', authRoutes);
+console.log('✅ 掛載Auth API完成 /api/auth');
 app.use('/api/contact', contactRoutes);
-app.use('/api/tutors', tutorApplicationRoutes);
-app.use('/api/cases', caseApplicationRoutes);
+app.use('/api/tutor-applications', tutorApplicationRoutes);
+app.use('/api/case-applications', caseApplicationRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api', userRoutes);
+app.use('/api', studentCasesRouter);
+app.use('/api/tutor-cases', tutorCasesRouter);
 
 // 錯誤處理中間件
 app.use((err, req, res, next) => {
@@ -89,4 +94,5 @@ app.get('/health', (req, res) => {
 app.listen(port, () => {
   console.log(`[✅] Backend 正在監聽 http://localhost:${port}`);
   console.log(`[ℹ️] JWT_SECRET 已載入: ${process.env.JWT_SECRET ? '是' : '否'}`);
+  console.log(`✅ 掛載TutorCases API完成 /api/tutor-cases`);
 }); 

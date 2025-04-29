@@ -1,0 +1,16 @@
+[
+  {
+    "id": "TA001",
+    "userId": "user_1",
+    "name": "申請人姓名",
+    "email": "applicant@example.com",
+    "phone": "0912345678",
+    "education": "學歷背景",
+    "experience": "教學經驗",
+    "subjects": ["數學", "英文"],
+    "documents": ["document1.pdf", "document2.pdf"],
+    "status": "pending",
+    "createdAt": "2024-03-20T10:00:00Z",
+    "updatedAt": "2024-03-20T10:00:00Z"
+  }
+] 

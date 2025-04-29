@@ -9,7 +9,7 @@
   },
   {
     "id": "user_1745516152304",
-    "name": "Try01",
+    "name": "Try1",
     "email": "try1@example.com",
     "password": "888888",
     "phone": "91111111",
@@ -22,6 +22,25 @@
     "email": "try2@example.com",
     "password": "888888",
     "phone": "91111112",
-    "createdAt": 1745516742657
+    "createdAt": 1745516742657,
+    "userType": "personal"
+  },
+  {
+    "id": "user_1745757909408",
+    "name": "try3",
+    "email": "try3@example.com",
+    "password": "888888",
+    "phone": "91111113",
+    "role": "student",
+    "createdAt": 1745757909408
+  },
+  {
+    "id": "user_1745758006937",
+    "name": "try5",
+    "email": "try5@example.com",
+    "password": "888888",
+    "phone": "91111115",
+    "role": "student",
+    "createdAt": 1745758006937
   }
 ]

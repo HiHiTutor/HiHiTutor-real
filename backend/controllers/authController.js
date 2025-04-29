@@ -10,83 +10,69 @@ const generateToken = (user) => {
   );
 };
 
-// 檢查是否為有效的電子郵件格式
+// 驗證 email 格式
 const isValidEmail = (email) => {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
 };
 
-// 檢查是否為有效的電話號碼格式
+// 驗證電話號碼格式
 const isValidPhone = (phone) => {
-  return /^[0-9]{8,10}$/.test(phone);
+  const phoneRegex = /^[0-9]{8,}$/;
+  return phoneRegex.test(phone);
 };
 
 // 用戶登入
 const login = async (req, res) => {
   try {
-    console.log('\n====== 👤 用戶登入請求 ======');
-    console.log('📝 登入帳號:', req.body.account);
-    
+    console.log('[🔑] 處理登入請求:', req.body);
     const { account, password } = req.body;
     
     // 檢查是否提供帳號和密碼
     if (!account || !password) {
-      console.log('❌ 登入失敗: 缺少帳號或密碼');
-      console.log('==============================\n');
+      console.log('[❌] 登入失敗: 缺少帳號或密碼');
       return res.status(400).json({
         success: false,
         message: '請提供帳號和密碼'
       });
     }
 
-    // 載入最新的用戶資料
+    // 載入用戶資料
     const users = loadUsers();
-
-    // 尋找用戶 (支援 email 或 phone)
-    const user = users.find(
-      (u) => (u.email === account || u.phone === account) && u.password === password
-    );
     
-    // 如果找不到用戶或密碼錯誤
+    // 查找用戶（支持 email 或電話登入）
+    const user = users.find(u => 
+      (u.email === account || u.phone === account) && 
+      u.password === password
+    );
+
     if (!user) {
-      console.log('❌ 登入失敗: 帳號或密碼錯誤');
-      console.log('==============================\n');
+      console.log('[❌] 登入失敗: 帳號或密碼錯誤');
       return res.status(401).json({
         success: false,
         message: '帳號或密碼錯誤'
       });
     }
-    
+
     // 生成 JWT token
     const token = generateToken(user);
     
-    // 登入成功日誌
-    console.log('✅ 登入成功!');
-    console.log('👤 用戶資料:');
-    console.log('   ID:', user.id);
-    console.log('   姓名:', user.name);
-    console.log('   Email:', user.email);
-    console.log('   電話:', user.phone);
-    console.log('   註冊時間:', new Date(user.createdAt).toLocaleString());
-    console.log('==============================\n');
+    // 移除敏感資料
+    const { password: _, ...safeUser } = user;
     
-    // 登入成功，回傳用戶資料和 token
+    console.log('[✅] 登入成功:', { id: user.id, email: user.email });
+    
     res.json({
       success: true,
       message: '登入成功',
       token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone
-      }
+      user: safeUser
     });
   } catch (error) {
-    console.error('❌ 登入錯誤:', error);
-    console.log('==============================\n');
+    console.error('[❌] 登入錯誤:', error);
     res.status(500).json({
       success: false,
-      message: '伺服器內部錯誤'
+      message: '登入時發生錯誤'
     });
   }
 };
@@ -143,6 +129,7 @@ const register = async (req, res) => {
       email,
       password,
       phone,
+      role: 'student',  // 預設角色為學生
       createdAt: Date.now()
     };
 
@@ -152,25 +139,23 @@ const register = async (req, res) => {
     
     // 生成 JWT token
     const token = generateToken(newUser);
+    
+    // 移除敏感資料
+    const { password: _, ...safeUser } = newUser;
+    
     console.log('[✅] 註冊成功:', { id: newUser.id, email: newUser.email });
     
-    // 回傳註冊成功訊息
     res.status(201).json({
       success: true,
       message: '註冊成功',
       token,
-      user: {
-        id: newUser.id,
-        name: newUser.name,
-        email: newUser.email,
-        phone: newUser.phone
-      }
+      user: safeUser
     });
   } catch (error) {
     console.error('[❌] 註冊錯誤:', error);
     res.status(500).json({
       success: false,
-      message: '伺服器內部錯誤'
+      message: '註冊時發生錯誤'
     });
   }
 };

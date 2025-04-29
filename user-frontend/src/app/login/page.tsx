@@ -5,124 +5,131 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function LoginPage() {
-  const [account, setAccount] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const router = useRouter();
+  const [formData, setFormData] = useState({
+    account: '',
+    password: ''
+  });
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     try {
-      const res = await fetch('/api/auth/login', {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ account, password }),
+        body: JSON.stringify(formData)
       });
 
-      const data = await res.json();
+      const data = await response.json();
 
-      if (!data.success) {
-        setError(data.message);
-        return;
-      }
-
-      // 儲存 token
-      localStorage.setItem('token', data.token);
-      console.log('✅ 登入成功，儲存 token：', data.token);
-      console.log('🔁 嘗試呼叫 /api/me 取得用戶資料...');
-
-      // 獲取用戶資訊
-      console.log('🧪 正在發送 /api/me');
-      const userRes = await fetch('/api/me', {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${data.token}`,
-        },
-      });
-
-      const userData = await userRes.json();
-      if (userData.success) {
-        console.log('✅ 回傳用戶：', userData.data);
-        localStorage.setItem('user', JSON.stringify(userData.data));
-        router.push('/'); // 回首頁
+      if (response.ok) {
+        // 儲存 token 和用戶資料
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // 觸發登入事件
+        window.dispatchEvent(new Event('login'));
+        
+        // 跳轉到首頁
+        router.push('/');
       } else {
-        console.error('❌ 無法獲取用戶資訊:', userData);
-        setError('無法獲取用戶資訊');
+        setError(data.message || '登入失敗');
       }
-    } catch (err) {
-      console.error('❌ 登入失敗:', err);
-      setError('登入失敗，請稍後再試');
+    } catch (error) {
+      setError('登入時發生錯誤');
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            登入您的帳戶
-          </h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          登入您的帳戶
+        </h2>
+      </div>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
+                {error}
+              </div>
+            )}
+
             <div>
-              <label htmlFor="account" className="sr-only">
+              <label htmlFor="account" className="block text-sm font-medium text-gray-700">
                 帳號
               </label>
-              <input
-                id="account"
-                name="account"
-                type="text"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="電子郵件或手機號碼"
-                value={account}
-                onChange={(e) => setAccount(e.target.value)}
-              />
+              <div className="mt-1">
+                <input
+                  id="account"
+                  name="account"
+                  type="text"
+                  required
+                  value={formData.account}
+                  onChange={(e) => setFormData({ ...formData, account: e.target.value })}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="電子郵件或電話號碼"
+                />
+              </div>
             </div>
+
             <div>
-              <label htmlFor="password" className="sr-only">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 密碼
               </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="密碼"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <div className="mt-1">
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            <div>
+              <button
+                type="submit"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                登入
+              </button>
+            </div>
+          </form>
+
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">
+                  還沒有帳戶？
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <Link
+                href="/register"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-blue-600 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                註冊新帳戶
+              </Link>
             </div>
           </div>
-
-          {error && (
-            <div className="text-red-500 text-sm text-center">{error}</div>
-          )}
-
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              登入
-            </button>
-          </div>
-
-          <div className="text-sm text-center">
-            <Link
-              href="/register"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
-            >
-              還沒有帳戶？立即註冊
-            </Link>
-          </div>
-        </form>
+        </div>
       </div>
     </div>
   );
