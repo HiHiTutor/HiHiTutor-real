@@ -6,7 +6,7 @@ interface Case {
   salary: string;
   frequency: string;
   requirements: string;
-  status: string;
+  status?: string;
 }
 
 interface CaseCardProps {
@@ -14,13 +14,17 @@ interface CaseCardProps {
 }
 
 const CaseCard = ({ caseItem }: CaseCardProps) => {
+  console.log("🎨 CaseCard Received:", caseItem);
+
   return (
     <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm hover:shadow-lg transition-all duration-200">
       <div className="flex justify-between items-start mb-2">
         <h3 className="text-lg font-semibold">{caseItem.subject}</h3>
-        <span className="text-sm px-2 py-1 bg-red-100 text-red-600 rounded-full">
-          {caseItem.status}
-        </span>
+        {caseItem.status && caseItem.status !== 'open' && (
+          <span className="text-sm px-2 py-1 bg-red-100 text-red-600 rounded-full">
+            進行中
+          </span>
+        )}
       </div>
       <div className="space-y-2">
         <p className="text-gray-600">
