@@ -8,67 +8,74 @@ import CaseCard from '@/components/CaseCard';
 
 export default function FindStudentCasesPage() {
   const searchParams = useSearchParams();
-  const [cases, setCases] = useState<any[]>([]);
+  const [allCases, setAllCases] = useState<any[]>([]); // 保存所有個案
+  const [cases, setCases] = useState<any[]>([]); // 顯示的個案
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const CASES_PER_PAGE = 10;
   const [loadingMore, setLoadingMore] = useState(false);
 
-  // 初次載入時獲取個案
+  // 當 URL 參數改變時重新獲取資料
   useEffect(() => {
-    if (!searchParams) return;
+    const fetchCases = async () => {
+      try {
+        setLoading(true);
+        // 從 URL 獲取搜尋參數
+        const category = searchParams.get('category');
+        const subCategory = searchParams.getAll('subCategory');
+        const region = searchParams.getAll('region');
+        const priceMin = searchParams.get('priceMin');
+        const priceMax = searchParams.get('priceMax');
 
-    const category = searchParams.get('category');
-    const subCategory = searchParams.getAll('subCategory');
-    const region = searchParams.getAll('region');
-    const priceMin = searchParams.get('priceMin');
-    const priceMax = searchParams.get('priceMax');
+        console.log("🔍 搜尋參數：", {
+          category,
+          subCategory,
+          region,
+          priceMin,
+          priceMax
+        });
 
-    console.log("🔍 搜尋參數：", {
-      category,
-      subCategory,
-      region,
-      priceMin,
-      priceMax
-    });
+        // 構建 API 請求參數
+        const query = new URLSearchParams();
+        if (category) query.append('category', category);
+        if (subCategory.length > 0) query.append('subCategory', subCategory.join(','));
+        if (region.length > 0) query.append('region', region.join(','));
+        if (priceMin) query.append('priceMin', priceMin);
+        if (priceMax) query.append('priceMax', priceMax);
 
-    const query = new URLSearchParams({
-      ...(category && { category }),
-      ...(subCategory.length && subCategory[0] && { subCategory: subCategory[0] }),
-      ...(region.length && region[0] && { region: region[0] }),
-      ...(priceMin && { priceMin }),
-      ...(priceMax && { priceMax }),
-    }).toString();
+        console.log("🔍 API 請求參數：", query.toString());
 
-    console.log("🔍 API 請求參數：", query);
-
-    fetch(`http://localhost:3001/api/find-student-cases?${query}`)
-      .then(res => res.json())
-      .then(data => {
-        console.log("📦 API 回傳資料：", data);
-        if (data && data.length > 0) {
+        const response = await fetch(`http://localhost:3001/api/find-student-cases?${query.toString()}`);
+        if (response.ok) {
+          const data = await response.json();
+          console.log("📦 API 回傳資料：", data);
+          setAllCases(data);
           setCases(data.slice(0, CASES_PER_PAGE));
           setHasMore(data.length > CASES_PER_PAGE);
           console.log("✅ 成功更新狀態：", {
+            allCasesCount: data.length,
             displayedCasesCount: Math.min(data.length, CASES_PER_PAGE),
             hasMore: data.length > CASES_PER_PAGE
           });
         } else {
-          console.log("⚠️ 沒有符合條件的個案");
+          console.error('❌ API 請求失敗：', response.status);
+          setAllCases([]);
           setCases([]);
           setHasMore(false);
         }
-      })
-      .catch(error => {
-        console.error('❌ API 請求失敗：', error);
+      } catch (error) {
+        console.error('❌ 發生錯誤：', error);
+        setAllCases([]);
         setCases([]);
         setHasMore(false);
-      })
-      .finally(() => {
+      } finally {
         setLoading(false);
-      });
-  }, [searchParams]);
+      }
+    };
+
+    fetchCases();
+  }, [searchParams]); // 當 URL 參數改變時重新獲取資料
 
   const handleFilter = (data: any[]) => {
     console.log("🔍 篩選結果：", data);
@@ -79,8 +86,8 @@ export default function FindStudentCasesPage() {
 
   const handleSearch = (query: any) => {
     console.log("🔍 搜尋條件：", query);
-    // 前端篩選
-    const filteredCases = cases.filter(caseItem => {
+    // 從 allCases 過濾
+    const filtered = allCases.filter(caseItem => {
       // 分類篩選
       if (query.category && caseItem.category !== query.category) return false;
       
@@ -107,10 +114,10 @@ export default function FindStudentCasesPage() {
       return true;
     });
 
-    console.log("🔍 篩選後結果：", filteredCases);
-    setCases(filteredCases.slice(0, CASES_PER_PAGE));
+    console.log("🔍 過濾後結果：", filtered);
+    setCases(filtered.slice(0, CASES_PER_PAGE));
     setCurrentPage(1);
-    setHasMore(filteredCases.length > CASES_PER_PAGE);
+    setHasMore(filtered.length > CASES_PER_PAGE);
   };
 
   const loadMoreCases = async () => {
@@ -119,7 +126,7 @@ export default function FindStudentCasesPage() {
     try {
       const startIndex = currentPage * CASES_PER_PAGE;
       const endIndex = startIndex + CASES_PER_PAGE;
-      const newCases = cases.slice(startIndex, endIndex);
+      const newCases = allCases.slice(startIndex, endIndex);
       
       console.log("📦 取得新 cases：", {
         startIndex,
@@ -130,7 +137,7 @@ export default function FindStudentCasesPage() {
       if (newCases.length > 0) {
         setCases(prevCases => [...prevCases, ...newCases]);
         setCurrentPage(prev => prev + 1);
-        setHasMore(endIndex < cases.length);
+        setHasMore(endIndex < allCases.length);
         console.log("✅ 成功加載更多個案");
       } else {
         setHasMore(false);
