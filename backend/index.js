@@ -11,9 +11,10 @@ process.on('unhandledRejection', (reason, promise) => {
 
 const express = require('express');
 const cors = require('cors');
+const morgan = require('morgan');
+const path = require('path');
 const tutorsRouter = require('./routes/tutors');
 const caseRoutes = require('./routes/cases');
-const tutorCaseRoutes = require('./routes/tutorCases');
 const categoryRoutes = require('./routes/categories');
 const searchRoutes = require('./routes/search');
 const hotSubjectRoutes = require('./routes/hotSubjects');
@@ -24,7 +25,7 @@ const caseApplicationRoutes = require('./routes/caseApplications');
 const applicationRoutes = require('./routes/applications');
 const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/user');
-const studentCasesRouter = require('./src/routes/studentCases');
+const studentCasesRouter = require('./routes/studentCases');
 const tutorCasesRouter = require('./routes/tutorCases');
 
 const app = express();
@@ -39,60 +40,57 @@ if (!process.env.JWT_SECRET) {
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(morgan('dev'));
 
 // Request Logger Middleware
 app.use((req, res, next) => {
-  // 只有認證相關的請求才顯示詳細日誌
-  if (req.path.startsWith('/api/auth/')) {
-    // 認證相關請求保持原有的詳細日誌
-    console.log(`[🔍] ${req.method} ${req.originalUrl}`);
-    if (req.body && typeof req.body === 'object' && Object.keys(req.body).length > 0) {
-      const safeBody = { ...req.body };
-      if (safeBody.password) delete safeBody.password;
-      console.log(`[🧾] Body:`, safeBody);
-    }
-  } else {
-    // 其他請求只顯示簡單的路徑資訊
-    console.log(`${req.method} ${req.originalUrl}`);
-  }
+  console.log(`[🔍] ${req.method} ${req.originalUrl}`);
   next();
 });
 
-// Routes
+// 基本路由
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
+// API 路由
+app.use('/api/find-student-cases', studentCasesRouter);
+app.use('/api/find-tutor-cases', tutorCasesRouter);
+app.use('/api/categories', categoryRoutes);
 app.use('/api/tutors', tutorsRouter);
 app.use('/api/cases', caseRoutes);
-app.use('/api/tutor-cases', tutorCaseRoutes);
-app.use('/api/categories', categoryRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/hot-subjects', hotSubjectRoutes);
 app.use('/api/auth', authRoutes);
-console.log('✅ 掛載Auth API完成 /api/auth');
 app.use('/api/contact', contactRoutes);
 app.use('/api/tutor-applications', tutorApplicationRoutes);
 app.use('/api/case-applications', caseApplicationRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api', userRoutes);
-app.use('/api', studentCasesRouter);
-app.use('/api/tutor-cases', tutorCasesRouter);
 
 // 錯誤處理中間件
 app.use((err, req, res, next) => {
-  console.error('[❌] API 錯誤:', err);
-  res.status(500).json({
-    success: false,
-    message: '伺服器內部錯誤'
-  });
-});
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
+  console.error('Error:', err);
+  res.status(500).json({ error: 'Internal server error' });
 });
 
 // 啟動伺服器
 app.listen(port, () => {
-  console.log(`[✅] Backend 正在監聽 http://localhost:${port}`);
-  console.log(`[ℹ️] JWT_SECRET 已載入: ${process.env.JWT_SECRET ? '是' : '否'}`);
-  console.log(`✅ 掛載TutorCases API完成 /api/tutor-cases`);
+  console.log(`Server is running on port ${port}`);
+  console.log('Mounted routes:');
+  console.log('- /api/find-student-cases');
+  console.log('- /api/find-tutor-cases');
+  console.log('- /api/categories');
+  console.log('- /api/tutors');
+  console.log('- /api/cases');
+  console.log('- /api/search');
+  console.log('- /api/hot-subjects');
+  console.log('- /api/auth');
+  console.log('- /api/contact');
+  console.log('- /api/tutor-applications');
+  console.log('- /api/case-applications');
+  console.log('- /api/applications');
+  console.log('- /api/admin');
+  console.log('- /api');
 }); 

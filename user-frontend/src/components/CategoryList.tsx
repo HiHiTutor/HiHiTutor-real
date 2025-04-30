@@ -3,18 +3,52 @@
 import React, { useEffect, useState } from 'react';
 import CategoryCard from './CategoryCard';
 
-interface Subcategory {
-  id: number;
+interface Subject {
+  id: string;
   name: string;
-  icon: string;
+}
+
+interface Subcategory {
+  id: string;
+  name: string;
+  subjects: Subject[];
 }
 
 interface Category {
-  id: number;
+  id: string;
   name: string;
-  icon: string;
-  subcategories: Subcategory[];
+  subCategories: Subcategory[];
 }
+
+// 分類 icon 映射
+const CATEGORY_ICONS: { [key: string]: string } = {
+  'preschool': '🧒',
+  'primary-secondary': '📘',
+  'tertiary': '🎓',
+  'interest': '🎨',
+  'adult': '🧑‍🏫'
+};
+
+// 獲取分類描述
+const getCategoryDescription = (category: Category): string => {
+  const totalSubjects = category.subCategories?.reduce((total, subCategory) => 
+    total + (subCategory.subjects?.length || 0), 0) || 0;
+
+  switch (category.id) {
+    case 'preschool':
+      return `涵蓋 ${totalSubjects} 大熱門科目`;
+    case 'primary-secondary':
+      return `精選 ${totalSubjects} 個升學關鍵科目`;
+    case 'tertiary':
+      return `支援 ${totalSubjects} 類大專課程`;
+    case 'interest':
+      return '熱門興趣選擇';
+    case 'adult':
+      return '成人進修課程推薦';
+    default:
+      return `${totalSubjects} 個科目`;
+  }
+};
 
 const CategoryList: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -24,11 +58,12 @@ const CategoryList: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/categories');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/categories`);
         if (!response.ok) {
           throw new Error('獲取分類失敗');
         }
         const data = await response.json();
+        console.log('📦 獲取到的分類數據:', data);
         setCategories(data);
         setError(null);
       } catch (err) {
@@ -66,14 +101,22 @@ const CategoryList: React.FC = () => {
       </div>
       <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {categories.map((category) => (
-            <CategoryCard
-              key={category.id}
-              title={category.name}
-              subtitle={`${category.subcategories.length} 個科目`}
-              icon={category.icon}
-            />
-          ))}
+          {categories.map((category) => {
+            console.log('🎯 處理分類:', {
+              id: category.id,
+              name: category.name,
+              icon: CATEGORY_ICONS[category.id],
+              description: getCategoryDescription(category)
+            });
+            return (
+              <CategoryCard
+                key={category.id}
+                title={category.name}
+                subtitle={getCategoryDescription(category)}
+                icon={CATEGORY_ICONS[category.id] || '📚'}
+              />
+            );
+          })}
         </div>
       </div>
     </section>

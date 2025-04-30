@@ -6,126 +6,179 @@ import CaseFilterBar from '@/components/CaseFilterBar';
 import LoadMoreButton from '@/components/LoadMoreButton';
 import CaseCard from '@/components/CaseCard';
 
+interface Case {
+  id: string;
+  category: string;
+  subCategory: string;
+  subjects: string[];
+  region: string;
+  subRegion: string;
+  mode: string;
+  budget: {
+    min: number;
+    max: number;
+  };
+  experience: string;
+  featured: boolean;
+  date: string;
+}
+
 export default function FindStudentCasesPage() {
   const searchParams = useSearchParams();
-  const [allCases, setAllCases] = useState<any[]>([]); // 保存所有個案
-  const [cases, setCases] = useState<any[]>([]); // 顯示的個案
+  const [allCases, setAllCases] = useState<Case[]>([]); // 保存所有個案
+  const [cases, setCases] = useState<Case[]>([]); // 顯示的個案
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const CASES_PER_PAGE = 10;
   const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // 當 URL 參數改變時重新獲取資料
+  // 首次載入時獲取所有資料
   useEffect(() => {
-    const fetchCases = async () => {
+    const fetchAllCases = async () => {
       try {
         setLoading(true);
-        // 從 URL 獲取搜尋參數
-        const category = searchParams.get('category');
-        const subCategory = searchParams.getAll('subCategory');
-        const region = searchParams.getAll('region');
-        const priceMin = searchParams.get('priceMin');
-        const priceMax = searchParams.get('priceMax');
-
-        console.log("🔍 搜尋參數：", {
-          category,
-          subCategory,
-          region,
-          priceMin,
-          priceMax
-        });
-
-        // 構建 API 請求參數
-        const query = new URLSearchParams();
-        if (category) query.append('category', category);
-        if (subCategory.length > 0) query.append('subCategory', subCategory.join(','));
-        if (region.length > 0) query.append('region', region.join(','));
-        if (priceMin) query.append('priceMin', priceMin);
-        if (priceMax) query.append('priceMax', priceMax);
-
-        console.log("🔍 API 請求參數：", query.toString());
-
-        const response = await fetch(`http://localhost:3001/api/find-student-cases?${query.toString()}`);
+        console.log("🔍 正在獲取所有個案資料...");
+        
+        const response = await fetch('/api/find-student-cases');
         if (response.ok) {
           const data = await response.json();
-          console.log("📦 API 回傳資料：", data);
-          setAllCases(data);
-          setCases(data.slice(0, CASES_PER_PAGE));
-          setHasMore(data.length > CASES_PER_PAGE);
-          console.log("✅ 成功更新狀態：", {
-            allCasesCount: data.length,
-            displayedCasesCount: Math.min(data.length, CASES_PER_PAGE),
-            hasMore: data.length > CASES_PER_PAGE
-          });
+          console.log("📦 成功獲取所有個案：", data);
+          setAllCases(data.cases || []);
+          console.log("✅ 已保存全量資料到 allCases");
         } else {
-          console.error('❌ API 請求失敗：', response.status);
+          console.error('❌ 獲取所有個案失敗：', response.status);
           setAllCases([]);
-          setCases([]);
-          setHasMore(false);
         }
       } catch (error) {
-        console.error('❌ 發生錯誤：', error);
+        console.error('❌ 獲取所有個案時發生錯誤：', error);
         setAllCases([]);
-        setCases([]);
-        setHasMore(false);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCases();
-  }, [searchParams]); // 當 URL 參數改變時重新獲取資料
+    fetchAllCases();
+  }, []); // 只在首次載入時執行
 
-  const handleFilter = (data: any[]) => {
-    console.log("🔍 篩選結果：", data);
-    setCases(data.slice(0, CASES_PER_PAGE));
-    setCurrentPage(1);
-    setHasMore(data.length > CASES_PER_PAGE);
-  };
+  // 當 URL 參數改變時，從 allCases 中過濾
+  useEffect(() => {
+    if (allCases.length === 0) return; // 如果還沒有資料，不進行過濾
 
-  const handleSearch = (query: any) => {
-    console.log("🔍 搜尋條件：", query);
-    console.log("🎯 重新搜尋 based on allCases，當前 allCases 數量：", allCases.length);
-    
+    console.log("🔍 URL 參數改變，開始過濾資料");
+    // 從 URL 獲取搜尋參數
+    const category = searchParams.get('category');
+    const subCategory = searchParams.getAll('subCategory');
+    const region = searchParams.getAll('region');
+    const priceMin = searchParams.get('priceMin');
+    const priceMax = searchParams.get('priceMax');
+
+    console.log("🔍 搜尋參數：", {
+      category,
+      subCategory,
+      region,
+      priceMin,
+      priceMax
+    });
+
     // 從 allCases 過濾
-    const filtered = allCases.filter(caseItem => {
+    const filtered = allCases.filter(item => {
       // 分類篩選
-      if (query.category && caseItem.category !== query.category) {
-        console.log("❌ 分類不匹配：", { caseCategory: caseItem.category, queryCategory: query.category });
+      if (category && item.category !== category) {
+        console.log("❌ 分類不匹配：", { caseCategory: item.category, filterCategory: category });
         return false;
       }
       
       // 子分類篩選
-      if (query.subCategory?.length > 0) {
-        const hasMatchingSubCategory = query.subCategory.some((sub: string) => 
-          caseItem.subCategory?.includes(sub)
+      if (subCategory.length > 0) {
+        const hasMatchingSubCategory = subCategory.some((sub: string) => 
+          item.subCategory?.includes(sub)
         );
         if (!hasMatchingSubCategory) {
-          console.log("❌ 子分類不匹配：", { caseSubCategory: caseItem.subCategory, querySubCategory: query.subCategory });
+          console.log("❌ 子分類不匹配：", { caseSubCategory: item.subCategory, filterSubCategory: subCategory });
           return false;
         }
       }
       
       // 地區篩選
-      if (query.region?.length > 0) {
-        const hasMatchingRegion = query.region.some((region: string) => 
-          caseItem.region?.includes(region)
+      if (region.length > 0) {
+        const hasMatchingRegion = region.some((r: string) => 
+          item.region?.includes(r)
         );
         if (!hasMatchingRegion) {
-          console.log("❌ 地區不匹配：", { caseRegion: caseItem.region, queryRegion: query.region });
+          console.log("❌ 地區不匹配：", { caseRegion: item.region, filterRegion: region });
           return false;
         }
       }
       
       // 價格範圍篩選
-      const price = Number(caseItem.budget?.replace(/[^0-9]/g, ''));
-      if (price < query.priceMin || price > query.priceMax) {
-        console.log("❌ 價格不匹配：", { casePrice: price, queryMin: query.priceMin, queryMax: query.priceMax });
+      if (priceMin && item.budget.min < Number(priceMin)) {
+        console.log("❌ 價格低於最小值：", { casePrice: item.budget.min, filterMin: priceMin });
+        return false;
+      }
+      if (priceMax && item.budget.max > Number(priceMax)) {
+        console.log("❌ 價格高於最大值：", { casePrice: item.budget.max, filterMax: priceMax });
         return false;
       }
       
-      console.log("✅ 個案符合所有條件：", caseItem);
+      console.log("✅ 個案符合所有條件：", item);
+      return true;
+    });
+
+    console.log("🔍 過濾後結果：", {
+      totalCases: allCases.length,
+      filteredCount: filtered.length,
+      filteredCases: filtered
+    });
+
+    // 更新顯示的個案
+    setCases(filtered.slice(0, CASES_PER_PAGE));
+    setCurrentPage(1);
+    setHasMore(filtered.length > CASES_PER_PAGE);
+  }, [searchParams, allCases]); // 當 URL 參數或 allCases 改變時重新過濾
+
+  const handleFilter = (filters: any) => {
+    console.log("🔍 篩選條件：", filters);
+    console.log("🎯 重新搜尋 based on allCases，當前 allCases 數量：", allCases.length);
+    
+    // 從 allCases 過濾
+    const filtered = allCases.filter(item => {
+      // 分類篩選
+      if (filters.category && item.category !== filters.category) {
+        console.log("❌ 分類不匹配：", { caseCategory: item.category, filterCategory: filters.category });
+        return false;
+      }
+      
+      // 子分類篩選
+      if (filters.subCategory?.length > 0) {
+        const hasMatchingSubCategory = filters.subCategory.some((sub: string) => 
+          item.subCategory?.includes(sub)
+        );
+        if (!hasMatchingSubCategory) {
+          console.log("❌ 子分類不匹配：", { caseSubCategory: item.subCategory, filterSubCategory: filters.subCategory });
+          return false;
+        }
+      }
+      
+      // 地區篩選
+      if (filters.region?.length > 0) {
+        const hasMatchingRegion = filters.region.some((region: string) => 
+          item.region?.includes(region)
+        );
+        if (!hasMatchingRegion) {
+          console.log("❌ 地區不匹配：", { caseRegion: item.region, filterRegion: filters.region });
+          return false;
+        }
+      }
+      
+      // 價格範圍篩選
+      if (item.budget.min < filters.priceMin || item.budget.max > filters.priceMax) {
+        console.log("❌ 價格不匹配：", { casePrice: item.budget, filterMin: filters.priceMin, filterMax: filters.priceMax });
+        return false;
+      }
+      
+      console.log("✅ 個案符合所有條件：", item);
       return true;
     });
 
@@ -184,56 +237,78 @@ export default function FindStudentCasesPage() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">錯誤</h2>
+          <p className="text-gray-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <>
-      <CaseFilterBar
-        onFilter={handleFilter}
-        onSearch={handleSearch}
-        fetchUrl="/api/find-student-cases"
-      />
-      <section className="px-4 py-8 max-w-screen-xl mx-auto">
-        <div className="flex items-center gap-2 mb-6">
-          <span className="text-2xl">👩‍🏫</span>
-          <h2 className="text-2xl font-bold border-l-4 border-yellow-400 pl-3">精選導師搵學生個案</h2>
+    <div className="max-w-screen-xl mx-auto px-4 md:px-12 py-8">
+      <div className="flex items-center gap-2 mb-6">
+        <span className="text-2xl">👩‍🏫</span>
+        <h2 className="text-2xl font-bold border-l-4 border-yellow-400 pl-3">精選導師搵學生個案</h2>
+      </div>
+
+      <div className="bg-yellow-50 rounded-xl p-6 mb-8">
+        <CaseFilterBar onFilter={handleFilter} onSearch={handleFilter} fetchUrl="/find-student-cases" />
+      </div>
+
+      {loading ? (
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-yellow-500"></div>
+          <p className="mt-2 text-gray-600">載入中...</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {cases.length > 0 ? (
-            (() => {
-              console.log("🖼 正在 render cases，總數：", cases.length);
-              return cases.map((caseItem, index) => {
-                console.log("🎨 Rendering case: ", caseItem);
-                return (
-                  <CaseCard
-                    key={`${caseItem.id}-${currentPage}-${index}`}
-                    caseItem={{
-                      id: caseItem.id,
-                      subject: caseItem.subject,
-                      grade: caseItem.grade,
-                      location: caseItem.location,
-                      salary: caseItem.budget,
-                      frequency: caseItem.mode,
-                      requirements: caseItem.requirement,
-                      status: caseItem.status
-                    }}
-                  />
-                );
-              });
-            })()
-          ) : (
-            <div className="col-span-full text-center text-gray-500 py-8">
-              <span className="text-2xl">🚫</span>
-              <p className="mt-2">沒有符合條件的個案</p>
-            </div>
-          )}
+      ) : error ? (
+        <div className="text-center py-8 text-red-500">
+          <p>{error}</p>
         </div>
+      ) : cases.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          <p>目前沒有精選導師搵學生個案</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {cases.map((caseItem, index) => (
+            <CaseCard
+              key={`${caseItem.id}-${currentPage}-${index}`}
+              caseItem={{
+                id: caseItem.id,
+                category: caseItem.category || '',
+                subCategory: caseItem.subCategory || '',
+                subjects: Array.isArray(caseItem.subjects) ? caseItem.subjects : [],
+                region: caseItem.region || '',
+                subRegion: caseItem.subRegion || '',
+                mode: caseItem.mode || '',
+                budget: {
+                  min: typeof caseItem.budget?.min === 'number' ? caseItem.budget.min : 0,
+                  max: typeof caseItem.budget?.max === 'number' ? caseItem.budget.max : 0
+                },
+                experience: caseItem.experience || '',
+                date: caseItem.date || ''
+              }}
+              onClick={() => window.location.href = `/find-student-cases/${caseItem.id}`}
+            />
+          ))}
+        </div>
+      )}
+
+      {hasMore && (
         <div className="mt-8 text-center">
-          <LoadMoreButton
-            loading={loadingMore}
-            hasMore={hasMore}
-            onLoad={loadMoreCases}
-          />
+          <button
+            onClick={loadMoreCases}
+            disabled={loadingMore}
+            className="bg-yellow-500 text-white hover:bg-yellow-600 rounded-lg px-4 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loadingMore ? '載入中...' : '載入更多'}
+          </button>
         </div>
-      </section>
-    </>
+      )}
+    </div>
   );
 } 

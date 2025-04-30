@@ -1,50 +1,63 @@
-interface Case {
-  id: number;
-  subject: string;
-  grade: string;
-  location: string;
-  salary: string;
-  frequency: string;
-  requirements: string;
-  status?: string;
-}
+import { MODES, getFullRegionName, getSubjectNames, getSubRegionName } from '@/utils/translate';
 
 interface CaseCardProps {
-  caseItem: Case;
+  caseItem: {
+    id: string;
+    category: string;
+    subCategory: string;
+    subjects: string[];
+    region: string;
+    subRegion: string | string[];
+    mode: string;
+    budget: {
+      min: number;
+      max: number;
+    };
+    experience: string;
+    date: string;
+  };
+  onClick?: () => void;
 }
 
-const CaseCard = ({ caseItem }: CaseCardProps) => {
-  console.log("🎨 CaseCard Received:", caseItem);
-
+export default function CaseCard({ caseItem, onClick }: CaseCardProps) {
   return (
-    <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm hover:shadow-lg transition-all duration-200">
-      <div className="flex justify-between items-start mb-2">
-        <h3 className="text-lg font-semibold">{caseItem.subject}</h3>
-        {caseItem.status && caseItem.status !== 'open' && (
-          <span className="text-sm px-2 py-1 bg-red-100 text-red-600 rounded-full">
-            進行中
-          </span>
-        )}
+    <div
+      className="bg-white rounded-xl shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow min-h-[200px] flex flex-col justify-between"
+      onClick={onClick}
+    >
+      <div className="space-y-3">
+        <p className="text-md font-semibold text-gray-700">
+          {caseItem.subjects?.length
+            ? getSubjectNames(caseItem.subjects, caseItem.category, caseItem.subCategory)
+            : '科目待定'}
+        </p>
+        
+        <p className="text-sm text-gray-700">
+          地點：{Array.isArray(caseItem.subRegion) 
+            ? caseItem.subRegion.map(getSubRegionName).join('、') 
+            : getSubRegionName(caseItem.subRegion)}
+        </p>
+
+        <p className="text-sm text-gray-700">
+          {MODES[caseItem.mode] || caseItem.mode || '教學模式待定'}
+        </p>
+
+        <p className="text-sm text-gray-700">
+          {caseItem.experience || '經驗要求待定'}
+        </p>
+
+        <p className="font-semibold text-yellow-600">
+          {caseItem.budget?.min && caseItem.budget?.max
+            ? `$${caseItem.budget.min}\n- $${caseItem.budget.max}/小時`
+            : '價格待議'}
+        </p>
       </div>
-      <div className="space-y-2">
-        <p className="text-gray-600">
-          <span className="font-medium">年級:</span> {caseItem.grade}
-        </p>
-        <p className="text-gray-600">
-          <span className="font-medium">地點:</span> {caseItem.location}
-        </p>
-        <p className="text-gray-600">
-          <span className="font-medium">薪金:</span> {caseItem.salary}
-        </p>
-        <p className="text-gray-600">
-          <span className="font-medium">頻率:</span> {caseItem.frequency}
-        </p>
-        <p className="text-gray-600">
-          <span className="font-medium">要求:</span> {caseItem.requirements}
+
+      <div className="mt-4">
+        <p className="text-sm text-gray-500">
+          發佈於 {caseItem.date ? new Date(caseItem.date).toLocaleDateString() : '未提供發佈日期'}
         </p>
       </div>
     </div>
   );
-};
-
-export default CaseCard; 
+} 

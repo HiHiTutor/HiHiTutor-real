@@ -2,24 +2,23 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
-const { getAllTutorCases, getRecommendedTutorCases } = require('../controllers/tutorCaseController');
 
-// 讀取導師個案數據
-const tutorCasesPath = path.join(__dirname, '../data/tutorCases.json');
-let tutorCases = [];
+// 讀取學生個案數據
+const studentCasesPath = path.join(__dirname, '../data/studentCases.json');
+let studentCases = [];
 
 try {
-  const data = fs.readFileSync(tutorCasesPath, 'utf8');
+  const data = fs.readFileSync(studentCasesPath, 'utf8');
   const parsedData = JSON.parse(data);
-  tutorCases = Array.isArray(parsedData.cases) ? parsedData.cases : [];
-  console.log('成功讀取導師個案數據，共', tutorCases.length, '筆');
+  studentCases = Array.isArray(parsedData.cases) ? parsedData.cases : [];
+  console.log('成功讀取學生個案數據，共', studentCases.length, '筆');
 } catch (error) {
-  console.error('讀取導師個案數據失敗:', error);
-  tutorCases = [];
+  console.error('讀取學生個案數據失敗:', error);
+  studentCases = [];
 }
 
 // 生成測試數據
-function generateTutorCases(count) {
+function generateStudentCases(count) {
   const categories = ['early-childhood', 'primary-secondary', 'tertiary', 'interest', 'adult'];
   const subCategories = {
     'early-childhood': [''],
@@ -102,19 +101,19 @@ function generateTutorCases(count) {
 }
 
 // 只在開發環境下生成測試數據
-if (process.env.NODE_ENV === 'development' && tutorCases.length === 0) {
-  tutorCases = generateTutorCases(120);
+if (process.env.NODE_ENV === 'development' && studentCases.length === 0) {
+  studentCases = generateStudentCases(120);
   // 移除自動寫入行為，避免 nodemon 無限重啟
-  // fs.writeFileSync(tutorCasesPath, JSON.stringify({ cases: tutorCases }, null, 2));
+  // fs.writeFileSync(studentCasesPath, JSON.stringify({ cases: studentCases }, null, 2));
   console.log('已生成測試數據，但未寫入文件以避免 nodemon 重啟');
 }
 
-// GET all tutor cases
+// 獲取學生個案列表
 router.get('/', (req, res) => {
   try {
-    console.log('收到獲取導師個案請求，查詢參數:', req.query);
+    console.log('收到獲取學生個案請求，查詢參數:', req.query);
     
-    let filteredCases = [...tutorCases];
+    let filteredCases = [...studentCases];
     
     // 應用過濾條件
     if (req.query.category) {
@@ -154,7 +153,7 @@ router.get('/', (req, res) => {
     const endIndex = page * limit;
     const paginatedCases = filteredCases.slice(startIndex, endIndex);
 
-    console.log('返回過濾後的導師個案數據，共', paginatedCases.length, '筆');
+    console.log('返回過濾後的學生個案數據，共', paginatedCases.length, '筆');
     
     res.json({
       cases: paginatedCases,
@@ -164,25 +163,82 @@ router.get('/', (req, res) => {
       totalPages: Math.ceil(filteredCases.length / limit)
     });
   } catch (error) {
-    console.error('處理導師個案請求時出錯:', error);
-    res.status(500).json({ error: '獲取導師個案失敗' });
+    console.error('處理學生個案請求時出錯:', error);
+    res.status(500).json({ error: '獲取學生個案失敗' });
   }
 });
 
-// GET recommended tutor cases
-router.get('/recommended', getRecommendedTutorCases);
+// 獲取推薦的學生個案
+router.get('/recommended', (req, res) => {
+  try {
+    // 根據推薦邏輯排序
+    const recommendedCases = studentCases
+      .sort((a, b) => {
+        // 計算每個個案的推薦分數
+        const getScore = (case_) => {
+          let score = 0;
+          
+          // 1. featured && pinned && 高評分
+          if (case_.featured && case_.pinned && case_.rating >= 4.5) {
+            score += 1000;
+          }
+          // 2. featured && 高評分
+          else if (case_.featured && case_.rating >= 4.5) {
+            score += 800;
+          }
+          // 3. pinned && 高評分
+          else if (case_.pinned && case_.rating >= 4.5) {
+            score += 600;
+          }
+          // 4. featured
+          else if (case_.featured) {
+            score += 400;
+          }
+          // 5. pinned
+          else if (case_.pinned) {
+            score += 200;
+          }
+          // 6. 高評分
+          else if (case_.rating >= 4.5) {
+            score += 100;
+          }
+          
+          // 加上評分作為次要排序條件
+          score += case_.rating || 0;
+          
+          return score;
+        };
 
-// GET single tutor case
+        const scoreA = getScore(a);
+        const scoreB = getScore(b);
+        return scoreB - scoreA;
+      })
+      .slice(0, 8); // 只返回前 8 個個案
+
+    res.json({
+      success: true,
+      cases: recommendedCases
+    });
+  } catch (error) {
+    console.error('Error getting recommended cases:', error);
+    res.status(500).json({
+      success: false,
+      error: '獲取推薦個案時發生錯誤'
+    });
+  }
+});
+
+// 獲取單個學生個案
 router.get('/:id', (req, res) => {
   try {
-    const case_ = tutorCases.find(c => c.id === req.params.id);
+    const case_ = studentCases.find(c => c.id === req.params.id);
     if (!case_) {
-      return res.status(404).json({ error: '找不到該導師個案' });
+      return res.status(404).json({ error: '找不到該學生個案' });
     }
     res.json(case_);
   } catch (error) {
-    console.error('處理單個導師個案請求時出錯:', error);
-    res.status(500).json({ error: '獲取導師個案失敗' });
+    console.error('處理單個學生個案請求時出錯:', error);
+    res.status(500).json({ error: '獲取學生個案失敗' });
   }
 });
 

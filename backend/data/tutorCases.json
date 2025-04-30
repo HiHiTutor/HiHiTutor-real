@@ -1,0 +1,2239 @@
+{
+  "cases": [
+    {
+      "id": "case-001",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-workplace"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "sai-ying-pun",
+      "mode": "online",
+      "budget": {
+        "min": 160,
+        "max": 468
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": true,
+      "date": "2025-04-15T16:27:14.328Z"
+    },
+    {
+      "id": "case-002",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-art",
+        "interest-language"
+      ],
+      "region": "new-territories",
+      "subRegion": "tsing-yi",
+      "mode": "in-person",
+      "budget": {
+        "min": 182,
+        "max": 353
+      },
+      "experience": "有多年教學經驗",
+      "featured": false,
+      "date": "2025-04-26T16:27:14.328Z"
+    },
+    {
+      "id": "case-003",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-english",
+        "early-childhood-math"
+      ],
+      "region": "new-territories",
+      "subRegion": "sheung-shui",
+      "mode": "in-person",
+      "budget": {
+        "min": 222,
+        "max": 348
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-07T16:27:14.328Z"
+    },
+    {
+      "id": "case-004",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-programming"
+      ],
+      "region": "new-territories",
+      "subRegion": "tin-shui-wai",
+      "mode": "in-person",
+      "budget": {
+        "min": 104,
+        "max": 455
+      },
+      "experience": "有多年教學經驗",
+      "featured": false,
+      "date": "2025-04-26T16:27:14.328Z"
+    },
+    {
+      "id": "case-005",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-business",
+        "adult-workplace"
+      ],
+      "region": "new-territories",
+      "subRegion": "fan-ling",
+      "mode": "online",
+      "budget": {
+        "min": 230,
+        "max": 578
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-12T16:27:14.328Z"
+    },
+    {
+      "id": "case-006",
+      "category": "tertiary",
+      "subCategory": "undergraduate",
+      "subjects": [
+        "undergraduate-language"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "chai-wan",
+      "mode": "online",
+      "budget": {
+        "min": 281,
+        "max": 531
+      },
+      "experience": "曾任職於知名教育機構",
+      "featured": false,
+      "date": "2025-04-07T16:27:14.328Z"
+    },
+    {
+      "id": "case-007",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-music",
+        "interest-language",
+        "interest-programming"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "quarry-bay",
+      "mode": "online",
+      "budget": {
+        "min": 139,
+        "max": 333
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-15T16:27:14.328Z"
+    },
+    {
+      "id": "case-008",
+      "category": "primary-secondary",
+      "subCategory": "primary",
+      "subjects": [
+        "primary-math",
+        "primary-general"
+      ],
+      "region": "islands",
+      "subRegion": "discovery-bay",
+      "mode": "online",
+      "budget": {
+        "min": 113,
+        "max": 573
+      },
+      "experience": "有多年教學經驗",
+      "featured": false,
+      "date": "2025-04-04T16:27:14.328Z"
+    },
+    {
+      "id": "case-009",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-chinese"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "admiralty",
+      "mode": "online",
+      "budget": {
+        "min": 166,
+        "max": 573
+      },
+      "experience": "曾任職於知名教育機構",
+      "featured": false,
+      "date": "2025-04-20T16:27:14.328Z"
+    },
+    {
+      "id": "case-010",
+      "category": "primary-secondary",
+      "subCategory": "secondary",
+      "subjects": [
+        "secondary-ls",
+        "secondary-all"
+      ],
+      "region": "kowloon",
+      "subRegion": "kowloon-city",
+      "mode": "in-person",
+      "budget": {
+        "min": 252,
+        "max": 498
+      },
+      "experience": "有多年教學經驗",
+      "featured": false,
+      "date": "2025-04-07T16:27:14.328Z"
+    },
+    {
+      "id": "case-011",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-english",
+        "early-childhood-math"
+      ],
+      "region": "kowloon",
+      "subRegion": "yau-ma-tei",
+      "mode": "in-person",
+      "budget": {
+        "min": 211,
+        "max": 536
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": true,
+      "date": "2025-04-20T16:27:14.328Z"
+    },
+    {
+      "id": "case-012",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-math"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "wan-chai",
+      "mode": "online",
+      "budget": {
+        "min": 291,
+        "max": 388
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-11T16:27:14.328Z"
+    },
+    {
+      "id": "case-013",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-language"
+      ],
+      "region": "new-territories",
+      "subRegion": "tai-po",
+      "mode": "online",
+      "budget": {
+        "min": 278,
+        "max": 448
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-29T16:27:14.328Z"
+    },
+    {
+      "id": "case-014",
+      "category": "primary-secondary",
+      "subCategory": "primary",
+      "subjects": [
+        "primary-english"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "chai-wan",
+      "mode": "in-person",
+      "budget": {
+        "min": 155,
+        "max": 412
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": true,
+      "date": "2025-04-17T16:27:14.328Z"
+    },
+    {
+      "id": "case-015",
+      "category": "primary-secondary",
+      "subCategory": "primary",
+      "subjects": [
+        "primary-stem"
+      ],
+      "region": "islands",
+      "subRegion": "cheung-chau",
+      "mode": "online",
+      "budget": {
+        "min": 229,
+        "max": 405
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-10T16:27:14.328Z"
+    },
+    {
+      "id": "case-016",
+      "category": "tertiary",
+      "subCategory": "postgraduate",
+      "subjects": [
+        "postgraduate-thesis"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "chai-wan",
+      "mode": "in-person",
+      "budget": {
+        "min": 282,
+        "max": 447
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-11T16:27:14.328Z"
+    },
+    {
+      "id": "case-017",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-music"
+      ],
+      "region": "kowloon",
+      "subRegion": "ho-man-tin",
+      "mode": "in-person",
+      "budget": {
+        "min": 163,
+        "max": 320
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": true,
+      "date": "2025-04-06T16:27:14.328Z"
+    },
+    {
+      "id": "case-018",
+      "category": "primary-secondary",
+      "subCategory": "secondary",
+      "subjects": [
+        "secondary-english",
+        "secondary-all"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "southern",
+      "mode": "online",
+      "budget": {
+        "min": 161,
+        "max": 327
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-23T16:27:14.328Z"
+    },
+    {
+      "id": "case-019",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-english",
+        "early-childhood-math"
+      ],
+      "region": "islands",
+      "subRegion": "sunny-bay",
+      "mode": "online",
+      "budget": {
+        "min": 139,
+        "max": 527
+      },
+      "experience": "曾任職於知名教育機構",
+      "featured": false,
+      "date": "2025-04-29T16:27:14.328Z"
+    },
+    {
+      "id": "case-020",
+      "category": "primary-secondary",
+      "subCategory": "secondary",
+      "subjects": [
+        "secondary-chinese",
+        "secondary-humanities"
+      ],
+      "region": "kowloon",
+      "subRegion": "wong-tai-sin",
+      "mode": "online",
+      "budget": {
+        "min": 195,
+        "max": 518
+      },
+      "experience": "曾任職於知名教育機構",
+      "featured": false,
+      "date": "2025-04-06T16:27:14.328Z"
+    },
+    {
+      "id": "case-021",
+      "category": "tertiary",
+      "subCategory": "undergraduate",
+      "subjects": [
+        "undergraduate-programming",
+        "undergraduate-accounting"
+      ],
+      "region": "new-territories",
+      "subRegion": "fan-ling",
+      "mode": "online",
+      "budget": {
+        "min": 101,
+        "max": 473
+      },
+      "experience": "有多年教學經驗",
+      "featured": false,
+      "date": "2025-04-04T16:27:14.328Z"
+    },
+    {
+      "id": "case-022",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-math"
+      ],
+      "region": "new-territories",
+      "subRegion": "sai-kung",
+      "mode": "in-person",
+      "budget": {
+        "min": 265,
+        "max": 558
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-20T16:27:14.328Z"
+    },
+    {
+      "id": "case-023",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-art"
+      ],
+      "region": "new-territories",
+      "subRegion": "kwai-fong",
+      "mode": "in-person",
+      "budget": {
+        "min": 140,
+        "max": 543
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-25T16:27:14.328Z"
+    },
+    {
+      "id": "case-024",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-music",
+        "interest-language",
+        "interest-programming"
+      ],
+      "region": "new-territories",
+      "subRegion": "sai-kung",
+      "mode": "in-person",
+      "budget": {
+        "min": 157,
+        "max": 556
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-13T16:27:14.328Z"
+    },
+    {
+      "id": "case-025",
+      "category": "tertiary",
+      "subCategory": "postgraduate",
+      "subjects": [
+        "postgraduate-spss"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "shau-kei-wan",
+      "mode": "online",
+      "budget": {
+        "min": 109,
+        "max": 568
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-28T16:27:14.328Z"
+    },
+    {
+      "id": "case-026",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-english"
+      ],
+      "region": "kowloon",
+      "subRegion": "lam-tin",
+      "mode": "in-person",
+      "budget": {
+        "min": 239,
+        "max": 465
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-10T16:27:14.328Z"
+    },
+    {
+      "id": "case-027",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-language",
+        "adult-business"
+      ],
+      "region": "islands",
+      "subRegion": "tai-o",
+      "mode": "online",
+      "budget": {
+        "min": 212,
+        "max": 362
+      },
+      "experience": "有多年教學經驗",
+      "featured": true,
+      "date": "2025-04-12T16:27:14.328Z"
+    },
+    {
+      "id": "case-028",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-workplace"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "wan-chai",
+      "mode": "in-person",
+      "budget": {
+        "min": 262,
+        "max": 590
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-13T16:27:14.328Z"
+    },
+    {
+      "id": "case-029",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-language",
+        "adult-workplace"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "siu-sai-wan",
+      "mode": "online",
+      "budget": {
+        "min": 199,
+        "max": 524
+      },
+      "experience": "曾任職於知名教育機構",
+      "featured": false,
+      "date": "2025-04-19T16:27:14.328Z"
+    },
+    {
+      "id": "case-030",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-math",
+        "early-childhood-english"
+      ],
+      "region": "new-territories",
+      "subRegion": "hang-hau",
+      "mode": "online",
+      "budget": {
+        "min": 206,
+        "max": 520
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-04T16:27:14.328Z"
+    },
+    {
+      "id": "case-031",
+      "category": "primary-secondary",
+      "subCategory": "primary",
+      "subjects": [
+        "primary-stem",
+        "primary-english"
+      ],
+      "region": "new-territories",
+      "subRegion": "long-ping",
+      "mode": "online",
+      "budget": {
+        "min": 128,
+        "max": 462
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-06T16:27:14.328Z"
+    },
+    {
+      "id": "case-032",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-math"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "fortress-hill",
+      "mode": "online",
+      "budget": {
+        "min": 258,
+        "max": 491
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-11T16:27:14.328Z"
+    },
+    {
+      "id": "case-033",
+      "category": "primary-secondary",
+      "subCategory": "primary",
+      "subjects": [
+        "primary-math",
+        "primary-chinese"
+      ],
+      "region": "kowloon",
+      "subRegion": "ho-man-tin",
+      "mode": "in-person",
+      "budget": {
+        "min": 229,
+        "max": 596
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-05T16:27:14.328Z"
+    },
+    {
+      "id": "case-034",
+      "category": "primary-secondary",
+      "subCategory": "secondary",
+      "subjects": [
+        "secondary-dse",
+        "secondary-humanities",
+        "secondary-economics"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "ap-lei-chau",
+      "mode": "in-person",
+      "budget": {
+        "min": 134,
+        "max": 479
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": true,
+      "date": "2025-04-11T16:27:14.328Z"
+    },
+    {
+      "id": "case-035",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-math"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "wong-chuk-hang",
+      "mode": "online",
+      "budget": {
+        "min": 103,
+        "max": 476
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-26T16:27:14.328Z"
+    },
+    {
+      "id": "case-036",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-art"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "ap-lei-chau",
+      "mode": "online",
+      "budget": {
+        "min": 273,
+        "max": 422
+      },
+      "experience": "有多年教學經驗",
+      "featured": false,
+      "date": "2025-04-01T16:27:14.328Z"
+    },
+    {
+      "id": "case-037",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-programming",
+        "interest-music"
+      ],
+      "region": "islands",
+      "subRegion": "cheung-chau",
+      "mode": "in-person",
+      "budget": {
+        "min": 242,
+        "max": 369
+      },
+      "experience": "曾任職於知名教育機構",
+      "featured": false,
+      "date": "2025-04-27T16:27:14.328Z"
+    },
+    {
+      "id": "case-038",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-music"
+      ],
+      "region": "kowloon",
+      "subRegion": "kwun-tong",
+      "mode": "in-person",
+      "budget": {
+        "min": 276,
+        "max": 494
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-25T16:27:14.328Z"
+    },
+    {
+      "id": "case-039",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-music"
+      ],
+      "region": "new-territories",
+      "subRegion": "sheung-shui",
+      "mode": "in-person",
+      "budget": {
+        "min": 114,
+        "max": 422
+      },
+      "experience": "擅長因材施教",
+      "featured": true,
+      "date": "2025-04-17T16:27:14.328Z"
+    },
+    {
+      "id": "case-040",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-english",
+        "early-childhood-chinese"
+      ],
+      "region": "new-territories",
+      "subRegion": "long-ping",
+      "mode": "in-person",
+      "budget": {
+        "min": 193,
+        "max": 413
+      },
+      "experience": "有多年教學經驗",
+      "featured": false,
+      "date": "2025-04-26T16:27:14.328Z"
+    },
+    {
+      "id": "case-041",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-programming",
+        "interest-art"
+      ],
+      "region": "islands",
+      "subRegion": "mui-wo",
+      "mode": "in-person",
+      "budget": {
+        "min": 295,
+        "max": 554
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-11T16:27:14.328Z"
+    },
+    {
+      "id": "case-042",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-business",
+        "adult-language"
+      ],
+      "region": "kowloon",
+      "subRegion": "yau-tong",
+      "mode": "in-person",
+      "budget": {
+        "min": 272,
+        "max": 547
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-11T16:27:14.328Z"
+    },
+    {
+      "id": "case-043",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-math",
+        "early-childhood-chinese"
+      ],
+      "region": "islands",
+      "subRegion": "cheung-chau",
+      "mode": "online",
+      "budget": {
+        "min": 263,
+        "max": 349
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-23T16:27:14.328Z"
+    },
+    {
+      "id": "case-044",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-english",
+        "early-childhood-chinese"
+      ],
+      "region": "new-territories",
+      "subRegion": "sha-tin",
+      "mode": "online",
+      "budget": {
+        "min": 221,
+        "max": 529
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-12T16:27:14.328Z"
+    },
+    {
+      "id": "case-045",
+      "category": "tertiary",
+      "subCategory": "postgraduate",
+      "subjects": [
+        "postgraduate-presentation",
+        "postgraduate-thesis"
+      ],
+      "region": "kowloon",
+      "subRegion": "diamond-hill",
+      "mode": "online",
+      "budget": {
+        "min": 297,
+        "max": 562
+      },
+      "experience": "曾任職於知名教育機構",
+      "featured": false,
+      "date": "2025-04-01T16:27:14.328Z"
+    },
+    {
+      "id": "case-046",
+      "category": "primary-secondary",
+      "subCategory": "primary",
+      "subjects": [
+        "primary-math",
+        "primary-english",
+        "primary-general"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "taikoo",
+      "mode": "online",
+      "budget": {
+        "min": 261,
+        "max": 591
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-17T16:27:14.328Z"
+    },
+    {
+      "id": "case-047",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-art",
+        "interest-programming",
+        "interest-language"
+      ],
+      "region": "new-territories",
+      "subRegion": "clear-water-bay",
+      "mode": "in-person",
+      "budget": {
+        "min": 113,
+        "max": 479
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-03T16:27:14.328Z"
+    },
+    {
+      "id": "case-048",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-business"
+      ],
+      "region": "new-territories",
+      "subRegion": "kam-sheung-road",
+      "mode": "in-person",
+      "budget": {
+        "min": 106,
+        "max": 327
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-22T16:27:14.328Z"
+    },
+    {
+      "id": "case-049",
+      "category": "primary-secondary",
+      "subCategory": "primary",
+      "subjects": [
+        "primary-stem",
+        "primary-english",
+        "primary-chinese"
+      ],
+      "region": "kowloon",
+      "subRegion": "wong-tai-sin",
+      "mode": "online",
+      "budget": {
+        "min": 225,
+        "max": 546
+      },
+      "experience": "曾任職於知名教育機構",
+      "featured": false,
+      "date": "2025-04-08T16:27:14.328Z"
+    },
+    {
+      "id": "case-050",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-business"
+      ],
+      "region": "islands",
+      "subRegion": "ping-chau",
+      "mode": "in-person",
+      "budget": {
+        "min": 154,
+        "max": 354
+      },
+      "experience": "曾任職於知名教育機構",
+      "featured": false,
+      "date": "2025-04-25T16:27:14.328Z"
+    },
+    {
+      "id": "case-051",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-language",
+        "interest-art"
+      ],
+      "region": "islands",
+      "subRegion": "lamma-island",
+      "mode": "in-person",
+      "budget": {
+        "min": 202,
+        "max": 361
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-13T16:27:14.328Z"
+    },
+    {
+      "id": "case-052",
+      "category": "tertiary",
+      "subCategory": "undergraduate",
+      "subjects": [
+        "undergraduate-programming"
+      ],
+      "region": "kowloon",
+      "subRegion": "kowloon-city",
+      "mode": "in-person",
+      "budget": {
+        "min": 287,
+        "max": 382
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-16T16:27:14.328Z"
+    },
+    {
+      "id": "case-053",
+      "category": "tertiary",
+      "subCategory": "postgraduate",
+      "subjects": [
+        "postgraduate-thesis"
+      ],
+      "region": "new-territories",
+      "subRegion": "fo-tan",
+      "mode": "online",
+      "budget": {
+        "min": 191,
+        "max": 493
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-16T16:27:14.328Z"
+    },
+    {
+      "id": "case-054",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-business",
+        "adult-workplace"
+      ],
+      "region": "islands",
+      "subRegion": "ping-chau",
+      "mode": "in-person",
+      "budget": {
+        "min": 165,
+        "max": 599
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-17T16:27:14.328Z"
+    },
+    {
+      "id": "case-055",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-language",
+        "adult-workplace"
+      ],
+      "region": "kowloon",
+      "subRegion": "kowloon-tong",
+      "mode": "online",
+      "budget": {
+        "min": 197,
+        "max": 492
+      },
+      "experience": "有多年教學經驗",
+      "featured": false,
+      "date": "2025-04-28T16:27:14.328Z"
+    },
+    {
+      "id": "case-056",
+      "category": "primary-secondary",
+      "subCategory": "primary",
+      "subjects": [
+        "primary-stem",
+        "primary-general"
+      ],
+      "region": "islands",
+      "subRegion": "discovery-bay",
+      "mode": "online",
+      "budget": {
+        "min": 255,
+        "max": 366
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-06T16:27:14.328Z"
+    },
+    {
+      "id": "case-057",
+      "category": "primary-secondary",
+      "subCategory": "primary",
+      "subjects": [
+        "primary-english"
+      ],
+      "region": "kowloon",
+      "subRegion": "tsim-sha-tsui",
+      "mode": "online",
+      "budget": {
+        "min": 173,
+        "max": 342
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-12T16:27:14.328Z"
+    },
+    {
+      "id": "case-058",
+      "category": "primary-secondary",
+      "subCategory": "secondary",
+      "subjects": [
+        "secondary-computer",
+        "secondary-ls",
+        "secondary-math"
+      ],
+      "region": "new-territories",
+      "subRegion": "kwai-fong",
+      "mode": "online",
+      "budget": {
+        "min": 118,
+        "max": 582
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-28T16:27:14.328Z"
+    },
+    {
+      "id": "case-059",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-art"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "tai-hang",
+      "mode": "online",
+      "budget": {
+        "min": 125,
+        "max": 450
+      },
+      "experience": "有多年教學經驗",
+      "featured": false,
+      "date": "2025-04-23T16:27:14.328Z"
+    },
+    {
+      "id": "case-060",
+      "category": "tertiary",
+      "subCategory": "undergraduate",
+      "subjects": [
+        "undergraduate-economics",
+        "undergraduate-calculus",
+        "undergraduate-statistics"
+      ],
+      "region": "new-territories",
+      "subRegion": "tuen-mun",
+      "mode": "online",
+      "budget": {
+        "min": 289,
+        "max": 417
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-09T16:27:14.328Z"
+    },
+    {
+      "id": "case-061",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-art"
+      ],
+      "region": "islands",
+      "subRegion": "sunny-bay",
+      "mode": "in-person",
+      "budget": {
+        "min": 187,
+        "max": 534
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-18T16:27:14.328Z"
+    },
+    {
+      "id": "case-062",
+      "category": "tertiary",
+      "subCategory": "undergraduate",
+      "subjects": [
+        "undergraduate-programming",
+        "undergraduate-economics",
+        "undergraduate-accounting"
+      ],
+      "region": "new-territories",
+      "subRegion": "yuen-long",
+      "mode": "online",
+      "budget": {
+        "min": 234,
+        "max": 490
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-27T16:27:14.328Z"
+    },
+    {
+      "id": "case-063",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-music"
+      ],
+      "region": "new-territories",
+      "subRegion": "tuen-mun",
+      "mode": "online",
+      "budget": {
+        "min": 236,
+        "max": 434
+      },
+      "experience": "曾任職於知名教育機構",
+      "featured": false,
+      "date": "2025-04-04T16:27:14.328Z"
+    },
+    {
+      "id": "case-064",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-workplace"
+      ],
+      "region": "islands",
+      "subRegion": "sunny-bay",
+      "mode": "in-person",
+      "budget": {
+        "min": 242,
+        "max": 413
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-27T16:27:14.328Z"
+    },
+    {
+      "id": "case-065",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-english"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "braemar-hill",
+      "mode": "online",
+      "budget": {
+        "min": 112,
+        "max": 334
+      },
+      "experience": "曾任職於知名教育機構",
+      "featured": true,
+      "date": "2025-04-04T16:27:14.328Z"
+    },
+    {
+      "id": "case-066",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-english"
+      ],
+      "region": "islands",
+      "subRegion": "cheung-chau",
+      "mode": "online",
+      "budget": {
+        "min": 191,
+        "max": 431
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-19T16:27:14.328Z"
+    },
+    {
+      "id": "case-067",
+      "category": "tertiary",
+      "subCategory": "undergraduate",
+      "subjects": [
+        "undergraduate-programming"
+      ],
+      "region": "kowloon",
+      "subRegion": "ngau-tau-kok",
+      "mode": "in-person",
+      "budget": {
+        "min": 212,
+        "max": 501
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-20T16:27:14.328Z"
+    },
+    {
+      "id": "case-068",
+      "category": "primary-secondary",
+      "subCategory": "primary",
+      "subjects": [
+        "primary-general"
+      ],
+      "region": "kowloon",
+      "subRegion": "ho-man-tin",
+      "mode": "online",
+      "budget": {
+        "min": 175,
+        "max": 489
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-30T16:27:14.328Z"
+    },
+    {
+      "id": "case-069",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-chinese"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "shek-tong-tsui",
+      "mode": "online",
+      "budget": {
+        "min": 189,
+        "max": 559
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-15T16:27:14.328Z"
+    },
+    {
+      "id": "case-070",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-business"
+      ],
+      "region": "new-territories",
+      "subRegion": "kwai-chung",
+      "mode": "online",
+      "budget": {
+        "min": 218,
+        "max": 405
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-03T16:27:14.328Z"
+    },
+    {
+      "id": "case-071",
+      "category": "primary-secondary",
+      "subCategory": "primary",
+      "subjects": [
+        "primary-english"
+      ],
+      "region": "new-territories",
+      "subRegion": "tuen-mun",
+      "mode": "online",
+      "budget": {
+        "min": 280,
+        "max": 459
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-19T16:27:14.328Z"
+    },
+    {
+      "id": "case-072",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-workplace",
+        "adult-business"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "sai-wan-ho",
+      "mode": "online",
+      "budget": {
+        "min": 234,
+        "max": 552
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-19T16:27:14.328Z"
+    },
+    {
+      "id": "case-073",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-math",
+        "early-childhood-chinese"
+      ],
+      "region": "new-territories",
+      "subRegion": "kwai-chung",
+      "mode": "online",
+      "budget": {
+        "min": 289,
+        "max": 306
+      },
+      "experience": "有多年教學經驗",
+      "featured": false,
+      "date": "2025-04-20T16:27:14.328Z"
+    },
+    {
+      "id": "case-074",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-music",
+        "interest-programming"
+      ],
+      "region": "islands",
+      "subRegion": "tung-chung",
+      "mode": "in-person",
+      "budget": {
+        "min": 165,
+        "max": 376
+      },
+      "experience": "曾任職於知名教育機構",
+      "featured": false,
+      "date": "2025-04-04T16:27:14.328Z"
+    },
+    {
+      "id": "case-075",
+      "category": "tertiary",
+      "subCategory": "postgraduate",
+      "subjects": [
+        "postgraduate-spss",
+        "postgraduate-presentation",
+        "postgraduate-thesis"
+      ],
+      "region": "islands",
+      "subRegion": "tung-chung",
+      "mode": "in-person",
+      "budget": {
+        "min": 196,
+        "max": 480
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-23T16:27:14.328Z"
+    },
+    {
+      "id": "case-076",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-programming",
+        "interest-music"
+      ],
+      "region": "kowloon",
+      "subRegion": "mong-kok",
+      "mode": "in-person",
+      "budget": {
+        "min": 222,
+        "max": 307
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-28T16:27:14.328Z"
+    },
+    {
+      "id": "case-077",
+      "category": "primary-secondary",
+      "subCategory": "primary",
+      "subjects": [
+        "primary-english"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "shau-kei-wan",
+      "mode": "in-person",
+      "budget": {
+        "min": 131,
+        "max": 560
+      },
+      "experience": "有多年教學經驗",
+      "featured": true,
+      "date": "2025-04-11T16:27:14.328Z"
+    },
+    {
+      "id": "case-078",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-business"
+      ],
+      "region": "new-territories",
+      "subRegion": "sheung-shui",
+      "mode": "in-person",
+      "budget": {
+        "min": 139,
+        "max": 425
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-02T16:27:14.328Z"
+    },
+    {
+      "id": "case-079",
+      "category": "tertiary",
+      "subCategory": "postgraduate",
+      "subjects": [
+        "postgraduate-presentation"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "tin-hau",
+      "mode": "in-person",
+      "budget": {
+        "min": 174,
+        "max": 342
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-27T16:27:14.328Z"
+    },
+    {
+      "id": "case-080",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-english"
+      ],
+      "region": "new-territories",
+      "subRegion": "kwai-chung",
+      "mode": "in-person",
+      "budget": {
+        "min": 147,
+        "max": 562
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-24T16:27:14.328Z"
+    },
+    {
+      "id": "case-081",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-english",
+        "early-childhood-chinese"
+      ],
+      "region": "kowloon",
+      "subRegion": "yau-ma-tei",
+      "mode": "in-person",
+      "budget": {
+        "min": 138,
+        "max": 543
+      },
+      "experience": "有多年教學經驗",
+      "featured": false,
+      "date": "2025-04-28T16:27:14.328Z"
+    },
+    {
+      "id": "case-082",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-english"
+      ],
+      "region": "kowloon",
+      "subRegion": "lam-tin",
+      "mode": "in-person",
+      "budget": {
+        "min": 122,
+        "max": 474
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-26T16:27:14.328Z"
+    },
+    {
+      "id": "case-083",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-language",
+        "interest-programming",
+        "interest-art"
+      ],
+      "region": "islands",
+      "subRegion": "mui-wo",
+      "mode": "in-person",
+      "budget": {
+        "min": 290,
+        "max": 386
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-13T16:27:14.328Z"
+    },
+    {
+      "id": "case-084",
+      "category": "primary-secondary",
+      "subCategory": "secondary",
+      "subjects": [
+        "secondary-english",
+        "secondary-computer"
+      ],
+      "region": "kowloon",
+      "subRegion": "mong-kok",
+      "mode": "online",
+      "budget": {
+        "min": 214,
+        "max": 595
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": true,
+      "date": "2025-04-12T16:27:14.328Z"
+    },
+    {
+      "id": "case-085",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-language",
+        "adult-business"
+      ],
+      "region": "islands",
+      "subRegion": "tung-chung",
+      "mode": "in-person",
+      "budget": {
+        "min": 176,
+        "max": 459
+      },
+      "experience": "有多年教學經驗",
+      "featured": false,
+      "date": "2025-04-01T16:27:14.328Z"
+    },
+    {
+      "id": "case-086",
+      "category": "primary-secondary",
+      "subCategory": "primary",
+      "subjects": [
+        "primary-english",
+        "primary-math"
+      ],
+      "region": "islands",
+      "subRegion": "lamma-island",
+      "mode": "in-person",
+      "budget": {
+        "min": 293,
+        "max": 346
+      },
+      "experience": "擅長因材施教",
+      "featured": true,
+      "date": "2025-04-23T16:27:14.328Z"
+    },
+    {
+      "id": "case-087",
+      "category": "tertiary",
+      "subCategory": "postgraduate",
+      "subjects": [
+        "postgraduate-thesis"
+      ],
+      "region": "new-territories",
+      "subRegion": "tai-po",
+      "mode": "in-person",
+      "budget": {
+        "min": 298,
+        "max": 342
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-14T16:27:14.328Z"
+    },
+    {
+      "id": "case-088",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-math"
+      ],
+      "region": "new-territories",
+      "subRegion": "kwai-fong",
+      "mode": "online",
+      "budget": {
+        "min": 263,
+        "max": 513
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-20T16:27:14.328Z"
+    },
+    {
+      "id": "case-089",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-language",
+        "adult-business"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "tin-hau",
+      "mode": "online",
+      "budget": {
+        "min": 218,
+        "max": 337
+      },
+      "experience": "曾任職於知名教育機構",
+      "featured": false,
+      "date": "2025-04-10T16:27:14.328Z"
+    },
+    {
+      "id": "case-090",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-math"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "fortress-hill",
+      "mode": "online",
+      "budget": {
+        "min": 165,
+        "max": 402
+      },
+      "experience": "有多年教學經驗",
+      "featured": false,
+      "date": "2025-04-08T16:27:14.328Z"
+    },
+    {
+      "id": "case-091",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-language"
+      ],
+      "region": "new-territories",
+      "subRegion": "tiu-keng-leng",
+      "mode": "in-person",
+      "budget": {
+        "min": 237,
+        "max": 337
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-26T16:27:14.328Z"
+    },
+    {
+      "id": "case-092",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-music",
+        "interest-programming"
+      ],
+      "region": "kowloon",
+      "subRegion": "lam-tin",
+      "mode": "in-person",
+      "budget": {
+        "min": 235,
+        "max": 483
+      },
+      "experience": "有多年教學經驗",
+      "featured": true,
+      "date": "2025-04-17T16:27:14.328Z"
+    },
+    {
+      "id": "case-093",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-workplace"
+      ],
+      "region": "kowloon",
+      "subRegion": "tsz-wan-shan",
+      "mode": "online",
+      "budget": {
+        "min": 152,
+        "max": 466
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-27T16:27:14.328Z"
+    },
+    {
+      "id": "case-094",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-language",
+        "adult-workplace"
+      ],
+      "region": "islands",
+      "subRegion": "tai-o",
+      "mode": "online",
+      "budget": {
+        "min": 186,
+        "max": 544
+      },
+      "experience": "有多年教學經驗",
+      "featured": true,
+      "date": "2025-04-19T16:27:14.328Z"
+    },
+    {
+      "id": "case-095",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-workplace"
+      ],
+      "region": "new-territories",
+      "subRegion": "shek-mun",
+      "mode": "online",
+      "budget": {
+        "min": 270,
+        "max": 538
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-16T16:27:14.328Z"
+    },
+    {
+      "id": "case-096",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-language"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "central-western",
+      "mode": "in-person",
+      "budget": {
+        "min": 229,
+        "max": 578
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-04T16:27:14.328Z"
+    },
+    {
+      "id": "case-097",
+      "category": "tertiary",
+      "subCategory": "postgraduate",
+      "subjects": [
+        "postgraduate-thesis",
+        "postgraduate-spss"
+      ],
+      "region": "islands",
+      "subRegion": "tai-o",
+      "mode": "online",
+      "budget": {
+        "min": 220,
+        "max": 598
+      },
+      "experience": "有多年教學經驗",
+      "featured": false,
+      "date": "2025-04-19T16:27:14.328Z"
+    },
+    {
+      "id": "case-098",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-chinese",
+        "early-childhood-math",
+        "early-childhood-english"
+      ],
+      "region": "kowloon",
+      "subRegion": "to-kwa-wan",
+      "mode": "in-person",
+      "budget": {
+        "min": 264,
+        "max": 491
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-15T16:27:14.328Z"
+    },
+    {
+      "id": "case-099",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-chinese",
+        "early-childhood-math"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "wong-chuk-hang",
+      "mode": "in-person",
+      "budget": {
+        "min": 130,
+        "max": 304
+      },
+      "experience": "擅長因材施教",
+      "featured": true,
+      "date": "2025-04-16T16:27:14.328Z"
+    },
+    {
+      "id": "case-100",
+      "category": "primary-secondary",
+      "subCategory": "primary",
+      "subjects": [
+        "primary-chinese"
+      ],
+      "region": "kowloon",
+      "subRegion": "lam-tin",
+      "mode": "in-person",
+      "budget": {
+        "min": 217,
+        "max": 341
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-06T16:27:14.328Z"
+    },
+    {
+      "id": "case-101",
+      "category": "tertiary",
+      "subCategory": "undergraduate",
+      "subjects": [
+        "undergraduate-economics",
+        "undergraduate-programming"
+      ],
+      "region": "new-territories",
+      "subRegion": "ma-on-shan",
+      "mode": "in-person",
+      "budget": {
+        "min": 292,
+        "max": 367
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-17T16:27:14.328Z"
+    },
+    {
+      "id": "case-102",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-programming"
+      ],
+      "region": "kowloon",
+      "subRegion": "wong-tai-sin",
+      "mode": "online",
+      "budget": {
+        "min": 101,
+        "max": 478
+      },
+      "experience": "曾任職於知名教育機構",
+      "featured": true,
+      "date": "2025-04-19T16:27:14.328Z"
+    },
+    {
+      "id": "case-103",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-music",
+        "interest-programming"
+      ],
+      "region": "new-territories",
+      "subRegion": "sheung-shui",
+      "mode": "in-person",
+      "budget": {
+        "min": 122,
+        "max": 495
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-27T16:27:14.328Z"
+    },
+    {
+      "id": "case-104",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-language"
+      ],
+      "region": "islands",
+      "subRegion": "discovery-bay",
+      "mode": "in-person",
+      "budget": {
+        "min": 224,
+        "max": 403
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-12T16:27:14.328Z"
+    },
+    {
+      "id": "case-105",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-programming"
+      ],
+      "region": "islands",
+      "subRegion": "cheung-chau",
+      "mode": "in-person",
+      "budget": {
+        "min": 204,
+        "max": 584
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-28T16:27:14.328Z"
+    },
+    {
+      "id": "case-106",
+      "category": "tertiary",
+      "subCategory": "postgraduate",
+      "subjects": [
+        "postgraduate-research",
+        "postgraduate-thesis"
+      ],
+      "region": "islands",
+      "subRegion": "tai-o",
+      "mode": "in-person",
+      "budget": {
+        "min": 158,
+        "max": 334
+      },
+      "experience": "曾任職於知名教育機構",
+      "featured": false,
+      "date": "2025-04-03T16:27:14.328Z"
+    },
+    {
+      "id": "case-107",
+      "category": "primary-secondary",
+      "subCategory": "primary",
+      "subjects": [
+        "primary-stem",
+        "primary-math"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "central-western",
+      "mode": "online",
+      "budget": {
+        "min": 228,
+        "max": 306
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-11T16:27:14.328Z"
+    },
+    {
+      "id": "case-108",
+      "category": "primary-secondary",
+      "subCategory": "secondary",
+      "subjects": [
+        "secondary-all"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "sai-wan-ho",
+      "mode": "online",
+      "budget": {
+        "min": 101,
+        "max": 450
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-09T16:27:14.328Z"
+    },
+    {
+      "id": "case-109",
+      "category": "primary-secondary",
+      "subCategory": "primary",
+      "subjects": [
+        "primary-stem",
+        "primary-math",
+        "primary-general"
+      ],
+      "region": "hong-kong-island",
+      "subRegion": "admiralty",
+      "mode": "in-person",
+      "budget": {
+        "min": 251,
+        "max": 408
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-07T16:27:14.328Z"
+    },
+    {
+      "id": "case-110",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-workplace"
+      ],
+      "region": "islands",
+      "subRegion": "sunny-bay",
+      "mode": "in-person",
+      "budget": {
+        "min": 151,
+        "max": 520
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-23T16:27:14.328Z"
+    },
+    {
+      "id": "case-111",
+      "category": "primary-secondary",
+      "subCategory": "secondary",
+      "subjects": [
+        "secondary-all",
+        "secondary-ls",
+        "secondary-chinese"
+      ],
+      "region": "kowloon",
+      "subRegion": "tsim-sha-tsui",
+      "mode": "online",
+      "budget": {
+        "min": 281,
+        "max": 369
+      },
+      "experience": "擅長因材施教",
+      "featured": false,
+      "date": "2025-04-02T16:27:14.328Z"
+    },
+    {
+      "id": "case-112",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-business"
+      ],
+      "region": "kowloon",
+      "subRegion": "kowloon-tong",
+      "mode": "online",
+      "budget": {
+        "min": 190,
+        "max": 449
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-16T16:27:14.328Z"
+    },
+    {
+      "id": "case-113",
+      "category": "primary-secondary",
+      "subCategory": "primary",
+      "subjects": [
+        "primary-english"
+      ],
+      "region": "new-territories",
+      "subRegion": "tai-po",
+      "mode": "in-person",
+      "budget": {
+        "min": 228,
+        "max": 499
+      },
+      "experience": "曾任職於知名教育機構",
+      "featured": false,
+      "date": "2025-04-08T16:27:14.328Z"
+    },
+    {
+      "id": "case-114",
+      "category": "adult",
+      "subCategory": "",
+      "subjects": [
+        "adult-workplace"
+      ],
+      "region": "islands",
+      "subRegion": "lamma-island",
+      "mode": "online",
+      "budget": {
+        "min": 133,
+        "max": 461
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-21T16:27:14.328Z"
+    },
+    {
+      "id": "case-115",
+      "category": "interest",
+      "subCategory": "",
+      "subjects": [
+        "interest-programming",
+        "interest-language"
+      ],
+      "region": "kowloon",
+      "subRegion": "cheung-sha-wan",
+      "mode": "online",
+      "budget": {
+        "min": 163,
+        "max": 528
+      },
+      "experience": "具有豐富的補習經驗",
+      "featured": false,
+      "date": "2025-04-06T16:27:14.328Z"
+    },
+    {
+      "id": "case-116",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-chinese"
+      ],
+      "region": "islands",
+      "subRegion": "tai-o",
+      "mode": "online",
+      "budget": {
+        "min": 226,
+        "max": 311
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-20T16:27:14.328Z"
+    },
+    {
+      "id": "case-117",
+      "category": "tertiary",
+      "subCategory": "postgraduate",
+      "subjects": [
+        "postgraduate-presentation",
+        "postgraduate-spss"
+      ],
+      "region": "islands",
+      "subRegion": "ping-chau",
+      "mode": "in-person",
+      "budget": {
+        "min": 254,
+        "max": 597
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-02T16:27:14.328Z"
+    },
+    {
+      "id": "case-118",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-chinese"
+      ],
+      "region": "islands",
+      "subRegion": "cheung-chau",
+      "mode": "in-person",
+      "budget": {
+        "min": 105,
+        "max": 364
+      },
+      "experience": "有多年教學經驗",
+      "featured": false,
+      "date": "2025-04-23T16:27:14.328Z"
+    },
+    {
+      "id": "case-119",
+      "category": "early-childhood",
+      "subCategory": "",
+      "subjects": [
+        "early-childhood-chinese",
+        "early-childhood-math"
+      ],
+      "region": "new-territories",
+      "subRegion": "ma-on-shan",
+      "mode": "online",
+      "budget": {
+        "min": 162,
+        "max": 550
+      },
+      "experience": "有多年教學經驗",
+      "featured": false,
+      "date": "2025-04-17T16:27:14.328Z"
+    },
+    {
+      "id": "case-120",
+      "category": "primary-secondary",
+      "subCategory": "primary",
+      "subjects": [
+        "primary-math",
+        "primary-english"
+      ],
+      "region": "islands",
+      "subRegion": "mui-wo",
+      "mode": "in-person",
+      "budget": {
+        "min": 288,
+        "max": 578
+      },
+      "experience": "有豐富的考試輔導經驗",
+      "featured": false,
+      "date": "2025-04-05T16:27:14.328Z"
+    }
+  ]
+}

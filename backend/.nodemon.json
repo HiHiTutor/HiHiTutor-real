@@ -1,0 +1,10 @@
+{
+  "watch": ["routes", "controllers", "index.js"],
+  "ignore": [
+    "data/*.json",
+    "public/*.json",
+    ".vscode/**",
+    "node_modules/**",
+    "*.log"
+  ]
+} 

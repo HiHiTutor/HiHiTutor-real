@@ -9,7 +9,7 @@
   },
   {
     "id": "user_1745516152304",
-    "name": "Try1",
+    "name": "Try01",
     "email": "try1@example.com",
     "password": "888888",
     "phone": "91111111",
@@ -18,7 +18,7 @@
   },
   {
     "id": "user_1745516742657",
-    "name": "Try2",
+    "name": "Try02",
     "email": "try2@example.com",
     "password": "888888",
     "phone": "91111112",

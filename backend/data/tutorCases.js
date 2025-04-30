@@ -1,75 +1,39 @@
 const tutorCases = [
   {
-    id: 1,
-    name: "陳老師",
-    subject: "英文",
-    experience: "8年",
-    hourlyRate: "$250/小時",
-    tags: ["英文會話", "DSE", "小學至高中"],
-    status: "可聯絡"
+    "id": "case-001",
+    "subject": "英文",
+    "category": "中小學教育",
+    "subCategory": ["中學教育", "英文"],
+    "region": ["九龍"],
+    "budget": "HK$300/堂",
+    "mode": "面授",
+    "experience": "3年教學經驗",
+    "featured": true,
+    "date": "2024-03-20T12:00:00Z"
   },
   {
-    id: 2,
-    name: "王老師",
-    subject: "數學",
-    experience: "5年",
-    hourlyRate: "$300/小時",
-    tags: ["DSE", "IB", "中學"],
-    status: "可聯絡"
+    "id": "case-002",
+    "subject": "數學",
+    "category": "中小學教育",
+    "subCategory": ["小學教育", "數學"],
+    "region": ["香港島"],
+    "budget": "HK$350/堂",
+    "mode": "網課",
+    "experience": "5年教學經驗",
+    "featured": true,
+    "date": "2024-03-19T12:00:00Z"
   },
   {
-    id: 3,
-    name: "李老師",
-    subject: "物理",
-    experience: "6年",
-    hourlyRate: "$350/小時",
-    tags: ["DSE", "IB", "高中"],
-    status: "可聯絡"
-  },
-  {
-    id: 4,
-    name: "張老師",
-    subject: "化學",
-    experience: "4年",
-    hourlyRate: "$300/小時",
-    tags: ["DSE", "中學", "高中"],
-    status: "可聯絡"
-  },
-  {
-    id: 5,
-    name: "林老師",
-    subject: "生物",
-    experience: "7年",
-    hourlyRate: "$350/小時",
-    tags: ["DSE", "IB", "高中"],
-    status: "可聯絡"
-  },
-  {
-    id: 6,
-    name: "黃老師",
-    subject: "中文",
-    experience: "9年",
-    hourlyRate: "$280/小時",
-    tags: ["DSE", "小學至高中"],
-    status: "可聯絡"
-  },
-  {
-    id: 7,
-    name: "吳老師",
-    subject: "歷史",
-    experience: "5年",
-    hourlyRate: "$250/小時",
-    tags: ["DSE", "中學", "高中"],
-    status: "可聯絡"
-  },
-  {
-    id: 8,
-    name: "劉老師",
-    subject: "地理",
-    experience: "6年",
-    hourlyRate: "$250/小時",
-    tags: ["DSE", "中學", "高中"],
-    status: "可聯絡"
+    "id": "case-003",
+    "subject": "鋼琴",
+    "category": "興趣班",
+    "subCategory": ["音樂", "鋼琴"],
+    "region": ["新界"],
+    "budget": "HK$400/堂",
+    "mode": "面授",
+    "experience": "8年教學經驗",
+    "featured": true,
+    "date": "2024-03-18T12:00:00Z"
   }
 ];
 

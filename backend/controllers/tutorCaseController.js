@@ -1,46 +1,72 @@
-const { loadTutorCases } = require('../utils/tutorCaseStorage');
+const fs = require('fs');
+const path = require('path');
 
-// 獲取所有導師個案
+// 讀取導師案例數據
+let tutorCases = [];
+try {
+  const data = fs.readFileSync(path.join(__dirname, '../data/tutorCases.json'), 'utf8');
+  const jsonData = JSON.parse(data);
+  tutorCases = Array.isArray(jsonData.cases) ? jsonData.cases : [];
+} catch (error) {
+  console.error('Error reading tutor cases:', error);
+  tutorCases = [];
+}
+
+// 獲取所有導師案例
 const getAllTutorCases = (req, res) => {
   try {
-    const tutorCases = loadTutorCases();
-    
-    // 獲取分頁參數
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    
-    // 計算起始和結束索引
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    
-    // 獲取當前頁的個案
-    const paginatedCases = tutorCases.slice(startIndex, endIndex);
-    
-    // 如果沒有數據，返回空陣列
-    if (!paginatedCases || paginatedCases.length === 0) {
-      return res.json([]);
+    if (!Array.isArray(tutorCases)) {
+      console.error('tutorCases is not an array:', tutorCases);
+      return res.status(500).json({ error: 'Internal server error: Invalid data format' });
     }
-    
-    res.json(paginatedCases);
+
+    const { featured, limit, page = 1 } = req.query;
+    let result = [...tutorCases];
+
+    // 過濾特色案例
+    if (featured === 'true') {
+      result = result.filter(c => c.featured === true);
+    }
+
+    // 分頁
+    const pageSize = limit ? Number(limit) : 10;
+    const startIndex = (Number(page) - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedResult = result.slice(startIndex, endIndex);
+
+    res.json({
+      cases: paginatedResult,
+      total: result.length,
+      page: Number(page),
+      limit: pageSize,
+      totalPages: Math.ceil(result.length / pageSize)
+    });
   } catch (error) {
-    console.error('獲取導師個案錯誤:', error);
-    res.status(500).json({ message: '伺服器錯誤，請稍後再試' });
+    console.error('Error in getAllTutorCases:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
-// 獲取推薦導師個案
+// 獲取推薦導師案例
 const getRecommendedTutorCases = (req, res) => {
   try {
-    const tutorCases = loadTutorCases();
-    const recommended = tutorCases
-      .filter(tutorCase => tutorCase.status === 'approved') // 選出已審核
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // 按時間新排
-      .slice(0, 8); // 只取8個
+    if (!Array.isArray(tutorCases)) {
+      console.error('tutorCases is not an array:', tutorCases);
+      return res.status(500).json({ error: 'Internal server error: Invalid data format' });
+    }
 
-    res.json(recommended);
+    const limit = parseInt(req.query.limit) || 8;
+    const recommendedCases = tutorCases
+      .filter(case_ => case_.featured)
+      .slice(0, limit);
+
+    res.json({
+      cases: recommendedCases,
+      total: recommendedCases.length
+    });
   } catch (error) {
-    console.error('獲取推薦導師個案錯誤:', error);
-    res.status(500).json({ message: '伺服器錯誤，請稍後再試' });
+    console.error('Error in getRecommendedTutorCases:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 

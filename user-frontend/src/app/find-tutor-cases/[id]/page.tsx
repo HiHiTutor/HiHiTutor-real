@@ -16,7 +16,7 @@ export default function FindTutorCaseDetailPage() {
     setUserType(localStorage.getItem('userType'));
     const fetchCase = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/find-tutor-cases/${id}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/find-tutor-cases/${id}`);
         if (response.ok) {
           const data = await response.json();
           setCaseDetail(data);
@@ -53,22 +53,27 @@ export default function FindTutorCaseDetailPage() {
       </div>
       <div className="bg-blue-100 border border-blue-300 rounded-xl p-8">
         <p className="text-gray-600">個案 ID：{caseDetail.id}</p>
-        <p className="text-gray-600">科目：{caseDetail.subject}</p>
-        <p className="text-gray-600">地點：{caseDetail.location}</p>
-        <p className="text-gray-600">收費：{caseDetail.budget}</p>
-        <p className="text-gray-600">模式：{caseDetail.mode}</p>
-        <p className="text-gray-600">要求：{caseDetail.requirement}</p>
-        <button
-          onClick={handleApply}
-          className="mt-4 py-2 px-4 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
-        >
-          申請此個案
-        </button>
-        {showError && (
-          <div className="mt-4 bg-red-100 border border-red-300 rounded-xl p-4 text-red-600">
-            需要升級為導師才可申請此個案
-          </div>
-        )}
+        <p className="text-gray-600">科目：{caseDetail.subjects?.join(', ')}</p>
+        <p className="text-gray-600">地點：{caseDetail.subRegion}</p>
+        <p className="text-gray-600">
+          收費：
+          {typeof caseDetail.budget === 'object' && caseDetail.budget !== null
+            ? `${caseDetail.budget.min} - ${caseDetail.budget.max}/小時`
+            : '價格待議'}
+        </p>
+        <p className="text-gray-600">模式：{caseDetail.mode === 'online' ? '網課' : '面授'}</p>
+        <p className="text-gray-600">要求：{caseDetail.experience}</p>
+        <div>
+          <button
+            onClick={handleApply}
+            className="mt-4 py-2 px-4 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
+          >
+            申請此個案
+          </button>
+          {showError && (
+            <div className="mt-4 text-red-600">需要升級為導師才可申請此個案</div>
+          )}
+        </div>
       </div>
     </section>
   );
