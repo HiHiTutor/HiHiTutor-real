@@ -46,7 +46,7 @@ const TEACHING_MODE_OPTIONS = [
 
 export const CATEGORY_OPTIONS: CategoryOption[] = [
   { 
-    value: 'preschool', 
+    value: 'early-childhood',
     label: '幼兒教育',
     subjects: [
       { value: 'preschool-chinese', label: '幼兒中文' },
