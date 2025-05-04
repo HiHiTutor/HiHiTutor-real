@@ -204,7 +204,33 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api${fetchUrl}`);
         if (response.ok) {
           const data = await response.json();
-          setCases(Array.isArray(data.cases) ? data.cases : []);
+          
+          // 處理不同格式的回應
+          let casesData: Case[] = [];
+          
+          if (Array.isArray(data)) {
+            // 格式 a: 直接為陣列
+            casesData = data;
+          } else if (data && typeof data === 'object') {
+            // 格式 b: 包含陣列屬性的物件
+            if (Array.isArray(data.cases)) {
+              casesData = data.cases;
+            } else if (Array.isArray(data.data?.cases)) {
+              casesData = data.data.cases;
+            } else if (Array.isArray(data.data)) {
+              casesData = data.data;
+            }
+          }
+          
+          // 確保資料是有效的 Case 物件陣列
+          const validCases = casesData.filter(case_ => 
+            case_ && 
+            typeof case_ === 'object' && 
+            'id' in case_ && 
+            'category' in case_
+          );
+          
+          setCases(validCases);
           setError(null);
         } else {
           throw new Error('Failed to fetch cases');

@@ -1,10 +1,10 @@
-const { loadUsers } = require('../utils/userStorage');
+const userRepository = require('../repositories/UserRepository');
 
 // 獲取所有用戶
-exports.getAllUsers = (req, res) => {
+exports.getAllUsers = async (req, res) => {
   try {
     console.log('[API] GET /api/admin/users 收到請求');
-    const users = loadUsers(); // ✅ 加上括號
+    const users = await userRepository.getAllUsers();
     const sanitizedUsers = users.map(({ id, name, email, phone, userType }) => ({
       id, name, email, phone, userType
     }));

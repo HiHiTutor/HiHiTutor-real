@@ -8,16 +8,35 @@ export default function PostPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const user = localStorage.getItem('user');
-    if (user) {
-      try {
-        const userData = JSON.parse(user);
-        setUserRole(userData.role || userData.userType);
-      } catch (e) {
-        console.error('解析用戶資料失敗:', e);
-      }
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.replace('/login');
+      return;
     }
-  }, []);
+    // 有 token 才 fetch user data
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/me', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (!response.ok) {
+          throw new Error('無法獲取用戶資料');
+        }
+        const data = await response.json();
+        if (!data.success) {
+          throw new Error(data.message || '獲取用戶資料失敗');
+        }
+        // 設置用戶角色，優先使用 userType，如果沒有則使用 role
+        const role = data.data.userType || data.data.role;
+        setUserRole(role);
+      } catch (err) {
+        router.replace('/login');
+      }
+    };
+    fetchUserData();
+  }, [router]);
 
   const handlePostTypeSelect = (type: 'student' | 'tutor') => {
     if (type === 'student') {
@@ -66,9 +85,9 @@ export default function PostPage() {
           {/* 提示信息 */}
           <div className="mt-6 p-4 bg-yellow-50 rounded-lg">
             <p className="text-sm text-yellow-800">
-              {userRole === 'tutor' 
+              {userRole === 'tutor'
                 ? '作為導師，您可以發布學生個案和導師個案。'
-                : '作為普通用戶，您可以發布學生個案來尋找導師。'}
+                : '作為學生，您可以發布學生個案來尋找導師。'}
             </p>
           </div>
         </div>

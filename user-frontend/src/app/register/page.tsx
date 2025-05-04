@@ -136,7 +136,8 @@ export default function RegisterPage() {
         formData.name,
         formData.email,
         formData.password,
-        formData.phone
+        formData.phone,
+        formData.userType
       );
 
       // 清除臨時令牌並導向登入頁

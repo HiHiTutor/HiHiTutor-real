@@ -102,18 +102,37 @@ const CategoryList: React.FC = () => {
       <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {categories.map((category) => {
-            console.log('🎯 處理分類:', {
-              id: category.id,
-              name: category.name,
-              icon: CATEGORY_ICONS[category.id],
-              description: getCategoryDescription(category)
-            });
+            // 對應分類 name 到 studentCases.json 的 category 值
+            let categoryParam = '';
+            switch (category.name) {
+              case '幼兒教育':
+                categoryParam = 'early-childhood'; // 與 studentCases.json 一致
+                break;
+              case '中小學教育':
+                categoryParam = 'primary-secondary';
+                break;
+              case '大專補習課程':
+                categoryParam = 'tertiary';
+                break;
+              case '興趣班':
+                categoryParam = 'interest';
+                break;
+              case '成人教育':
+                categoryParam = 'adult';
+                break;
+              default:
+                categoryParam = '';
+            }
+            const link = categoryParam
+              ? `/find-student-cases?category=${categoryParam}`
+              : undefined;
             return (
               <CategoryCard
                 key={category.id}
                 title={category.name}
                 subtitle={getCategoryDescription(category)}
                 icon={CATEGORY_ICONS[category.id] || '📚'}
+                href={link}
               />
             );
           })}

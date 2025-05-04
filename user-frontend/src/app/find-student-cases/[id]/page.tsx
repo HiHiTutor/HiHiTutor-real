@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { getSubjectNames, getRegionName, getSubRegionName, getModeName } from '@/utils/translate';
 
 interface Case {
   id: string;
@@ -167,8 +168,8 @@ export default function FindStudentCaseDetailPage() {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/find-student-cases/${id}`);
         if (response.ok) {
-          const data = await response.json();
-          setCaseDetail(data);
+          const result = await response.json();
+          setCaseDetail(result.data);
         } else {
           setCaseDetail(null);
         }
@@ -193,16 +194,22 @@ export default function FindStudentCaseDetailPage() {
     console.log(`Applying for case: ${id}`);
   };
 
-  // 格式化日期
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
-  };
-
-  // 獲取科目中文名稱
-  const getSubjectNames = (subjects: string[], category: string, subCategory: string) => {
-    const subjectMap = SUBJECTS[subCategory] || SUBJECTS[category] || {};
-    return subjects.map(subject => subjectMap[subject] || subject).join('、');
+  // 處理預算資料
+  const getBudget = () => {
+    if (!caseDetail.budget) return "價格待議";
+    
+    if (typeof caseDetail.budget === 'string') {
+      return caseDetail.budget;
+    }
+    
+    if (typeof caseDetail.budget === 'object' && caseDetail.budget !== null) {
+      const { min, max } = caseDetail.budget;
+      if (min && max) {
+        return `${min} - ${max}/小時`;
+      }
+    }
+    
+    return "價格待議";
   };
 
   return (
@@ -212,17 +219,12 @@ export default function FindStudentCaseDetailPage() {
         <h2 className="text-2xl font-bold border-l-4 border-yellow-400 pl-3">精選導師個案</h2>
       </div>
       <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-8">
-        <p className="text-gray-600">個案 ID：{caseDetail.id}</p>
+        <p className="text-gray-600">個案 ID：{caseDetail.id || '無ID'}</p>
         <p className="text-gray-600">科目：{getSubjectNames(caseDetail.subjects, caseDetail.category, caseDetail.subCategory)}</p>
-        <p className="text-gray-600">地點：{REGIONS[caseDetail.region]} {SUB_REGIONS[caseDetail.region]?.[caseDetail.subRegion]}</p>
-        <p className="text-gray-600">
-          收費：
-          {typeof caseDetail.budget === 'object' && caseDetail.budget !== null
-            ? `${caseDetail.budget.min} - ${caseDetail.budget.max}/小時`
-            : '價格待議'}
-        </p>
-        <p className="text-gray-600">模式：{MODES[caseDetail.mode] || caseDetail.mode}</p>
-        <p className="text-gray-600">要求：{EXPERIENCES[caseDetail.experience] || caseDetail.experience}</p>
+        <p className="text-gray-600">地點：{getRegionName(caseDetail.region)} {getSubRegionName(caseDetail.subRegion)}</p>
+        <p className="text-gray-600">收費：{getBudget()}</p>
+        <p className="text-gray-600">模式：{getModeName(caseDetail.mode)}</p>
+        <p className="text-gray-600">要求：{EXPERIENCES[caseDetail.experience] || caseDetail.experience || '未指定'}</p>
         <div>
           <button
             onClick={handleApply}

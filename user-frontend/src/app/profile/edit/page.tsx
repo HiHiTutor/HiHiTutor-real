@@ -9,7 +9,7 @@ interface User {
   name: string;
   email: string;
   phone: string;
-  userType?: 'personal' | 'organization';
+  userType?: 'normal' | 'organization';
 }
 
 export default function EditProfilePage() {
@@ -20,7 +20,7 @@ export default function EditProfilePage() {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    userType: 'personal'
+    userType: 'normal'
   });
   const router = useRouter();
 
@@ -53,7 +53,7 @@ export default function EditProfilePage() {
         setFormData({
           name: data.data.name,
           phone: data.data.phone,
-          userType: data.data.userType || 'personal'
+          userType: data.data.userType || 'normal'
         });
       } catch (err) {
         setError(err instanceof Error ? err.message : '發生錯誤');
@@ -176,10 +176,10 @@ export default function EditProfilePage() {
                 <select
                   id="userType"
                   value={formData.userType}
-                  onChange={(e) => setFormData({ ...formData, userType: e.target.value as 'personal' | 'organization' })}
+                  onChange={(e) => setFormData({ ...formData, userType: e.target.value as 'normal' | 'organization' })}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 >
-                  <option value="personal">個人</option>
+                  <option value="normal">個人</option>
                   <option value="organization">機構</option>
                 </select>
               </div>

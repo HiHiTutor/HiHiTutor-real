@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getCurrentUser } = require('../controllers/userController');
 const { verifyToken } = require('../middleware/authMiddleware');
-const { loadUsers, saveUsers } = require('../utils/userStorage');
+const userRepository = require('../repositories/UserRepository');
 
 router.get('/me', verifyToken, getCurrentUser);
 
@@ -20,30 +20,19 @@ router.put('/me/update', verifyToken, async (req, res) => {
       });
     }
 
-    // 載入所有用戶
-    const users = loadUsers();
-    
-    // 找到要更新的用戶
-    const userIndex = users.findIndex(u => u.id === userId);
-    
-    if (userIndex === -1) {
+    // 更新用戶資料
+    const updatedUser = userRepository.updateUser(userId, {
+      name,
+      phone,
+      userType: userType || 'normal'
+    });
+
+    if (!updatedUser) {
       return res.status(404).json({
         success: false,
         message: '找不到用戶'
       });
     }
-
-    // 更新用戶資料
-    const updatedUser = {
-      ...users[userIndex],
-      name,
-      phone,
-      userType: userType || 'personal'
-    };
-
-    // 保存更新後的用戶列表
-    users[userIndex] = updatedUser;
-    saveUsers(users);
 
     // 返回更新後的用戶資料（不包含密碼）
     const { password, ...safeUser } = updatedUser;

@@ -1,4 +1,4 @@
-const { loadUsers } = require('../utils/userStorage');
+const userRepository = require('../repositories/UserRepository');
 
 const getCurrentUser = async (req, res) => {
   try {
@@ -14,8 +14,7 @@ const getCurrentUser = async (req, res) => {
       return res.status(401).json({ success: false, message: '無效的用戶 ID' });
     }
 
-    const users = loadUsers();
-    const currentUser = users.find((u) => u.id === req.user.id);
+    const currentUser = await userRepository.getUserById(req.user.id);
 
     if (!currentUser) {
       console.log('❌ 獲取用戶資料失敗: 用戶不存在');

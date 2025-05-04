@@ -1,37 +1,19 @@
-const { loadUsers } = require('../utils/userStorage');
+const userRepository = require('../repositories/UserRepository');
 
-const verifyAdmin = (req, res, next) => {
+const verifyAdmin = async (req, res, next) => {
   try {
-    // 檢查是否已登入
-    if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        message: '未登入'
-      });
-    }
+    const userId = req.user?.id;
+    const user = await userRepository.getUserById(userId);
 
-    // 載入用戶資料
-    const users = loadUsers();
-    const currentUser = users.find(u => u.id === req.user.id);
-
-    // 檢查是否為管理員
-    if (!currentUser || currentUser.role !== 'admin') {
-      return res.status(403).json({
-        success: false,
-        message: '需要管理員權限'
-      });
+    if (!user || !user.isAdmin) {
+      return res.status(403).json({ message: '需要管理員權限' });
     }
 
     next();
   } catch (error) {
-    console.error('驗證管理員權限失敗:', error);
-    res.status(500).json({
-      success: false,
-      message: '驗證管理員權限失敗'
-    });
+    console.error('❌ Admin 驗證錯誤：', error);
+    res.status(500).json({ message: '驗證管理員身份失敗' });
   }
 };
 
-module.exports = {
-  verifyAdmin
-}; 
+module.exports = { verifyAdmin }; 

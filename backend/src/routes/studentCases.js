@@ -215,4 +215,23 @@ router.get('/recommended-tutor-cases', (req, res) => {
   res.json(filtered);
 });
 
+// 學生出Post（POST /api/find-tutor-cases）
+const postStudentCaseHandler = (req, res) => {
+  try {
+    const filePath = path.resolve(__dirname, '../data/studentCases.json');
+    const cases = JSON.parse(fs.readFileSync(filePath));
+    const newCase = { ...req.body, id: `S${Date.now()}` };
+    cases.unshift(newCase);
+    fs.writeFileSync(filePath, JSON.stringify(cases, null, 2));
+    res.json({ success: true, data: newCase });
+  } catch (error) {
+    res.status(500).json({ success: false, message: '新增學生個案失敗' });
+  }
+};
+router.post('/', postStudentCaseHandler);
+router.post('/find-tutor-cases', postStudentCaseHandler);
+
+// 導師出Post（POST /api/find-student-cases）
+// 這段要放在另一個 router 實例，或用條件判斷路徑
+
 module.exports = router; 

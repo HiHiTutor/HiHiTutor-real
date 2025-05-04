@@ -110,64 +110,7 @@ if (process.env.NODE_ENV === 'development' && tutorCases.length === 0) {
 }
 
 // GET all tutor cases
-router.get('/', (req, res) => {
-  try {
-    console.log('收到獲取導師個案請求，查詢參數:', req.query);
-    
-    let filteredCases = [...tutorCases];
-    
-    // 應用過濾條件
-    if (req.query.category) {
-      filteredCases = filteredCases.filter(c => c.category === req.query.category);
-    }
-    if (req.query.subCategory) {
-      filteredCases = filteredCases.filter(c => c.subCategory === req.query.subCategory);
-    }
-    if (req.query.subjects) {
-      const subjects = Array.isArray(req.query.subjects) ? req.query.subjects : [req.query.subjects];
-      filteredCases = filteredCases.filter(c => subjects.includes(c.subjects));
-    }
-    if (req.query.region) {
-      filteredCases = filteredCases.filter(c => c.region === req.query.region);
-    }
-    if (req.query.subRegion) {
-      const subRegions = Array.isArray(req.query.subRegion) ? req.query.subRegion : [req.query.subRegion];
-      filteredCases = filteredCases.filter(c => subRegions.includes(c.subRegion));
-    }
-    if (req.query.mode) {
-      filteredCases = filteredCases.filter(c => c.mode === req.query.mode);
-    }
-    if (req.query.priceMin) {
-      filteredCases = filteredCases.filter(c => c.budget >= parseInt(req.query.priceMin));
-    }
-    if (req.query.priceMax) {
-      filteredCases = filteredCases.filter(c => c.budget <= parseInt(req.query.priceMax));
-    }
-    if (req.query.featured === 'true') {
-      filteredCases = filteredCases.filter(c => c.featured === true);
-    }
-
-    // 分頁處理
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    const paginatedCases = filteredCases.slice(startIndex, endIndex);
-
-    console.log('返回過濾後的導師個案數據，共', paginatedCases.length, '筆');
-    
-    res.json({
-      cases: paginatedCases,
-      total: filteredCases.length,
-      page,
-      limit,
-      totalPages: Math.ceil(filteredCases.length / limit)
-    });
-  } catch (error) {
-    console.error('處理導師個案請求時出錯:', error);
-    res.status(500).json({ error: '獲取導師個案失敗' });
-  }
-});
+router.get('/', getAllTutorCases);
 
 // GET recommended tutor cases
 router.get('/recommended', getRecommendedTutorCases);
@@ -177,12 +120,22 @@ router.get('/:id', (req, res) => {
   try {
     const case_ = tutorCases.find(c => c.id === req.params.id);
     if (!case_) {
-      return res.status(404).json({ error: '找不到該導師個案' });
+      return res.status(404).json({
+        success: false,
+        message: '找不到該導師個案'
+      });
     }
-    res.json(case_);
+    res.json({
+      success: true,
+      data: case_,
+      message: '成功獲取導師個案'
+    });
   } catch (error) {
-    console.error('處理單個導師個案請求時出錯:', error);
-    res.status(500).json({ error: '獲取導師個案失敗' });
+    console.error('[❌] 處理單個導師個案請求時出錯:', error);
+    res.status(500).json({
+      success: false,
+      message: '獲取導師個案失敗'
+    });
   }
 });
 

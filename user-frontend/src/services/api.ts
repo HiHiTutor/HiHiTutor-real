@@ -134,10 +134,10 @@ export const authApi = {
     }),
   
   // 用戶註冊
-  register: (name: string, email: string, password: string, phone: string) => 
+  register: (name: string, email: string, password: string, phone: string, userType: string) => 
     fetchApi('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ name, email, password, phone }),
+      body: JSON.stringify({ name, email, password, phone, userType }),
     }),
   
   // 獲取用戶資料

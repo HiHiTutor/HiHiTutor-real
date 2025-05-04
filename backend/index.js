@@ -27,6 +27,8 @@ const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/user');
 const studentCasesRouter = require('./routes/studentCases');
 const tutorCasesRouter = require('./routes/tutorCases');
+const upload = require('./uploadMiddleware');
+const { verifyToken } = require('./middleware/authMiddleware');
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -38,8 +40,14 @@ if (!process.env.JWT_SECRET) {
 }
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 // Request Logger Middleware
@@ -68,6 +76,25 @@ app.use('/api/case-applications', caseApplicationRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api', userRoutes);
+app.post('/api/upload', upload.array('files'), (req, res) => {
+  try {
+    const uploadedFiles = req.files;
+    const userId = req.body.userId || 'unknown';
+    if (!uploadedFiles || uploadedFiles.length === 0) {
+      return res.status(400).json({ success: false, message: 'Upload failed' });
+    }
+    // 回傳所有檔案的資訊
+    res.json({
+      success: true,
+      files: uploadedFiles.map(f => ({
+        filename: f.filename,
+        url: `/uploads/${userId}/${f.filename}`
+      }))
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Upload failed' });
+  }
+});
 
 // 錯誤處理中間件
 app.use((err, req, res, next) => {
@@ -93,4 +120,9 @@ app.listen(port, () => {
   console.log('- /api/applications');
   console.log('- /api/admin');
   console.log('- /api');
-}); 
+});
+
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+
+// 全域掛載 verifyToken 中間件，讓所有請求都能自動解 JWT 並設 req.user。
+app.use(verifyToken);

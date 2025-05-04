@@ -15,6 +15,7 @@ interface User {
   name: string;
   email: string;
   phone: string;
+  userType: string;
 }
 
 const SubjectBar = ({ name, percent }: { name: string; percent: number }) => (
@@ -60,23 +61,15 @@ export default function HeroSection() {
     <section className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 items-start px-4 py-10">
       {/* 左欄：Hero 圖 & 文案 */}
       <div className="w-full lg:w-2/3">
-        <div className="relative w-full bg-white">
-          {/* 背景圖片 */}
-          <Image
-            src="/hero-banner.jpg"
-            alt="Hero Illustration"
-            width={1200}
-            height={400}
-            className="w-full object-cover h-[400px] opacity-50"
-          />
-
+        <div className="relative w-full h-[400px] bg-[url('/backbroad.jpg')] bg-cover bg-center">
           {/* 疊加內容 */}
           <div className="absolute top-0 left-0 h-full w-full flex items-center px-8">
-            <div className="max-w-md text-black space-y-6">
-              <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 drop-shadow-md">
-                找到最適合你的 <span className="text-yellow-500">私人補習導師</span>
+            <div className="max-w-md text-white space-y-6">
+              <h1 className="text-3xl lg:text-4xl font-extrabold text-white drop-shadow-md">
+                找到最適合你的 <br />
+                <span className="text-yellow-300 text-4xl">私人補習導師</span>
               </h1>
-              <p>HiHiTutor 幫你配對最合適的導師，讓學習更有效率。</p>
+              <p className="text-white">HiHiTutor 幫你配對最合適的導師，讓學習更有效率。</p>
               <div className="flex gap-4">
                 <Link
                   href="/tutors"
@@ -84,7 +77,7 @@ export default function HeroSection() {
                 >
                   立即尋找導師
                 </Link>
-                <button className="border px-5 py-2 rounded hover:bg-gray-100 transition-all">
+                <button className="border px-5 py-2 rounded hover:bg-gray-100 transition-all text-white border-white">
                   了解更多
                 </button>
               </div>
@@ -97,7 +90,7 @@ export default function HeroSection() {
       <div className="w-full lg:w-1/3 space-y-6">
         <div className="bg-white shadow-md rounded-lg p-4 space-y-3">
           {user ? (
-            <>
+            <div className="space-y-2">
               <button
                 onClick={() => router.push('/profile')}
                 className="w-full flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
@@ -105,6 +98,14 @@ export default function HeroSection() {
                 <UserIcon className="w-5 h-5" />
                 👤 我的帳戶
               </button>
+              {user.userType === 'normal' && (
+                <Link href="/upgrade" className="w-full">
+                  <div className="flex items-center gap-2 bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition">
+                    <span>🆙</span>
+                    <span>申請成為導師</span>
+                  </div>
+                </Link>
+              )}
               <button
                 onClick={handleLogout}
                 className="w-full flex items-center gap-2 border border-red-600 text-red-600 px-4 py-2 rounded-lg hover:bg-red-50 transition"
@@ -112,7 +113,7 @@ export default function HeroSection() {
                 <UserPlusIcon className="w-5 h-5" />
                 🚪 登出
               </button>
-            </>
+            </div>
           ) : (
             <>
               <button

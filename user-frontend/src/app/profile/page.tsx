@@ -9,7 +9,7 @@ interface User {
   name: string;
   email: string;
   phone: string;
-  userType?: 'personal' | 'organization';
+  userType?: 'personal' | 'organization' | 'normal' | 'tutor';
 }
 
 export default function ProfilePage() {
@@ -102,24 +102,22 @@ export default function ProfilePage() {
 
           {/* 用戶資料 */}
           <div className="p-6 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-500">姓名</label>
-                <p className="text-gray-800">{user?.name}</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-gray-500 mb-1">姓名</div>
+                <div>{user?.name}</div>
               </div>
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-500">電郵</label>
-                <p className="text-gray-800">{user?.email}</p>
+              <div>
+                <div className="text-gray-500 mb-1">電郵</div>
+                <div>{user?.email}</div>
               </div>
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-500">電話</label>
-                <p className="text-gray-800">{user?.phone}</p>
+              <div>
+                <div className="text-gray-500 mb-1">電話</div>
+                <div>{user?.phone}</div>
               </div>
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-500">用戶類型</label>
-                <p className="text-gray-800">
-                  {user?.userType === 'organization' ? '機構' : '個人'}
-                </p>
+              <div>
+                <div className="text-gray-500 mb-1">用戶身份</div>
+                <div>{user?.userType === 'tutor' ? '導師' : user?.userType === 'normal' ? '學生' : user?.userType === 'organization' ? '機構' : '未知'}</div>
               </div>
             </div>
 
@@ -138,6 +136,16 @@ export default function ProfilePage() {
                 🏠 返回主頁
               </Link>
             </div>
+
+            {user?.userType === 'normal' && (
+              <div className="mt-6">
+                <Link href="/upgrade">
+                  <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-4 py-2 rounded transition">
+                    立即申請成為導師
+                  </button>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>

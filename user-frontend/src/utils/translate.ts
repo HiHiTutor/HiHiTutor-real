@@ -1,5 +1,5 @@
 // 地區映射
-export const REGIONS: { [key: string]: string } = {
+export const REGION_MAP: { [key: string]: string } = {
   'hong-kong-island': '香港島',
   'kowloon': '九龍',
   'new-territories': '新界',
@@ -40,138 +40,132 @@ export const SUB_REGIONS: { [key: string]: { [key: string]: string } } = {
 // 子地區映射
 export const SUBREGION_MAP: Record<string, string> = {
   'sai-ying-pun': '西營盤',
-  'sheung-shui': '上水',
-  'fan-ling': '粉嶺',
-  'tai-po': '大埔',
-  'sha-tin': '沙田',
-  'ma-on-shan': '馬鞍山',
-  'tseung-kwan-o': '將軍澳',
-  'kwun-tong': '觀塘',
-  'yau-tong': '油塘',
-  'lam-tin': '藍田',
-  'tuen-mun': '屯門',
-  'yuen-long': '元朗',
   'tin-shui-wai': '天水圍',
-  'tai-wai': '大圍',
-  'fo-tan': '火炭',
-  'tai-wo-hau': '大窩口',
-  'kwai-fong': '葵芳',
-  'kwai-hing': '葵興',
-  'tsuen-wan': '荃灣',
-  'tsing-yi': '青衣',
-  'discovery-bay': '愉景灣',
-  'tung-chung': '東涌',
-  'central': '中環',
-  'wan-chai': '灣仔',
-  'causeway-bay': '銅鑼灣',
-  'north-point': '北角',
-  'quarry-bay': '鰂魚涌',
+  'kam-sheung-road': '錦上路',
+  'fan-ling': '粉嶺',
   'chai-wan': '柴灣',
-  'aberdeen': '香港仔',
-  'ap-lei-chau': '鴨脷洲',
-  'stanley': '赤柱',
-  'reclamation': '金鐘',
-  'admiralty': '金鐘',
-  'tai-kok-tsui': '大角咀',
-  'mong-kok': '旺角',
-  'yau-ma-tei': '油麻地',
-  'to-kei-wan': '土瓜灣',
-  'hung-hom': '紅磡',
-  'ho-man-tin': '何文田',
-  'san-po-kong': '新蒲崗',
-  'diamond-hill': '鑽石山',
-  'wong-tai-sin': '黃大仙',
-  'choi-hung': '彩虹',
-  'ngau-tau-kok': '牛頭角',
-  'yau-tong': '油塘',
-  'lam-tin': '藍田',
-  'tseung-kwan-o': '將軍澳',
-  'po-lam': '寶琳',
-  'hang-hau': '坑口',
-  'tseung-kwan-o': '將軍澳',
-  'tung-chung': '東涌',
+  'quarry-bay': '鰂魚涌',
   'discovery-bay': '愉景灣',
-  'cheung-chau': '長洲',
-  'lamma-island': '南丫島',
-  'ma-wan': '馬灣',
-  'peng-chau': '坪洲'
+  'tai-o': '大澳',
+  'fo-tan': '火炭',
+  'ping-chau': '坪洲',
+  'tung-chung': '東涌',
+  'sai-kung': '西貢',
+  'sheung-shui': '上水'
 };
 
 // 教學模式映射
-export const MODES: { [key: string]: string } = {
+export const MODE_MAP: { [key: string]: string } = {
   'online': '網課',
   'in-person': '面授'
 };
 
 // 科目映射
 export const SUBJECTS: { [key: string]: { [key: string]: string } } = {
-  'preschool': {
-    'preschool-chinese': '幼兒 - 中文',
-    'preschool-english': '幼兒 - 英文',
-    'preschool-math': '幼兒 - 數學'
-  },
-  'primary': {
-    'primary-chinese': '小學 - 中文',
-    'primary-english': '小學 - 英文',
-    'primary-math': '小學 - 數學',
-    'primary-general': '小學 - 常識',
-    'primary-stem': '小學 - STEM'
-  },
-  'secondary': {
-    'secondary-chinese': '中學 - 中文',
-    'secondary-english': '中學 - 英文',
-    'secondary-math': '中學 - 數學',
-    'secondary-ls': '中學 - 通識教育',
-    'secondary-humanities': '中學 - 人文學科',
-    'secondary-economics': '中學 - 經濟',
-    'secondary-computer': '中學 - 電腦',
-    'secondary-dse': '中學 - DSE',
-    'secondary-all': '中學 - 全科'
-  },
-  'undergraduate': {
-    'undergraduate-calculus': '大學 - 微積分',
-    'undergraduate-economics': '大學 - 經濟學',
-    'undergraduate-statistics': '大學 - 統計學',
-    'undergraduate-accounting': '大學 - 會計學',
-    'undergraduate-programming': '大學 - 程式設計',
-    'undergraduate-language': '大學 - 語言課程'
-  },
-  'postgraduate': {
-    'postgraduate-thesis': '研究生 - 論文寫作',
-    'postgraduate-research': '研究生 - 研究方法',
-    'postgraduate-spss': '研究生 - SPSS',
-    'postgraduate-presentation': '研究生 - 學術簡報'
+  'primary-secondary': {
+    'primary-english': '英文',
+    'primary-chinese': '中文',
+    'primary-math': '數學',
+    'secondary-english': '英文',
+    'secondary-chinese': '中文',
+    'secondary-math': '數學',
+    'secondary-all': '全科',
+    'secondary-ls': '通識'
   },
   'interest': {
-    'interest-music': '興趣 - 音樂',
-    'interest-art': '興趣 - 藝術',
-    'interest-programming': '興趣 - 程式設計',
-    'interest-language': '興趣 - 語言'
+    'interest-language': '語言',
+    'interest-music': '音樂',
+    'interest-art': '藝術',
+    'interest-programming': '程式設計'
   },
   'adult': {
-    'adult-business': '成人 - 商業英語',
-    'adult-language': '成人 - 語言課程',
-    'adult-workplace': '成人 - 職場英語'
+    'adult-business': '商業英語',
+    'adult-workplace': '職場英語'
   }
 };
 
 // 獲取地區完整名稱
-export const getFullRegionName = (region: string, subRegion: string): string => {
-  const mainRegion = REGIONS[region] || region;
-  const subRegionName = SUB_REGIONS[region]?.[subRegion] || subRegion;
-  return `${mainRegion} - ${subRegionName}`;
-};
+export const getRegionName = (region: string): string => REGION_MAP[region] || '';
 
 // 獲取科目中文名稱
-export const getSubjectNames = (
-  subjects: string[] = [], // 預設為空陣列
-  category: string,
-  subCategory: string
-): string => {
-  const subjectMap = SUBJECTS[subCategory] || SUBJECTS[category] || {};
-  return subjects.map(subject => subjectMap[subject] || subject).join('、');
-};
+export function getSubjectNames(subjects: string[] = [], category?: string, subCategory?: string) {
+  if (!subjects || subjects.length === 0) return '科目待定';
+  return subjects.map(s => SUBJECT_MAP[s] || s).join('、');
+}
 
 export const getSubRegionName = (subRegion: string): string => {
   return SUBREGION_MAP[subRegion] || subRegion || '地點待定';
+};
+
+export const getModeName = (mode: string): string => MODE_MAP[mode] || '未指定';
+
+// 科目對應
+const SUBJECT_MAP: Record<string, string> = {
+  "early-childhood-chinese": "幼兒中文",
+  "early-childhood-english": "幼兒英文",
+  "early-childhood-math": "幼兒數學",
+  "early-childhood-phonics": "幼兒拼音",
+  "early-childhood-logic": "幼兒邏輯",
+  "early-childhood-interview": "幼兒面試",
+  "early-childhood-homework": "幼兒功課輔導",
+  "primary-chinese": "小學中文",
+  "primary-english": "小學英文",
+  "primary-math": "小學數學",
+  "primary-general": "常識／常識科",
+  "primary-mandarin": "普通話",
+  "primary-stem": "小學STEM",
+  "primary-all": "小學全科",
+  "secondary-chinese": "中學中文",
+  "secondary-english": "中學英文",
+  "secondary-math": "中學數學",
+  "secondary-ls": "通識教育",
+  "secondary-physics": "物理",
+  "secondary-chemistry": "化學",
+  "secondary-biology": "生物",
+  "secondary-economics": "經濟",
+  "secondary-geography": "地理",
+  "secondary-history": "歷史",
+  "secondary-chinese-history": "中國歷史",
+  "secondary-bafs": "企會財",
+  "secondary-ict": "資訊與通訊科技",
+  "secondary-integrated-science": "綜合科學",
+  "secondary-dse": "DSE總溫習",
+  "secondary-all": "中學全科",
+  "secondary-humanities": "人文學科",
+  "secondary-computer": "電腦科",
+  "interest-art": "藝術",
+  "interest-music": "音樂",
+  "interest-dance": "舞蹈",
+  "interest-drama": "戲劇",
+  "interest-programming": "編程／程式",
+  "interest-foreign-language": "外語",
+  "interest-magic-chess": "魔術／圍棋",
+  "interest-photography": "攝影",
+  "interest-language": "語言興趣",
+  "uni-liberal": "大學通識",
+  "uni-math": "大學數學",
+  "uni-economics": "大學經濟",
+  "uni-it": "大學資訊科技",
+  "uni-business": "大學商業課程",
+  "uni-engineering": "大學工程",
+  "uni-thesis": "大學論文輔導",
+  "undergraduate-programming": "本科程式設計",
+  "undergraduate-economics": "本科經濟",
+  "undergraduate-statistics": "本科統計",
+  "undergraduate-language": "本科語文",
+  "undergraduate-accounting": "本科會計",
+  "undergraduate-calculus": "本科微積分",
+  "postgraduate-thesis": "研究生論文",
+  "postgraduate-presentation": "研究生簡報",
+  "postgraduate-research": "研究計劃",
+  "postgraduate-spss": "SPSS分析",
+  "adult-language": "成人語言",
+  "adult-workplace": "職場技巧",
+  "adult-business": "成人商業課程",
+  "business-english": "商業英文",
+  "conversation": "會話訓練",
+  "chinese-language": "中文能力提升",
+  "second-language": "第二語言學習",
+  "computer-skills": "電腦技能",
+  "exam-prep": "考試預備"
 }; 

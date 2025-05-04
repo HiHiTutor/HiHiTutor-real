@@ -2,6 +2,22 @@
 
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { getSubjectNames, getRegionName, getSubRegionName, getModeName } from '@/utils/translate';
+
+// 教學模式映射
+const MODES: { [key: string]: string } = {
+  'online': '網課',
+  'offline': '面授',
+  'in-person': '面授'
+};
+
+// 經驗要求映射
+const EXPERIENCES: { [key: string]: string } = {
+  'fresh': '無經驗要求',
+  'junior': '1-3年經驗',
+  'senior': '3-5年經驗',
+  'expert': '5年以上經驗'
+};
 
 export default function FindTutorCaseDetailPage() {
   const params = useParams();
@@ -18,8 +34,8 @@ export default function FindTutorCaseDetailPage() {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/find-tutor-cases/${id}`);
         if (response.ok) {
-          const data = await response.json();
-          setCaseDetail(data);
+          const result = await response.json();
+          setCaseDetail(result.data);
         } else {
           setCaseDetail(null);
         }
@@ -45,6 +61,43 @@ export default function FindTutorCaseDetailPage() {
     console.log(`Applying for case: ${id}`);
   };
 
+  // 處理科目資料
+  const getSubjects = () => {
+    if (!caseDetail.subjects) return "無科目資料";
+    
+    // 如果是字串，轉換為陣列
+    const subjects = Array.isArray(caseDetail.subjects) 
+      ? caseDetail.subjects 
+      : [caseDetail.subjects];
+    
+    return subjects.join('、');
+  };
+
+  // 處理預算資料
+  const getBudget = () => {
+    if (!caseDetail.budget) return "價格待議";
+    
+    if (typeof caseDetail.budget === 'string') {
+      return caseDetail.budget;
+    }
+    
+    if (typeof caseDetail.budget === 'object' && caseDetail.budget !== null) {
+      const { min, max } = caseDetail.budget;
+      if (min && max) {
+        return `${min} - ${max}/小時`;
+      }
+    }
+    
+    return "價格待議";
+  };
+
+  // 處理地區資料
+  const getLocation = () => {
+    const region = caseDetail.region || '';
+    const subRegion = caseDetail.subRegion || '';
+    return [region, subRegion].filter(Boolean).join(' ');
+  };
+
   return (
     <section className="px-4 py-8 max-w-screen-xl mx-auto">
       <div className="flex items-center gap-2 mb-6">
@@ -52,17 +105,12 @@ export default function FindTutorCaseDetailPage() {
         <h2 className="text-2xl font-bold border-l-4 border-blue-400 pl-3">學生個案詳情</h2>
       </div>
       <div className="bg-blue-100 border border-blue-300 rounded-xl p-8">
-        <p className="text-gray-600">個案 ID：{caseDetail.id}</p>
-        <p className="text-gray-600">科目：{caseDetail.subjects?.join(', ')}</p>
-        <p className="text-gray-600">地點：{caseDetail.subRegion}</p>
-        <p className="text-gray-600">
-          收費：
-          {typeof caseDetail.budget === 'object' && caseDetail.budget !== null
-            ? `${caseDetail.budget.min} - ${caseDetail.budget.max}/小時`
-            : '價格待議'}
-        </p>
-        <p className="text-gray-600">模式：{caseDetail.mode === 'online' ? '網課' : '面授'}</p>
-        <p className="text-gray-600">要求：{caseDetail.experience}</p>
+        <p className="text-gray-600">個案 ID：{caseDetail.id || '無ID'}</p>
+        <p className="text-gray-600">科目：{getSubjectNames(caseDetail.subjects, caseDetail.category, caseDetail.subCategory)}</p>
+        <p className="text-gray-600">地點：{getRegionName(caseDetail.region)} {getSubRegionName(caseDetail.subRegion)}</p>
+        <p className="text-gray-600">收費：{getBudget()}</p>
+        <p className="text-gray-600">模式：{getModeName(caseDetail.mode)}</p>
+        <p className="text-gray-600">要求：{EXPERIENCES[caseDetail.experience] || caseDetail.experience || '未指定'}</p>
         <div>
           <button
             onClick={handleApply}

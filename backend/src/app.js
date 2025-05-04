@@ -9,6 +9,8 @@ const studentCasesRouter = require('./routes/studentCases');
 const categoriesRouter = require('./routes/categories');
 const tutorsRouter = require('./routes/tutors');
 const casesRouter = require('./routes/cases');
+const findTutorCases = require('./routes/findTutorCases');
+const findStudentCases = require('./routes/findStudentCases');
 
 const app = express();
 
@@ -25,11 +27,11 @@ app.use((req, res, next) => {
 
 // API Routes
 app.use('/api/tutor-cases', tutorCasesRouter);
-app.use('/api/student-cases', studentCasesRouter);
-app.use('/api/find-tutor-cases', studentCasesRouter);
+app.use('/api/find-tutor-cases', findTutorCases);
 app.use('/api/categories', categoriesRouter);
 app.use('/api/tutors', tutorsRouter);
 app.use('/api/cases', casesRouter);
+app.use('/api/find-student-cases', findStudentCases);
 
 // 404 handler
 app.use((req, res) => {
@@ -47,7 +49,7 @@ app.use((err, req, res, next) => {
 console.log('\n可用的 API 路由:');
 console.log('- GET /api/tutor-cases');
 console.log('- GET /api/tutor-cases/recommended');
-console.log('- GET /api/student-cases');
+console.log('- GET /api/find-tutor-cases');
 console.log('- GET /api/categories');
 console.log('- GET /api/tutors');
 console.log('- GET /api/cases\n');

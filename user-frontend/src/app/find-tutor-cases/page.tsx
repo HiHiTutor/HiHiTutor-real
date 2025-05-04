@@ -45,7 +45,7 @@ export default function FindTutorCasesPage() {
         if (response.ok) {
           const data = await response.json();
           console.log("📦 成功獲取所有導師個案：", data);
-          setAllCases(data.cases || []);
+          setAllCases(data.data?.cases || []);
           console.log("✅ 已保存全量資料到 allCases");
         } else {
           console.error('❌ 獲取所有導師個案失敗：', response.status);

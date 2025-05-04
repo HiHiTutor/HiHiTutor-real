@@ -42,7 +42,16 @@ export default function StudentCasePage() {
       };
 
       // 使用 API 服務發送請求
-      const result = await studentCaseApi.createStudentCase(submitData);
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:3001/api/find-tutor-cases', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(submitData),
+      });
+      const result = await response.json();
 
       if (result.success) {
         alert('個案發布成功！');

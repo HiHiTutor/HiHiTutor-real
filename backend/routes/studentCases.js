@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
+const { getAllStudentCases, getRecommendedStudentCases } = require('../controllers/studentCaseController');
+const studentCaseRepository = require('../repositories/StudentCaseRepository');
 
 // 讀取學生個案數據
 const studentCasesPath = path.join(__dirname, '../data/studentCases.json');
@@ -108,137 +110,33 @@ if (process.env.NODE_ENV === 'development' && studentCases.length === 0) {
   console.log('已生成測試數據，但未寫入文件以避免 nodemon 重啟');
 }
 
-// 獲取學生個案列表
-router.get('/', (req, res) => {
-  try {
-    console.log('收到獲取學生個案請求，查詢參數:', req.query);
-    
-    let filteredCases = [...studentCases];
-    
-    // 應用過濾條件
-    if (req.query.category) {
-      filteredCases = filteredCases.filter(c => c.category === req.query.category);
-    }
-    if (req.query.subCategory) {
-      filteredCases = filteredCases.filter(c => c.subCategory === req.query.subCategory);
-    }
-    if (req.query.subjects) {
-      const subjects = Array.isArray(req.query.subjects) ? req.query.subjects : [req.query.subjects];
-      filteredCases = filteredCases.filter(c => subjects.includes(c.subjects));
-    }
-    if (req.query.region) {
-      filteredCases = filteredCases.filter(c => c.region === req.query.region);
-    }
-    if (req.query.subRegion) {
-      const subRegions = Array.isArray(req.query.subRegion) ? req.query.subRegion : [req.query.subRegion];
-      filteredCases = filteredCases.filter(c => subRegions.includes(c.subRegion));
-    }
-    if (req.query.mode) {
-      filteredCases = filteredCases.filter(c => c.mode === req.query.mode);
-    }
-    if (req.query.priceMin) {
-      filteredCases = filteredCases.filter(c => c.budget >= parseInt(req.query.priceMin));
-    }
-    if (req.query.priceMax) {
-      filteredCases = filteredCases.filter(c => c.budget <= parseInt(req.query.priceMax));
-    }
-    if (req.query.featured === 'true') {
-      filteredCases = filteredCases.filter(c => c.featured === true);
-    }
+// GET all student cases
+router.get('/', getAllStudentCases);
 
-    // 分頁處理
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    const paginatedCases = filteredCases.slice(startIndex, endIndex);
+// GET recommended student cases
+router.get('/recommended', getRecommendedStudentCases);
 
-    console.log('返回過濾後的學生個案數據，共', paginatedCases.length, '筆');
-    
-    res.json({
-      cases: paginatedCases,
-      total: filteredCases.length,
-      page,
-      limit,
-      totalPages: Math.ceil(filteredCases.length / limit)
-    });
-  } catch (error) {
-    console.error('處理學生個案請求時出錯:', error);
-    res.status(500).json({ error: '獲取學生個案失敗' });
-  }
-});
-
-// 獲取推薦的學生個案
-router.get('/recommended', (req, res) => {
-  try {
-    // 根據推薦邏輯排序
-    const recommendedCases = studentCases
-      .sort((a, b) => {
-        // 計算每個個案的推薦分數
-        const getScore = (case_) => {
-          let score = 0;
-          
-          // 1. featured && pinned && 高評分
-          if (case_.featured && case_.pinned && case_.rating >= 4.5) {
-            score += 1000;
-          }
-          // 2. featured && 高評分
-          else if (case_.featured && case_.rating >= 4.5) {
-            score += 800;
-          }
-          // 3. pinned && 高評分
-          else if (case_.pinned && case_.rating >= 4.5) {
-            score += 600;
-          }
-          // 4. featured
-          else if (case_.featured) {
-            score += 400;
-          }
-          // 5. pinned
-          else if (case_.pinned) {
-            score += 200;
-          }
-          // 6. 高評分
-          else if (case_.rating >= 4.5) {
-            score += 100;
-          }
-          
-          // 加上評分作為次要排序條件
-          score += case_.rating || 0;
-          
-          return score;
-        };
-
-        const scoreA = getScore(a);
-        const scoreB = getScore(b);
-        return scoreB - scoreA;
-      })
-      .slice(0, 8); // 只返回前 8 個個案
-
-    res.json({
-      success: true,
-      cases: recommendedCases
-    });
-  } catch (error) {
-    console.error('Error getting recommended cases:', error);
-    res.status(500).json({
-      success: false,
-      error: '獲取推薦個案時發生錯誤'
-    });
-  }
-});
-
-// 獲取單個學生個案
+// GET single student case
 router.get('/:id', (req, res) => {
   try {
-    const case_ = studentCases.find(c => c.id === req.params.id);
+    const case_ = studentCaseRepository.getStudentCaseById(req.params.id);
     if (!case_) {
-      return res.status(404).json({ error: '找不到該學生個案' });
+      return res.status(404).json({
+        success: false,
+        message: '找不到該學生個案'
+      });
     }
-    res.json(case_);
+    res.json({
+      success: true,
+      data: case_,
+      message: '成功獲取學生個案'
+    });
   } catch (error) {
-    console.error('處理單個學生個案請求時出錯:', error);
-    res.status(500).json({ error: '獲取學生個案失敗' });
+    console.error('[❌] 處理單個學生個案請求時出錯:', error);
+    res.status(500).json({
+      success: false,
+      message: '獲取學生個案失敗'
+    });
   }
 });
 

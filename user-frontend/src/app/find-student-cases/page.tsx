@@ -41,11 +41,11 @@ export default function FindStudentCasesPage() {
         setLoading(true);
         console.log("🔍 正在獲取所有個案資料...");
         
-        const response = await fetch('/api/find-student-cases');
+        const response = await fetch('http://localhost:3001/api/find-student-cases');
         if (response.ok) {
           const data = await response.json();
           console.log("📦 成功獲取所有個案：", data);
-          setAllCases(data.cases || []);
+          setAllCases(data.data?.cases || []);
           console.log("✅ 已保存全量資料到 allCases");
         } else {
           console.error('❌ 獲取所有個案失敗：', response.status);

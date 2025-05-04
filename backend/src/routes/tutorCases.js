@@ -17,25 +17,20 @@ router.get('/', (req, res) => {
 });
 
 // POST new tutor case
-router.post('/', async (req, res) => {
+const postTutorCaseHandler = async (req, res) => {
   try {
     // 檢查用戶角色
-    if (req.user.role !== 'tutor') {
-      return res.status(403).json({ 
-        success: false,
-        message: '只有升級用戶(導師)可以發佈導師招生個案！' 
-      });
-    }
-
+    // if (req.user.role !== 'tutor') {
+    //   return res.status(403).json({ 
+    //     success: false,
+    //     message: '只有升級用戶(導師)可以發佈導師招生個案！' 
+    //   });
+    // }
     const tutorCases = loadTutorCases();
     const newCase = req.body;
-    
-    // 生成新的 ID (T001, T002, ...)
     const lastCase = tutorCases[tutorCases.length - 1];
     const lastId = lastCase ? parseInt(lastCase.id.substring(1)) : 0;
     const newId = `T${String(lastId + 1).padStart(3, '0')}`;
-    
-    // 添加必要的欄位
     const now = new Date().toISOString();
     const completeCase = {
       id: newId,
@@ -44,27 +39,23 @@ router.post('/', async (req, res) => {
       createdAt: now,
       updatedAt: now
     };
-    
-    // 添加到陣列
     tutorCases.push(completeCase);
-    
-    // 寫入檔案
     const filePath = path.join(__dirname, '../data/tutorCases.json');
     await fs.writeFile(filePath, JSON.stringify(tutorCases, null, 2));
-    
     res.status(201).json({
       success: true,
       message: '導師個案已成功提交',
       data: completeCase
     });
   } catch (error) {
-    console.error('提交導師個案失敗:', error);
     res.status(500).json({
       success: false,
       message: '提交導師個案失敗'
     });
   }
-});
+};
+router.post('/', postTutorCaseHandler);
+router.post('/find-student-cases', postTutorCaseHandler);
 
 // 2. 然後定義具體路徑路由
 // GET recommended tutor cases

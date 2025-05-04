@@ -3,9 +3,13 @@
     "id": "user_1",
     "name": "測試用戶",
     "email": "test@example.com",
-    "password": "123456",
+    "password": "888888",
     "phone": "0912345678",
-    "createdAt": 1709123456789
+    "createdAt": 1709123456789,
+    "userType": "tutor",
+    "upgraded": false,
+    "upgradeRequested": false,
+    "upgradeDocuments": []
   },
   {
     "id": "user_1745516152304",
@@ -14,7 +18,10 @@
     "password": "888888",
     "phone": "91111111",
     "createdAt": 1745516152304,
-    "userType": "personal"
+    "userType": "tutor",
+    "upgraded": false,
+    "upgradeRequested": false,
+    "upgradeDocuments": []
   },
   {
     "id": "user_1745516742657",
@@ -23,7 +30,10 @@
     "password": "888888",
     "phone": "91111112",
     "createdAt": 1745516742657,
-    "userType": "personal"
+    "userType": "normal",
+    "upgraded": false,
+    "upgradeRequested": false,
+    "upgradeDocuments": []
   },
   {
     "id": "user_1745757909408",
@@ -31,8 +41,11 @@
     "email": "try3@example.com",
     "password": "888888",
     "phone": "91111113",
-    "role": "student",
-    "createdAt": 1745757909408
+    "userType": "normal",
+    "createdAt": 1745757909408,
+    "upgraded": false,
+    "upgradeRequested": false,
+    "upgradeDocuments": []
   },
   {
     "id": "user_1745758006937",
@@ -40,7 +53,47 @@
     "email": "try5@example.com",
     "password": "888888",
     "phone": "91111115",
-    "role": "student",
-    "createdAt": 1745758006937
+    "userType": "normal",
+    "createdAt": 1745758006937,
+    "upgraded": false,
+    "upgradeRequested": false,
+    "upgradeDocuments": []
+  },
+  {
+    "id": "1746168112546",
+    "email": "try4@example.com",
+    "password": "888888",
+    "name": "Try4",
+    "userType": "normal",
+    "phone": "91111114",
+    "createdAt": 1746168112546,
+    "upgraded": false,
+    "upgradeRequested": false,
+    "upgradeDocuments": []
+  },
+  {
+    "id": "1746173205207",
+    "email": "try6@example.com",
+    "password": "$2a$10$gtELVt.QJ8kBf8PkBdr5pOAE1Hkx..7x4F1vCipqgkjFRDioXqB4m",
+    "name": "try6",
+    "userType": "normal",
+    "phone": "91111116",
+    "upgraded": false,
+    "upgradeRequested": false,
+    "upgradeDocuments": [],
+    "createdAt": "2025-05-02T08:06:45.207Z"
+  },
+  {
+    "id": "user_admin_1746200000000",
+    "name": "Admin",
+    "email": "phelpsych@gmail.com",
+    "password": "888888",
+    "phone": "60761408",
+    "userType": "admin",
+    "isAdmin": true,
+    "createdAt": 1746200000000,
+    "upgraded": false,
+    "upgradeRequested": false,
+    "upgradeDocuments": []
   }
 ]

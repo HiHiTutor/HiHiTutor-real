@@ -39,12 +39,11 @@ const TutorSection = () => {
               <li>📚 多元的教學機會</li>
               <li>👥 專業的教學平台</li>
             </ul>
-            <button
-              onClick={() => router.push('/register?role=tutor')}
-              className="mt-4 bg-yellow-400 text-white px-6 py-2 rounded-lg hover:bg-yellow-500 transition-all"
-            >
-              立即申請成為導師
-            </button>
+            <Link href="/upgrade">
+              <button className="mt-4 bg-yellow-400 text-white px-6 py-2 rounded-lg hover:bg-yellow-500 transition-all">
+                立即申請成為導師
+              </button>
+            </Link>
           </div>
         </div>
       </div>

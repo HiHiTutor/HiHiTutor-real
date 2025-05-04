@@ -49,13 +49,13 @@ export const CATEGORY_OPTIONS: CategoryOption[] = [
     value: 'early-childhood',
     label: '幼兒教育',
     subjects: [
-      { value: 'preschool-chinese', label: '幼兒中文' },
-      { value: 'preschool-english', label: '幼兒英文' },
-      { value: 'preschool-math', label: '幼兒數學' },
-      { value: 'preschool-phonics', label: '拼音／注音' },
-      { value: 'preschool-logic', label: '邏輯思維訓練' },
-      { value: 'preschool-interview', label: '面試技巧訓練' },
-      { value: 'preschool-homework', label: '幼稚園功課輔導' }
+      { value: 'early-childhood-chinese', label: '幼兒中文' },
+      { value: 'early-childhood-english', label: '幼兒英文' },
+      { value: 'early-childhood-math', label: '幼兒數學' },
+      { value: 'early-childhood-phonics', label: '拼音／注音' },
+      { value: 'early-childhood-logic', label: '邏輯思維訓練' },
+      { value: 'early-childhood-interview', label: '面試技巧訓練' },
+      { value: 'early-childhood-homework', label: '幼稚園功課輔導' }
     ]
   },
   { 

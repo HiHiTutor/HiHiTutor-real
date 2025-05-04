@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { loadUsers, saveUsers } = require('../utils/userStorage');
+const userRepository = require('../repositories/UserRepository');
 
 // 載入申請記錄
 const loadApplications = () => {
@@ -56,8 +56,7 @@ const submitTutorApplication = async (req, res) => {
     }
 
     // 載入用戶資料
-    const users = loadUsers();
-    const user = users.find(u => u.id === userId);
+    const user = await userRepository.getUserById(userId);
 
     if (!user) {
       return res.status(404).json({
@@ -86,6 +85,10 @@ const submitTutorApplication = async (req, res) => {
     applications.push(newApplication);
     saveApplications(applications);
 
+    // 更新用戶升級狀態
+    user.upgradeRequested = true;
+    await userRepository.updateUser(user);
+
     res.status(201).json({
       success: true,
       message: '申請已成功提交',
@@ -102,65 +105,35 @@ const submitTutorApplication = async (req, res) => {
 
 // 2. 審核導師申請
 const reviewTutorApplication = async (req, res) => {
-  try {
-    const { applicationId } = req.params;
-    const { status, comment } = req.body;
+  const applications = loadApplications();
+  const appId = req.params.id;
+  const { status, remarks } = req.body;
 
-    if (!['approved', 'rejected'].includes(status)) {
-      return res.status(400).json({
-        success: false,
-        message: '無效的審核狀態'
-      });
-    }
-
-    // 載入申請記錄
-    const applications = loadApplications();
-    const applicationIndex = applications.findIndex(app => app.id === applicationId);
-
-    if (applicationIndex === -1) {
-      return res.status(404).json({
-        success: false,
-        message: '找不到申請記錄'
-      });
-    }
-
-    // 更新申請狀態
-    applications[applicationIndex] = {
-      ...applications[applicationIndex],
-      status,
-      comment,
-      updatedAt: new Date().toISOString()
-    };
-
-    // 如果審核通過，更新用戶角色
-    if (status === 'approved') {
-      const users = loadUsers();
-      const userIndex = users.findIndex(u => u.id === applications[applicationIndex].userId);
-
-      if (userIndex !== -1) {
-        users[userIndex] = {
-          ...users[userIndex],
-          role: 'tutor'
-        };
-        saveUsers(users);
-      }
-    }
-
-    // 儲存更新後的申請記錄
-    saveApplications(applications);
-
-    res.json({
-      success: true,
-      message: '申請已審核',
-      data: applications[applicationIndex]
-    });
-  } catch (error) {
-    console.error('審核申請失敗:', error);
-    res.status(500).json({
-      success: false,
-      message: '審核申請失敗'
-    });
+  const app = applications.find(a => a.id === appId);
+  if (!app) {
+    return res.status(404).json({ message: '申請不存在' });
   }
+
+  app.status = status || 'pending';
+  app.reviewedAt = new Date().toISOString();
+  app.remarks = remarks || '';
+
+  // 自動升級 userType
+  if (status === 'approved') {
+    const user = await userRepository.getUserById(app.userId);
+    console.log('[升級用戶]', user);
+    if (user) {
+      user.userType = 'tutor';
+      await userRepository.updateUser(user);
+      console.log('[升級完成]', user);
+    } else {
+      console.log('[升級失敗] 找不到 user', app.userId);
+    }
+  }
+
+  saveApplications(applications);
+
+  res.json({ success: true, application: app });
 };
 
 // 3. 手動創建導師用戶
@@ -176,11 +149,8 @@ const createTutorUser = async (req, res) => {
       });
     }
 
-    // 載入用戶資料
-    const users = loadUsers();
-    
     // 檢查 email 是否已被註冊
-    const existingUser = users.find(u => u.email === email);
+    const existingUser = userRepository.getUserByEmail(email);
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -203,8 +173,9 @@ const createTutorUser = async (req, res) => {
     };
 
     // 儲存用戶資料
+    const users = userRepository.getAllUsers();
     users.push(newTutor);
-    saveUsers(users);
+    userRepository.saveUsers(users);
 
     res.status(201).json({
       success: true,
@@ -242,9 +213,15 @@ const getAllApplications = (req, res) => {
   }
 };
 
+const getAllTutorApplications = (req, res) => {
+  const applications = loadApplications();
+  res.json({ success: true, applications });
+};
+
 module.exports = {
   submitTutorApplication,
   reviewTutorApplication,
   createTutorUser,
-  getAllApplications
+  getAllApplications,
+  getAllTutorApplications
 }; 

@@ -34,8 +34,50 @@ export default function TutorCasePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: 實現提交邏輯
-    console.log('提交導師個案:', formData);
+    try {
+      // 從 localStorage 獲取用戶資料
+      const userStr = localStorage.getItem('user');
+      if (!userStr) {
+        alert('請先登入');
+        router.push('/login');
+        return;
+      }
+      const user = JSON.parse(userStr);
+
+      // 準備提交的資料
+      const submitData = {
+        tutorId: user.id,
+        name: user.name,
+        subject: formData.subject,
+        target: formData.target,
+        price: formData.price,
+        location: formData.location,
+        description: formData.description,
+        mode: formData.mode,
+      };
+
+      // 調用 API
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:3001/api/find-student-cases', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(submitData),
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        alert('導師個案發布成功！');
+        router.push('/find-student-cases');
+      } else {
+        throw new Error(result.message || '發布失敗');
+      }
+    } catch (error) {
+      console.error('發布導師個案時出錯:', error);
+      alert(error instanceof Error ? error.message : '發布導師個案時出錯');
+    }
   };
 
   return (

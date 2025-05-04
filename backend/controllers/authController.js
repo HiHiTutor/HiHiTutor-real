@@ -1,5 +1,6 @@
-const { loadUsers, saveUsers } = require('../utils/userStorage');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const userRepository = require('../repositories/UserRepository.js');
 
 // 模擬 JWT token 生成
 const generateToken = (user) => {
@@ -18,59 +19,96 @@ const isValidEmail = (email) => {
 
 // 驗證電話號碼格式
 const isValidPhone = (phone) => {
-  const phoneRegex = /^[0-9]{8,}$/;
-  return phoneRegex.test(phone);
+  // 移除所有非數字字符
+  const cleanPhone = phone.replace(/\D/g, '');
+  // 檢查是否為8位數字
+  return cleanPhone.length === 8;
 };
 
 // 用戶登入
-const login = async (req, res) => {
+const loginUser = async (req, res) => {
   try {
-    console.log('[🔑] 處理登入請求:', req.body);
-    const { account, password } = req.body;
-    
-    // 檢查是否提供帳號和密碼
-    if (!account || !password) {
-      console.log('[❌] 登入失敗: 缺少帳號或密碼');
+    console.log('[登入嘗試]', req.body);
+
+    const { identifier, password } = req.body;
+
+    if (!identifier || !password) {
       return res.status(400).json({
         success: false,
-        message: '請提供帳號和密碼'
+        message: '請提供帳號（電話或電郵）和密碼'
       });
     }
 
-    // 載入用戶資料
-    const users = loadUsers();
-    
-    // 查找用戶（支持 email 或電話登入）
-    const user = users.find(u => 
-      (u.email === account || u.phone === account) && 
-      u.password === password
-    );
+    if (!isValidEmail(identifier) && !isValidPhone(identifier)) {
+      return res.status(400).json({
+        success: false,
+        message: '請提供有效的電郵或電話號碼'
+      });
+    }
+
+    const user = await userRepository.getUserByEmail(identifier) 
+              || await userRepository.getUserByPhone(identifier);
+    console.log('[找到用戶]', user);
+    console.log('[DEBUG] user from repo:', user);
 
     if (!user) {
-      console.log('[❌] 登入失敗: 帳號或密碼錯誤');
       return res.status(401).json({
         success: false,
         message: '帳號或密碼錯誤'
       });
     }
 
-    // 生成 JWT token
-    const token = generateToken(user);
-    
-    // 移除敏感資料
-    const { password: _, ...safeUser } = user;
-    
-    console.log('[✅] 登入成功:', { id: user.id, email: user.email });
-    
-    res.json({
+    // 密碼比對
+    console.log('[密碼比對]', {
+      inputPassword: password,
+      storedPassword: user.password,
+      type: {
+        input: typeof password,
+        stored: typeof user.password
+      }
+    });
+
+    // 檢查密碼是否為 bcrypt 加密格式
+    const isHashed = user.password.startsWith('$2');
+    let match = false;
+
+    if (isHashed) {
+      // 如果是加密密碼，使用 bcrypt 比對
+      match = await bcrypt.compare(password, user.password);
+    } else {
+      // 如果是明文密碼，直接比對
+      match = password === user.password;
+    }
+
+    console.log('[密碼比對結果]', match);
+
+    if (!match) {
+      return res.status(401).json({
+        success: false,
+        message: '帳號或密碼錯誤'
+      });
+    }
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    return res.json({
       success: true,
-      message: '登入成功',
       token,
-      user: safeUser
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        userType: user.userType
+      },
+      message: '登入成功'
     });
   } catch (error) {
-    console.error('[❌] 登入錯誤:', error);
-    res.status(500).json({
+    console.error('[❌登入錯誤]', error);
+    return res.status(500).json({
       success: false,
       message: '登入時發生錯誤'
     });
@@ -80,79 +118,72 @@ const login = async (req, res) => {
 // 用戶註冊
 const register = async (req, res) => {
   try {
-    console.log('[📝] 處理註冊請求:', req.body);
-    const { name, email, password, phone } = req.body;
-    
-    // 檢查是否提供所有必要欄位
-    if (!name || !email || !password || !phone) {
-      console.log('[❌] 註冊失敗: 缺少必要欄位');
+    const { email, password, name, userType, phone } = req.body;
+
+    if (!email || !password || !name || !userType) {
       return res.status(400).json({
         success: false,
-        message: '請提供所有必要欄位'
+        message: '請提供所有必要資訊'
       });
     }
 
-    // 檢查 email 和 phone 格式
-    if (!isValidEmail(email)) {
-      console.log('[❌] 註冊失敗: 無效的電子郵件格式');
+    const users = await userRepository.getAllUsers();
+    if (users.some(u => u.email === email)) {
       return res.status(400).json({
         success: false,
-        message: '無效的電子郵件格式'
+        message: '此電郵已被註冊'
       });
     }
 
-    if (!isValidPhone(phone)) {
-      console.log('[❌] 註冊失敗: 無效的電話號碼格式');
+    if (phone && users.some(u => u.phone === phone)) {
       return res.status(400).json({
         success: false,
-        message: '無效的電話號碼格式'
+        message: '此電話已被註冊'
       });
     }
-    
-    // 載入最新的用戶資料
-    const users = loadUsers();
-    
-    // 檢查 email 或 phone 是否已被註冊
-    const existingUser = users.find(u => u.email === email || u.phone === phone);
-    if (existingUser) {
-      console.log('[❌] 註冊失敗: 帳號已被註冊');
-      return res.status(400).json({
-        success: false,
-        message: '此帳號已被註冊'
-      });
-    }
-    
-    // 創建新用戶
+
+    const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = {
-      id: `user_${Date.now()}`,  // 生成唯一 ID
-      name,
+      id: Date.now().toString(),
       email,
-      password,
-      phone,
-      role: 'student',  // 預設角色為學生
-      createdAt: Date.now()
+      password: hashedPassword,
+      name,
+      userType,
+      phone: phone || '',
+      upgraded: false,
+      upgradeRequested: false,
+      upgradeDocuments: [],
+      createdAt: new Date().toISOString()
     };
 
-    // 儲存用戶資料
     users.push(newUser);
-    saveUsers(users);  // 儲存到 JSON 檔案
-    
-    // 生成 JWT token
-    const token = generateToken(newUser);
-    
-    // 移除敏感資料
-    const { password: _, ...safeUser } = newUser;
-    
-    console.log('[✅] 註冊成功:', { id: newUser.id, email: newUser.email });
-    
+    await userRepository.saveUsers(users);
+
+    const token = jwt.sign(
+      { 
+        id: newUser.id,
+        email: newUser.email,
+        userType: newUser.userType
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
     res.status(201).json({
       success: true,
-      message: '註冊成功',
-      token,
-      user: safeUser
+      data: {
+        token,
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          name: newUser.name,
+          userType: newUser.userType
+        }
+      },
+      message: '註冊成功'
     });
   } catch (error) {
-    console.error('[❌] 註冊錯誤:', error);
+    console.error('Registration error:', error);
     res.status(500).json({
       success: false,
       message: '註冊時發生錯誤'
@@ -162,17 +193,41 @@ const register = async (req, res) => {
 
 // 獲取用戶資料
 const getUserProfile = (req, res) => {
-  // 從中介層獲取用戶資料
-  const user = req.user;
-  
-  res.json({
-    success: true,
-    user
-  });
+  try {
+    const user = userRepository.getUserById(req.user.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: '找不到用戶'
+      });
+    }
+
+    // 移除敏感資料
+    const { password, ...safeUser } = user;
+    res.json({
+      success: true,
+      data: safeUser
+    });
+  } catch (error) {
+    console.error('獲取用戶資料失敗:', error);
+    res.status(500).json({
+      success: false,
+      message: '獲取用戶資料時發生錯誤'
+    });
+  }
+};
+
+// 獲取當前用戶資料
+const getCurrentUser = (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: '未登入或無效 Token' });
+  }
+  res.json({ user: req.user });
 };
 
 module.exports = {
-  login,
+  loginUser,
   register,
-  getUserProfile
+  getUserProfile,
+  getCurrentUser
 }; 
