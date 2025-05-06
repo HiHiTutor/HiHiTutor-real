@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
-const { getAllStudentCases, getRecommendedStudentCases } = require('../controllers/studentCaseController');
+const { getAllStudentCases, getRecommendedStudentCases, createStudentCase } = require('../controllers/studentCaseController');
 const studentCaseRepository = require('../repositories/StudentCaseRepository');
 
 // 讀取學生個案數據
@@ -113,9 +113,6 @@ if (process.env.NODE_ENV === 'development' && studentCases.length === 0) {
 // GET all student cases
 router.get('/', getAllStudentCases);
 
-// GET recommended student cases
-router.get('/recommended', getRecommendedStudentCases);
-
 // GET single student case
 router.get('/:id', (req, res) => {
   try {
@@ -139,5 +136,7 @@ router.get('/:id', (req, res) => {
     });
   }
 });
+
+router.post('/', createStudentCase);
 
 module.exports = router; 

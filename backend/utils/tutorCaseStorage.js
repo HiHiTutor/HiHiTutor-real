@@ -1,16 +1,16 @@
 const fs = require('fs');
 const path = require('path');
 
-const tutorCasesPath = path.join(__dirname, '..', 'data', 'tutorCases.json');
+const filePath = path.join(__dirname, '../data/tutorCases.json');
 
-const loadTutorCases = () => {
-  try {
-    const data = fs.readFileSync(tutorCasesPath, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('讀取 tutorCases 失敗:', error);
-    return [];
-  }
-};
+function loadTutorCases() {
+  if (!fs.existsSync(filePath)) return [];
+  const data = fs.readFileSync(filePath);
+  return JSON.parse(data);
+}
 
-module.exports = { loadTutorCases }; 
+function saveTutorCases(cases) {
+  fs.writeFileSync(filePath, JSON.stringify(cases, null, 2));
+}
+
+module.exports = { loadTutorCases, saveTutorCases }; 

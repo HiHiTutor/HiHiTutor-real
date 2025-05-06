@@ -33,6 +33,14 @@ export default function FindStudentCasesPage() {
   const CASES_PER_PAGE = 10;
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [formData, setFormData] = useState({
+    // Define the structure of your form data here
+  });
+  const [initialFormData, setInitialFormData] = useState({
+    // Define the structure of your initial form data here
+  });
+  const [submitting, setSubmitting] = useState(false);
 
   // 首次載入時獲取所有資料
   useEffect(() => {
@@ -223,6 +231,45 @@ export default function FindStudentCasesPage() {
       setHasMore(false);
     } finally {
       setLoadingMore(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:3001'}/api/find-student-cases`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      console.log('🧪 發送結果 status:', res.status, 'ok:', res.ok);
+
+      let result = null;
+      try {
+        result = await res.json();
+      } catch (jsonErr) {
+        console.error('❌ 解析 JSON 失敗:', jsonErr);
+        throw new Error('API 回傳格式錯誤');
+      }
+
+      if (!res.ok || !result?.success) {
+        throw new Error(`發布失敗：${result?.message || res.statusText}`);
+      }
+
+      console.log('✅ 發布成功：', result);
+      setSuccess(true);
+      setFormData(initialFormData); // 清空表單
+    } catch (err: any) {
+      console.error('❌ 發布導師個案時出錯:', err);
+      setError(err.message || '未知錯誤');
+    } finally {
+      setSubmitting(false);
     }
   };
 
