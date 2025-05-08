@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
-const { getAllStudentCases, getRecommendedStudentCases, createStudentCase } = require('../controllers/studentCaseController');
+const { getAllStudentCases, getRecommendedStudentCases, createStudentCase, getStudentCaseById } = require('../controllers/studentCaseController');
 const studentCaseRepository = require('../repositories/StudentCaseRepository');
 
 // 讀取學生個案數據
@@ -111,32 +111,36 @@ if (process.env.NODE_ENV === 'development' && studentCases.length === 0) {
 }
 
 // GET all student cases
-router.get('/', getAllStudentCases);
+router.get('/', (req, res) => {
+  let allCases = require('../utils/studentCaseStorage').loadStudentCases();
+  // 先排序
+  allCases = allCases.sort((a, b) => {
+    const dateA = new Date(a.createdAt || a.date).getTime();
+    const dateB = new Date(b.createdAt || b.date).getTime();
+    return dateB - dateA;
+  });
 
-// GET single student case
-router.get('/:id', (req, res) => {
-  try {
-    const case_ = studentCaseRepository.getStudentCaseById(req.params.id);
-    if (!case_) {
-      return res.status(404).json({
-        success: false,
-        message: '找不到該學生個案'
-      });
-    }
-    res.json({
-      success: true,
-      data: case_,
-      message: '成功獲取學生個案'
-    });
-  } catch (error) {
-    console.error('[❌] 處理單個學生個案請求時出錯:', error);
-    res.status(500).json({
-      success: false,
-      message: '獲取學生個案失敗'
-    });
+  // 再做 featured、limit 等篩選
+  let filtered = allCases;
+  if (req.query.featured === 'true') {
+    filtered = filtered.filter(item => item.featured === true);
   }
+  if (req.query.limit) {
+    filtered = filtered.slice(0, Number(req.query.limit));
+  }
+  res.json({
+    success: true,
+    data: {
+      cases: filtered,
+      total: filtered.length
+    }
+  });
 });
 
+// GET single student case
+router.get('/:id', getStudentCaseById);
+
+// 學生發布個案（找導師）相關路由
 router.post('/', createStudentCase);
 
 module.exports = router; 
