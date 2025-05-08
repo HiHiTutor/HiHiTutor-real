@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { fetchApi } from '@/services/api';
+import CaseCard from '@/components/CaseCard';
 
 // 科目映射表
 const subjectMap: { [key: string]: string } = {
@@ -153,20 +155,28 @@ const modeMap: { [key: string]: string } = {
 
 // 個案資料類型定義
 interface Case {
-  id: string;
+  id?: string;
+  tutorId?: string;
   category: string;
-  subCategory: string;
-  subjects: string[];
-  region: string;
-  subRegion: string;
-  mode: string;
-  budget: {
-    min: number;
-    max: number;
+  subCategory?: string;
+  subjects?: string[];
+  region?: string;
+  subRegion?: string;
+  mode?: string;
+  modes?: string[];
+  regions?: string[];
+  subRegions?: string[];
+  budget?: {
+    min?: number;
+    max?: number;
   };
-  experience: string;
-  featured: boolean;
-  date: string;
+  price?: string;
+  experience?: string;
+  featured?: boolean;
+  date?: string;
+  createdAt?: string;
+  // 其他可能欄位
+  [key: string]: any;
 }
 
 interface CaseSectionProps {
@@ -191,113 +201,114 @@ const BudgetDisplay = ({ budget }: { budget: any }) => {
 };
 
 const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400', bgColor = 'bg-blue-50', icon }: CaseSectionProps) => {
-  console.log("CaseSection 正確載入 ✅", { title, fetchUrl });
   const [cases, setCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
+    let isMounted = true;  // 用於防止記憶體洩漏
+
     const fetchCases = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api${fetchUrl}`);
-        if (response.ok) {
-          const data = await response.json();
-          
-          // 處理不同格式的回應
-          let casesData: Case[] = [];
-          
-          if (Array.isArray(data)) {
-            // 格式 a: 直接為陣列
-            casesData = data;
-          } else if (data && typeof data === 'object') {
-            // 格式 b: 包含陣列屬性的物件
-            if (Array.isArray(data.cases)) {
-              casesData = data.cases;
-            } else if (Array.isArray(data.data?.cases)) {
-              casesData = data.data.cases;
-            } else if (Array.isArray(data.data)) {
-              casesData = data.data;
-            }
+        const data = await fetchApi(fetchUrl);
+        
+        // 處理不同格式的回應
+        let rawCases: Case[] = [];
+        
+        if (Array.isArray(data)) {
+          rawCases = data;
+        } else if (data && typeof data === 'object') {
+          if (Array.isArray(data.cases)) {
+            rawCases = data.cases;
+          } else if (Array.isArray(data.data?.cases)) {
+            rawCases = data.data.cases;
+          } else if (Array.isArray(data.data)) {
+            rawCases = data.data;
           }
-          
-          // 確保資料是有效的 Case 物件陣列
-          const validCases = casesData.filter(case_ => 
-            case_ && 
-            typeof case_ === 'object' && 
-            'id' in case_ && 
-            'category' in case_
-          );
-          
-          setCases(validCases);
+        }
+        
+        // 過濾並排序（只要有 createdAt 或 date 就顯示）
+        const validCases = rawCases.filter(case_ => 
+          case_ && 
+          typeof case_ === 'object' && 
+          (case_.createdAt || case_.date)
+        );
+
+        const sorted = [...validCases].sort((a, b) => {
+          const t1 = a.createdAt || a.date || '';
+          const t2 = b.createdAt || b.date || '';
+          const d1 = t1 ? new Date(t1).getTime() : 0;
+          const d2 = t2 ? new Date(t2).getTime() : 0;
+          return d2 - d1;
+        });
+
+        // 只在組件仍然掛載時更新狀態
+        if (isMounted) {
+          setCases(sorted);
           setError(null);
-        } else {
-          throw new Error('Failed to fetch cases');
         }
       } catch (err) {
         console.error('獲取個案失敗:', err);
-        setError('獲取個案失敗，請稍後再試');
-        setCases([]);
+        if (isMounted) {
+          setError('獲取個案失敗，請稍後再試');
+          setCases([]);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchCases();
+
+    // 清理函數
+    return () => {
+      isMounted = false;
+    };
   }, [fetchUrl]);
 
-  const limitedCases = Array.isArray(cases) ? cases.slice(0, 8) : [];
+  // 移除重複的日誌
+  const displayCases = cases.slice(0, 8);
 
   return (
-    <section className="max-w-screen-xl mx-auto px-4 md:px-12 py-8">
-      <div className="flex items-center gap-2 mb-6">
-        {icon && <span className="text-2xl">{icon}</span>}
-        <h2 className={`text-2xl font-bold border-l-4 ${borderColor} pl-3`}>{title}</h2>
-      </div>
-      <div className={`${bgColor} border ${borderColor.replace('border-', 'border-')} rounded-xl p-4`}>
-        {loading ? (
-          <div className="text-center py-8">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
-            <p className="mt-2 text-gray-600">載入中...</p>
-          </div>
-        ) : error ? (
-          <div className="text-center py-8 text-red-500">
-            <p>{error}</p>
-          </div>
-        ) : limitedCases.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <p>目前沒有個案</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 items-start">
-            {limitedCases.map((case_, index) => (
-              <div
-                key={`${case_.id}-${index}`}
-                onClick={() => router.push(`${linkUrl}/${case_.id}`)}
-                className="border border-gray-300 rounded-xl p-4 bg-white shadow-sm text-start cursor-pointer hover:shadow-md transition-shadow duration-200"
-              >
-                <div className="font-bold text-lg mb-1">{subjectMap[case_.subjects[0]] || case_.subjects[0]}</div>
-                <div className="text-base mb-1">{regionMap[case_.subRegion] || case_.subRegion}</div>
-                <div className="text-base mb-1">
-                  <BudgetDisplay budget={case_.budget} />
-                </div>
-                <div className="text-base mb-1">{modeMap[case_.mode] || case_.mode}</div>
-                {case_.experience && <div className="text-base">{case_.experience}</div>}
-              </div>
-            ))}
-          </div>
-        )}
-        <div className="mt-8 text-center">
-          <Link
-            href={linkUrl}
-            className="bg-white border border-primary text-primary rounded-md px-4 py-2 hover:bg-gray-50 transition-all duration-200"
-          >
-            查看更多個案
-          </Link>
+    <div className={`border rounded-xl px-4 py-4 ${bgColor || 'bg-sky-50'} border-${borderColor || 'sky'}-300 mx-auto max-w-6xl`}>
+      <div className="flex items-center mb-4">
+        <div className="flex items-center">
+          {icon && <span className="mr-2">{icon}</span>}
+          <h2 className="text-xl font-bold">{title}</h2>
         </div>
       </div>
-    </section>
+      
+      {loading ? (
+        <div className="text-center py-4">載入中...</div>
+      ) : error ? (
+        <div className="text-center py-4 text-red-500">{error}</div>
+      ) : cases.length === 0 ? (
+        <div className="text-center py-4 text-gray-500">暫無個案</div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {displayCases.map((caseItem, idx) => (
+              <CaseCard
+                key={caseItem.id || (caseItem.tutorId ? caseItem.tutorId : 'noid') + '_' + (caseItem.createdAt || caseItem.date || idx)}
+                caseItem={caseItem}
+              />
+            ))}
+          </div>
+          <div className="mt-6 text-center">
+            <Link
+              href={linkUrl}
+              className="inline-block border border-gray-400 px-4 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100"
+            >
+              查看全部
+            </Link>
+          </div>
+        </>
+      )}
+    </div>
   );
 };
 

@@ -137,24 +137,45 @@ const SUB_REGION_MAP: Record<string, string> = {
 
 interface CaseCardProps {
   caseItem: {
-    id: string;
-    category: string;
-    subCategory: string;
-    subjects: string[];
-    region: string;
-    subRegion: string | string[];
-    mode: string;
-    budget: {
-      min: number;
-      max: number;
+    id?: string;
+    tutorId?: string;
+    category?: string;
+    subCategory?: string;
+    subjects?: string[];
+    region?: string;
+    subRegion?: string | string[];
+    mode?: string;
+    modes?: string[];
+    regions?: string[];
+    subRegions?: string[];
+    budget?: {
+      min?: number;
+      max?: number;
     };
-    experience: string;
-    date: string;
+    price?: string;
+    experience?: string;
+    featured?: boolean;
+    date?: string;
+    createdAt?: string;
+    [key: string]: any;
   };
   onClick?: () => void;
 }
 
 export default function CaseCard({ caseItem, onClick }: CaseCardProps) {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '未提供發佈日期';
+    try {
+      return new Date(dateString).toLocaleDateString('zh-HK', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch (e) {
+      return '日期格式錯誤';
+    }
+  };
+
   return (
     <div
       className="bg-white rounded-xl shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow min-h-[200px] flex flex-col justify-between"
@@ -192,7 +213,7 @@ export default function CaseCard({ caseItem, onClick }: CaseCardProps) {
 
       <div className="mt-4">
         <p className="text-sm text-gray-500">
-          發佈於 {caseItem.date ? new Date(caseItem.date).toLocaleDateString() : '未提供發佈日期'}
+          發佈於 {formatDate(caseItem.createdAt || caseItem.date)}
         </p>
       </div>
     </div>
