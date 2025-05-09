@@ -1,124 +1,771 @@
 [
   {
-    "id": "1746380520842",
-    "studentId": "user_1745516152304",
-    "name": "Try01",
-    "subject": "試試1",
-    "requirement": "是但",
-    "budget": "999",
-    "location": "是但",
-    "description": "是但",
-    "mode": "面授",
-    "createdAt": "2025-05-04T17:42:00.842Z"
-  },
-  {
-    "id": "1746539621713",
-    "studentId": "user_1745516152304",
-    "name": "Try01",
-    "subject": "試試1",
-    "requirement": "搵學生",
-    "budget": "999",
-    "location": "是但",
-    "description": "是但搵學生",
-    "mode": "面授",
-    "createdAt": "2025-05-06T13:53:41.713Z"
-  },
-  {
-    "id": "1746539913560",
-    "studentId": "user_1745516152304",
-    "name": "Try01",
-    "subject": "試試2",
-    "requirement": "搵學生",
-    "budget": "999",
-    "location": "是但",
-    "description": "是但2",
-    "mode": "面授",
-    "createdAt": "2025-05-06T13:58:33.560Z"
-  },
-  {
-    "id": "1746540101120",
-    "studentId": "user_1745516152304",
-    "name": "Try01",
-    "subject": "試試3",
-    "requirement": "是但",
-    "budget": "999",
-    "location": "是但",
-    "description": "是但",
-    "mode": "面授",
-    "createdAt": "2025-05-06T14:01:41.120Z"
-  },
-  {
-    "id": "1746540333872",
-    "studentId": "user_1745516152304",
-    "name": "Try01",
-    "subject": "試試1",
-    "requirement": "搵學生",
-    "budget": "999",
-    "location": "是但",
-    "description": "是但",
-    "mode": "面授",
-    "createdAt": "2025-05-06T14:05:33.872Z"
-  },
-  {
-    "id": "1746540489080",
-    "studentId": "user_1745516152304",
-    "name": "Try01",
-    "subject": "試試1",
-    "requirement": "是但",
-    "budget": "999",
-    "location": "999",
+    "id": "T1746776043971",
+    "tutorId": "unknown",
+    "title": "11",
     "description": "999",
-    "mode": "面授",
-    "createdAt": "2025-05-06T14:08:09.080Z"
+    "category": "tertiary",
+    "subCategory": "",
+    "subjects": [
+      "uni-math",
+      "uni-thesis",
+      "uni-engineering"
+    ],
+    "regions": [
+      "new-territories"
+    ],
+    "subRegions": [
+      "sha-tin",
+      "ma-on-shan",
+      "tai-wai"
+    ],
+    "modes": [
+      "in-person",
+      "online"
+    ],
+    "price": "",
+    "location": "",
+    "lessonDuration": "",
+    "durationUnit": "",
+    "weeklyLessons": "",
+    "experience": "",
+    "featured": false,
+    "createdAt": "2025-05-09T07:34:03.971Z"
   },
   {
-    "id": "1746541634921",
-    "title": "中五學生搵數學導師",
-    "description": "想搵有DSE經驗導師，逢星期六上堂",
+    "id": "T1746686093090",
+    "tutorId": "user_1745516152304",
+    "title": "",
+    "description": "是但",
+    "category": "adult",
+    "subCategory": "",
+    "subjects": [
+      "computer-skills"
+    ],
+    "modes": [
+      "online"
+    ],
+    "regions": [],
+    "subRegions": [],
+    "price": "200",
+    "location": "",
+    "lessonDuration": "30",
+    "durationUnit": "minutes",
+    "weeklyLessons": "3",
+    "featured": false,
+    "createdAt": "2025-05-08T06:34:53.090Z"
+  },
+  {
+    "id": "T1746685766049",
+    "tutorId": "user_1745516152304",
+    "title": "",
+    "description": "是但",
+    "category": "interest",
+    "subCategory": "",
+    "subjects": [
+      "dance"
+    ],
+    "modes": [
+      "online"
+    ],
+    "regions": [],
+    "subRegions": [],
+    "price": "999",
+    "location": "",
+    "lessonDuration": "90",
+    "durationUnit": "minutes",
+    "weeklyLessons": "9",
+    "featured": false,
+    "createdAt": "2025-05-08T06:29:26.049Z"
+  },
+  {
+    "id": "T1746684645337",
+    "tutorId": "user_1745516152304",
+    "title": "",
+    "description": "是但",
+    "category": "adult",
+    "subCategory": "",
+    "subjects": [
+      "exam-prep"
+    ],
+    "modes": [
+      "online",
+      "in-person"
+    ],
+    "regions": [
+      "kowloon"
+    ],
+    "subRegions": [
+      "jordan"
+    ],
+    "price": "999",
+    "location": "",
+    "lessonDuration": "50",
+    "durationUnit": "minutes",
+    "weeklyLessons": "3",
+    "featured": false,
+    "createdAt": "2025-05-08T06:10:45.337Z"
+  },
+  {
+    "id": "T1746684489374",
+    "tutorId": "user_1745516152304",
+    "title": "",
+    "description": "是但",
+    "category": "early-childhood",
+    "subCategory": "",
+    "subjects": [
+      "early-childhood-english",
+      "early-childhood-chinese"
+    ],
+    "modes": [
+      "in-person",
+      "online"
+    ],
+    "regions": [
+      "kowloon"
+    ],
+    "subRegions": [
+      "tsim-sha-tsui",
+      "jordan"
+    ],
+    "price": "500",
+    "location": "",
+    "lessonDuration": "30",
+    "durationUnit": "minutes",
+    "weeklyLessons": "3",
+    "featured": false,
+    "createdAt": "2025-05-08T06:08:09.374Z"
+  },
+  {
+    "id": "T1746683363653",
+    "tutorId": "user_1745516152304",
+    "title": "",
+    "description": "是但",
+    "category": "primary-secondary",
+    "subCategory": "primary",
+    "subjects": [
+      "primary-english",
+      "primary-math",
+      "primary-general",
+      "primary-mandarin"
+    ],
+    "modes": [
+      "online",
+      "in-person"
+    ],
+    "regions": [
+      "kowloon"
+    ],
+    "subRegions": [
+      "kowloon-tong",
+      "san-po-kong"
+    ],
+    "price": "",
+    "location": "",
+    "featured": false,
+    "createdAt": "2025-05-08T05:49:23.653Z"
+  },
+  {
+    "id": "T1746680933328",
+    "studentId": "user_1745516152304",
+    "title": "試試",
+    "description": "是但",
+    "category": "interest",
+    "subCategory": "",
+    "subjects": [
+      "music"
+    ],
+    "regions": [],
+    "subRegions": [],
+    "modes": [
+      "online"
+    ],
+    "budget": {
+      "min": 9,
+      "max": 99
+    },
+    "featured": false,
+    "createdAt": "2025-05-08T05:08:53.328Z"
+  },
+  {
+    "id": "T1746679376230",
+    "studentId": "user_1745516152304",
+    "title": "試第二次",
+    "description": "是但",
+    "category": "tertiary",
+    "subCategory": "",
+    "subjects": [
+      "uni-liberal"
+    ],
+    "regions": [],
+    "subRegions": [],
+    "modes": [
+      "online"
+    ],
+    "budget": {
+      "min": 99,
+      "max": 199
+    },
+    "featured": false,
+    "createdAt": "2025-05-08T04:42:56.230Z"
+  },
+  {
+    "id": "T1746679182380",
+    "studentId": "user_1745516152304",
+    "title": "試試發布招學生個案",
+    "description": "是但",
+    "category": "interest",
+    "subCategory": "",
+    "subjects": [
+      "magic-chess"
+    ],
+    "regions": [
+      "islands"
+    ],
+    "subRegions": [
+      "tung-chung"
+    ],
+    "modes": [
+      "in-person",
+      "online"
+    ],
+    "budget": {
+      "min": 10,
+      "max": 50
+    },
+    "featured": false,
+    "createdAt": "2025-05-08T04:39:42.380Z"
+  },
+  {
+    "id": "tutor_1",
+    "studentId": "student_1",
+    "title": "精選導師個案一",
+    "description": "多年DSE數學補習經驗，保證提分！",
+    "category": "primary-secondary",
+    "subCategory": "secondary",
+    "subjects": [
+      "secondary-math",
+      "secondary-english"
+    ],
+    "region": "kowloon",
+    "subRegion": "mong-kok",
+    "mode": "in-person",
+    "budget": {
+      "min": 300,
+      "max": 500
+    },
+    "experience": "10年DSE補習經驗，曾任職大型補習社",
+    "featured": true,
+    "isVip": true,
+    "isPinned": true,
+    "rating": 5,
+    "createdAt": "2025-05-07T10:00:00.000Z"
+  },
+  {
+    "id": "tutor_2",
+    "studentId": "student_2",
+    "title": "精選導師個案二",
+    "description": "專攻小學英文，互動教學，學生滿意度高。",
+    "category": "primary-secondary",
+    "subCategory": "primary",
+    "subjects": [
+      "primary-english",
+      "primary-general"
+    ],
+    "region": "hong-kong-island",
+    "subRegion": "causeway-bay",
+    "mode": "online",
+    "budget": {
+      "min": 250,
+      "max": 350
+    },
+    "experience": "5年小學英文教學經驗，持有教育文憑",
+    "featured": true,
+    "isVip": true,
+    "isPinned": false,
+    "rating": 4.8,
+    "createdAt": "2025-05-07T11:00:00.000Z"
+  },
+  {
+    "id": "tutor_3",
+    "studentId": "student_3",
+    "title": "精選導師個案三",
+    "description": "資深IB導師，專注於國際學校課程。",
+    "category": "tertiary",
+    "subCategory": "ib",
+    "subjects": [
+      "ib-math",
+      "ib-physics"
+    ],
+    "region": "hong-kong-island",
+    "subRegion": "central",
+    "mode": "online",
+    "budget": {
+      "min": 400,
+      "max": 600
+    },
+    "experience": "8年IB教學經驗，曾任職國際學校",
+    "featured": true,
+    "isVip": false,
+    "isPinned": true,
+    "rating": 4.9,
+    "createdAt": "2025-05-07T12:00:00.000Z"
+  },
+  {
+    "id": "tutor_4",
+    "studentId": "student_4",
+    "title": "精選導師個案四",
+    "description": "成人英語會話專家，助你流利溝通。",
+    "category": "adult",
+    "subCategory": "english",
+    "subjects": [
+      "adult-english"
+    ],
+    "region": "kowloon",
+    "subRegion": "tsim-sha-tsui",
+    "mode": "in-person",
+    "budget": {
+      "min": 350,
+      "max": 450
+    },
+    "experience": "6年成人英語教學經驗",
+    "featured": true,
+    "isVip": false,
+    "isPinned": false,
+    "rating": 4.7,
+    "createdAt": "2025-05-07T13:00:00.000Z"
+  },
+  {
+    "id": "tutor_5",
+    "studentId": "student_5",
+    "title": "精選導師個案五",
+    "description": "小學數學專家，互動教學，學生進步快。",
+    "category": "primary-secondary",
+    "subCategory": "primary",
+    "subjects": [
+      "primary-math"
+    ],
+    "region": "new-territories",
+    "subRegion": "sha-tin",
+    "mode": "in-person",
+    "budget": {
+      "min": 200,
+      "max": 300
+    },
+    "experience": "4年小學數學教學經驗",
+    "featured": true,
+    "isVip": false,
+    "isPinned": true,
+    "rating": 4.6,
+    "createdAt": "2025-05-07T14:00:00.000Z"
+  },
+  {
+    "id": "tutor_6",
+    "studentId": "student_6",
+    "title": "精選導師個案六",
+    "description": "興趣班導師，專注繪畫與創意。",
+    "category": "interest",
+    "subCategory": "art",
+    "subjects": [
+      "drawing",
+      "painting"
+    ],
+    "region": "hong-kong-island",
+    "subRegion": "wan-chai",
+    "mode": "in-person",
+    "budget": {
+      "min": 180,
+      "max": 250
+    },
+    "experience": "3年兒童繪畫教學經驗",
+    "featured": true,
+    "isVip": true,
+    "isPinned": false,
+    "rating": 4.5,
+    "createdAt": "2025-05-07T15:00:00.000Z"
+  },
+  {
+    "id": "tutor_7",
+    "studentId": "student_7",
+    "title": "精選導師個案七",
+    "description": "成人日語會話導師，N1合格。",
+    "category": "adult",
+    "subCategory": "japanese",
+    "subjects": [
+      "adult-japanese"
+    ],
+    "region": "kowloon",
+    "subRegion": "yau-ma-tei",
+    "mode": "online",
+    "budget": {
+      "min": 300,
+      "max": 400
+    },
+    "experience": "5年日語教學經驗，N1證書持有",
+    "featured": true,
+    "isVip": false,
+    "isPinned": true,
+    "rating": 4.8,
+    "createdAt": "2025-05-07T16:00:00.000Z"
+  },
+  {
+    "id": "tutor_8",
+    "studentId": "student_8",
+    "title": "精選導師個案八",
+    "description": "DSE中文專家，作文技巧提升。",
+    "category": "primary-secondary",
+    "subCategory": "secondary",
+    "subjects": [
+      "secondary-chinese"
+    ],
+    "region": "new-territories",
+    "subRegion": "yuen-long",
+    "mode": "in-person",
+    "budget": {
+      "min": 280,
+      "max": 380
+    },
+    "experience": "7年中文教學經驗，DSE作文專家",
+    "featured": true,
+    "isVip": true,
+    "isPinned": false,
+    "rating": 4.9,
+    "createdAt": "2025-05-07T17:00:00.000Z"
+  },
+  {
+    "id": "tutor_9",
+    "studentId": "student_9",
+    "title": "普通導師個案九",
+    "description": "普通導師個案描述九。",
     "category": "primary-secondary",
     "subCategory": "secondary",
     "subjects": [
       "secondary-math"
     ],
     "region": "kowloon",
-    "subRegion": "mong-kok",
+    "subRegion": "sham-shui-po",
     "mode": "in-person",
     "budget": {
       "min": 200,
-      "max": 400
+      "max": 300
     },
-    "experience": "需要有DSE補習經驗",
+    "experience": "2年教學經驗",
     "featured": false,
-    "createdAt": "2025-05-06T14:27:14.921Z"
+    "createdAt": "2025-05-06T10:00:00.000Z"
   },
   {
-    "id": "featured_1",
-    "title": "精選導師個案一",
-    "description": "多年DSE數學補習經驗，保證提分！",
-    "category": "primary-secondary",
-    "subCategory": "secondary",
-    "subjects": ["secondary-math", "secondary-english"],
-    "region": "kowloon",
-    "subRegion": "mong-kok",
-    "mode": "in-person",
-    "budget": { "min": 300, "max": 500 },
-    "experience": "10年DSE補習經驗，曾任職大型補習社",
-    "featured": true,
-    "createdAt": "2025-05-07T10:00:00.000Z"
-  },
-  {
-    "id": "featured_2",
-    "title": "精選導師個案二",
-    "description": "專攻小學英文，互動教學，學生滿意度高。",
+    "id": "tutor_10",
+    "studentId": "student_10",
+    "title": "普通導師個案十",
+    "description": "普通導師個案描述十。",
     "category": "primary-secondary",
     "subCategory": "primary",
-    "subjects": ["primary-english", "primary-general"],
+    "subjects": [
+      "primary-english"
+    ],
+    "region": "hong-kong-island",
+    "subRegion": "north-point",
+    "mode": "online",
+    "budget": {
+      "min": 180,
+      "max": 250
+    },
+    "experience": "1年教學經驗",
+    "featured": false,
+    "createdAt": "2025-05-06T11:00:00.000Z"
+  },
+  {
+    "id": "tutor_11",
+    "studentId": "student_11",
+    "title": "普通導師個案十一",
+    "description": "普通導師個案描述十一。",
+    "category": "interest",
+    "subCategory": "music",
+    "subjects": [
+      "piano"
+    ],
+    "region": "new-territories",
+    "subRegion": "tai-po",
+    "mode": "in-person",
+    "budget": {
+      "min": 220,
+      "max": 320
+    },
+    "experience": "3年鋼琴教學經驗",
+    "featured": false,
+    "createdAt": "2025-05-06T12:00:00.000Z"
+  },
+  {
+    "id": "tutor_12",
+    "studentId": "student_12",
+    "title": "普通導師個案十二",
+    "description": "普通導師個案描述十二。",
+    "category": "primary-secondary",
+    "subCategory": "secondary",
+    "subjects": [
+      "secondary-chemistry"
+    ],
+    "region": "kowloon",
+    "subRegion": "prince-edward",
+    "mode": "in-person",
+    "budget": {
+      "min": 210,
+      "max": 310
+    },
+    "experience": "2年化學教學經驗",
+    "featured": false,
+    "createdAt": "2025-05-06T13:00:00.000Z"
+  },
+  {
+    "id": "tutor_13",
+    "studentId": "student_13",
+    "title": "普通導師個案十三",
+    "description": "普通導師個案描述十三。",
+    "category": "primary-secondary",
+    "subCategory": "primary",
+    "subjects": [
+      "primary-math"
+    ],
+    "region": "hong-kong-island",
+    "subRegion": "admiralty",
+    "mode": "online",
+    "budget": {
+      "min": 170,
+      "max": 230
+    },
+    "experience": "1年教學經驗",
+    "featured": false,
+    "createdAt": "2025-05-06T14:00:00.000Z"
+  },
+  {
+    "id": "tutor_14",
+    "studentId": "student_14",
+    "title": "普通導師個案十四",
+    "description": "普通導師個案描述十四。",
+    "category": "interest",
+    "subCategory": "dance",
+    "subjects": [
+      "ballet"
+    ],
+    "region": "new-territories",
+    "subRegion": "sha-tin",
+    "mode": "in-person",
+    "budget": {
+      "min": 200,
+      "max": 300
+    },
+    "experience": "2年舞蹈教學經驗",
+    "featured": false,
+    "createdAt": "2025-05-06T15:00:00.000Z"
+  },
+  {
+    "id": "tutor_15",
+    "studentId": "student_15",
+    "title": "普通導師個案十五",
+    "description": "普通導師個案描述十五。",
+    "category": "primary-secondary",
+    "subCategory": "secondary",
+    "subjects": [
+      "secondary-biology"
+    ],
+    "region": "kowloon",
+    "subRegion": "jordan",
+    "mode": "in-person",
+    "budget": {
+      "min": 210,
+      "max": 310
+    },
+    "experience": "2年生物教學經驗",
+    "featured": false,
+    "createdAt": "2025-05-06T16:00:00.000Z"
+  },
+  {
+    "id": "tutor_16",
+    "studentId": "student_16",
+    "title": "普通導師個案十六",
+    "description": "普通導師個案描述十六。",
+    "category": "primary-secondary",
+    "subCategory": "primary",
+    "subjects": [
+      "primary-chinese"
+    ],
     "region": "hong-kong-island",
     "subRegion": "causeway-bay",
     "mode": "online",
-    "budget": { "min": 250, "max": 350 },
-    "experience": "5年小學英文教學經驗，持有教育文憑",
-    "featured": true,
-    "createdAt": "2025-05-07T11:00:00.000Z"
+    "budget": {
+      "min": 180,
+      "max": 250
+    },
+    "experience": "1年中文教學經驗",
+    "featured": false,
+    "createdAt": "2025-05-06T17:00:00.000Z"
+  },
+  {
+    "id": "tutor_17",
+    "studentId": "student_17",
+    "title": "普通導師個案十七",
+    "description": "普通導師個案描述十七。",
+    "category": "interest",
+    "subCategory": "music",
+    "subjects": [
+      "guitar"
+    ],
+    "region": "new-territories",
+    "subRegion": "tai-po",
+    "mode": "in-person",
+    "budget": {
+      "min": 220,
+      "max": 320
+    },
+    "experience": "2年結他教學經驗",
+    "featured": false,
+    "createdAt": "2025-05-06T18:00:00.000Z"
+  },
+  {
+    "id": "tutor_18",
+    "studentId": "student_18",
+    "title": "普通導師個案十八",
+    "description": "普通導師個案描述十八。",
+    "category": "primary-secondary",
+    "subCategory": "secondary",
+    "subjects": [
+      "secondary-physics"
+    ],
+    "region": "kowloon",
+    "subRegion": "sham-shui-po",
+    "mode": "in-person",
+    "budget": {
+      "min": 210,
+      "max": 310
+    },
+    "experience": "2年物理教學經驗",
+    "featured": false,
+    "createdAt": "2025-05-06T19:00:00.000Z"
+  },
+  {
+    "id": "tutor_19",
+    "studentId": "student_19",
+    "title": "普通導師個案十九",
+    "description": "普通導師個案描述十九。",
+    "category": "primary-secondary",
+    "subCategory": "primary",
+    "subjects": [
+      "primary-math"
+    ],
+    "region": "hong-kong-island",
+    "subRegion": "admiralty",
+    "mode": "online",
+    "budget": {
+      "min": 170,
+      "max": 230
+    },
+    "experience": "1年教學經驗",
+    "featured": false,
+    "createdAt": "2025-05-06T20:00:00.000Z"
+  },
+  {
+    "id": "tutor_20",
+    "studentId": "student_20",
+    "title": "普通導師個案二十",
+    "description": "普通導師個案描述二十。",
+    "category": "interest",
+    "subCategory": "art",
+    "subjects": [
+      "drawing"
+    ],
+    "region": "new-territories",
+    "subRegion": "sha-tin",
+    "mode": "in-person",
+    "budget": {
+      "min": 200,
+      "max": 300
+    },
+    "experience": "2年繪畫教學經驗",
+    "featured": false,
+    "createdAt": "2025-05-06T21:00:00.000Z"
+  },
+  {
+    "id": "1746545292445",
+    "studentId": "user_1745516152304",
+    "name": "Try01",
+    "subject": "手動Case",
+    "requirement": "是但",
+    "budget": "999",
+    "location": "是但",
+    "description": "是但",
+    "mode": "面授",
+    "createdAt": "2025-05-06T15:28:12.445Z"
+  },
+  {
+    "id": "1746545377843",
+    "studentId": "user_1745516152304",
+    "name": "Try01",
+    "subject": "是但",
+    "requirement": "是但",
+    "budget": "999",
+    "location": "是但",
+    "description": "我係出post搵學生",
+    "mode": "面授",
+    "createdAt": "2025-05-06T15:29:37.843Z"
+  },
+  {
+    "id": "1746611191974",
+    "studentId": "user_1745516152304",
+    "title": "試試1發布招學生個案",
+    "description": "是但",
+    "category": "primary-secondary",
+    "subCategory": "primary",
+    "subjects": [
+      "primary-chinese",
+      "primary-english",
+      "primary-general",
+      "primary-mandarin"
+    ],
+    "regions": [
+      "kowloon"
+    ],
+    "subRegions": [
+      "jordan",
+      "yau-ma-tei",
+      "mong-kok",
+      "lok-fu"
+    ],
+    "modes": [
+      "online",
+      "in-person"
+    ],
+    "budget": {
+      "min": 50,
+      "max": 500
+    },
+    "createdAt": "2025-05-07T09:46:31.974Z"
+  },
+  {
+    "id": "1746674401556",
+    "studentId": "user_1745516152304",
+    "title": "再試招學生",
+    "description": "試試招學生2",
+    "category": "adult",
+    "subCategory": "",
+    "subjects": [
+      "business-english",
+      "chinese-language",
+      "exam-prep"
+    ],
+    "regions": [
+      "islands"
+    ],
+    "subRegions": [
+      "mui-wo"
+    ],
+    "modes": [
+      "online",
+      "in-person"
+    ],
+    "budget": {
+      "min": 5000,
+      "max": 900000
+    },
+    "createdAt": "2025-05-08T03:20:01.556Z"
   }
 ]

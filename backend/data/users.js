@@ -24,10 +24,7 @@ function saveUsers(users) {
   }
 }
 
-// 初始化用戶資料
-const users = loadUsers();
-
 module.exports = {
-  users,
+  loadUsers,
   saveUsers
 }; 

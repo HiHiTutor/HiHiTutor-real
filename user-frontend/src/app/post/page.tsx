@@ -61,7 +61,7 @@ export default function PostPage() {
               className="w-full p-4 border rounded-lg hover:bg-gray-50 transition flex items-center justify-between"
             >
               <div>
-                <h3 className="font-medium">發布學生個案</h3>
+                <h3 className="font-medium">發布招學生個案</h3>
                 <p className="text-sm text-gray-600">尋找適合的導師</p>
               </div>
               <span className="text-blue-600">→</span>
@@ -74,7 +74,7 @@ export default function PostPage() {
                 className="w-full p-4 border rounded-lg hover:bg-gray-50 transition flex items-center justify-between"
               >
                 <div>
-                  <h3 className="font-medium">發布導師個案</h3>
+                  <h3 className="font-medium">發布尋導師個案</h3>
                   <p className="text-sm text-gray-600">招收學生</p>
                 </div>
                 <span className="text-blue-600">→</span>

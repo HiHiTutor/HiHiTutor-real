@@ -3,7 +3,7 @@ const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 console.log('🌐 API baseURL:', baseURL);
 
 // 通用 API 請求函數
-const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
+export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
   try {
     // 確保 endpoint 以 / 開頭
     const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
@@ -103,7 +103,7 @@ export const tutorCaseApi = {
   getAllTutorCases: () => fetchApi('/tutor-cases'),
   
   // 獲取推薦導師個案
-  getRecommendedTutorCases: () => fetchApi('/tutor-cases/recommended'),
+  getRecommendedTutorCases: () => fetchApi('/find-student-cases?featured=true&limit=8'),
 };
 
 // 分類相關 API

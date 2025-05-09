@@ -43,7 +43,7 @@ export default function Home() {
       <section>
         <CaseSection 
           title="精選導師個案"
-          fetchUrl="/find-student-cases/recommended"
+          fetchUrl="/find-student-cases?featured=true&limit=8"
           linkUrl="/find-student-cases"
           borderColor="border-yellow-400"
           bgColor="bg-yellow-50"
@@ -58,7 +58,7 @@ export default function Home() {
       <section>
         <CaseSection 
           title="最新學生搵導師個案"
-          fetchUrl="/find-tutor-cases?featured=true&limit=8"
+          fetchUrl="/find-tutor-cases"
           linkUrl="/find-tutor-cases"
           borderColor="border-blue-400"
           bgColor="bg-blue-50"

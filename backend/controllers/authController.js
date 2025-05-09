@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const userRepository = require('../repositories/UserRepository.js');
+const crypto = require('crypto');
+const { loadUsers, saveUsers } = require('../data/users');
 
 // 模擬 JWT token 生成
 const generateToken = (user) => {
@@ -225,9 +227,71 @@ const getCurrentUser = (req, res) => {
   res.json({ user: req.user });
 };
 
+// 忘記密碼（支援 email 或電話）
+const forgotPassword = (req, res) => {
+  const { account } = req.body;
+  if (!account) {
+    return res.status(400).json({ message: '請提供 email 或電話號碼' });
+  }
+
+  const users = loadUsers();
+
+  const isEmail = account.includes('@');
+  const isPhone = /^\d{8}$/.test(account);
+
+  let user;
+  if (isEmail) {
+    user = users.find((u) => u.email === account);
+  } else if (isPhone) {
+    user = users.find((u) => u.phone === account);
+  } else {
+    return res.status(400).json({ message: '格式錯誤，請輸入正確 email 或電話' });
+  }
+
+  if (!user) {
+    return res.status(404).json({ message: '找不到該帳戶' });
+  }
+
+  const token = crypto.randomBytes(20).toString('hex');
+  user.resetToken = token;
+  saveUsers(users);
+
+  console.log(`模擬寄送連結：http://localhost:3000/reset-password?token=${token}`);
+
+  res.json({
+    message: '密碼重設連結已發送（模擬）',
+    token: token
+  });
+};
+
+// 重設密碼
+const resetPassword = (req, res) => {
+  const { token, password } = req.body;
+
+  if (!token || !password) {
+    return res.status(400).json({ message: '請提供 token 及新密碼' });
+  }
+
+  const users = loadUsers();
+  const user = users.find((u) => u.resetToken === token);
+
+  if (!user) {
+    return res.status(400).json({ message: '無效或過期的 token' });
+  }
+
+  user.password = password;
+  delete user.resetToken;
+  saveUsers(users);
+
+  res.json({ message: '密碼重設成功' });
+};
+
+// 在文件結尾，確保 forgotPassword 有 export
 module.exports = {
   loginUser,
   register,
   getUserProfile,
-  getCurrentUser
+  getCurrentUser,
+  forgotPassword,
+  resetPassword
 }; 

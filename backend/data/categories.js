@@ -1,155 +1,118 @@
 module.exports = [
   {
-    id: 1,
-    name: "幼兒教育",
-    icon: "🧸",
-    description: "專注於幼兒早期發展與學習",
-    subcategories: [
+    value: 'early-childhood',
+    label: '幼兒教育',
+    subCategories: [
       {
-        id: 11,
-        name: "SEN 支援",
-        description: "特殊教育需求支援服務",
-        icon: "👶"
-      },
-      {
-        id: 12,
-        name: "Playgroup",
-        description: "幼兒遊戲學習小組",
-        icon: "🎮"
-      },
-      {
-        id: 13,
-        name: "面試班",
-        description: "幼稚園面試準備課程",
-        icon: "🗣️"
-      },
-      {
-        id: 14,
-        name: "英語班",
-        description: "幼兒英語啟蒙課程",
-        icon: "🔤"
-      },
-      {
-        id: 15,
-        name: "數學啟蒙",
-        description: "幼兒數學思維培養",
-        icon: "🔢"
+        value: 'early-childhood-all',
+        label: '所有科目',
+        subjects: [
+          { value: 'early-childhood-chinese', label: '幼兒中文' },
+          { value: 'early-childhood-english', label: '幼兒英文' },
+          { value: 'early-childhood-math', label: '幼兒數學' },
+          { value: 'early-childhood-phonics', label: '拼音／注音' },
+          { value: 'early-childhood-logic', label: '邏輯思維訓練' },
+          { value: 'early-childhood-interview', label: '面試技巧訓練' },
+          { value: 'early-childhood-homework', label: '幼稚園功課輔導' }
+        ]
       }
     ]
   },
   {
-    id: 2,
-    name: "中小學教育",
-    icon: "📚",
-    description: "中小學學科輔導與補習",
-    subcategories: [
+    value: 'primary-secondary',
+    label: '中小學教育',
+    subCategories: [
       {
-        id: 21,
-        name: "中文",
-        description: "中文科目輔導",
-        icon: "📝"
+        value: 'primary',
+        label: '小學教育',
+        subjects: [
+          { value: 'primary-chinese', label: '中文' },
+          { value: 'primary-english', label: '英文' },
+          { value: 'primary-math', label: '數學' },
+          { value: 'primary-general', label: '常識' },
+          { value: 'primary-mandarin', label: '普通話' },
+          { value: 'primary-stem', label: '常識／STEM' },
+          { value: 'primary-all', label: '其他全科補習' }
+        ]
       },
       {
-        id: 22,
-        name: "英文",
-        description: "英文科目輔導",
-        icon: "🔤"
-      },
-      {
-        id: 23,
-        name: "數學",
-        description: "數學科目輔導",
-        icon: "🔢"
-      },
-      {
-        id: 24,
-        name: "通識",
-        description: "通識科目輔導",
-        icon: "🌍"
+        value: 'secondary',
+        label: '中學教育',
+        subjects: [
+          { value: 'secondary-chinese', label: '中文' },
+          { value: 'secondary-english', label: '英文' },
+          { value: 'secondary-math', label: '數學' },
+          { value: 'secondary-ls', label: '通識教育' },
+          { value: 'secondary-physics', label: '物理' },
+          { value: 'secondary-chemistry', label: '化學' },
+          { value: 'secondary-biology', label: '生物' },
+          { value: 'secondary-economics', label: '經濟' },
+          { value: 'secondary-geography', label: '地理' },
+          { value: 'secondary-history', label: '歷史' },
+          { value: 'secondary-chinese-history', label: '中國歷史' },
+          { value: 'secondary-bafs', label: 'BAFS' },
+          { value: 'secondary-ict', label: 'ICT' },
+          { value: 'secondary-integrated-science', label: '綜合科學' },
+          { value: 'secondary-dse', label: '其他 DSE 專科補習' },
+          { value: 'secondary-all', label: '全科補習' }
+        ]
       }
     ]
   },
   {
-    id: 3,
-    name: "興趣班",
-    icon: "🎭",
-    description: "多元化興趣發展課程",
-    subcategories: [
+    value: 'interest',
+    label: '興趣班',
+    subCategories: [
       {
-        id: 31,
-        name: "音樂",
-        description: "音樂課程",
-        icon: "🎵"
-      },
-      {
-        id: 32,
-        name: "美術",
-        description: "美術課程",
-        icon: "🎨"
-      },
-      {
-        id: 33,
-        name: "運動",
-        description: "運動課程",
-        icon: "⚽"
-      },
-      {
-        id: 34,
-        name: "舞蹈",
-        description: "舞蹈課程",
-        icon: "💃"
+        value: 'interest-all',
+        label: '所有科目',
+        subjects: [
+          { value: 'art', label: '繪畫' },
+          { value: 'music', label: '音樂（鋼琴、結他、小提琴等）' },
+          { value: 'dance', label: '跳舞／舞蹈訓練' },
+          { value: 'drama', label: '戲劇／演講' },
+          { value: 'programming', label: '編程／STEM' },
+          { value: 'foreign-language', label: '外語（韓文／日文／法文／德文等）' },
+          { value: 'magic-chess', label: '魔術／棋藝' },
+          { value: 'photography', label: '攝影／影片剪接' }
+        ]
       }
     ]
   },
   {
-    id: 4,
-    name: "大專補習課程",
-    icon: "🎓",
-    description: "大專院校學術支援課程",
-    subcategories: [
+    value: 'tertiary',
+    label: '大專補習課程',
+    subCategories: [
       {
-        id: 41,
-        name: "學術寫作",
-        description: "論文寫作指導",
-        icon: "✍️"
-      },
-      {
-        id: 42,
-        name: "考試準備",
-        description: "考試輔導",
-        icon: "📝"
-      },
-      {
-        id: 43,
-        name: "專業科目",
-        description: "專業科目輔導",
-        icon: "📚"
+        value: 'tertiary-all',
+        label: '所有科目',
+        subjects: [
+          { value: 'uni-liberal', label: '大學通識' },
+          { value: 'uni-math', label: '大學統計與數學' },
+          { value: 'uni-economics', label: '經濟學' },
+          { value: 'uni-it', label: '資訊科技' },
+          { value: 'uni-business', label: '商科（會計、管理、市場學等）' },
+          { value: 'uni-engineering', label: '工程科目' },
+          { value: 'uni-thesis', label: '論文指導／報告協助' }
+        ]
       }
     ]
   },
   {
-    id: 5,
-    name: "成人教育",
-    icon: "💼",
-    description: "成人專業技能培訓",
-    subcategories: [
+    value: 'adult',
+    label: '成人教育',
+    subCategories: [
       {
-        id: 51,
-        name: "語言課程",
-        description: "語言學習",
-        icon: "🗣️"
-      },
-      {
-        id: 52,
-        name: "職業技能",
-        description: "職業技能培訓",
-        icon: "💻"
-      },
-      {
-        id: 53,
-        name: "興趣發展",
-        description: "興趣課程",
-        icon: "🎨"
+        value: 'adult-all',
+        label: '所有科目',
+        subjects: [
+          { value: 'business-english', label: '商務英文' },
+          { value: 'conversation', label: '生活英語會話' },
+          { value: 'chinese-language', label: '廣東話／普通話' },
+          { value: 'second-language', label: '興趣／第二語言學習' },
+          { value: 'computer-skills', label: '電腦技能（Excel／Photoshop 等）' },
+          { value: 'exam-prep', label: '考試準備（IELTS／TOEFL／JLPT）' }
+        ]
       }
     ]
   }

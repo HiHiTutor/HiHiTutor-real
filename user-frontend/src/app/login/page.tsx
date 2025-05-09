@@ -110,6 +110,11 @@ export default function LoginPage() {
               {loading ? '登入中...' : '登入'}
             </button>
           </div>
+          <div className="mt-4 text-center">
+            <Link href="/forgot-password" className="text-blue-500 hover:underline">
+              忘記密碼？
+            </Link>
+          </div>
         </form>
       </div>
     </div>

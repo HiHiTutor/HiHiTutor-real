@@ -11,6 +11,7 @@ const tutorsRouter = require('./routes/tutors');
 const casesRouter = require('./routes/cases');
 const findTutorCases = require('./routes/findTutorCases');
 const findStudentCases = require('./routes/findStudentCases');
+const articlesRoutes = require('./routes/articles');
 
 const app = express();
 
@@ -26,12 +27,12 @@ app.use((req, res, next) => {
 });
 
 // API Routes
-app.use('/api/tutor-cases', tutorCasesRouter);
-app.use('/api/find-student-cases', tutorCasesRouter);
-app.use('/api/find-tutor-cases', studentCasesRouter);
-app.use('/api/categories', categoriesRouter);
 app.use('/api/tutors', tutorsRouter);
+app.use('/api/categories', categoriesRouter);
 app.use('/api/cases', casesRouter);
+app.use('/api/find-student-cases', studentCasesRouter);
+app.use('/api/find-tutor-cases', tutorCasesRouter);
+app.use('/api/articles', articlesRoutes);
 
 // 404 handler
 app.use((req, res) => {

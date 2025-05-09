@@ -1,0 +1,38 @@
+[
+  {
+    "id": "1",
+    "title": "小學英文作文 5 個高分句型",
+    "summary": "本文分享 5 個小學英文作文常用高分句型，幫助學生提升寫作能力...",
+    "content": "詳細內容...",
+    "author": "Miss Chan",
+    "coverImage": "https://source.unsplash.com/400x200/?english",
+    "tags": ["英文", "寫作"],
+    "date": "2024-01-01",
+    "views": 1234,
+    "featured": true
+  },
+  {
+    "id": "2",
+    "title": "90 後導師專訪：3 年帶出 12 位星星生",
+    "summary": "專訪年輕導師分享教學心得，如何幫助學生在短時間內大幅提升成績...",
+    "content": "詳細內容...",
+    "author": "HiHiTutor 編輯部",
+    "coverImage": "https://source.unsplash.com/400x200/?teacher",
+    "tags": ["導師訪問"],
+    "date": "2024-01-02",
+    "views": 2345,
+    "featured": true
+  },
+  {
+    "id": "3",
+    "title": "中學中文作文：如何寫好議論文",
+    "summary": "分享中學中文議論文寫作技巧，包括論點建立、論證方法和結構安排...",
+    "content": "詳細內容...",
+    "author": "王老師",
+    "coverImage": "https://source.unsplash.com/400x200/?chinese",
+    "tags": ["中文", "寫作"],
+    "date": "2024-01-03",
+    "views": 3456,
+    "featured": true
+  }
+] 

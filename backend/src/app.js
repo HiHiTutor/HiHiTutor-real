@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const path = require('path');
+const { verifyToken } = require('./middleware/authMiddleware');
 
 // Import routes
 const tutorCasesRouter = require('./routes/tutorCases');
@@ -11,6 +12,10 @@ const tutorsRouter = require('./routes/tutors');
 const casesRouter = require('./routes/cases');
 const findTutorCases = require('./routes/findTutorCases');
 const findStudentCases = require('./routes/findStudentCases');
+const authRoutes = require('./routes/auth');
+const meRouter = require('./routes/me');
+const applicationRouter = require('./routes/applications');
+const caseApplicationRouter = require('./routes/caseApplications');
 
 const app = express();
 
@@ -26,6 +31,15 @@ app.use((req, res, next) => {
 });
 
 // API Routes
+// 公開路由（不需要驗證）
+app.use('/api/auth', authRoutes);
+
+// 需要驗證的路由
+app.use('/api/me', verifyToken, meRouter);
+app.use('/api/applications', verifyToken, applicationRouter);
+app.use('/api/case-applications', verifyToken, caseApplicationRouter);
+
+// 其他路由
 app.use('/api/tutor-cases', tutorCasesRouter);
 app.use('/api/find-tutor-cases', findTutorCases);
 app.use('/api/categories', categoriesRouter);
@@ -47,6 +61,9 @@ app.use((err, req, res, next) => {
 
 // Log available routes on startup
 console.log('\n可用的 API 路由:');
+console.log('- POST /api/auth/login');
+console.log('- POST /api/auth/register');
+console.log('- POST /api/auth/forgot-password');
 console.log('- GET /api/tutor-cases');
 console.log('- GET /api/tutor-cases/recommended');
 console.log('- GET /api/find-tutor-cases');

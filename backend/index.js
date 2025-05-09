@@ -29,6 +29,8 @@ const studentCasesRouter = require('./routes/studentCases');
 const tutorCasesRouter = require('./routes/tutorCases');
 const upload = require('./uploadMiddleware');
 const { verifyToken } = require('./middleware/authMiddleware');
+const regionsRouter = require('./routes/regions');
+const articlesRoutes = require('./routes/articles');
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -62,8 +64,8 @@ app.get('/health', (req, res) => {
 });
 
 // API 路由
-app.use('/api/find-student-cases', studentCasesRouter);
-app.use('/api/find-tutor-cases', tutorCasesRouter);
+app.use('/api/find-student-cases', tutorCasesRouter);
+app.use('/api/find-tutor-cases', studentCasesRouter);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/tutors', tutorsRouter);
 app.use('/api/cases', caseRoutes);
@@ -76,6 +78,8 @@ app.use('/api/case-applications', caseApplicationRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api', userRoutes);
+app.use('/api/regions', regionsRouter);
+app.use('/api/articles', articlesRoutes);
 app.post('/api/upload', upload.array('files'), (req, res) => {
   try {
     const uploadedFiles = req.files;
@@ -104,7 +108,7 @@ app.use((err, req, res, next) => {
 
 // 啟動伺服器
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server is running on http://localhost:${port}`);
   console.log('Mounted routes:');
   console.log('- /api/find-student-cases');
   console.log('- /api/find-tutor-cases');
@@ -120,9 +124,7 @@ app.listen(port, () => {
   console.log('- /api/applications');
   console.log('- /api/admin');
   console.log('- /api');
+  console.log('- /api/articles');
 });
 
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
-
-// 全域掛載 verifyToken 中間件，讓所有請求都能自動解 JWT 並設 req.user。
-app.use(verifyToken);
