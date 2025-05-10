@@ -11,30 +11,29 @@ export function useUser() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (!token) {
-      setIsLoading(false)
-      return
-    }
-
-    // 從 API 獲取用戶信息
     const fetchUser = async () => {
       try {
-        const res = await fetch('/api/auth/me', {
+        const token = localStorage.getItem('token')
+        if (!token) throw new Error('No token found')
+
+        const res = await fetch('http://localhost:3001/api/auth/me', {
+          method: 'GET',
           headers: {
-            'Authorization': `Bearer ${token}`
-          }
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
         })
-        if (res.ok) {
-          const data = await res.json()
-          setUser(data)
-        } else {
-          // token 無效，清除它
+
+        if (!res.ok) throw new Error('Not authenticated')
+        const data = await res.json()
+        setUser(data)
+      } catch (err) {
+        console.warn('🔒 無法取得用戶資料：', err instanceof Error ? err.message : '未知錯誤')
+        setUser(null)
+        // 如果 token 無效，清除它
+        if (err instanceof Error && err.message === 'Not authenticated') {
           localStorage.removeItem('token')
         }
-      } catch (err) {
-        console.error('獲取用戶信息失敗:', err)
-        localStorage.removeItem('token')
       } finally {
         setIsLoading(false)
       }

@@ -1,3 +1,6 @@
+'use client'
+import { useRouter } from 'next/navigation'
+import React from 'react'
 import { getRegionName, getSubjectNames, getSubRegionName } from '@/utils/translate';
 
 const MODES: Record<string, string> = {
@@ -79,7 +82,17 @@ const SUBJECT_MAP: Record<string, string> = {
   "chinese-language": "中文能力提升",
   "second-language": "第二語言學習",
   "computer-skills": "電腦技能",
-  "exam-prep": "考試預備"
+  "exam-prep": "考試預備",
+  "drawing": "繪畫",
+  "interest-drawing": "繪畫",
+  "photography": "攝影",
+  "magic-chess": "魔術／棋藝",
+  "early-childhood-homework": "幼兒功課輔導",
+  "adult-japanese": "成人日語",
+  "adult-english": "成人英語",
+  "adult-computer-skills": "電腦技能",
+  "ib-math": "IB數學",
+  "tertiary-ib-math": "IB數學"
 };
 
 const SUB_REGION_MAP: Record<string, string> = {
@@ -135,87 +148,58 @@ const SUB_REGION_MAP: Record<string, string> = {
   "ma-on-shan": "馬鞍山"
 };
 
-interface CaseCardProps {
-  caseItem: {
-    id?: string;
-    tutorId?: string;
-    category?: string;
-    subCategory?: string;
-    subjects?: string[];
-    region?: string;
-    subRegion?: string | string[];
-    mode?: string;
-    modes?: string[];
-    regions?: string[];
-    subRegions?: string[];
-    budget?: {
-      min?: number;
-      max?: number;
-    };
-    price?: string;
-    experience?: string;
-    featured?: boolean;
-    date?: string;
-    createdAt?: string;
-    [key: string]: any;
-  };
-  onClick?: () => void;
+interface CaseData {
+  id: string
+  subject?: {
+    label: string
+  }
+  region?: {
+    label: string
+  }
+  mode?: {
+    label: string
+  }
+  experienceLevel?: {
+    label: string
+  }
+  budget?: string
+  createdAt: string
 }
 
-export default function CaseCard({ caseItem, onClick }: CaseCardProps) {
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return '未提供發佈日期';
-    try {
-      return new Date(dateString).toLocaleDateString('zh-HK', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-    } catch (e) {
-      return '日期格式錯誤';
-    }
-  };
+interface CaseCardProps {
+  caseData?: CaseData
+}
+
+export default function CaseCard({ caseData }: CaseCardProps) {
+  const router = useRouter()
+
+  if (!caseData) return null // 防止 undefined 時 crash
+
+  console.log('CaseCard received:', caseData);
+
+  const handleClick = () => {
+    router.push(`/cases/${caseData.id}`)
+  }
+
+  const subjectLabel = caseData.subject?.label
+    ? SUBJECT_MAP[caseData.subject.label] || caseData.subject.label
+    : '未命名個案';
 
   return (
     <div
-      className="bg-white rounded-xl shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow min-h-[200px] flex flex-col justify-between"
-      onClick={onClick}
+      onClick={handleClick}
+      className="cursor-pointer border rounded-lg p-4 hover:shadow-md transition-all duration-200"
     >
-      <div className="space-y-3">
-        <p className="text-md font-semibold text-gray-700">
-          {caseItem.subjects?.length
-            ? caseItem.subjects.map(s => SUBJECT_MAP[s] || getSubjectNames([s], caseItem.category, caseItem.subCategory) || s).join('、')
-            : '科目待定'}
-        </p>
-        
-        <p className="text-sm text-gray-700">
-          地點：{getRegionName(caseItem.region)}
-          {caseItem.subRegion ? '・' : ''}
-          {Array.isArray(caseItem.subRegion)
-            ? caseItem.subRegion.map(sr => SUB_REGION_MAP[sr] || getSubRegionName(sr) || sr).join('、')
-            : (SUB_REGION_MAP[caseItem.subRegion] || getSubRegionName(caseItem.subRegion) || caseItem.subRegion)}
-        </p>
-
-        <p className="text-sm text-gray-700">
-          {MODES && MODES[caseItem.mode] || caseItem.mode || '教學模式待定'}
-        </p>
-
-        <p className="text-sm text-gray-700">
-          {caseItem.experience || '經驗要求待定'}
-        </p>
-
-        <p className="font-semibold text-yellow-600">
-          {caseItem.budget?.min && caseItem.budget?.max
-            ? `$${caseItem.budget.min}\n- $${caseItem.budget.max}/小時`
-            : '價格待議'}
-        </p>
-      </div>
-
-      <div className="mt-4">
-        <p className="text-sm text-gray-500">
-          發佈於 {formatDate(caseItem.createdAt || caseItem.date)}
-        </p>
-      </div>
+      <h3 className="text-lg font-semibold text-blue-700 mb-2">
+        {subjectLabel}
+      </h3>
+      <p>地點：{caseData.region?.label || '地點待定'}</p>
+      <p>教學模式：{caseData.mode?.label || '教學模式待定'}</p>
+      <p>經驗要求：{caseData.experienceLevel?.label || '經驗要求待定'}</p>
+      <p>價格：{caseData.budget || '價格待議'}</p>
+      <p className="text-sm text-gray-500 mt-2">
+        發佈於 {caseData.createdAt ? new Date(caseData.createdAt).toLocaleDateString('zh-HK', { year: 'numeric', month: 'long', day: 'numeric' }) : '未知日期'}
+      </p>
     </div>
-  );
+  )
 } 

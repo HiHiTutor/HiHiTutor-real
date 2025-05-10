@@ -236,12 +236,21 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
           (case_.createdAt || case_.date)
         );
 
+        // 排序：VIP置頂好評 > VIP置頂 > 置頂好評 > 置頂 > 好評 > 其他
+        const getSortScore = (c: any) => [
+          c.isVip ? 1 : 0,
+          c.isPinned ? 1 : 0,
+          c.rating >= 4.5 ? 1 : 0,
+          c.rating || 0,
+          new Date(c.createdAt || c.date || 0).getTime()
+        ];
         const sorted = [...validCases].sort((a, b) => {
-          const t1 = a.createdAt || a.date || '';
-          const t2 = b.createdAt || b.date || '';
-          const d1 = t1 ? new Date(t1).getTime() : 0;
-          const d2 = t2 ? new Date(t2).getTime() : 0;
-          return d2 - d1;
+          const sa = getSortScore(a);
+          const sb = getSortScore(b);
+          for (let i = 0; i < sa.length; i++) {
+            if (sb[i] !== sa[i]) return sb[i] - sa[i];
+          }
+          return 0;
         });
 
         // 只在組件仍然掛載時更新狀態
@@ -294,7 +303,35 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
             {displayCases.map((caseItem, idx) => (
               <CaseCard
                 key={caseItem.id || (caseItem.tutorId ? caseItem.tutorId : 'noid') + '_' + (caseItem.createdAt || caseItem.date || idx)}
-                caseItem={caseItem}
+                caseData={{
+                  id: caseItem.id || '',
+                  subject: (() => {
+                    const s = caseItem.subjects && caseItem.subjects[0];
+                    const c = caseItem.category;
+                    if (!s) return undefined;
+                    if (subjectMap[s]) return { label: subjectMap[s] };
+                    if (c && subjectMap[`${c}-${s}`]) return { label: subjectMap[`${c}-${s}`] };
+                    if (subjectMap[`interest-${s}`]) return { label: subjectMap[`interest-${s}`] };
+                    if (subjectMap[`early-childhood-${s}`]) return { label: subjectMap[`early-childhood-${s}`] };
+                    console.log('未能 mapping 中文科目:', { category: c, subject: s });
+                    return { label: s };
+                  })(),
+                  region: (() => {
+                    if (caseItem.region) return { label: regionMap[caseItem.region] || caseItem.region };
+                    if (Array.isArray(caseItem.regions) && caseItem.regions[0]) return { label: regionMap[caseItem.regions[0]] || caseItem.regions[0] };
+                    return undefined;
+                  })(),
+                  mode: (() => {
+                    if (caseItem.mode) return { label: modeMap[caseItem.mode] || caseItem.mode };
+                    if (Array.isArray(caseItem.modes) && caseItem.modes[0]) return { label: modeMap[caseItem.modes[0]] || caseItem.modes[0] };
+                    return undefined;
+                  })(),
+                  experienceLevel: caseItem.experience ? { label: caseItem.experience } : undefined,
+                  budget: typeof caseItem.budget === 'object'
+                    ? `${caseItem.budget.min || ''} - ${caseItem.budget.max || ''}`
+                    : (caseItem.budget || caseItem.price || ''),
+                  createdAt: (caseItem.createdAt || caseItem.date || ''),
+                }}
               />
             ))}
           </div>

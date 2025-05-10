@@ -324,22 +324,15 @@ export default function FindStudentCasesPage() {
           {cases.map((caseItem, index) => (
             <CaseCard
               key={`${caseItem.id}-${currentPage}-${index}`}
-              caseItem={{
+              caseData={{
                 id: caseItem.id,
-                category: caseItem.category || '',
-                subCategory: caseItem.subCategory || '',
-                subjects: Array.isArray(caseItem.subjects) ? caseItem.subjects : [],
-                region: caseItem.region || '',
-                subRegion: caseItem.subRegion || '',
-                mode: caseItem.mode || '',
-                budget: {
-                  min: typeof caseItem.budget?.min === 'number' ? caseItem.budget.min : 0,
-                  max: typeof caseItem.budget?.max === 'number' ? caseItem.budget.max : 0
-                },
-                experience: caseItem.experience || '',
-                date: caseItem.date || ''
+                subject: caseItem.subjects && caseItem.subjects[0] ? { label: caseItem.subjects[0] } : undefined,
+                region: caseItem.region ? { label: caseItem.region } : undefined,
+                mode: caseItem.mode ? { label: caseItem.mode } : undefined,
+                experienceLevel: caseItem.experience ? { label: caseItem.experience } : undefined,
+                budget: typeof caseItem.budget === 'object' ? `${caseItem.budget.min || ''} - ${caseItem.budget.max || ''}` : (caseItem.budget || ''),
+                createdAt: (caseItem.createdAt || caseItem.date || ''),
               }}
-              onClick={() => window.location.href = `/find-student-cases/${caseItem.id}`}
             />
           ))}
         </div>
