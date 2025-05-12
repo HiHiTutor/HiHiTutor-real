@@ -44,7 +44,7 @@ export default function HeroSection() {
       } catch (error) {
         console.error('解析用戶資料失敗:', error);
         localStorage.removeItem('user');
-        localStorage.removeItem('token');
+        // localStorage.removeItem('token'); // 不要自動清除 token
       }
     }
   }, []);

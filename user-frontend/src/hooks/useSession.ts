@@ -11,23 +11,44 @@ export function useSession() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // 模擬從 API 獲取用戶信息
     const fetchUser = async () => {
       try {
-        const res = await fetch('/api/auth/me')
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+        const res = await fetch('/api/auth/me', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
         if (res.ok) {
-          const data = await res.json()
-          setUser(data)
+          const data = await res.json();
+          // 根據 response 結構自動判斷 user 物件
+          if (data && data.id) {
+            setUser(data);
+          } else if (data && data.user && data.user.id) {
+            setUser(data.user);
+          } else if (data && data.data && data.data.id) {
+            setUser(data.data);
+          } else {
+            setUser(null);
+          }
+        } else {
+          setUser(null);
         }
       } catch (err) {
-        console.error('獲取用戶信息失敗:', err)
+        setUser(null);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchUser()
-  }, [])
+    fetchUser();
+  }, []);
 
   return { user, loading }
 } 
