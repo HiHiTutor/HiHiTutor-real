@@ -21,6 +21,7 @@ interface Case {
   experience: string;
   featured: boolean;
   date: string;
+  createdAt?: string;
 }
 
 export default function FindTutorCasesPage() {
