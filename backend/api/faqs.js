@@ -1,4 +1,8 @@
+import cors from './_utils/cors';
+
 export default function handler(req, res) {
+  if (cors(req, res)) return;
+
   // 假資料
   const faqsByCategory = {
     '一般問題': [
