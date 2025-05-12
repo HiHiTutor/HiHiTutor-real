@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import CaseFilterBar from '@/components/CaseFilterBar';
 import LoadMoreButton from '@/components/LoadMoreButton';
@@ -25,6 +25,14 @@ interface Case {
 }
 
 export default function FindStudentCasesPage() {
+  return (
+    <Suspense>
+      <FindStudentCasesPageContent />
+    </Suspense>
+  );
+}
+
+function FindStudentCasesPageContent() {
   const searchParams = useSearchParams();
   const [allCases, setAllCases] = useState<Case[]>([]); // 保存所有個案
   const [cases, setCases] = useState<Case[]>([]); // 顯示的個案
