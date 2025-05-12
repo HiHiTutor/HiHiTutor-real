@@ -33,6 +33,7 @@ app.use((req, res, next) => {
 const connectDB = async () => {
   try {
     if (mongoose.connection.readyState === 0) {
+      console.log('Connecting to MongoDB URI:', process.env.MONGODB_URI);
       await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/hihitutor', {
         serverSelectionTimeoutMS: 5000,
         socketTimeoutMS: 45000,
