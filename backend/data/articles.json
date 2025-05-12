@@ -6,10 +6,14 @@
     "content": "詳細內容...",
     "author": "Miss Chan",
     "coverImage": "https://source.unsplash.com/400x200/?english",
-    "tags": ["英文", "寫作"],
+    "tags": [
+      "英文",
+      "寫作"
+    ],
     "date": "2024-01-01",
     "views": 1234,
-    "featured": true
+    "featured": true,
+    "status": "approved"
   },
   {
     "id": "2",
@@ -18,10 +22,13 @@
     "content": "詳細內容...",
     "author": "HiHiTutor 編輯部",
     "coverImage": "https://source.unsplash.com/400x200/?teacher",
-    "tags": ["導師訪問"],
+    "tags": [
+      "導師訪問"
+    ],
     "date": "2024-01-02",
     "views": 2345,
-    "featured": true
+    "featured": true,
+    "status": "approved"
   },
   {
     "id": "3",
@@ -30,9 +37,139 @@
     "content": "詳細內容...",
     "author": "王老師",
     "coverImage": "https://source.unsplash.com/400x200/?chinese",
-    "tags": ["中文", "寫作"],
+    "tags": [
+      "中文",
+      "寫作"
+    ],
     "date": "2024-01-03",
     "views": 3456,
-    "featured": true
+    "featured": true,
+    "status": "approved"
+  },
+  {
+    "id": "4",
+    "title": "DSE 英文口試高分技巧",
+    "summary": "DSE 英文口試如何準備？本文教你高分答題策略...",
+    "content": "詳細內容...",
+    "author": "Miss Lee",
+    "coverImage": "https://source.unsplash.com/400x200/?exam",
+    "tags": [
+      "DSE",
+      "英文"
+    ],
+    "date": "2024-01-04",
+    "views": 4567,
+    "featured": false,
+    "status": "approved"
+  },
+  {
+    "id": "5",
+    "title": "小學數學：解題思維訓練",
+    "summary": "數學解題不只是背公式，還要懂得靈活運用...",
+    "content": "詳細內容...",
+    "author": "陳老師",
+    "coverImage": "https://source.unsplash.com/400x200/?math",
+    "tags": [
+      "數學",
+      "小學"
+    ],
+    "date": "2024-01-05",
+    "views": 5678,
+    "featured": false,
+    "status": "approved"
+  },
+  {
+    "id": "6",
+    "title": "升中面試常見問題與應對",
+    "summary": "升中面試點答？常見問題及最佳應對方法...",
+    "content": "詳細內容...",
+    "author": "升學顧問",
+    "coverImage": "https://source.unsplash.com/400x200/?interview",
+    "tags": [
+      "升中",
+      "面試"
+    ],
+    "date": "2024-01-06",
+    "views": 6789,
+    "featured": false,
+    "status": "approved"
+  },
+  {
+    "id": "7",
+    "title": "家長必讀：如何協助子女自律學習",
+    "summary": "家長如何幫助子女建立自律學習習慣...",
+    "content": "詳細內容...",
+    "author": "家長教育專家",
+    "coverImage": "https://source.unsplash.com/400x200/?parenting",
+    "tags": [
+      "家長",
+      "自律"
+    ],
+    "date": "2024-01-07",
+    "views": 7890,
+    "featured": false,
+    "status": "approved"
+  },
+  {
+    "id": "8",
+    "title": "大學選科攻略：興趣與前景如何平衡？",
+    "summary": "選科時應該考慮興趣定前景？本文教你平衡之道...",
+    "content": "詳細內容...",
+    "author": "升學顧問",
+    "coverImage": "https://source.unsplash.com/400x200/?university",
+    "tags": [
+      "大學",
+      "選科"
+    ],
+    "date": "2024-01-08",
+    "views": 8901,
+    "featured": false,
+    "status": "approved"
+  },
+  {
+    "id": "9",
+    "title": "IELTS 8 分導師教你備考策略",
+    "summary": "IELTS 高分不是夢，導師親授備考心得...",
+    "content": "詳細內容...",
+    "author": "IELTS 導師",
+    "coverImage": "https://source.unsplash.com/400x200/?ielts",
+    "tags": [
+      "IELTS",
+      "英文"
+    ],
+    "date": "2024-01-09",
+    "views": 9012,
+    "featured": false,
+    "status": "approved"
+  },
+  {
+    "id": "10",
+    "title": "中學數學：幾何題型全攻略",
+    "summary": "幾何題型點樣拆？本文教你思路與技巧...",
+    "content": "詳細內容...",
+    "author": "數學老師",
+    "coverImage": "https://source.unsplash.com/400x200/?geometry",
+    "tags": [
+      "數學",
+      "中學"
+    ],
+    "date": "2024-01-10",
+    "views": 10123,
+    "featured": false,
+    "status": "approved"
+  },
+  {
+    "id": "1746894312315",
+    "title": "111",
+    "summary": "111",
+    "content": "111",
+    "tags": [
+      "11"
+    ],
+    "authorId": "user_1745516152304",
+    "status": "approved",
+    "createdAt": "2025-05-10T16:25:12.315Z",
+    "views": 0,
+    "featured": false
   }
-] 
+]

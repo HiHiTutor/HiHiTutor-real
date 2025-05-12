@@ -12,6 +12,8 @@ const casesRouter = require('./routes/cases');
 const findTutorCases = require('./routes/findTutorCases');
 const findStudentCases = require('./routes/findStudentCases');
 const articlesRoutes = require('./routes/articles');
+const contactRoutes = require('./routes/contact');
+const faqRoutes = require('./routes/faq');
 
 const app = express();
 
@@ -33,6 +35,8 @@ app.use('/api/cases', casesRouter);
 app.use('/api/find-student-cases', studentCasesRouter);
 app.use('/api/find-tutor-cases', tutorCasesRouter);
 app.use('/api/articles', articlesRoutes);
+app.use('/api/contact', contactRoutes);
+app.use('/api/faqs', faqRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -53,6 +57,7 @@ console.log('- GET /api/tutor-cases/recommended');
 console.log('- GET /api/find-tutor-cases');
 console.log('- GET /api/categories');
 console.log('- GET /api/tutors');
-console.log('- GET /api/cases\n');
+console.log('- GET /api/cases');
+console.log('- POST /api/contact\n');
 
 module.exports = app; 

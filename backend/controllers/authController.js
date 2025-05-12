@@ -286,6 +286,23 @@ const resetPassword = (req, res) => {
   res.json({ message: '密碼重設成功' });
 };
 
+// 新增：取得完整 user 資料
+const getMe = async (req, res) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ success: false, message: '未登入' });
+    }
+    const user = await userRepository.getUserById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: '找不到用戶' });
+    }
+    const { password, ...safeUser } = user;
+    res.json(safeUser);
+  } catch (error) {
+    res.status(500).json({ success: false, message: '伺服器錯誤' });
+  }
+};
+
 // 在文件結尾，確保 forgotPassword 有 export
 module.exports = {
   loginUser,
@@ -293,5 +310,6 @@ module.exports = {
   getUserProfile,
   getCurrentUser,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  getMe
 }; 

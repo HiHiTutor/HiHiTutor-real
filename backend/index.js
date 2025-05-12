@@ -31,6 +31,7 @@ const upload = require('./uploadMiddleware');
 const { verifyToken } = require('./middleware/authMiddleware');
 const regionsRouter = require('./routes/regions');
 const articlesRoutes = require('./routes/articles');
+const faqRoutes = require('./routes/faq');
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -80,6 +81,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api', userRoutes);
 app.use('/api/regions', regionsRouter);
 app.use('/api/articles', articlesRoutes);
+app.use('/api/faqs', faqRoutes);
 app.post('/api/upload', upload.array('files'), (req, res) => {
   try {
     const uploadedFiles = req.files;
@@ -125,6 +127,7 @@ app.listen(port, () => {
   console.log('- /api/admin');
   console.log('- /api');
   console.log('- /api/articles');
+  console.log('- /api/faqs');
 });
 
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));

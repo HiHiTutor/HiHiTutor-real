@@ -3,8 +3,10 @@ const router = express.Router();
 const { getCurrentUser } = require('../controllers/userController');
 const { verifyToken } = require('../middleware/authMiddleware');
 const userRepository = require('../repositories/UserRepository');
+const { getMe } = require('../controllers/authController');
 
-router.get('/me', verifyToken, getCurrentUser);
+// 只保留 /auth/me 路由
+router.get('/auth/me', verifyToken, getMe);
 
 // 更新用戶資料
 router.put('/me/update', verifyToken, async (req, res) => {
