@@ -8,6 +8,6 @@ router.post('/register', register);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
 router.get('/profile', verifyToken, getUserProfile);
-// router.get('/me', verifyToken, getCurrentUser); // 已註解，避免攔截 /api/auth/me
+router.get('/me', verifyToken, getCurrentUser);
 
 module.exports = router; 
