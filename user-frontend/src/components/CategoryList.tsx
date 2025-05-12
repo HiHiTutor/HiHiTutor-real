@@ -37,23 +37,14 @@ const CATEGORY_ICONS: { [key: string]: string } = {
 
 // 獲取分類描述
 const getCategoryDescription = (category: Category): string => {
+  // 如果有 subjectCount 欄位，直接顯示
+  if (typeof (category as any).subjectCount === 'number') {
+    return `${(category as any).subjectCount} 個科目`;
+  }
+  // fallback: 舊結構
   const totalSubjects = category.subCategories?.reduce((total, subCategory) => 
     total + (subCategory.subjects?.length || 0), 0) || 0;
-
-  switch (category.id) {
-    case 'preschool':
-      return `涵蓋 ${totalSubjects} 大熱門科目`;
-    case 'primary-secondary':
-      return `精選 ${totalSubjects} 個升學關鍵科目`;
-    case 'tertiary':
-      return `支援 ${totalSubjects} 類大專課程`;
-    case 'interest':
-      return '熱門興趣選擇';
-    case 'adult':
-      return '成人進修課程推薦';
-    default:
-      return `${totalSubjects} 個科目`;
-  }
+  return `${totalSubjects} 個科目`;
 };
 
 const CategoryList: React.FC = () => {

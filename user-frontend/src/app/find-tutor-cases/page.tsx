@@ -50,7 +50,7 @@ function FindTutorCasesPageContent() {
         setLoading(true);
         console.log("🔍 正在獲取所有導師個案資料...");
         
-        const response = await fetch('/api/find-tutor-cases');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/find-tutor-cases`);
         if (response.ok) {
           const data = await response.json();
           console.log("📦 成功獲取所有導師個案：", data);
