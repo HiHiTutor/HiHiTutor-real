@@ -34,19 +34,12 @@ const connectDB = async () => {
   try {
     if (mongoose.connection.readyState === 0) {
       await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/hihitutor', {
-        serverSelectionTimeoutMS: 30000,  // 增加到 30 秒
+        serverSelectionTimeoutMS: 5000,
         socketTimeoutMS: 45000,
-        connectTimeoutMS: 30000,  // 新增連線超時設定
-        maxPoolSize: 10,
-        minPoolSize: 5,
-        retryWrites: true,
-        w: 'majority',
-        family: 4,  // 強制使用 IPv4
-        heartbeatFrequencyMS: 10000,  // 新增心跳頻率
-        retryReads: true,  // 新增讀取重試
-        retryWrites: true,  // 新增寫入重試
-        maxIdleTimeMS: 60000,  // 新增最大閒置時間
-        waitQueueTimeoutMS: 30000  // 新增等待隊列超時
+        connectTimeoutMS: 5000,
+        maxPoolSize: 1,
+        minPoolSize: 1,
+        family: 4
       });
       console.log('MongoDB connected successfully');
     }
@@ -71,6 +64,19 @@ mongoose.connection.on('disconnected', () => {
   console.log('MongoDB disconnected, attempting to reconnect...');
   // 斷線時重試連線
   setTimeout(connectDB, 5000);
+});
+
+// 確保在處理請求前已連線
+app.use(async (req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    try {
+      await connectDB();
+    } catch (err) {
+      console.error('Failed to connect to MongoDB:', err);
+      return res.status(500).json({ message: 'Database connection error' });
+    }
+  }
+  next();
 });
 
 // API Routes
