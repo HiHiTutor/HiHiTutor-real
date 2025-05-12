@@ -30,17 +30,36 @@ app.use((req, res, next) => {
 });
 
 // 連接 MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/hihitutor', {
-  serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
-  maxPoolSize: 10,
-  minPoolSize: 5,
-  retryWrites: true,
-  w: 'majority'
-}).then(() => {
-  console.log('MongoDB connected successfully');
-}).catch(err => {
+const connectDB = async () => {
+  try {
+    if (mongoose.connection.readyState === 0) {
+      await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/hihitutor', {
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+        maxPoolSize: 10,
+        minPoolSize: 5,
+        retryWrites: true,
+        w: 'majority',
+        family: 4  // 強制使用 IPv4
+      });
+      console.log('MongoDB connected successfully');
+    }
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);  // 如果連線失敗，終止程序
+  }
+};
+
+// 立即執行連線
+connectDB();
+
+// 監聽連線狀態
+mongoose.connection.on('error', err => {
   console.error('MongoDB connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected');
 });
 
 // API Routes
