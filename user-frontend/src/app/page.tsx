@@ -7,8 +7,17 @@ import CaseSection from '@/components/CaseSection';
 import Footer from '@/components/Footer';
 import CaseFilterBar from '@/components/CaseFilterBar';
 import Advertisement from '@/components/Advertisement';
+import { Suspense } from 'react';
 
 export default function Home() {
+  return (
+    <Suspense>
+      <HomeContent />
+    </Suspense>
+  );
+}
+
+function HomeContent() {
   const router = useRouter();
 
   const handleSearch = (query: any) => {
