@@ -1,23 +1,9 @@
-const fs = require('fs');
-const path = require('path');
-const tutorCaseRepository = require('../repositories/TutorCaseRepository');
-const { loadTutorCases, saveTutorCases } = require('../utils/tutorCaseStorage');
-
-// 讀取導師案例數據
-let tutorCases = [];
-try {
-  const data = fs.readFileSync(path.join(__dirname, '../data/tutorCases.json'), 'utf8');
-  const jsonData = JSON.parse(data);
-  tutorCases = Array.isArray(jsonData.cases) ? jsonData.cases : [];
-} catch (error) {
-  console.error('Error reading tutor cases:', error);
-  tutorCases = [];
-}
+const TutorCase = require('../models/TutorCase');
 
 // 獲取所有導師案例
-const getAllTutorCases = (req, res) => {
+const getAllTutorCases = async (req, res) => {
   try {
-    const allCases = loadTutorCases();
+    const allCases = await TutorCase.find().sort({ createdAt: -1 });
     res.json({
       success: true,
       data: {
@@ -27,60 +13,23 @@ const getAllTutorCases = (req, res) => {
       message: '成功獲取導師案例列表'
     });
   } catch (error) {
-    console.error('[❌] 獲取導師案例時出錯:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: '獲取導師案例時發生錯誤' 
-    });
+    res.status(500).json({ success: false, message: '獲取導師案例時發生錯誤' });
   }
 };
 
-// 創建新導師案例
-const createTutorCase = (req, res) => {
+const createTutorCase = async (req, res) => {
   try {
-    const newCase = {
-      id: `T${Date.now()}`,
-      tutorId: req.user?.id || req.body.tutorId || 'unknown',
-      title: req.body.title || '',
-      description: req.body.description || '',
-      category: req.body.category || '',
-      subCategory: req.body.subCategory || '',
-      subjects: req.body.subjects || [],
-      regions: req.body.regions || [],
-      subRegions: req.body.subRegions || [],
-      modes: req.body.modes || [],
-      price: req.body.price || '',
-      location: req.body.location || '',
-      lessonDuration: req.body.lessonDuration || '',
-      durationUnit: req.body.durationUnit || '',
-      weeklyLessons: req.body.weeklyLessons || '',
-      experience: req.body.experience || '',
-      featured: req.body.featured || false,
-      createdAt: new Date().toISOString()
-    };
-    
-    const allCases = loadTutorCases();
-    allCases.unshift(newCase);
-    saveTutorCases(allCases);
-    
-    res.status(201).json({
-      success: true,
-      data: newCase,
-      message: '成功創建導師案例'
-    });
+    const newCase = new TutorCase({ ...req.body, createdAt: new Date() });
+    await newCase.save();
+    res.status(201).json(newCase);
   } catch (error) {
-    console.error('[❌] 創建導師案例時出錯:', error);
-    res.status(500).json({
-      success: false,
-      message: '創建導師案例失敗'
-    });
+    res.status(500).json({ success: false, message: '建立導師案例失敗' });
   }
 };
 
-// 獲取單個導師案例
-const getTutorCaseById = (req, res) => {
+const getTutorCaseById = async (req, res) => {
   try {
-    const case_ = tutorCaseRepository.getTutorCaseById(req.params.id);
+    const case_ = await TutorCase.findOne({ id: req.params.id });
     if (!case_) {
       return res.status(404).json({
         success: false,

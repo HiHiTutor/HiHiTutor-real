@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const morgan = require('morgan');
 const path = require('path');
@@ -26,6 +27,16 @@ app.use(morgan('dev'));
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
+});
+
+// 連接 MongoDB
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/hihitutor', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => {
+  console.log('MongoDB connected successfully');
+}).catch(err => {
+  console.error('MongoDB connection error:', err);
 });
 
 // API Routes
@@ -59,5 +70,10 @@ console.log('- GET /api/categories');
 console.log('- GET /api/tutors');
 console.log('- GET /api/cases');
 console.log('- POST /api/contact\n');
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 
 module.exports = app; 

@@ -1,16 +1,9 @@
-const studentCaseRepository = require('../repositories/StudentCaseRepository');
-const { loadStudentCases, saveStudentCases } = require('../utils/studentCaseStorage');
+const StudentCase = require('../models/StudentCase');
 
 // 獲取所有學生案例
-const getAllStudentCases = (req, res) => {
+const getAllStudentCases = async (req, res) => {
   try {
-    let allCases = loadStudentCases(); // 直接讀檔案
-    // 按 createdAt 或 date 由新到舊排序
-    allCases = allCases.sort((a, b) => {
-      const dateA = new Date(a.createdAt || a.date).getTime();
-      const dateB = new Date(b.createdAt || b.date).getTime();
-      return dateB - dateA;
-    });
+    const allCases = await StudentCase.find().sort({ createdAt: -1 });
     res.json({
       success: true,
       data: {
@@ -24,17 +17,19 @@ const getAllStudentCases = (req, res) => {
   }
 };
 
-const createStudentCase = (req, res) => {
-  const newCase = { ...req.body, createdAt: new Date().toISOString() };
-  const allCases = loadStudentCases();
-  allCases.push(newCase);
-  saveStudentCases(allCases);
-  res.status(201).json(newCase);
+const createStudentCase = async (req, res) => {
+  try {
+    const newCase = new StudentCase({ ...req.body, createdAt: new Date() });
+    await newCase.save();
+    res.status(201).json(newCase);
+  } catch (error) {
+    res.status(500).json({ success: false, message: '建立學生案例失敗' });
+  }
 };
 
-const getStudentCaseById = (req, res) => {
+const getStudentCaseById = async (req, res) => {
   try {
-    const case_ = studentCaseRepository.getStudentCaseById(req.params.id);
+    const case_ = await StudentCase.findOne({ id: req.params.id });
     if (!case_) {
       return res.status(404).json({
         success: false,
