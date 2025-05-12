@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import StudentCase from '../../../../../../backend/models/StudentCase';
+import StudentCase from '../_models/StudentCase';
 
 export async function GET(req: Request) {
   try {
