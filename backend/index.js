@@ -1,15 +1,8 @@
+'use strict';
+
 require('dotenv').config();
-
-// 全域錯誤處理
-process.on('uncaughtException', (err) => {
-  console.error('[❌] 未捕獲的異常:', err);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('[❌] 未處理的 Promise 拒絕:', reason);
-});
-
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const morgan = require('morgan');
 const path = require('path');
@@ -36,11 +29,23 @@ const faqRoutes = require('./routes/faq');
 const app = express();
 const port = process.env.PORT || 3001;
 
-// 檢查環境變數
-if (!process.env.JWT_SECRET) {
-  console.error('[❌] 錯誤: JWT_SECRET 未設定');
-  process.exit(1);
-}
+console.log('🧪 MONGODB_URI from env:', process.env.MONGODB_URI);
+
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+  .then(() => console.log('✅ Connected to MongoDB'))
+  .catch(err => console.error('❌ MongoDB connection error:', err.message));
+
+// 全域錯誤處理
+process.on('uncaughtException', (err) => {
+  console.error('[❌] 未捕獲的異常:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[❌] 未處理的 Promise 拒絕:', reason);
+});
 
 // Middleware
 app.use(cors({
