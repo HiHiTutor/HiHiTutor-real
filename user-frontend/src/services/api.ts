@@ -1,5 +1,5 @@
 // API 基礎 URL
-const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const baseURL = process.env.NEXT_PUBLIC_API_BASE;
 console.log('🌐 API baseURL:', baseURL);
 
 // 通用 API 請求函數

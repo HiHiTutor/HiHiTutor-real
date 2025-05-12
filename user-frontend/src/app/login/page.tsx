@@ -18,7 +18,7 @@ export default function LoginPage() {
 
     try {
       console.log('[前端] 開始登入請求');
-      const response = await fetch('http://localhost:3001/api/auth/login', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -34,9 +34,8 @@ export default function LoginPage() {
         localStorage.setItem('token', result.token);
         localStorage.setItem('user', JSON.stringify(result.user));
         localStorage.setItem('userType', result.user.userType);
-        
+        console.log('已寫入 token:', localStorage.getItem('token'));
         window.dispatchEvent(new Event('login'));
-        
         router.push('/');
       } else {
         setError(result.message || '登入失敗');

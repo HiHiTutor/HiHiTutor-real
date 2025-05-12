@@ -16,7 +16,7 @@ export function useUser() {
         const token = localStorage.getItem('token')
         if (!token) throw new Error('No token found')
 
-        const res = await fetch('http://localhost:3001/api/auth/me', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/auth/me`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -26,7 +26,11 @@ export function useUser() {
 
         if (!res.ok) throw new Error('Not authenticated')
         const data = await res.json()
-        setUser(data)
+        // 兼容 userType/role
+        setUser({
+          ...data,
+          role: data.userType || data.role // 以 userType 為主
+        })
       } catch (err) {
         console.warn('🔒 無法取得用戶資料：', err instanceof Error ? err.message : '未知錯誤')
         setUser(null)

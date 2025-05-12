@@ -126,7 +126,7 @@ export default function TutorCasePage() {
         weeklyLessons: formData.weeklyLessons
       };
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/find-tutor-cases', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/find-tutor-cases`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

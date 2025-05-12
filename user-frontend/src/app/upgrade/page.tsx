@@ -9,7 +9,7 @@ export default function UpgradePage() {
 
   const currentUser = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || '{}') : {};
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:3001';
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {

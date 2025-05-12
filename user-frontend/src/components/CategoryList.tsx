@@ -65,7 +65,7 @@ const CategoryList: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/categories', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/categories`, {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('token')}`

@@ -18,7 +18,7 @@ interface Article {
 export default function ArticleDetail() {
   const { id } = useParams()
   const [article, setArticle] = useState<Article | null>(null)
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001'
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE;
 
   useEffect(() => {
     fetch(`${baseUrl}/api/articles/${id}`)

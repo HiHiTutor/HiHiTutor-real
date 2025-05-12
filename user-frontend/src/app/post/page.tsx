@@ -16,7 +16,7 @@ export default function PostPage() {
     // 有 token 才 fetch user data
     const fetchUserData = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/me', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

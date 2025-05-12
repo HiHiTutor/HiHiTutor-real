@@ -9,27 +9,41 @@ interface Article {
   title: string
   summary: string
   content: string
-  author: string
+  author?: string
+  authorId?: string
   date?: string
+  createdAt?: string
   tags?: string[]
   coverImage?: string
   featured: boolean
   views: number
+  status?: string
 }
 
 export default function ArticlesPage() {
   const [articles, setArticles] = useState<Article[]>([])
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001'
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE;
 
   useEffect(() => {
     fetch(`${baseUrl}/api/articles`)
       .then((res) => res.json())
-      .then(setArticles)
+      .then((data) => {
+        // 修正：如果沒有 author，但有 authorId，顯示『你』或『導師』
+        const articles = data.map((a: any) => ({
+          ...a,
+          author: a.author || (a.authorId ? '你' : '未知作者'),
+          date: a.date || a.createdAt || '2024-01-01',
+          views: a.views || 0,
+          featured: a.featured || false,
+          coverImage: a.coverImage || 'https://source.unsplash.com/400x200/?education'
+        }))
+        setArticles(articles)
+      })
       .catch((err) => console.error('文章載入失敗:', err))
   }, [])
 
-  const featured = articles.filter((a) => a.featured).slice(0, 3)
-  const latest = articles.slice(0, 3)
+  const featured = articles.filter((a) => a.featured)
+  const latest = articles.filter((a) => !a.featured)
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
@@ -53,12 +67,12 @@ export default function ArticlesPage() {
               key={article.id}
               id={article.id}
               title={article.title}
-              author={article.author}
+              author={article.author || '未知作者'}
               summary={article.summary}
               image={article.coverImage}
               tags={article.tags}
-              date={article.date || '2024-01-01'}
-              views={article.views || 1234}
+              date={article.date || article.createdAt || '2024-01-01'}
+              views={article.views || 0}
               highlight={article.featured}
             />
           ))}
@@ -74,12 +88,12 @@ export default function ArticlesPage() {
               key={article.id}
               id={article.id}
               title={article.title}
-              author={article.author}
+              author={article.author || '未知作者'}
               summary={article.summary}
               image={article.coverImage}
               tags={article.tags}
-              date={article.date || '2024-01-01'}
-              views={article.views || 1234}
+              date={article.date || article.createdAt || '2024-01-01'}
+              views={article.views || 0}
               highlight={article.featured}
             />
           ))}

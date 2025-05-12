@@ -72,7 +72,7 @@ export default function StudentCasePage() {
         budget: { min: Number(formData.budgetMin), max: Number(formData.budgetMax) }
       };
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/find-student-cases', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/find-student-cases`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -34,7 +34,7 @@ export default function EditProfilePage() {
       }
 
       try {
-        const response = await fetch('http://localhost:3001/api/me', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -76,7 +76,7 @@ export default function EditProfilePage() {
     }
 
     try {
-      const response = await fetch('http://localhost:3001/api/me/update', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/me/update`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

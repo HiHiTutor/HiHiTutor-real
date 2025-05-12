@@ -9,7 +9,7 @@ export default function StudentCasesPage() {
   useEffect(() => {
     const fetchCases = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/find-tutor-cases');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/find-tutor-cases`);
         if (response.ok) {
           const data = await response.json();
           setStudentCases(data);
@@ -31,7 +31,7 @@ export default function StudentCasesPage() {
   const handleApply = async (caseId: string) => {
     // 這裡可以實作申請 API
     console.log(`Applying for case: ${caseId}`);
-    // 例如: await fetch(`http://localhost:3001/api/apply/${caseId}`, { method: 'POST' });
+    // 例如: await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/apply/${caseId}`, { method: 'POST' });
   };
 
   if (loading) {
