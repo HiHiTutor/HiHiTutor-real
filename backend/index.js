@@ -34,9 +34,32 @@ console.log('🧪 MONGODB_URI from env:', process.env.MONGODB_URI);
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+  family: 4
 })
-  .then(() => console.log('✅ Connected to MongoDB'))
-  .catch(err => console.error('❌ MongoDB connection error:', err.message));
+.then(() => {
+  console.log('✅ Connected to MongoDB');
+  console.log('📊 Database:', mongoose.connection.db.databaseName);
+})
+.catch(err => {
+  console.error('❌ MongoDB connection error:', err.message);
+  console.error('🔍 Error details:', err);
+  process.exit(1); // 如果無法連線到資料庫，終止應用程式
+});
+
+// 監聽資料庫連線事件
+mongoose.connection.on('error', err => {
+  console.error('❌ MongoDB connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.warn('⚠️ MongoDB disconnected');
+});
+
+mongoose.connection.on('reconnected', () => {
+  console.log('🔄 MongoDB reconnected');
+});
 
 // 全域錯誤處理
 process.on('uncaughtException', (err) => {
