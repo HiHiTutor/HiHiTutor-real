@@ -31,8 +31,12 @@ app.use((req, res, next) => {
 
 // 連接 MongoDB
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/hihitutor', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+  maxPoolSize: 10,
+  minPoolSize: 5,
+  retryWrites: true,
+  w: 'majority'
 }).then(() => {
   console.log('MongoDB connected successfully');
 }).catch(err => {
@@ -43,8 +47,8 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/hihitutor
 app.use('/api/tutors', tutorsRouter);
 app.use('/api/categories', categoriesRouter);
 app.use('/api/cases', casesRouter);
-app.use('/api/find-student-cases', studentCasesRouter);
-app.use('/api/find-tutor-cases', tutorCasesRouter);
+app.use('/api/find-student-cases', findStudentCases);
+app.use('/api/find-tutor-cases', findTutorCases);
 app.use('/api/articles', articlesRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/faqs', faqRoutes);
