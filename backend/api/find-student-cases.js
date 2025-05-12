@@ -7,47 +7,43 @@ export default function handler(req, res) {
   const allCases = [
     {
       id: 1,
-      title: '國小數學家教',
-      description: '尋找有耐心的數學家教，協助基礎數學學習。',
       subject: '數學',
-      grade: '國小',
-      location: '台北市',
-      hourlyRate: '600',
-      featured: true,
-      createdAt: '2024-03-20'
+      region: '台北市',
+      mode: '面對面',
+      experienceLevel: '不限',
+      price: '600',
+      createdAt: '2024-03-20',
+      featured: true
     },
     {
       id: 2,
-      title: '國中英文家教',
-      description: '需要英文家教協助準備會考。',
       subject: '英文',
-      grade: '國中',
-      location: '新北市',
-      hourlyRate: '700',
-      featured: true,
-      createdAt: '2024-03-19'
+      region: '新北市',
+      mode: '線上',
+      experienceLevel: '有經驗',
+      price: '700',
+      createdAt: '2024-03-19',
+      featured: true
     },
     {
       id: 3,
-      title: '高中物理家教',
-      description: '尋找物理家教，協助準備學測。',
       subject: '物理',
-      grade: '高中',
-      location: '台北市',
-      hourlyRate: '800',
-      featured: false,
-      createdAt: '2024-03-18'
+      region: '台北市',
+      mode: '面對面',
+      experienceLevel: '不限',
+      price: '800',
+      createdAt: '2024-03-18',
+      featured: false
     },
     {
       id: 4,
-      title: '大學微積分家教',
-      description: '需要微積分家教，協助理解課程內容。',
       subject: '微積分',
-      grade: '大學',
-      location: '台北市',
-      hourlyRate: '900',
-      featured: true,
-      createdAt: '2024-03-17'
+      region: '台北市',
+      mode: '線上',
+      experienceLevel: '不限',
+      price: '900',
+      createdAt: '2024-03-17',
+      featured: true
     }
   ];
 
