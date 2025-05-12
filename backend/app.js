@@ -34,19 +34,26 @@ const connectDB = async () => {
   try {
     if (mongoose.connection.readyState === 0) {
       await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/hihitutor', {
-        serverSelectionTimeoutMS: 5000,
+        serverSelectionTimeoutMS: 30000,  // 增加到 30 秒
         socketTimeoutMS: 45000,
+        connectTimeoutMS: 30000,  // 新增連線超時設定
         maxPoolSize: 10,
         minPoolSize: 5,
         retryWrites: true,
         w: 'majority',
-        family: 4  // 強制使用 IPv4
+        family: 4,  // 強制使用 IPv4
+        heartbeatFrequencyMS: 10000,  // 新增心跳頻率
+        retryReads: true,  // 新增讀取重試
+        retryWrites: true,  // 新增寫入重試
+        maxIdleTimeMS: 60000,  // 新增最大閒置時間
+        waitQueueTimeoutMS: 30000  // 新增等待隊列超時
       });
       console.log('MongoDB connected successfully');
     }
   } catch (err) {
     console.error('MongoDB connection error:', err);
-    process.exit(1);  // 如果連線失敗，終止程序
+    // 不要立即終止程序，而是等待重試
+    setTimeout(connectDB, 5000);  // 5 秒後重試
   }
 };
 
@@ -56,10 +63,14 @@ connectDB();
 // 監聽連線狀態
 mongoose.connection.on('error', err => {
   console.error('MongoDB connection error:', err);
+  // 發生錯誤時重試連線
+  setTimeout(connectDB, 5000);
 });
 
 mongoose.connection.on('disconnected', () => {
-  console.log('MongoDB disconnected');
+  console.log('MongoDB disconnected, attempting to reconnect...');
+  // 斷線時重試連線
+  setTimeout(connectDB, 5000);
 });
 
 // API Routes
