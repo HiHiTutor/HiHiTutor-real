@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const morgan = require('morgan');
 const path = require('path');
+require('dotenv').config();
+const connectDB = require('./config/db');
 
 // Import routes
 const tutorCasesRouter = require('./routes/tutorCases');
@@ -30,54 +32,16 @@ app.use((req, res, next) => {
 });
 
 // 連接 MongoDB
-const connectDB = async () => {
-  try {
-    if (mongoose.connection.readyState === 0) {
-      console.log('Connecting to MongoDB URI:', process.env.MONGODB_URI);
-      await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/hihitutor', {
-        serverSelectionTimeoutMS: 5000,
-        socketTimeoutMS: 45000,
-        connectTimeoutMS: 5000,
-        maxPoolSize: 1,
-        minPoolSize: 1,
-        family: 4
-      });
-      console.log('MongoDB connected successfully');
-    }
-  } catch (err) {
-    console.error('MongoDB connection error:', err);
-    // 不要立即終止程序，而是等待重試
-    setTimeout(connectDB, 5000);  // 5 秒後重試
-  }
-};
-
-// 立即執行連線
 connectDB();
 
 // 監聽連線狀態
 mongoose.connection.on('error', err => {
   console.error('MongoDB connection error:', err);
-  // 發生錯誤時重試連線
-  setTimeout(connectDB, 5000);
 });
 
 mongoose.connection.on('disconnected', () => {
   console.log('MongoDB disconnected, attempting to reconnect...');
-  // 斷線時重試連線
-  setTimeout(connectDB, 5000);
-});
-
-// 確保在處理請求前已連線
-app.use(async (req, res, next) => {
-  if (mongoose.connection.readyState !== 1) {
-    try {
-      await connectDB();
-    } catch (err) {
-      console.error('Failed to connect to MongoDB:', err);
-      return res.status(500).json({ message: 'Database connection error' });
-    }
-  }
-  next();
+  connectDB();
 });
 
 // API Routes
