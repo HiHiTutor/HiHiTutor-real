@@ -63,18 +63,18 @@ export default function HeroSection() {
       <div className="w-full lg:w-2/3">
         <div className="relative w-full h-[400px] bg-[url('/backbroad.jpg')] bg-cover bg-center">
           {/* 疊加內容 */}
-          <div className="absolute top-0 left-0 h-full w-full flex items-center px-8">
-            <div className="max-w-md text-white space-y-6">
-              <div className="relative z-10 text-center">
-                <h1 className="text-5xl md:text-6xl font-extrabold text-white tracking-wide mb-6">
+          <div className="absolute top-0 left-0 h-full w-full flex items-center">
+            <div className="max-w-2xl px-8">
+              <div className="flex flex-col items-start">
+                <h1 className="text-white font-bold text-5xl md:text-6xl leading-tight tracking-wide">
                   尋找最適合你的導師
                 </h1>
-                <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+                <p className="text-gray-100 text-lg md:text-xl mt-4">
                   我們提供專業的導師配對服務，幫助你找到最適合的學習夥伴
                 </p>
                 <Link
                   href="/about"
-                  className="inline-block bg-yellow-400 hover:bg-yellow-500 text-white px-6 py-3 rounded-xl font-semibold shadow-md transition-colors"
+                  className="mt-6 px-6 py-3 bg-yellow-400 hover:bg-yellow-500 text-white rounded-xl shadow-lg transition-colors"
                 >
                   了解更多
                 </Link>
