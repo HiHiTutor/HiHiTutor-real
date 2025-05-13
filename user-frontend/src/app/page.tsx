@@ -38,17 +38,22 @@ function HomeContent() {
   };
 
   return (
-    <main className="bg-gradient-to-b from-gray-50 via-white to-blue-50 min-h-screen">
-      <HeroSection />
-      <CaseFilterBar 
-        onSearch={handleSearch}
-        onFilter={handleSearch}
-        fetchUrl="/find-tutor-cases"
-      />
-      <CategoryList />
+    <main className="min-h-screen">
+      <div className="bg-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-yellow-50 opacity-50"></div>
+        <div className="relative">
+          <HeroSection />
+          <CaseFilterBar 
+            onSearch={handleSearch}
+            onFilter={handleSearch}
+            fetchUrl="/find-tutor-cases"
+          />
+          <CategoryList />
+        </div>
+      </div>
       
       {/* 精選導師個案 */}
-      <section className="bg-white/50">
+      <section className="bg-yellow-50 py-12">
         <CaseSection 
           title="精選導師個案"
           fetchUrl="/find-student-cases?featured=true&limit=8"
@@ -60,10 +65,15 @@ function HomeContent() {
       </section>
 
       {/* 成為導師 */}
-      <TutorSection />
+      <section className="bg-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-tr from-blue-50 via-white to-yellow-50 opacity-50"></div>
+        <div className="relative">
+          <TutorSection />
+        </div>
+      </section>
 
       {/* 最新學生搵導師個案 */}
-      <section className="bg-white/50">
+      <section className="bg-blue-50 py-12">
         <CaseSection 
           title="最新學生搵導師個案"
           fetchUrl="/find-tutor-cases"

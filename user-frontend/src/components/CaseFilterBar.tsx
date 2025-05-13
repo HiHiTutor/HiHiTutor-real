@@ -314,28 +314,22 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: { onFilt
   };
 
   const handlePriceChange = (type: 'min' | 'max', value: string) => {
-    const numValue = Number(value);
-    if (numValue < 0) return; // Prevent negative values
+    const numValue = parseInt(value) || 0;
+    if (numValue < 0) return; // 防止負數
 
-    setFilters(prev => {
-      const newMin = type === 'min' ? numValue : prev.priceRange[0];
-      const newMax = type === 'max' ? numValue : prev.priceRange[1];
-      
-      // If max becomes less than min, set them equal
-      if (newMax < newMin) {
-        return {
-          ...prev,
-          priceRange: [newMin, newMin]
-        };
-      }
-      
-      return {
+    if (type === 'min') {
+      if (filters.priceRange[1] && numValue > filters.priceRange[1]) return; // 最小值不能大於最大值
+      setFilters(prev => ({
         ...prev,
-        priceRange: type === 'min' 
-          ? [numValue, prev.priceRange[1]]
-          : [prev.priceRange[0], numValue]
-      };
-    });
+        priceRange: [numValue, prev.priceRange[1]]
+      }));
+    } else {
+      if (numValue < filters.priceRange[0]) return; // 最大值不能小於最小值
+      setFilters(prev => ({
+        ...prev,
+        priceRange: [prev.priceRange[0], numValue]
+      }));
+    }
   };
 
   const handleModeChange = (mode: string) => {
@@ -1011,7 +1005,7 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: { onFilt
                   value={filters.priceRange[0] || ''}
                   onChange={(e) => handlePriceChange('min', e.target.value)}
                   placeholder="最低"
-                  className="w-24 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  className="w-24 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
                 <span>-</span>
                 <input
@@ -1020,8 +1014,9 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: { onFilt
                   value={filters.priceRange[1] || ''}
                   onChange={(e) => handlePriceChange('max', e.target.value)}
                   placeholder="最高"
-                  className="w-24 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                  className="w-24 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
+                <span className="text-gray-600">每堂學費</span>
               </div>
             </div>
           </div>

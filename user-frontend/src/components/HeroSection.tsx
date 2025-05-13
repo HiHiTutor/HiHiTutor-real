@@ -66,10 +66,10 @@ export default function HeroSection() {
           <div className="absolute top-0 left-0 h-full w-full flex items-center">
             <div className="max-w-2xl px-8">
               <div className="flex flex-col items-start">
-                <h1 className="text-white font-bold text-5xl md:text-6xl leading-tight tracking-wide">
+                <h1 className="text-white font-bold text-5xl md:text-6xl leading-tight tracking-wide drop-shadow-lg">
                   尋找最適合你的導師
                 </h1>
-                <p className="text-gray-100 text-lg md:text-xl mt-4">
+                <p className="text-gray-100 text-lg md:text-xl mt-4 drop-shadow-md">
                   我們提供專業的導師配對服務，幫助你找到最適合的學習夥伴
                 </p>
                 <Link
