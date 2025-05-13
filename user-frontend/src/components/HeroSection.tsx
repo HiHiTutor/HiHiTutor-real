@@ -66,15 +66,15 @@ export default function HeroSection() {
           <div className="absolute top-0 left-0 h-full w-full flex items-center px-8">
             <div className="max-w-md text-white space-y-6">
               <div className="relative z-10 text-center">
-                <h1 className="text-5xl font-bold text-white mb-6">
+                <h1 className="text-5xl md:text-6xl font-extrabold text-white tracking-wide mb-6">
                   尋找最適合你的導師
                 </h1>
-                <p className="text-xl text-gray-100 mb-8 max-w-2xl mx-auto">
+                <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
                   我們提供專業的導師配對服務，幫助你找到最適合的學習夥伴
                 </p>
                 <Link
                   href="/about"
-                  className="inline-block bg-white text-primary-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors"
+                  className="inline-block bg-yellow-400 hover:bg-yellow-500 text-white px-6 py-3 rounded-xl font-semibold shadow-md transition-colors"
                 >
                   了解更多
                 </Link>

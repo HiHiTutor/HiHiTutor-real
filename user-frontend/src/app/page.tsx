@@ -38,7 +38,7 @@ function HomeContent() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="bg-gradient-to-b from-gray-50 via-white to-blue-50 min-h-screen">
       <HeroSection />
       <CaseFilterBar 
         onSearch={handleSearch}
@@ -48,7 +48,7 @@ function HomeContent() {
       <CategoryList />
       
       {/* 精選導師個案 */}
-      <section>
+      <section className="bg-white/50">
         <CaseSection 
           title="精選導師個案"
           fetchUrl="/find-student-cases?featured=true&limit=8"
@@ -63,7 +63,7 @@ function HomeContent() {
       <TutorSection />
 
       {/* 最新學生搵導師個案 */}
-      <section>
+      <section className="bg-white/50">
         <CaseSection 
           title="最新學生搵導師個案"
           fetchUrl="/find-tutor-cases"
