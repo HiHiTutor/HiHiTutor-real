@@ -40,7 +40,13 @@ function HomeContent() {
   return (
     <main className="min-h-screen">
       <div className="bg-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-yellow-50 opacity-50"></div>
+        {/* 幾何圖案背景 */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-64 h-64 bg-yellow-400 rounded-full mix-blend-multiply filter blur-xl transform -translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl transform translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl transform -translate-x-1/2 translate-y-1/2"></div>
+          <div className="absolute bottom-0 right-0 w-64 h-64 bg-pink-400 rounded-full mix-blend-multiply filter blur-xl transform translate-x-1/2 translate-y-1/2"></div>
+        </div>
         <div className="relative">
           <HeroSection />
           <CaseFilterBar 
@@ -53,35 +59,52 @@ function HomeContent() {
       </div>
       
       {/* 精選導師個案 */}
-      <section className="bg-yellow-50 py-12">
-        <CaseSection 
-          title="精選導師個案"
-          fetchUrl="/find-student-cases?featured=true&limit=8"
-          linkUrl="/find-student-cases"
-          borderColor="border-yellow-400"
-          bgColor="bg-yellow-50"
-          icon="👩‍🏫"
-        />
+      <section className="bg-yellow-50 py-12 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-32 h-32 bg-yellow-500 rounded-full mix-blend-multiply filter blur-xl transform -translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute bottom-0 right-0 w-32 h-32 bg-yellow-600 rounded-full mix-blend-multiply filter blur-xl transform translate-x-1/2 translate-y-1/2"></div>
+        </div>
+        <div className="relative">
+          <CaseSection 
+            title="精選導師個案"
+            fetchUrl="/find-student-cases?featured=true&limit=8"
+            linkUrl="/find-student-cases"
+            borderColor="border-yellow-400"
+            bgColor="bg-yellow-50"
+            icon="👩‍🏫"
+          />
+        </div>
       </section>
 
       {/* 成為導師 */}
       <section className="bg-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-tr from-blue-50 via-white to-yellow-50 opacity-50"></div>
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-64 h-64 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl transform -translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl transform translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-pink-400 rounded-full mix-blend-multiply filter blur-xl transform -translate-x-1/2 translate-y-1/2"></div>
+          <div className="absolute bottom-0 right-0 w-64 h-64 bg-yellow-400 rounded-full mix-blend-multiply filter blur-xl transform translate-x-1/2 translate-y-1/2"></div>
+        </div>
         <div className="relative">
           <TutorSection />
         </div>
       </section>
 
       {/* 最新學生搵導師個案 */}
-      <section className="bg-blue-50 py-12">
-        <CaseSection 
-          title="最新學生搵導師個案"
-          fetchUrl="/find-tutor-cases"
-          linkUrl="/find-tutor-cases"
-          borderColor="border-blue-400"
-          bgColor="bg-blue-50"
-          icon="📄"
-        />
+      <section className="bg-blue-50 py-12 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-32 h-32 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl transform -translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute bottom-0 right-0 w-32 h-32 bg-blue-600 rounded-full mix-blend-multiply filter blur-xl transform translate-x-1/2 translate-y-1/2"></div>
+        </div>
+        <div className="relative">
+          <CaseSection 
+            title="最新學生搵導師個案"
+            fetchUrl="/find-tutor-cases"
+            linkUrl="/find-tutor-cases"
+            borderColor="border-blue-400"
+            bgColor="bg-blue-50"
+            icon="📄"
+          />
+        </div>
       </section>
 
       <Advertisement />
