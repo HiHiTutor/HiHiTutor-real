@@ -72,14 +72,8 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // Middleware
 app.use(cors({
-  origin: [
-    'https://hi-hi-tutor-real.vercel.app',
-    'http://localhost:3000',
-    'http://127.0.0.1:3000'
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: 'https://hi-hi-tutor-real.vercel.app',
+  credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
