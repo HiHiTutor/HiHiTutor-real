@@ -65,19 +65,18 @@ export default function HeroSection() {
           {/* 疊加內容 */}
           <div className="absolute top-0 left-0 h-full w-full flex items-center px-8">
             <div className="max-w-md text-white space-y-6">
-              <h1 className="text-3xl lg:text-4xl font-extrabold text-white drop-shadow-md">
-                找到最適合你的 <br />
-                <span className="text-yellow-300 text-4xl">私人補習導師</span>
+              <h1 className="text-4xl font-bold text-gray-900">
+                尋找最適合你的
+                <span className="text-yellow-500">導師</span>
               </h1>
-              <p className="text-white">HiHiTutor 幫你配對最合適的導師，讓學習更有效率。</p>
-              <div className="flex gap-4">
-                <Link
-                  href="/tutors"
-                  className="bg-yellow-400 text-white px-5 py-2 rounded hover:bg-yellow-500 transition-all"
+              <p className="text-lg text-gray-600">
+                無論是學科補習、興趣班還是專業技能，我們都能幫你找到最適合的導師。
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={() => router.push('/about')}
+                  className="bg-yellow-500 text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition"
                 >
-                  立即尋找導師
-                </Link>
-                <button className="border px-5 py-2 rounded hover:bg-gray-100 transition-all text-white border-white">
                   了解更多
                 </button>
               </div>

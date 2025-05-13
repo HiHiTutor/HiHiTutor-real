@@ -314,12 +314,28 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: { onFilt
   };
 
   const handlePriceChange = (type: 'min' | 'max', value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      priceRange: type === 'min' 
-        ? [Number(value) || 0, prev.priceRange[1]]
-        : [prev.priceRange[0], Number(value) || 10000]
-    }));
+    const numValue = Number(value);
+    if (numValue < 0) return; // Prevent negative values
+
+    setFilters(prev => {
+      const newMin = type === 'min' ? numValue : prev.priceRange[0];
+      const newMax = type === 'max' ? numValue : prev.priceRange[1];
+      
+      // If max becomes less than min, set them equal
+      if (newMax < newMin) {
+        return {
+          ...prev,
+          priceRange: [newMin, newMin]
+        };
+      }
+      
+      return {
+        ...prev,
+        priceRange: type === 'min' 
+          ? [numValue, prev.priceRange[1]]
+          : [prev.priceRange[0], numValue]
+      };
+    });
   };
 
   const handleModeChange = (mode: string) => {
@@ -342,7 +358,6 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: { onFilt
       subRegions: [],
       priceRange: [0, 10000]
     });
-    router.push('/find-student-cases');
   };
 
   const handleSearch = () => {
@@ -543,7 +558,7 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: { onFilt
             onClick={clearFilter}
             className="ml-auto text-sm text-red-500 hover:text-red-700 transition cursor-pointer"
           >
-            取消全部
+            清除所有條件
           </button>
         </div>
       )}
@@ -986,12 +1001,13 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: { onFilt
 
           {/* 學費範圍 */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">學費/堂 (HK$)</label>
+            <label className="block text-sm font-medium text-gray-700">每堂學費 (HK$)</label>
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-600">價格範圍：</span>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
+                  min="0"
                   value={filters.priceRange[0] || ''}
                   onChange={(e) => handlePriceChange('min', e.target.value)}
                   placeholder="最低"
@@ -1000,6 +1016,7 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: { onFilt
                 <span>-</span>
                 <input
                   type="number"
+                  min="0"
                   value={filters.priceRange[1] || ''}
                   onChange={(e) => handlePriceChange('max', e.target.value)}
                   placeholder="最高"
