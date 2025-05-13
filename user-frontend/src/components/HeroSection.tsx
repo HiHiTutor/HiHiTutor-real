@@ -61,7 +61,7 @@ export default function HeroSection() {
     <section className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 items-start px-4 py-10">
       {/* 左欄：Hero 圖 & 文案 */}
       <div className="w-full lg:w-2/3">
-        <div className="relative w-full h-[400px]">
+        <div className="relative w-full h-[400px] bg-[url('/backbroad.jpg')] bg-cover bg-center">
           {/* 疊加內容 */}
           <div className="absolute top-0 left-0 h-full w-full flex items-center">
             <div className="max-w-2xl px-8">
