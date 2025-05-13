@@ -39,9 +39,9 @@ function HomeContent() {
 
   return (
     <main className="min-h-screen">
-      <div className="bg-white relative overflow-hidden">
+      <div className="bg-[url('/background-pattern.png')] bg-cover bg-no-repeat bg-center relative overflow-hidden">
         {/* 幾何圖案背景 */}
-        <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0 opacity-10 pointer-events-none select-none">
           <div className="absolute top-0 left-0 w-64 h-64 bg-yellow-400 rounded-full mix-blend-multiply filter blur-xl transform -translate-x-1/2 -translate-y-1/2"></div>
           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl transform translate-x-1/2 -translate-y-1/2"></div>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl transform -translate-x-1/2 translate-y-1/2"></div>
