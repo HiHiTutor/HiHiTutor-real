@@ -4,7 +4,6 @@ import HeroSection from '@/components/HeroSection';
 import TutorSection from '@/components/TutorSection';
 import CategoryList from '@/components/CategoryList';
 import CaseSection from '@/components/CaseSection';
-import Footer from '@/components/Footer';
 import CaseFilterBar from '@/components/CaseFilterBar';
 import Advertisement from '@/components/Advertisement';
 import { Suspense } from 'react';
@@ -76,7 +75,6 @@ function HomeContent() {
       </section>
 
       <Advertisement />
-      <Footer />
     </main>
   );
 }

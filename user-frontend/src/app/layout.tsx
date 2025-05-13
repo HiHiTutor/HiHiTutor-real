@@ -16,10 +16,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="zh-HK">
-      <body className={inter.className}>
+    <html lang="zh-Hant">
+      <body className={`${inter.className} bg-gray-50`}>
         <Navbar />
-        <main className="min-h-screen bg-gray-50">
+        <main className="min-h-screen">
           {children}
         </main>
         <Footer />

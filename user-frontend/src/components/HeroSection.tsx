@@ -65,20 +65,19 @@ export default function HeroSection() {
           {/* 疊加內容 */}
           <div className="absolute top-0 left-0 h-full w-full flex items-center px-8">
             <div className="max-w-md text-white space-y-6">
-              <h1 className="text-4xl font-bold text-gray-900">
-                尋找最適合你的
-                <span className="text-yellow-500">導師</span>
-              </h1>
-              <p className="text-lg text-gray-600">
-                無論是學科補習、興趣班還是專業技能，我們都能幫你找到最適合的導師。
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button
-                  onClick={() => router.push('/about')}
-                  className="bg-yellow-500 text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition"
+              <div className="relative z-10 text-center">
+                <h1 className="text-5xl font-bold text-white mb-6">
+                  尋找最適合你的導師
+                </h1>
+                <p className="text-xl text-gray-100 mb-8 max-w-2xl mx-auto">
+                  我們提供專業的導師配對服務，幫助你找到最適合的學習夥伴
+                </p>
+                <Link
+                  href="/about"
+                  className="inline-block bg-white text-primary-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors"
                 >
                   了解更多
-                </button>
+                </Link>
               </div>
             </div>
           </div>
