@@ -22,7 +22,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <header className="bg-white border-b border-gray-200">
+    <header className="bg-gradient-to-b from-white to-[#e6e6e6] border-b border-gray-300">
       <div className="max-w-7xl mx-auto px-4 py-3 relative flex items-center">
         {/* Logo 靠左 */}
         <div className="flex-shrink-0 z-10">
