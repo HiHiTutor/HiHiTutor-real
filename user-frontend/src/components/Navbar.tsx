@@ -27,7 +27,7 @@ const Navbar = () => {
         {/* Logo 靠左 */}
         <div className="flex-shrink-0 z-10">
           <Link href="/">
-            <img src="/logo.png" alt="HiHiTutor" width={120} height={40} className="h-10 w-auto" />
+            <img src="/Logo(Rev).png" alt="HiHiTutor" width={120} height={40} className="h-10 w-auto" />
           </Link>
         </div>
         {/* 主選單絕對置中並稍微偏左 */}
@@ -35,7 +35,6 @@ const Navbar = () => {
           <Link href="/" className="hover:text-primary">主頁</Link>
           <Link href="/find-student-cases" className="hover:text-primary">尋導師</Link>
           <Link href="/find-tutor-cases" className="hover:text-primary">招學生</Link>
-          <Link href="/recommendations" className="hover:text-primary">導師推薦</Link>
           <Link href="/articles" className="hover:text-primary">教育專欄</Link>
           <Link href="/faq" className="hover:text-primary">常見問題</Link>
         </nav>

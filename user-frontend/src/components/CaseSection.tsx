@@ -303,6 +303,7 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
             {displayCases.map((caseItem, idx) => (
               <CaseCard
                 key={caseItem.id || (caseItem.tutorId ? caseItem.tutorId : 'noid') + '_' + (caseItem.createdAt || caseItem.date || idx)}
+                borderColor={borderColor}
                 caseData={{
                   id: caseItem.id || '',
                   subject: (() => {

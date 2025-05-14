@@ -166,9 +166,10 @@ interface CaseData {
 
 interface CaseCardProps {
   caseData?: CaseData
+  borderColor?: string
 }
 
-export default function CaseCard({ caseData }: CaseCardProps) {
+export default function CaseCard({ caseData, borderColor = 'border-gray-200' }: CaseCardProps) {
   const router = useRouter()
 
   if (!caseData) return null // 防止 undefined 時 crash
@@ -186,7 +187,7 @@ export default function CaseCard({ caseData }: CaseCardProps) {
   return (
     <div
       onClick={handleClick}
-      className="cursor-pointer border rounded-lg p-4 hover:shadow-md transition-all duration-200"
+      className={`cursor-pointer border rounded-lg p-4 hover:shadow-md transition-all duration-200 ${borderColor}`}
     >
       <h3 className="text-lg font-semibold text-blue-700 mb-2">
         {subjectLabel}
