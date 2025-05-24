@@ -18,23 +18,14 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      console.log('[前端] 開始登入請求');
-      const result = await authApi.login(identifier, password);
-      console.log('[前端] 回應內容:', result);
-
-      if (result.token) {
-        localStorage.setItem('token', result.token);
-        localStorage.setItem('user', JSON.stringify(result.user));
-        localStorage.setItem('userType', result.user.userType);
-        console.log('已寫入 token:', localStorage.getItem('token'));
-        window.dispatchEvent(new Event('login'));
-        router.push('/');
-      } else {
-        setError(result.message || '登入失敗');
-      }
+      const user = await authApi.login(identifier, password);
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('userType', user.userType);
+      window.dispatchEvent(new Event('login'));
+      router.push('/');
     } catch (err) {
-      console.error('[前端] 登入錯誤:', err);
-      setError('登入時發生錯誤，請稍後再試');
+      console.error('登入錯誤:', err);
+      setError(err instanceof Error ? err.message : '登入時發生錯誤，請稍後再試');
     } finally {
       setLoading(false);
     }

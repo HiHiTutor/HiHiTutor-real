@@ -49,14 +49,12 @@ export const authApi = {
       body: JSON.stringify({ identifier, password }),
     });
 
-    const { token, user } = res;
-
-    if (!token || !user) {
+    if (!res.success || !res.token || !res.user) {
       throw new Error("登入回應格式錯誤");
     }
 
-    localStorage.setItem("token", token);
-    return user;
+    localStorage.setItem("token", res.token);
+    return res.user;
   },
   
   // 用戶註冊
