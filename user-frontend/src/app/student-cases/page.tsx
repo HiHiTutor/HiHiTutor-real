@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { caseApi } from '@/services/api';
 
 export default function StudentCasesPage() {
   const [studentCases, setStudentCases] = useState<any[]>([]);
@@ -9,14 +10,9 @@ export default function StudentCasesPage() {
   useEffect(() => {
     const fetchCases = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/find-tutor-cases`);
-        if (response.ok) {
-          const data = await response.json();
-          setStudentCases(data);
-          console.log('Fetched student cases:', data);
-        } else {
-          console.error('Failed to fetch student cases');
-        }
+        const data = await caseApi.getAllStudentCases();
+        setStudentCases(Array.isArray(data) ? data : data?.data || []);
+        console.log('Fetched student cases:', data);
       } catch (error) {
         console.error('Error fetching student cases:', error);
       } finally {

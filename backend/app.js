@@ -17,12 +17,16 @@ const findStudentCases = require('./routes/findStudentCases');
 const articlesRoutes = require('./routes/articles');
 const contactRoutes = require('./routes/contact');
 const faqRoutes = require('./routes/faq');
+const authRoutes = require('./routes/auth');
+const meRouter = require('./routes/me');
+const applicationRouter = require('./routes/applications');
+const caseApplicationRouter = require('./routes/caseApplications');
 
 const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'https://hi-hi-tutor-real.vercel.app',
+  origin: ['http://localhost:3000', 'https://hi-hi-tutor-real.vercel.app'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -49,15 +53,18 @@ mongoose.connection.on('disconnected', () => {
   connectDB();
 });
 
-// API Routes
-app.use('/api/tutors', tutorsRouter);
+// Mount routes
+app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoriesRouter);
-app.use('/api/cases', casesRouter);
+app.use('/api/tutors', tutorsRouter);
 app.use('/api/find-student-cases', findStudentCases);
 app.use('/api/find-tutor-cases', findTutorCases);
-app.use('/api/articles', articlesRoutes);
+app.use('/api/me', meRouter);
+app.use('/api/applications', applicationRouter);
+app.use('/api/case-applications', caseApplicationRouter);
 app.use('/api/contact', contactRoutes);
-app.use('/api/faqs', faqRoutes);
+app.use('/api/faq', faqRoutes);
+app.use('/api/articles', articlesRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -71,15 +78,16 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: '伺服器發生錯誤，請稍後再試' });
 });
 
-// Log available routes on startup
-console.log('\n可用的 API 路由:');
-console.log('- GET /api/tutor-cases');
-console.log('- GET /api/tutor-cases/recommended');
-console.log('- GET /api/find-tutor-cases');
+// Log available routes
+console.log('Available API routes:');
+console.log('- GET /api/auth/profile');
 console.log('- GET /api/categories');
 console.log('- GET /api/tutors');
-console.log('- GET /api/cases');
-console.log('- POST /api/contact\n');
+console.log('- GET /api/tutors/recommended');
+console.log('- GET /api/find-student-cases');
+console.log('- GET /api/find-tutor-cases');
+console.log('- GET /api/find-student-cases?featured=true&limit=8');
+console.log('- GET /api/find-tutor-cases?featured=true&limit=8');
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

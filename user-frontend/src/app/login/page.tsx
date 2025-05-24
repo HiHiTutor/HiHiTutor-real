@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { authApi } from '@/services/api';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,19 +19,10 @@ export default function LoginPage() {
 
     try {
       console.log('[前端] 開始登入請求');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ identifier, password }),
-      });
-
-      console.log('[前端] 收到回應:', response.status);
-      const result = await response.json();
+      const result = await authApi.login(identifier, password);
       console.log('[前端] 回應內容:', result);
 
-      if (response.ok) {
+      if (result.token) {
         localStorage.setItem('token', result.token);
         localStorage.setItem('user', JSON.stringify(result.user));
         localStorage.setItem('userType', result.user.userType);

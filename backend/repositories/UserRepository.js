@@ -1,50 +1,66 @@
-const fs = require('fs');
-const path = require('path');
-const usersPath = path.join(__dirname, '../data/users.json');
+const User = require('../models/User');
 
 class UserRepository {
   async getAllUsers() {
     try {
-      const data = fs.readFileSync(usersPath, 'utf-8');
-      const users = JSON.parse(data);
-      return users.map(user => ({
-        ...user,
-        upgraded: user.upgraded ?? false,
-        upgradeRequested: user.upgradeRequested ?? false,
-        upgradeDocuments: user.upgradeDocuments ?? []
-      }));
+      return await User.find({});
     } catch (error) {
-      console.error('[getAllUsers] 讀取 users.json 失敗:', error);
+      console.error('[getAllUsers] 讀取用戶資料失敗:', error);
       return [];
     }
   }
 
   async getUserByEmail(email) {
-    const users = await this.getAllUsers();
-    return users.find(user => user.email === email);
+    try {
+      return await User.findOne({ email });
+    } catch (error) {
+      console.error('[getUserByEmail] 查詢用戶失敗:', error);
+      return null;
+    }
   }
 
   async getUserByPhone(phone) {
-    const users = await this.getAllUsers();
-    return users.find(user => user.phone === phone);
+    try {
+      return await User.findOne({ phone });
+    } catch (error) {
+      console.error('[getUserByPhone] 查詢用戶失敗:', error);
+      return null;
+    }
   }
 
   async getUserById(id) {
-    const users = await this.getAllUsers();
-    return users.find(user => user.id === id);
+    try {
+      return await User.findById(id);
+    } catch (error) {
+      console.error('[getUserById] 查詢用戶失敗:', error);
+      return null;
+    }
   }
 
   async updateUser(updatedUser) {
-    const users = await this.getAllUsers();
-    const index = users.findIndex(u => u.id === updatedUser.id);
-    if (index !== -1) {
-      users[index] = { ...users[index], ...updatedUser };
-      fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+    try {
+      return await User.findByIdAndUpdate(
+        updatedUser.id,
+        { ...updatedUser, updatedAt: new Date() },
+        { new: true }
+      );
+    } catch (error) {
+      console.error('[updateUser] 更新用戶失敗:', error);
+      return null;
     }
   }
 
   async saveUsers(users) {
-    fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
+    try {
+      // 清空現有用戶
+      await User.deleteMany({});
+      // 批量插入新用戶
+      await User.insertMany(users);
+      return true;
+    } catch (error) {
+      console.error('[saveUsers] 保存用戶失敗:', error);
+      return false;
+    }
   }
 }
 

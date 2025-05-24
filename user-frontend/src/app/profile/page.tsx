@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { authApi } from '@/services/api';
 
 interface User {
   id: string;
@@ -28,23 +29,23 @@ export default function ProfilePage() {
       }
 
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/me`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('無法獲取用戶資料');
+        const data = await authApi.getProfile();
+        console.log('獲取到的用戶資料:', data);
+        
+        // 確保數據格式正確
+        if (data && typeof data === 'object') {
+          setUser({
+            id: data.id || '',
+            name: data.name || '',
+            email: data.email || '',
+            phone: data.phone || '',
+            userType: data.userType || 'normal'
+          });
+        } else {
+          throw new Error('無效的用戶資料格式');
         }
-
-        const data = await response.json();
-        if (!data.success) {
-          throw new Error(data.message || '獲取用戶資料失敗');
-        }
-
-        setUser(data.data);
       } catch (err) {
+        console.error('獲取用戶資料失敗:', err);
         setError(err instanceof Error ? err.message : '發生錯誤');
         // 延遲跳轉以顯示錯誤訊息
         setTimeout(() => {

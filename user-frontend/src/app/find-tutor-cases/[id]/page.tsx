@@ -3,6 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { getSubjectNames, getRegionName, getSubRegionName, getModeName } from '@/utils/translate';
+import { caseApi } from '@/services/api';
 
 // 教學模式映射
 const MODES: { [key: string]: string } = {
@@ -32,13 +33,8 @@ export default function FindTutorCaseDetailPage() {
     setUserType(localStorage.getItem('userType'));
     const fetchCase = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/find-tutor-cases/${id}`);
-        if (response.ok) {
-          const result = await response.json();
-          setCaseDetail(result.data);
-        } else {
-          setCaseDetail(null);
-        }
+        const result = await caseApi.getCaseById(id as string);
+        setCaseDetail(Array.isArray(result) ? result[0] : result?.data);
       } catch (error) {
         setCaseDetail(null);
       } finally {

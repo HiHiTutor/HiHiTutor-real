@@ -289,16 +289,39 @@ const resetPassword = (req, res) => {
 // 新增：取得完整 user 資料
 const getMe = async (req, res) => {
   try {
+    console.log('[getMe] 開始獲取用戶資料');
+    console.log('[getMe] req.user:', req.user);
+    
     if (!req.user || !req.user.id) {
+      console.log('[getMe] ❌ 未登入或無效 Token');
       return res.status(401).json({ success: false, message: '未登入' });
     }
+    
+    console.log('[getMe] 正在查找用戶 ID:', req.user.id);
     const user = await userRepository.getUserById(req.user.id);
+    console.log('[getMe] 找到用戶:', user);
+    
     if (!user) {
+      console.log('[getMe] ❌ 找不到用戶');
       return res.status(404).json({ success: false, message: '找不到用戶' });
     }
+    
+    // 移除敏感資料並確保返回所有必要欄位
     const { password, ...safeUser } = user;
-    res.json(safeUser);
+    const userData = {
+      id: safeUser.id,
+      name: safeUser.name || '',
+      email: safeUser.email || '',
+      phone: safeUser.phone || '',
+      userType: safeUser.userType || 'normal',
+      createdAt: safeUser.createdAt,
+      updatedAt: safeUser.updatedAt
+    };
+    
+    console.log('[getMe] ✅ 返回用戶資料:', userData);
+    res.json(userData);
   } catch (error) {
+    console.error('[getMe] ❌ 獲取用戶資料錯誤:', error);
     res.status(500).json({ success: false, message: '伺服器錯誤' });
   }
 };

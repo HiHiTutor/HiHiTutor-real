@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import CategoryCard from './CategoryCard';
 import { useRouter } from 'next/navigation';
+import { categoryApi } from '../services/api';
 
 interface Subject {
   value: string;
@@ -56,16 +57,7 @@ const CategoryList: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/categories`, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        if (!response.ok) {
-          throw new Error(`獲取分類失敗 (${response.status})`);
-        }
-        const data = await response.json();
+        const data = await categoryApi.getAllCategories();
         console.log('📦 獲取到的分類數據:', data);
         // 支援 array 或 { data: array } 結構
         const arr = Array.isArray(data) ? data : (data?.data || []);

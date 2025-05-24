@@ -17,18 +17,27 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  role: {
+  userType: {
     type: String,
-    enum: ['user', 'tutor', 'admin'],
-    default: 'user'
+    enum: ['normal', 'personal', 'organization', 'tutor', 'admin'],
+    default: 'normal'
   },
-  phone: String,
-  avatar: String,
-  isActive: {
+  phone: {
+    type: String,
+    trim: true
+  },
+  upgraded: {
     type: Boolean,
-    default: true
+    default: false
   },
-  lastLogin: Date,
+  upgradeRequested: {
+    type: Boolean,
+    default: false
+  },
+  upgradeDocuments: {
+    type: [String],
+    default: []
+  },
   createdAt: {
     type: Date,
     default: Date.now
