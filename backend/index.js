@@ -18,6 +18,7 @@ const caseApplicationRoutes = require('./routes/caseApplications');
 const applicationRoutes = require('./routes/applications');
 const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/user');
+const findTutorCasesRouter = require('./routes/findTutorCases');
 const studentCasesRouter = require('./routes/studentCases');
 const tutorCasesRouter = require('./routes/tutorCases');
 const upload = require('./uploadMiddleware');
@@ -93,8 +94,8 @@ app.get('/health', (req, res) => {
 });
 
 // API 路由
-app.use('/api/find-student-cases', tutorCasesRouter);
-app.use('/api/find-tutor-cases', studentCasesRouter);
+app.use('/api/find-tutor-cases', findTutorCasesRouter);
+app.use('/api/find-student-cases', studentCasesRouter);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/tutors', tutorsRouter);
 app.use('/api/cases', caseRoutes);

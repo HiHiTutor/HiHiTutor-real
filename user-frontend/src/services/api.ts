@@ -55,6 +55,7 @@ export const authApi = {
     password: string;
     name?: string;
     userType?: 'student' | 'organization';
+    token?: string;
   }) => 
     fetchApi('/auth/register', {
       method: 'POST',

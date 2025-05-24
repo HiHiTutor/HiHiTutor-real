@@ -51,11 +51,29 @@ function FindTutorCasesPageContent() {
         setLoading(true);
         console.log("🔍 正在獲取所有導師個案資料...");
         
-        const data = await caseApi.getAllTutorCases();
-        console.log("📦 成功獲取所有導師個案：", data);
-        const sorted = (data.data?.cases || []).sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        setAllCases(sorted);
-        console.log("✅ 已保存全量資料到 allCases");
+        // 從 localStorage 獲取當前用戶 ID
+        const token = localStorage.getItem('token');
+        let studentId = '';
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            studentId = payload.id;
+          } catch (e) {
+            console.error('❌ Error parsing token:', e);
+          }
+        }
+
+        const response = await fetch(`http://localhost:3001/api/find-tutor-cases${studentId ? `?studentId=${studentId}` : ''}`);
+        if (response.ok) {
+          const data = await response.json();
+          console.log("📦 成功獲取所有導師個案：", data);
+          const sorted = (data.data?.cases || []).sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          setAllCases(sorted);
+          console.log("✅ 已保存全量資料到 allCases");
+        } else {
+          console.error('❌ 獲取所有導師個案失敗：', response.status);
+          setAllCases([]);
+        }
       } catch (error) {
         console.error('❌ 獲取所有導師個案時發生錯誤：', error);
         setAllCases([]);

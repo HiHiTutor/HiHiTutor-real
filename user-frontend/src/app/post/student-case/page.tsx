@@ -71,7 +71,7 @@ export default function StudentCasePage() {
       }
 
       const submitData = {
-        studentId: Number(user.id),
+        studentId: user.id,
         category: formData.category,
         subCategory: formData.subCategory,
         subjects: formData.subjects,
@@ -100,7 +100,7 @@ export default function StudentCasePage() {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-3xl mx-auto px-4">
-        <h1 className="text-3xl font-bold text-center mb-8">發布招學生個案</h1>
+        <h1 className="text-3xl font-bold text-center mb-8">發布尋導師個案</h1>
         <div className="bg-white rounded-lg shadow-md p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* 標題 */}

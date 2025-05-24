@@ -34,6 +34,16 @@ const tutorCaseSchema = new mongoose.Schema({
       required: true
     }
   },
+  mode: {
+    type: String
+  },
+  experience: {
+    type: String
+  },
+  featured: {
+    type: Boolean,
+    default: false
+  },
   isApproved: {
     type: Boolean,
     default: false
@@ -42,6 +52,6 @@ const tutorCaseSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('TutorCase', tutorCaseSchema); 

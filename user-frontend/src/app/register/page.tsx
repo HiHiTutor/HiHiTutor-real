@@ -132,13 +132,13 @@ export default function RegisterPage() {
 
     try {
       // 使用 authApi 進行註冊
-      const data = await authApi.register(
-        formData.name,
-        formData.email,
-        formData.password,
-        formData.phone,
-        formData.userType
-      );
+      const data = await authApi.register({
+        name: formData.name,
+        identifier: formData.email,
+        password: formData.password,
+        userType: formData.userType === 'normal' ? 'student' : 'organization',
+        token: tempToken
+      });
 
       // 清除臨時令牌並導向登入頁
       clearTempToken();
