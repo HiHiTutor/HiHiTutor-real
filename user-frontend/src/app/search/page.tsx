@@ -36,8 +36,11 @@ function SearchPageContent() {
 
       try {
         setLoading(true);
-        const data = await searchApi.search(query);
-        setResults(data);
+        const [tutors, cases] = await Promise.all([
+          searchApi.searchTutors(query),
+          searchApi.searchCases(query)
+        ]);
+        setResults({ tutors, cases });
         setError(null);
       } catch (err) {
         console.error('搜尋失敗:', err);
