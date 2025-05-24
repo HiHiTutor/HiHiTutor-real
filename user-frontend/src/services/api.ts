@@ -43,11 +43,21 @@ export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
 // 認證相關 API
 export const authApi = {
   // 用戶登入
-  login: (identifier: string, password: string) => 
-    fetchApi('/auth/login', {
-      method: 'POST',
+  login: async (identifier: string, password: string) => {
+    const res = await fetchApi("/auth/login", {
+      method: "POST",
       body: JSON.stringify({ identifier, password }),
-    }),
+    });
+
+    const { token, user } = res;
+
+    if (!token || !user) {
+      throw new Error("登入回應格式錯誤");
+    }
+
+    localStorage.setItem("token", token);
+    return user;
+  },
   
   // 用戶註冊
   register: (data: {
@@ -134,6 +144,14 @@ export const caseApi = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+
+  // 申請個案
+  applyCase: async (caseId: string, tutorId: string) => {
+    return fetchApi(`/case-applications/${caseId}`, {
+      method: 'POST',
+      body: JSON.stringify({ tutorId }),
+    });
+  },
 };
 
 // 分類相關 API
