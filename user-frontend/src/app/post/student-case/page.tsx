@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 import REGION_OPTIONS from '@/constants/regionOptions';
 import TagCheckbox from '@/components/TagCheckbox';
+import { caseApi } from '@/services/api';
 
 export default function StudentCasePage() {
   const router = useRouter();
@@ -58,49 +59,41 @@ export default function StudentCasePage() {
         router.push('/login');
         return;
       }
+
       const user = JSON.parse(userStr);
+      console.log('👤 Current user:', user);
+
+      if (!user.id) {
+        console.error('❌ User ID not found in user data');
+        alert('用戶資料不完整，請重新登入');
+        router.push('/login');
+        return;
+      }
+
       const submitData = {
-        studentId: user.id,
-        title: formData.title,
-        description: formData.description,
+        studentId: Number(user.id),
         category: formData.category,
         subCategory: formData.subCategory,
         subjects: formData.subjects,
         regions: formData.regions ? [formData.regions] : [],
         subRegions: formData.subRegions,
-        modes: formData.modes,
-        budget: { min: Number(formData.budgetMin), max: Number(formData.budgetMax) }
-      };
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/find-student-cases`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(submitData),
-      });
-
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`API 請求失敗 (${response.status}): ${text}`);
-      }
-
-      try {
-        const result = await response.json();
-        if (result.success) {
-          alert('個案發布成功！');
-          router.push('/find-student-cases');
-        } else {
-          throw new Error(result.message || '發布失敗');
+        budget: {
+          min: Number(formData.budgetMin),
+          max: Number(formData.budgetMax)
         }
-      } catch (jsonError) {
-        console.error('解析 API 響應時出錯:', jsonError);
-        throw new Error('伺服器響應格式錯誤');
-      }
+      };
+
+      console.log('📦 Submitting data:', submitData);
+
+      const result = await caseApi.createTutorCase(submitData);
+      console.log('✅ Case created successfully:', result);
+      
+      alert('個案發布成功！');
+      router.push('/find-tutor-cases');
+
     } catch (error) {
-      console.error('發布個案時出錯:', error);
-      alert(error instanceof Error ? error.message : '發布個案時出錯');
+      console.error('❌ Error creating case:', error);
+      alert(error instanceof Error ? error.message : '發布失敗');
     }
   };
 

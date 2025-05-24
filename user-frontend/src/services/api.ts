@@ -12,13 +12,17 @@ export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
     console.log('🚀 發送 API 請求:', url);
     console.log('📦 請求參數:', options);
 
+    const token = localStorage.getItem('token');
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      ...options.headers,
+    };
+
     const response = await fetch(url, {
       ...options,
-      credentials: 'include', // 添加 credentials 支持
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      credentials: 'include',
+      headers,
     });
 
     if (!response.ok) {
@@ -123,19 +127,46 @@ export const caseApi = {
       body: JSON.stringify({ tutorId }),
     }),
 
-  // 創建新的學生個案
+  // 創建新的學生個案（導師發布）
   createStudentCase: (data: {
+    tutorId: number;
     title: string;
     description: string;
-    subject: string;
-    grade: string;
+    category: string;
+    subCategory: string;
+    subjects: string[];
+    modes: string[];
+    regions: string[];
+    subRegions: string[];
+    price: number;
     location: string;
-    budget: number;
-    schedule: string;
+    lessonDuration: number;
+    durationUnit: string;
+    weeklyLessons: number;
   }) => fetchApi('/find-student-cases', {
     method: 'POST',
     body: JSON.stringify(data),
   }),
+
+  // 創建新的導師個案（學生發布）
+  createTutorCase: (data: {
+    studentId: number;
+    category: string;
+    subCategory: string;
+    subjects: string[];
+    regions: string[];
+    subRegions: string[];
+    budget: {
+      min: number;
+      max: number;
+    };
+  }) => {
+    console.log('🚀 Creating tutor case with data:', data);
+    return fetchApi('/find-tutor-cases', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
 };
 
 // 分類相關 API

@@ -1,50 +1,42 @@
 const mongoose = require('mongoose');
 
 const tutorCaseSchema = new mongoose.Schema({
-  id: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  subject: {
+  studentId: {
     type: String,
     required: true
-  },
-  location: {
-    type: String,
-    required: true
-  },
-  budget: {
-    type: String,
-    required: true
-  },
-  mode: {
-    type: String,
-    required: true
-  },
-  experience: {
-    type: String,
-    required: true
-  },
-  featured: {
-    type: Boolean,
-    default: false
   },
   category: {
     type: String,
     required: true
   },
   subCategory: {
+    type: String
+  },
+  subjects: {
     type: [String],
     required: true
   },
-  region: {
+  regions: {
     type: [String],
-    required: true
+    default: []
   },
-  priceRange: {
-    type: String,
-    required: true
+  subRegions: {
+    type: [String],
+    default: []
+  },
+  budget: {
+    min: {
+      type: Number,
+      required: true
+    },
+    max: {
+      type: Number,
+      required: true
+    }
+  },
+  isApproved: {
+    type: Boolean,
+    default: false
   },
   createdAt: {
     type: Date,

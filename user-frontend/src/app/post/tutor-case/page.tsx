@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import TagCheckbox from '@/components/TagCheckbox';
 import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 import REGION_OPTIONS from '@/constants/regionOptions';
+import { caseApi } from '@/services/api';
 
 export default function TutorCasePage() {
   const router = useRouter();
@@ -119,37 +120,16 @@ export default function TutorCasePage() {
         modes: formData.modes,
         regions: formData.regions ? [formData.regions] : [],
         subRegions: formData.subRegions,
-        price: formData.price,
+        price: Number(formData.price),
         location: formData.location,
-        lessonDuration: formData.lessonDuration,
+        lessonDuration: Number(formData.lessonDuration),
         durationUnit: formData.durationUnit,
-        weeklyLessons: formData.weeklyLessons
+        weeklyLessons: Number(formData.weeklyLessons)
       };
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/find-tutor-cases`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(submitData),
-      });
 
-      if (!response.ok) {
-        const msg = await response.text();
-        throw new Error(`API 請求失敗 (${response.status}): ${msg}`);
-      }
-
-      // 用 try 包裹 JSON 解析，避免空回應爆錯
-      let result;
-      try {
-        result = await response.json();
-      } catch (jsonErr) {
-        throw new Error('後端回傳格式錯誤（不是 JSON）');
-      }
-
+      const result = await caseApi.createStudentCase(submitData);
       alert('個案發布成功！');
-      router.push('/find-tutor-cases');
+      router.push('/find-student-cases');
 
     } catch (error) {
       console.error('發布個案時出錯:', error);

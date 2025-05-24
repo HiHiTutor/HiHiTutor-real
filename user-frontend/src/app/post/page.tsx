@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { authApi } from '@/services/api';
 
 export default function PostPage() {
   const [userRole, setUserRole] = useState<string | null>(null);
@@ -16,22 +17,12 @@ export default function PostPage() {
     // 有 token 才 fetch user data
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/me`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        if (!response.ok) {
-          throw new Error('無法獲取用戶資料');
-        }
-        const data = await response.json();
-        if (!data.success) {
-          throw new Error(data.message || '獲取用戶資料失敗');
-        }
+        const data = await authApi.getProfile();
         // 設置用戶角色，優先使用 userType，如果沒有則使用 role
-        const role = data.data.userType || data.data.role;
+        const role = data.userType || data.role;
         setUserRole(role);
       } catch (err) {
+        console.error('獲取用戶資料失敗:', err);
         router.replace('/login');
       }
     };
