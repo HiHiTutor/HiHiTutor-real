@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import CaseFilterBar from '@/components/CaseFilterBar';
 import LoadMoreButton from '@/components/LoadMoreButton';
 import CaseCard from '@/components/CaseCard';
+import { caseApi } from '@/services/api';
 
 interface Case {
   id: string;
@@ -50,17 +51,11 @@ function FindTutorCasesPageContent() {
         setLoading(true);
         console.log("🔍 正在獲取所有導師個案資料...");
         
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/find-tutor-cases`);
-        if (response.ok) {
-          const data = await response.json();
-          console.log("📦 成功獲取所有導師個案：", data);
-          const sorted = (data.data?.cases || []).sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
-          setAllCases(sorted);
-          console.log("✅ 已保存全量資料到 allCases");
-        } else {
-          console.error('❌ 獲取所有導師個案失敗：', response.status);
-          setAllCases([]);
-        }
+        const data = await caseApi.getAllTutorCases();
+        console.log("📦 成功獲取所有導師個案：", data);
+        const sorted = (data.data?.cases || []).sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        setAllCases(sorted);
+        console.log("✅ 已保存全量資料到 allCases");
       } catch (error) {
         console.error('❌ 獲取所有導師個案時發生錯誤：', error);
         setAllCases([]);

@@ -1,5 +1,5 @@
 // API 基礎 URL
-const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
+const baseURL = 'http://localhost:3001';
 console.log('🌐 API baseURL:', baseURL);
 
 // 通用 API 請求函數
@@ -118,81 +118,42 @@ export const caseApi = {
   getRecommendedTutorCases: () => fetchApi('/find-tutor-cases?featured=true&limit=8'),
   
   // 獲取單一個案詳情
-  getCaseById: (id: string) => fetchApi(`/find-student-cases/${id}`),
-
-  // 申請個案
-  applyCase: (caseId: string, tutorId: number) => 
-    fetchApi(`/find-student-cases/${caseId}/apply`, {
-      method: 'POST',
-      body: JSON.stringify({ tutorId }),
-    }),
-
-  // 創建新的學生個案（導師發布）
-  createStudentCase: (data: {
-    tutorId: number;
-    title: string;
-    description: string;
-    category: string;
-    subCategory: string;
-    subjects: string[];
-    modes: string[];
-    regions: string[];
-    subRegions: string[];
-    price: number;
-    location: string;
-    lessonDuration: number;
-    durationUnit: string;
-    weeklyLessons: number;
-  }) => fetchApi('/find-student-cases', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  }),
-
-  // 創建新的導師個案（學生發布）
-  createTutorCase: (data: {
-    studentId: number;
-    category: string;
-    subCategory: string;
-    subjects: string[];
-    regions: string[];
-    subRegions: string[];
-    budget: {
-      min: number;
-      max: number;
-    };
-  }) => {
-    console.log('🚀 Creating tutor case with data:', data);
-    return fetchApi('/find-tutor-cases', {
+  getCaseById: (id: string) => fetchApi(`/cases/${id}`),
+  
+  // 創建找導師個案
+  createTutorCase: (data: any) => 
+    fetchApi('/find-tutor-cases', {
       method: 'POST',
       body: JSON.stringify(data),
-    });
-  },
+    }),
+  
+  // 創建找學生個案
+  createStudentCase: (data: any) => 
+    fetchApi('/find-student-cases', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
 };
 
 // 分類相關 API
 export const categoryApi = {
   // 獲取所有分類
   getAllCategories: () => fetchApi('/categories'),
-};
-
-// 熱門科目相關 API
-export const hotSubjectApi = {
-  // 獲取熱門科目統計
-  getHotSubjects: () => fetchApi('/hot-subjects'),
+  
+  // 獲取熱門科目
+  getHotSubjects: () => fetchApi('/categories/hot-subjects'),
+  
+  // 獲取地區列表
+  getRegions: () => fetchApi('/categories/regions'),
 };
 
 // 搜尋相關 API
 export const searchApi = {
-  // 搜尋導師和個案
-  search: (keyword: string) => fetchApi(`/search?q=${encodeURIComponent(keyword)}`),
+  // 搜尋導師
+  searchTutors: (query: string) => 
+    fetchApi(`/search/tutors?q=${encodeURIComponent(query)}`),
+  
+  // 搜尋個案
+  searchCases: (query: string) => 
+    fetchApi(`/search/cases?q=${encodeURIComponent(query)}`),
 };
-
-// 聯絡表單相關 API
-export const contactApi = {
-  // 提交聯絡表單
-  submitContactForm: (name: string, email: string, message: string) => 
-    fetchApi('/contact', {
-      method: 'POST',
-      body: JSON.stringify({ name, email, message }),
-    }),
-}; 
