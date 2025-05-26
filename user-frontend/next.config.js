@@ -17,7 +17,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'https://hi-hi-tutor-real-backend.vercel.app/api/:path*' // proxy 到 backend
+        destination: 'https://hi-hi-tutor-real-backend2.vercel.app/api/:path*'
       }
     ]
   }

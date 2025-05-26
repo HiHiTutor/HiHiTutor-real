@@ -37,10 +37,19 @@ app.use(cors({
     'Origin',
     'Access-Control-Allow-Origin',
     'Access-Control-Allow-Headers',
-    'Access-Control-Allow-Methods'
-  ]
+    'Access-Control-Allow-Methods',
+    'Access-Control-Allow-Credentials'
+  ],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  maxAge: 86400 // 24 hours
 }));
+
+// 處理 OPTIONS 請求
+app.options('*', cors());
+
+// 確保請求體解析中間件在 CORS 之後
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 // Request timestamp logging
