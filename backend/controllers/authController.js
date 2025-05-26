@@ -120,6 +120,13 @@ const loginUser = async (req, res) => {
 
 // 用戶註冊
 const register = (req, res) => {
+  console.log("📥 收到註冊請求：", {
+    body: req.body,
+    headers: req.headers,
+    method: req.method,
+    url: req.url
+  });
+
   const { name, email, phone, password, role } = req.body;
 
   console.log("📥 註冊收到資料：", { name, email, phone, password, role });

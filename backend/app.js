@@ -29,7 +29,16 @@ app.use(cors({
   origin: ['http://localhost:3000', 'https://hi-hi-tutor-real.vercel.app'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'Accept',
+    'Origin',
+    'Access-Control-Allow-Origin',
+    'Access-Control-Allow-Headers',
+    'Access-Control-Allow-Methods'
+  ]
 }));
 app.use(express.json());
 app.use(morgan('dev'));
