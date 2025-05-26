@@ -60,10 +60,11 @@ export const authApi = {
   
   // 用戶註冊
   register: (data: {
-    identifier: string;
+    name: string;
+    email: string;
+    phone: string;
     password: string;
-    name?: string;
-    userType?: 'student' | 'organization';
+    role: 'student' | 'organization';
     token?: string;
   }) => 
     fetchApi('/auth/register', {
