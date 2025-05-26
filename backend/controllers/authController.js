@@ -123,7 +123,7 @@ const register = (req, res) => {
   console.log("📥 註冊收到資料：", req.body);
   console.log("📥 請求標頭：", req.headers);
 
-  const { name, email, phone, password, role } = req.body;
+  const { name, email, phone, password, role, token } = req.body;
 
   // 檢查必要欄位
   if (!name || !email || !phone || !password || !role) {
@@ -144,6 +144,15 @@ const register = (req, res) => {
         password: !password,
         role: !role
       }
+    });
+  }
+
+  // 驗證 token
+  if (!token || !token.startsWith('TEMP-REGISTER-TOKEN-')) {
+    console.log("❌ 無效的註冊 token：", token);
+    return res.status(400).json({
+      success: false,
+      message: '無效的註冊 token'
     });
   }
 
