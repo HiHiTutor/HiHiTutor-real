@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const userRepository = require('../repositories/UserRepository.js');
 const crypto = require('crypto');
 const { loadUsers, saveUsers } = require('../data/users');
+const { getUserById } = require('../utils/userStorage');
 
 // 模擬 JWT token 生成
 const generateToken = (user) => {
@@ -119,6 +120,7 @@ const loginUser = async (req, res) => {
 
 // 用戶註冊
 const register = async (req, res) => {
+  console.log("📦 收到註冊資料：", req.body);
   try {
     const { email, password, name, userType, phone } = req.body;
 
@@ -326,6 +328,23 @@ const getMe = async (req, res) => {
   }
 };
 
+const getProfile = (req, res) => {
+  const userId = req.user.id;
+  const user = getUserById(userId);
+
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  res.json({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    role: user.role,
+  });
+};
+
 // 在文件結尾，確保 forgotPassword 有 export
 module.exports = {
   loginUser,
@@ -334,5 +353,6 @@ module.exports = {
   getCurrentUser,
   forgotPassword,
   resetPassword,
-  getMe
+  getMe,
+  getProfile
 }; 
