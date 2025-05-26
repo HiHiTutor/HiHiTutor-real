@@ -120,16 +120,10 @@ const loginUser = async (req, res) => {
 
 // 用戶註冊
 const register = (req, res) => {
-  console.log("📥 收到註冊請求：", {
-    body: req.body,
-    headers: req.headers,
-    method: req.method,
-    url: req.url
-  });
+  console.log("📥 註冊收到資料：", req.body);
+  console.log("📥 請求標頭：", req.headers);
 
   const { name, email, phone, password, role } = req.body;
-
-  console.log("📥 註冊收到資料：", { name, email, phone, password, role });
 
   // 檢查必要欄位
   if (!name || !email || !phone || !password || !role) {
@@ -164,12 +158,11 @@ const register = (req, res) => {
   }
 
   // 驗證電話格式（香港手機號碼）
-  const phoneRegexHK = /^[5689]\d{7}$/;
-  if (!phoneRegexHK.test(phone)) {
+  if (!/^([69]\d{7})$/.test(phone)) {
     console.log("❌ 無效的電話格式：", phone);
-    return res.status(400).json({ 
-      success: false, 
-      message: '請提供有效的香港手機號碼（8位數，以5/6/8/9開頭）' 
+    return res.status(400).json({
+      success: false,
+      message: '請提供有效的香港電話號碼（8碼，9或6開頭）'
     });
   }
 
