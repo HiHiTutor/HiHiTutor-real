@@ -133,9 +133,9 @@ export default function RegisterPage() {
     try {
       // 使用 authApi 進行註冊
       const data = await authApi.register({
-        name: formData.name,
         identifier: formData.email,
         password: formData.password,
+        name: formData.name,
         userType: formData.userType === 'normal' ? 'student' : 'organization',
         token: tempToken
       });
