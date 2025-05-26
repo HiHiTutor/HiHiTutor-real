@@ -119,7 +119,7 @@ const loginUser = async (req, res) => {
 };
 
 // 用戶註冊
-const register = (req, res) => {
+const register = async (req, res) => {
   console.log("📥 註冊收到資料：", req.body);
   console.log("📥 請求標頭：", req.headers);
 
@@ -195,7 +195,81 @@ const register = (req, res) => {
 
   console.log("✅ 資料驗證通過，準備進行註冊");
 
-  // 繼續註冊邏輯...
+  try {
+    console.log("📥 開始載入用戶資料...");
+    const users = await loadUsers();
+    console.log("✅ 用戶資料載入完成，共", users.length, "筆資料");
+
+    // 檢查 email 是否已存在
+    console.log("🔍 檢查 email 是否重複...");
+    if (users.some(user => user.email === email)) {
+      console.log("❌ Email 已被註冊：", email);
+      return res.status(400).json({
+        success: false,
+        message: '此電子郵件已被註冊'
+      });
+    }
+
+    // 檢查電話是否已存在
+    console.log("🔍 檢查電話是否重複...");
+    if (users.some(user => user.phone === phone)) {
+      console.log("❌ 電話已被註冊：", phone);
+      return res.status(400).json({
+        success: false,
+        message: '此電話號碼已被註冊'
+      });
+    }
+
+    // 創建新用戶
+    console.log("📝 準備創建新用戶...");
+    const newUser = {
+      id: Date.now().toString(),
+      name,
+      email,
+      phone,
+      password: await bcrypt.hash(password, 10),
+      role,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    // 保存用戶資料
+    console.log("💾 準備保存用戶資料...");
+    const updatedUsers = [...users, newUser];
+    await saveUsers(updatedUsers);
+    console.log("✅ 用戶資料保存成功！");
+
+    // 生成 JWT token
+    console.log("🔑 生成 JWT token...");
+    const jwtToken = jwt.sign(
+      { id: newUser.id, email: newUser.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+    console.log("✅ JWT token 生成成功！");
+
+    // 返回成功響應
+    console.log("🎉 註冊流程完成，返回成功響應");
+    return res.status(201).json({
+      success: true,
+      message: '註冊成功',
+      token: jwtToken,
+      user: {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        phone: newUser.phone,
+        role: newUser.role
+      }
+    });
+
+  } catch (error) {
+    console.error("❌ 註冊過程發生錯誤：", error);
+    return res.status(500).json({
+      success: false,
+      message: '註冊過程發生錯誤，請稍後再試'
+    });
+  }
 };
 
 // 獲取用戶資料
