@@ -329,20 +329,19 @@ const getMe = async (req, res) => {
 };
 
 const getProfile = (req, res) => {
-  const userId = req.user.id;
-  const user = getUserById(userId);
+  const userId = req.user?.id;
+  if (!userId) {
+    return res.status(401).json({ message: 'Unauthorized: No user ID from token' });
+  }
 
+  const user = getUserById(userId);
   if (!user) {
     return res.status(404).json({ message: 'User not found' });
   }
 
-  res.json({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    phone: user.phone,
-    role: user.role,
-  });
+  const { id, name, email, phone, role } = user;
+
+  res.json({ id, name, email, phone, role });
 };
 
 // 在文件結尾，確保 forgotPassword 有 export
