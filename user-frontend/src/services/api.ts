@@ -1,5 +1,5 @@
 // API 基礎 URL
-const baseURL = 'http://localhost:3001';
+const baseURL = process.env.NEXT_PUBLIC_API_BASE || (typeof window !== 'undefined' && window.location.hostname.includes('localhost') ? 'http://localhost:3001' : 'https://hi-hi-tutor-real-backend2.vercel.app');
 console.log('🌐 API baseURL:', baseURL);
 
 // 通用 API 請求函數
