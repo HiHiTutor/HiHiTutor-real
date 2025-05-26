@@ -196,13 +196,10 @@ const register = async (req, res) => {
   console.log("✅ 資料驗證通過，準備進行註冊");
 
   try {
-    console.log("📥 開始載入用戶資料...");
-    const users = await loadUsers();
-    console.log("✅ 用戶資料載入完成，共", users.length, "筆資料");
-
     // 檢查 email 是否已存在
     console.log("🔍 檢查 email 是否重複...");
-    if (users.some(user => user.email === email)) {
+    const existingUserByEmail = await userRepository.getUserByEmail(email);
+    if (existingUserByEmail) {
       console.log("❌ Email 已被註冊：", email);
       return res.status(400).json({
         success: false,
@@ -212,7 +209,8 @@ const register = async (req, res) => {
 
     // 檢查電話是否已存在
     console.log("🔍 檢查電話是否重複...");
-    if (users.some(user => user.phone === phone)) {
+    const existingUserByPhone = await userRepository.getUserByPhone(phone);
+    if (existingUserByPhone) {
       console.log("❌ 電話已被註冊：", phone);
       return res.status(400).json({
         success: false,
@@ -222,27 +220,26 @@ const register = async (req, res) => {
 
     // 創建新用戶
     console.log("📝 準備創建新用戶...");
+    const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = {
-      id: Date.now().toString(),
       name,
       email,
       phone,
-      password: await bcrypt.hash(password, 10),
+      password: hashedPassword,
       role,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
 
-    // 保存用戶資料
-    console.log("💾 準備保存用戶資料...");
-    const updatedUsers = [...users, newUser];
-    await saveUsers(updatedUsers);
-    console.log("✅ 用戶資料保存成功！");
+    // 保存用戶資料到 MongoDB
+    console.log("💾 準備保存用戶資料到 MongoDB...");
+    const savedUser = await userRepository.createUser(newUser);
+    console.log("✅ 用戶資料保存成功！", savedUser);
 
     // 生成 JWT token
     console.log("🔑 生成 JWT token...");
     const jwtToken = jwt.sign(
-      { id: newUser.id, email: newUser.email },
+      { id: savedUser._id, email: savedUser.email },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -255,11 +252,11 @@ const register = async (req, res) => {
       message: '註冊成功',
       token: jwtToken,
       user: {
-        id: newUser.id,
-        name: newUser.name,
-        email: newUser.email,
-        phone: newUser.phone,
-        role: newUser.role
+        id: savedUser._id,
+        name: savedUser.name,
+        email: savedUser.email,
+        phone: savedUser.phone,
+        role: savedUser.role
       }
     });
 

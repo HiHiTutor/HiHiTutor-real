@@ -37,6 +37,19 @@ class UserRepository {
     }
   }
 
+  async createUser(userData) {
+    try {
+      console.log('[createUser] 準備創建新用戶:', userData);
+      const user = new User(userData);
+      const savedUser = await user.save();
+      console.log('[createUser] 用戶創建成功:', savedUser);
+      return savedUser;
+    } catch (error) {
+      console.error('[createUser] 創建用戶失敗:', error);
+      throw error;
+    }
+  }
+
   async updateUser(updatedUser) {
     try {
       return await User.findByIdAndUpdate(
