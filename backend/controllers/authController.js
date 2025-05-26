@@ -4,6 +4,7 @@ const userRepository = require('../repositories/UserRepository.js');
 const crypto = require('crypto');
 const { loadUsers, saveUsers } = require('../data/users');
 const { getUserById } = require('../utils/userStorage');
+const User = require('../models/User');
 
 // 模擬 JWT token 生成
 const generateToken = (user) => {
@@ -56,16 +57,14 @@ const loginUser = async (req, res) => {
       });
     }
 
-    // 根據類型查找用戶
+    // 使用 $or 運算符同時查詢 email 和電話
     console.log("🔍 開始查找用戶...");
-    let user;
-    if (isEmail) {
-      console.log("📧 使用 email 查找用戶：", identifier);
-      user = await userRepository.getUserByEmail(identifier);
-    } else {
-      console.log("📱 使用電話查找用戶：", identifier);
-      user = await userRepository.getUserByPhone(identifier);
-    }
+    const user = await User.findOne({
+      $or: [
+        { email: identifier },
+        { phone: identifier }
+      ]
+    });
 
     console.log("🔍 查找結果：", user ? "找到用戶" : "未找到用戶");
 
@@ -77,22 +76,12 @@ const loginUser = async (req, res) => {
       });
     }
 
-    // 密碼比對
+    // 使用 User 模型的 comparePassword 方法比對密碼
     console.log("🔑 開始比對密碼...");
-    const isHashed = user.password.startsWith('$2');
-    let match = false;
+    const isMatch = await user.comparePassword(password);
+    console.log("🔑 密碼比對結果：", isMatch ? "密碼正確" : "密碼錯誤");
 
-    if (isHashed) {
-      console.log("🔐 使用 bcrypt 比對密碼");
-      match = await bcrypt.compare(password, user.password);
-    } else {
-      console.log("🔓 使用明文比對密碼");
-      match = password === user.password;
-    }
-
-    console.log("🔑 密碼比對結果：", match ? "密碼正確" : "密碼錯誤");
-
-    if (!match) {
+    if (!isMatch) {
       console.log("❌ 密碼錯誤");
       return res.status(401).json({
         success: false,
@@ -103,7 +92,11 @@ const loginUser = async (req, res) => {
     // 生成 JWT token
     console.log("🎟️ 生成 JWT token...");
     const token = jwt.sign(
-      { id: user._id, email: user.email },
+      { 
+        id: user._id, 
+        email: user.email,
+        phone: user.phone 
+      },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -119,7 +112,7 @@ const loginUser = async (req, res) => {
         name: user.name,
         email: user.email,
         phone: user.phone,
-        role: user.role
+        role: user.userType
       },
       message: '登入成功'
     });
@@ -134,146 +127,168 @@ const loginUser = async (req, res) => {
 
 // 用戶註冊
 const register = async (req, res) => {
-  console.log("📥 註冊收到資料：", req.body);
-  console.log("📥 請求標頭：", req.headers);
+  try {
+    console.log("📥 註冊收到資料：", req.body);
+    console.log("📥 請求標頭：", req.headers);
 
-  const { name, email, phone, password, role, token } = req.body;
+    const { name, email, phone, password, role, token, userType } = req.body;
 
-  // 檢查必要欄位
-  if (!name || !email || !phone || !password || !role) {
-    console.log("❌ 缺少必要欄位：", {
-      name: !name,
-      email: !email,
-      phone: !phone,
-      password: !password,
-      role: !role
-    });
-    return res.status(400).json({ 
-      success: false, 
-      message: '請提供所有必要資訊',
-      missingFields: {
+    // 檢查必要欄位
+    if (!name || !email || !phone || !password || !role || !token || !userType) {
+      console.log("❌ 缺少必要欄位：", {
         name: !name,
         email: !email,
         phone: !phone,
         password: !password,
-        role: !role
-      }
-    });
-  }
-
-  // 驗證 token
-  if (!token || !token.startsWith('TEMP-REGISTER-TOKEN-')) {
-    console.log("❌ 無效的註冊 token：", token);
-    return res.status(400).json({
-      success: false,
-      message: '無效的註冊 token'
-    });
-  }
-
-  // 驗證 email 格式
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    console.log("❌ 無效的 email 格式：", email);
-    return res.status(400).json({ 
-      success: false, 
-      message: '請提供有效的電子郵件地址' 
-    });
-  }
-
-  // 驗證電話格式（香港手機號碼）
-  if (!/^([69]\d{7})$/.test(phone)) {
-    console.log("❌ 無效的電話格式：", phone);
-    return res.status(400).json({
-      success: false,
-      message: '請提供有效的香港電話號碼（8碼，9或6開頭）'
-    });
-  }
-
-  // 驗證密碼長度
-  if (password.length < 6) {
-    console.log("❌ 密碼長度不足：", password.length);
-    return res.status(400).json({ 
-      success: false, 
-      message: '密碼長度必須至少為6個字符' 
-    });
-  }
-
-  // 驗證角色
-  if (!['student', 'organization'].includes(role)) {
-    console.log("❌ 無效的角色：", role);
-    return res.status(400).json({ 
-      success: false, 
-      message: '無效的用戶角色' 
-    });
-  }
-
-  console.log("✅ 資料驗證通過，準備進行註冊");
-
-  try {
-    // 檢查 email 是否已存在
-    console.log("🔍 檢查 email 是否重複...");
-    const existingUserByEmail = await userRepository.getUserByEmail(email);
-    if (existingUserByEmail) {
-      console.log("❌ Email 已被註冊：", email);
-      return res.status(400).json({
-        success: false,
-        message: '此電子郵件已被註冊'
+        role: !role,
+        token: !token,
+        userType: !userType
+      });
+      return res.status(400).json({ 
+        success: false, 
+        message: '請提供所有必要資訊',
+        missingFields: {
+          name: !name,
+          email: !email,
+          phone: !phone,
+          password: !password,
+          role: !role,
+          token: !token,
+          userType: !userType
+        }
       });
     }
 
-    // 檢查電話是否已存在
-    console.log("🔍 檢查電話是否重複...");
-    const existingUserByPhone = await userRepository.getUserByPhone(phone);
-    if (existingUserByPhone) {
-      console.log("❌ 電話已被註冊：", phone);
-      return res.status(400).json({
-        success: false,
-        message: '此電話號碼已被註冊'
+    // 檢查 token 是否有效
+    const tokenData = tokenMap.get(token);
+    if (!tokenData || tokenData.phone !== phone || tokenData.isUsed || Date.now() > tokenData.expiresAt) {
+      console.log("❌ 無效的驗證碼：", { token, phone });
+      return res.status(400).json({ 
+        success: false, 
+        message: '驗證碼無效或已過期' 
       });
     }
 
-    // 創建新用戶
-    console.log("📝 準備創建新用戶...");
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = {
-      name,
-      email,
-      phone,
-      password: hashedPassword,
-      role,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
+    // 驗證 email 格式
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      console.log("❌ 無效的 email 格式：", email);
+      return res.status(400).json({ 
+        success: false, 
+        message: '請提供有效的電子郵件地址' 
+      });
+    }
 
-    // 保存用戶資料到 MongoDB
-    console.log("💾 準備保存用戶資料到 MongoDB...");
-    const savedUser = await userRepository.createUser(newUser);
-    console.log("✅ 用戶資料保存成功！", savedUser);
+    // 驗證電話格式（香港手機號碼）
+    if (!/^([69]\d{7})$/.test(phone)) {
+      console.log("❌ 無效的電話格式：", phone);
+      return res.status(400).json({
+        success: false,
+        message: '請提供有效的香港電話號碼（8碼，9或6開頭）'
+      });
+    }
 
-    // 生成 JWT token
-    console.log("🔑 生成 JWT token...");
-    const jwtToken = jwt.sign(
-      { id: savedUser._id, email: savedUser.email },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-    console.log("✅ JWT token 生成成功！");
+    // 驗證密碼長度
+    if (password.length < 6) {
+      console.log("❌ 密碼長度不足：", password.length);
+      return res.status(400).json({ 
+        success: false, 
+        message: '密碼長度必須至少為6個字符' 
+      });
+    }
 
-    // 返回成功響應
-    console.log("🎉 註冊流程完成，返回成功響應");
-    return res.status(201).json({
-      success: true,
-      message: '註冊成功',
-      token: jwtToken,
-      user: {
-        id: savedUser._id,
-        name: savedUser.name,
-        email: savedUser.email,
-        phone: savedUser.phone,
-        role: savedUser.role
+    // 驗證角色
+    if (!['student', 'organization'].includes(role)) {
+      console.log("❌ 無效的角色：", role);
+      return res.status(400).json({ 
+        success: false, 
+        message: '無效的用戶角色' 
+      });
+    }
+
+    console.log("✅ 資料驗證通過，準備進行註冊");
+
+    try {
+      // 檢查 email 是否已存在
+      console.log("🔍 檢查 email 是否重複...");
+      const existingUserByEmail = await User.findOne({ email });
+      if (existingUserByEmail) {
+        console.log("❌ Email 已被註冊：", email);
+        return res.status(400).json({
+          success: false,
+          message: '此電子郵件已被註冊'
+        });
       }
-    });
 
+      // 檢查電話是否已存在
+      console.log("🔍 檢查電話是否重複...");
+      const existingUserByPhone = await User.findOne({ phone });
+      if (existingUserByPhone) {
+        console.log("❌ 電話已被註冊：", phone);
+        return res.status(400).json({
+          success: false,
+          message: '此電話號碼已被註冊'
+        });
+      }
+
+      // 創建新用戶
+      console.log("📝 準備創建新用戶...");
+      const newUser = new User({
+        name,
+        email,
+        phone,
+        password, // 密碼會在 User 模型的 pre-save 中間件中自動加密
+        userType,
+        role,
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+
+      // 保存用戶資料到 MongoDB
+      console.log("💾 準備保存用戶資料到 MongoDB...");
+      const savedUser = await newUser.save();
+      console.log("✅ 用戶資料保存成功！", savedUser);
+
+      // 標記 token 為已使用
+      tokenData.isUsed = true;
+      tokenMap.set(token, tokenData);
+
+      // 生成 JWT token
+      console.log("🔑 生成 JWT token...");
+      const jwtToken = jwt.sign(
+        { 
+          id: savedUser._id, 
+          email: savedUser.email,
+          phone: savedUser.phone 
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+      console.log("✅ JWT token 生成成功！");
+
+      // 返回成功響應
+      console.log("🎉 註冊流程完成，返回成功響應");
+      return res.status(201).json({
+        success: true,
+        message: '註冊成功',
+        token: jwtToken,
+        user: {
+          id: savedUser._id,
+          name: savedUser.name,
+          email: savedUser.email,
+          phone: savedUser.phone,
+          role: savedUser.userType
+        }
+      });
+
+    } catch (error) {
+      console.error("❌ 註冊過程發生錯誤：", error);
+      return res.status(500).json({
+        success: false,
+        message: '註冊過程發生錯誤，請稍後再試'
+      });
+    }
   } catch (error) {
     console.error("❌ 註冊過程發生錯誤：", error);
     return res.status(500).json({
