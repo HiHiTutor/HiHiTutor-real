@@ -119,80 +119,74 @@ const loginUser = async (req, res) => {
 };
 
 // 用戶註冊
-const register = async (req, res) => {
-  console.log("📦 收到註冊資料：", req.body);
-  try {
-    const { email, password, name, userType, phone } = req.body;
+const register = (req, res) => {
+  const { name, email, phone, password, role } = req.body;
 
-    if (!email || !password || !name || !userType) {
-      return res.status(400).json({
-        success: false,
-        message: '請提供所有必要資訊'
-      });
-    }
+  console.log("📥 註冊收到資料：", { name, email, phone, password, role });
 
-    const users = await userRepository.getAllUsers();
-    if (users.some(u => u.email === email)) {
-      return res.status(400).json({
-        success: false,
-        message: '此電郵已被註冊'
-      });
-    }
-
-    if (phone && users.some(u => u.phone === phone)) {
-      return res.status(400).json({
-        success: false,
-        message: '此電話已被註冊'
-      });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = {
-      id: Date.now().toString(),
-      email,
-      password: hashedPassword,
-      name,
-      userType,
-      phone: phone || '',
-      upgraded: false,
-      upgradeRequested: false,
-      upgradeDocuments: [],
-      createdAt: new Date().toISOString()
-    };
-
-    users.push(newUser);
-    await userRepository.saveUsers(users);
-
-    const token = jwt.sign(
-      { 
-        id: newUser.id,
-        email: newUser.email,
-        userType: newUser.userType
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-
-    res.status(201).json({
-      success: true,
-      data: {
-        token,
-        user: {
-          id: newUser.id,
-          email: newUser.email,
-          name: newUser.name,
-          userType: newUser.userType
-        }
-      },
-      message: '註冊成功'
+  // 檢查必要欄位
+  if (!name || !email || !phone || !password || !role) {
+    console.log("❌ 缺少必要欄位：", {
+      name: !name,
+      email: !email,
+      phone: !phone,
+      password: !password,
+      role: !role
     });
-  } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({
-      success: false,
-      message: '註冊時發生錯誤'
+    return res.status(400).json({ 
+      success: false, 
+      message: '請提供所有必要資訊',
+      missingFields: {
+        name: !name,
+        email: !email,
+        phone: !phone,
+        password: !password,
+        role: !role
+      }
     });
   }
+
+  // 驗證 email 格式
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    console.log("❌ 無效的 email 格式：", email);
+    return res.status(400).json({ 
+      success: false, 
+      message: '請提供有效的電子郵件地址' 
+    });
+  }
+
+  // 驗證電話格式（台灣手機號碼）
+  const phoneRegex = /^09\d{8}$/;
+  if (!phoneRegex.test(phone)) {
+    console.log("❌ 無效的電話格式：", phone);
+    return res.status(400).json({ 
+      success: false, 
+      message: '請提供有效的台灣手機號碼（09開頭，共10碼）' 
+    });
+  }
+
+  // 驗證密碼長度
+  if (password.length < 6) {
+    console.log("❌ 密碼長度不足：", password.length);
+    return res.status(400).json({ 
+      success: false, 
+      message: '密碼長度必須至少為6個字符' 
+    });
+  }
+
+  // 驗證角色
+  if (!['student', 'organization'].includes(role)) {
+    console.log("❌ 無效的角色：", role);
+    return res.status(400).json({ 
+      success: false, 
+      message: '無效的用戶角色' 
+    });
+  }
+
+  console.log("✅ 資料驗證通過，準備進行註冊");
+
+  // 繼續註冊邏輯...
 };
 
 // 獲取用戶資料
