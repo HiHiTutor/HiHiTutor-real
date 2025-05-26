@@ -23,6 +23,7 @@ export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
       ...options,
       credentials: 'include',
       headers,
+      mode: 'cors',
     });
 
     if (!response.ok) {
