@@ -136,30 +136,6 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// 啟動伺服器
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-    console.log('Mounted routes:');
-    console.log('- /api/find-student-cases');
-    console.log('- /api/find-tutor-cases');
-    console.log('- /api/categories');
-    console.log('- /api/tutors');
-    console.log('- /api/cases');
-    console.log('- /api/search');
-    console.log('- /api/hot-subjects');
-    console.log('- /api/auth');
-    console.log('- /api/contact');
-    console.log('- /api/tutor-applications');
-    console.log('- /api/case-applications');
-    console.log('- /api/applications');
-    console.log('- /api/admin');
-    console.log('- /api');
-    console.log('- /api/articles');
-    console.log('- /api/faqs');
-  });
-}
-
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 // 必須匯出 app 供 Vercel 使用
