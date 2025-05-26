@@ -131,18 +131,18 @@ const register = async (req, res) => {
     console.log("📥 註冊收到資料：", req.body);
     console.log("📥 請求標頭：", req.headers);
 
-    const { name, email, phone, password, role, token, userType } = req.body;
+    const { name, email, phone, password, userType, token } = req.body;
+    const role = 'user'; // 統一預設 role 為 'user'
 
     // 檢查必要欄位
-    if (!name || !email || !phone || !password || !role || !token || !userType) {
+    if (!name || !email || !phone || !password || !userType || !token) {
       console.log("❌ 缺少必要欄位：", {
         name: !name,
         email: !email,
         phone: !phone,
         password: !password,
-        role: !role,
-        token: !token,
-        userType: !userType
+        userType: !userType,
+        token: !token
       });
       return res.status(400).json({ 
         success: false, 
@@ -152,9 +152,8 @@ const register = async (req, res) => {
           email: !email,
           phone: !phone,
           password: !password,
-          role: !role,
-          token: !token,
-          userType: !userType
+          userType: !userType,
+          token: !token
         }
       });
     }
@@ -197,12 +196,12 @@ const register = async (req, res) => {
       });
     }
 
-    // 驗證角色
-    if (!['student', 'organization'].includes(role)) {
-      console.log("❌ 無效的角色：", role);
+    // 驗證 userType
+    if (!['student', 'organization'].includes(userType)) {
+      console.log("❌ 無效的用戶類型：", userType);
       return res.status(400).json({ 
         success: false, 
-        message: '無效的用戶角色' 
+        message: '無效的用戶類型' 
       });
     }
 
@@ -238,8 +237,8 @@ const register = async (req, res) => {
         email,
         phone,
         password, // 密碼會在 User 模型的 pre-save 中間件中自動加密
-        userType,
-        role,
+        role,     // 統一預設為 'user'
+        userType, // 根據用戶選擇傳入
         isActive: true,
         createdAt: new Date(),
         updatedAt: new Date()
@@ -278,7 +277,8 @@ const register = async (req, res) => {
           name: savedUser.name,
           email: savedUser.email,
           phone: savedUser.phone,
-          role: savedUser.userType
+          role: savedUser.role,
+          userType: savedUser.userType
         }
       });
 
