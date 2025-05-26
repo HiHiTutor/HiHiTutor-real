@@ -31,30 +31,46 @@ const isValidPhone = (phone) => {
 // 用戶登入
 const loginUser = async (req, res) => {
   try {
-    console.log('[登入嘗試]', req.body);
+    console.log("📥 登入請求資料：", req.body);
+    console.log("📥 請求標頭：", req.headers);
 
     const { identifier, password } = req.body;
 
     if (!identifier || !password) {
+      console.log("❌ 缺少必要欄位：", { identifier: !identifier, password: !password });
       return res.status(400).json({
         success: false,
         message: '請提供帳號（電話或電郵）和密碼'
       });
     }
 
-    if (!isValidEmail(identifier) && !isValidPhone(identifier)) {
+    // 檢查是否為 email 或電話
+    const isEmail = identifier.includes('@');
+    const isPhone = /^([69]\d{7})$/.test(identifier);
+
+    if (!isEmail && !isPhone) {
+      console.log("❌ 無效的帳號格式：", identifier);
       return res.status(400).json({
         success: false,
         message: '請提供有效的電郵或電話號碼'
       });
     }
 
-    const user = await userRepository.getUserByEmail(identifier) 
-              || await userRepository.getUserByPhone(identifier);
-    console.log('[找到用戶]', user);
-    console.log('[DEBUG] user from repo:', user);
+    // 根據類型查找用戶
+    console.log("🔍 開始查找用戶...");
+    let user;
+    if (isEmail) {
+      console.log("📧 使用 email 查找用戶：", identifier);
+      user = await userRepository.getUserByEmail(identifier);
+    } else {
+      console.log("📱 使用電話查找用戶：", identifier);
+      user = await userRepository.getUserByPhone(identifier);
+    }
+
+    console.log("🔍 查找結果：", user ? "找到用戶" : "未找到用戶");
 
     if (!user) {
+      console.log("❌ 找不到用戶：", identifier);
       return res.status(401).json({
         success: false,
         message: '帳號或密碼錯誤'
@@ -62,55 +78,53 @@ const loginUser = async (req, res) => {
     }
 
     // 密碼比對
-    console.log('[密碼比對]', {
-      inputPassword: password,
-      storedPassword: user.password,
-      type: {
-        input: typeof password,
-        stored: typeof user.password
-      }
-    });
-
-    // 檢查密碼是否為 bcrypt 加密格式
+    console.log("🔑 開始比對密碼...");
     const isHashed = user.password.startsWith('$2');
     let match = false;
 
     if (isHashed) {
-      // 如果是加密密碼，使用 bcrypt 比對
+      console.log("🔐 使用 bcrypt 比對密碼");
       match = await bcrypt.compare(password, user.password);
     } else {
-      // 如果是明文密碼，直接比對
+      console.log("🔓 使用明文比對密碼");
       match = password === user.password;
     }
 
-    console.log('[密碼比對結果]', match);
+    console.log("🔑 密碼比對結果：", match ? "密碼正確" : "密碼錯誤");
 
     if (!match) {
+      console.log("❌ 密碼錯誤");
       return res.status(401).json({
         success: false,
         message: '帳號或密碼錯誤'
       });
     }
 
+    // 生成 JWT token
+    console.log("🎟️ 生成 JWT token...");
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { id: user._id, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
+    console.log("✅ JWT token 生成成功");
 
+    // 返回成功響應
+    console.log("🎉 登入成功，返回用戶資料");
     return res.json({
       success: true,
       token,
       user: {
-        id: user.id,
-        email: user.email,
+        id: user._id,
         name: user.name,
-        userType: user.userType
+        email: user.email,
+        phone: user.phone,
+        role: user.role
       },
       message: '登入成功'
     });
   } catch (error) {
-    console.error('[❌登入錯誤]', error);
+    console.error("❌ 登入過程發生錯誤：", error);
     return res.status(500).json({
       success: false,
       message: '登入時發生錯誤'
