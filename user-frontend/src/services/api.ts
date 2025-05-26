@@ -1,5 +1,5 @@
 // API 基礎 URL
-const baseURL = process.env.NEXT_PUBLIC_API_BASE || (typeof window !== 'undefined' && window.location.hostname.includes('localhost') ? 'http://localhost:3001' : 'https://hi-hi-tutor-real-backend2.vercel.app');
+const baseURL = process.env.NEXT_PUBLIC_API_BASE || '';
 console.log('🌐 API baseURL:', baseURL);
 
 // 通用 API 請求函數
@@ -7,7 +7,7 @@ export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
   try {
     // 確保 endpoint 以 / 開頭
     const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-    const url = `${baseURL}/api${normalizedEndpoint}`;
+    const url = `/api${normalizedEndpoint}`;
     
     console.log('🚀 發送 API 請求:', url);
     console.log('📦 請求參數:', options);
@@ -23,7 +23,6 @@ export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
       ...options,
       credentials: 'include',
       headers,
-      mode: 'cors',
     });
 
     if (!response.ok) {
