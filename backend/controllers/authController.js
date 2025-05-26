@@ -156,13 +156,13 @@ const register = (req, res) => {
     });
   }
 
-  // 驗證電話格式（台灣手機號碼）
-  const phoneRegex = /^09\d{8}$/;
-  if (!phoneRegex.test(phone)) {
+  // 驗證電話格式（香港手機號碼）
+  const phoneRegexHK = /^[5689]\d{7}$/;
+  if (!phoneRegexHK.test(phone)) {
     console.log("❌ 無效的電話格式：", phone);
     return res.status(400).json({ 
       success: false, 
-      message: '請提供有效的台灣手機號碼（09開頭，共10碼）' 
+      message: '請提供有效的香港手機號碼（8位數，以5/6/8/9開頭）' 
     });
   }
 
