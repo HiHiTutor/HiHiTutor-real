@@ -7,8 +7,8 @@ export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
   try {
     // 確保 endpoint 以 / 開頭
     const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-    // 構建完整的 URL
-    const url = baseURL ? `${baseURL}${normalizedEndpoint}` : normalizedEndpoint;
+    // 構建完整的 URL，確保包含 /api 前綴
+    const url = baseURL ? `${baseURL}/api${normalizedEndpoint}` : `/api${normalizedEndpoint}`;
     
     console.log('🚀 發送 API 請求:', url);
     console.log('📦 請求參數:', options);
@@ -147,7 +147,7 @@ export const caseApi = {
   
   // 創建找學生個案
   createStudentCase: (data: any) => 
-    fetchApi('/api/find-student-cases', {
+    fetchApi('/find-student-cases', {
       method: 'POST',
       body: JSON.stringify(data),
     }),

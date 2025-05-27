@@ -17,7 +17,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_BASE || 'https://hi-hi-tutor-real-backend2.vercel.app'}/api/:path*`,
+        destination: `${process.env.NEXT_PUBLIC_API_BASE}/api/:path*`,
       }
     ]
   }
