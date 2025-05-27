@@ -19,24 +19,39 @@ const userSchema = new mongoose.Schema({
   },
   userType: {
     type: String,
-    enum: ['normal', 'personal', 'organization', 'tutor', 'admin'],
-    default: 'normal'
+    enum: ['student', 'organization', 'tutor'],
+    default: 'student'
   },
   phone: {
     type: String,
-    trim: true
+    required: true,
+    trim: true,
+    unique: true
   },
-  upgraded: {
-    type: Boolean,
-    default: false
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user'
   },
-  upgradeRequested: {
-    type: Boolean,
-    default: false
+  status: {
+    type: String,
+    enum: ['active', 'pending'],
+    default: 'active'  // student 默認 active，organization 默認 pending
   },
-  upgradeDocuments: {
-    type: [String],
-    default: []
+  organizationDocuments: {
+    businessRegistration: String,  // 商業登記證
+    addressProof: String          // 地址證明
+  },
+  tutorProfile: {
+    education: String,
+    experience: String,
+    specialties: [String],
+    documents: [String],
+    applicationStatus: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending'
+    }
   },
   createdAt: {
     type: Date,
@@ -65,5 +80,13 @@ userSchema.pre('save', async function(next) {
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
+
+// 設置 organization 用戶的默認狀態為 pending
+userSchema.pre('save', function(next) {
+  if (this.isNew && this.userType === 'organization') {
+    this.status = 'pending';
+  }
+  next();
+});
 
 module.exports = mongoose.model('User', userSchema); 

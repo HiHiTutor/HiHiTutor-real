@@ -201,8 +201,19 @@ const register = async (req, res) => {
       console.log("❌ 無效的用戶類型：", userType);
       return res.status(400).json({ 
         success: false, 
-        message: '無效的用戶類型' 
+        message: '無效的用戶類型，只能選擇學生或機構' 
       });
+    }
+
+    // 如果是組織用戶，檢查是否上傳了必要文件
+    if (userType === 'organization') {
+      if (!req.files?.businessRegistration || !req.files?.addressProof) {
+        console.log("❌ 組織用戶缺少必要文件");
+        return res.status(400).json({
+          success: false,
+          message: '請上傳商業登記證和地址證明'
+        });
+      }
     }
 
     console.log("✅ 資料驗證通過，準備進行註冊");
@@ -236,12 +247,14 @@ const register = async (req, res) => {
         name,
         email,
         phone,
-        password, // 密碼會在 User 模型的 pre-save 中間件中自動加密
-        role,     // 統一預設為 'user'
-        userType, // 根據用戶選擇傳入
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        password,
+        role,
+        userType,
+        status: userType === 'organization' ? 'pending' : 'active',
+        organizationDocuments: userType === 'organization' ? {
+          businessRegistration: req.files.businessRegistration[0].path,
+          addressProof: req.files.addressProof[0].path
+        } : undefined
       });
 
       // 保存用戶資料到 MongoDB
@@ -270,7 +283,7 @@ const register = async (req, res) => {
       console.log("🎉 註冊流程完成，返回成功響應");
       return res.status(201).json({
         success: true,
-        message: '註冊成功',
+        message: userType === 'organization' ? '註冊成功，等待管理員審核' : '註冊成功',
         token: jwtToken,
         user: {
           id: savedUser._id,
@@ -278,7 +291,8 @@ const register = async (req, res) => {
           email: savedUser.email,
           phone: savedUser.phone,
           role: savedUser.role,
-          userType: savedUser.userType
+          userType: savedUser.userType,
+          status: savedUser.status
         }
       });
 
