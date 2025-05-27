@@ -13,7 +13,7 @@ export default function StudentCaseDetailPage() {
   useEffect(() => {
     const fetchCase = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/find-student-cases/${id}`);
+        const response = await fetch(`/api/find-student-cases/${id}`);
         if (response.ok) {
           const data = await response.json();
           setCaseDetail(data);

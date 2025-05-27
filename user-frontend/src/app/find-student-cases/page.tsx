@@ -58,7 +58,7 @@ function FindStudentCasesPageContent() {
         setLoading(true);
         console.log("🔍 正在獲取所有個案資料...");
         
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/find-student-cases`);
+        const response = await fetch('/api/find-student-cases');
         if (response.ok) {
           const data = await response.json();
           console.log("📦 成功獲取所有個案：", data);
@@ -249,7 +249,7 @@ function FindStudentCasesPageContent() {
     setError(null);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/find-student-cases`, {
+      const res = await fetch('/api/find-student-cases', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
