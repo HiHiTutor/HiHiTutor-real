@@ -1,4 +1,9 @@
 const { sendVerificationCode } = require('../../src/controllers/authController');
+const express = require('express');
+const app = express();
+
+// 添加 JSON 解析中間件
+app.use(express.json());
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
