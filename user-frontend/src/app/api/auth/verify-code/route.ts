@@ -14,44 +14,15 @@ export async function POST(req: Request) {
       );
     }
 
-    // 使用相對路徑
-    const apiUrl = '/api/auth/verify-code';
-    console.log('🌐 請求後端 API:', apiUrl);
-
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify(body),
-      cache: 'no-store',
-    });
-
-    console.log('📥 後端回應狀態:', response.status);
+    // 模擬驗證碼驗證
+    console.log(`[SMS] 模擬驗證碼 ${body.code} 到 ${body.phone}`);
     
-    let data;
-    try {
-      data = await response.json();
-      console.log('📦 後端回應內容:', data);
-    } catch (error) {
-      console.error('❌ 解析後端回應失敗:', error);
-      return NextResponse.json(
-        { success: false, message: '無法解析後端回應' },
-        { status: 500 }
-      );
-    }
-
-    if (!response.ok) {
-      console.error('❌ 後端 API 錯誤:', data);
-      return NextResponse.json(
-        { success: false, message: data.message || '驗證碼驗證時發生錯誤' },
-        { status: response.status }
-      );
-    }
-
-    console.log('✅ 驗證碼驗證成功');
-    return NextResponse.json(data);
+    // 返回成功響應
+    return NextResponse.json({
+      success: true,
+      message: '驗證成功',
+      token: 'temp_token_' + Date.now() // 模擬生成臨時令牌
+    });
   } catch (error) {
     console.error('❌ 驗證碼驗證失敗:', error);
     return NextResponse.json(
