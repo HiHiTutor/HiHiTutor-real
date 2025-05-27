@@ -234,9 +234,21 @@ export default function RegisterPage() {
         }
       }
 
-      // 清除臨時令牌並導向登入頁
-      clearTempToken();
-      router.push('/login');
+      // 顯示成功對話框
+      setDialogConfig({
+        isOpen: true,
+        title: '註冊成功',
+        message: '您的帳號已成功創建，請前往登入頁面。',
+        actions: [
+          { 
+            label: '前往登入', 
+            onClick: () => {
+              clearTempToken();
+              router.push('/login');
+            }
+          }
+        ]
+      });
     } catch (err) {
       console.error('註冊失敗:', err);
       setError(err instanceof Error ? err.message : '註冊失敗');

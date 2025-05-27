@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
+import { MongoClient } from 'mongodb';
+
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://hihitutor:hihitutor@cluster0.mongodb.net/hihitutor?retryWrites=true&w=majority';
 
 export async function POST(req: Request) {
+  let client: MongoClient | null = null;
+  
   try {
     console.log('📥 收到註冊請求');
     const body = await req.json();
@@ -27,13 +32,53 @@ export async function POST(req: Request) {
       );
     }
 
-    // 模擬註冊成功
-    console.log('✅ 註冊成功');
+    // 連接到 MongoDB
+    client = new MongoClient(MONGODB_URI);
+    await client.connect();
+    console.log('✅ 已連接到 MongoDB');
+
+    const db = client.db('hihitutor');
+    const usersCollection = db.collection('users');
+
+    // 檢查用戶是否已存在
+    const existingUser = await usersCollection.findOne({
+      $or: [
+        { email: body.email },
+        { phone: body.phone }
+      ]
+    });
+
+    if (existingUser) {
+      console.log('❌ 用戶已存在');
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: '此電子郵件或電話號碼已被註冊',
+          action: 'user-exists'
+        },
+        { status: 400 }
+      );
+    }
+
+    // 創建新用戶
+    const newUser = {
+      name: body.name,
+      email: body.email,
+      phone: body.phone,
+      password: body.password, // 注意：在實際應用中應該加密密碼
+      userType: body.userType,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    const result = await usersCollection.insertOne(newUser);
+    console.log('✅ 用戶已成功創建:', result.insertedId);
+
     return NextResponse.json({
       success: true,
-      message: '註冊成功',
+      message: '註冊成功！請前往登入頁面',
       user: {
-        id: 'user_' + Date.now(),
+        id: result.insertedId,
         name: body.name,
         email: body.email,
         phone: body.phone,
@@ -49,5 +94,10 @@ export async function POST(req: Request) {
       },
       { status: 500 }
     );
+  } finally {
+    if (client) {
+      await client.close();
+      console.log('✅ MongoDB 連接已關閉');
+    }
   }
 } 
