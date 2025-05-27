@@ -100,6 +100,11 @@ export default function RegisterPage() {
         throw new Error(data.message || '發送驗證碼失敗');
       }
 
+      // 在開發環境中顯示驗證碼
+      if (data.code) {
+        console.log('🔑 開發環境驗證碼:', data.code);
+      }
+
       setVerificationSent(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : '發送驗證碼失敗');
