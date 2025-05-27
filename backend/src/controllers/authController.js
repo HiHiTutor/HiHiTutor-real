@@ -1,39 +1,294 @@
-const { loadUsers } = require('../utils/userStorage');
 const User = require('../models/user');
 const RegisterToken = require('../models/registerToken');
+const jwt = require('jsonwebtoken');
 
-const loginUser = (req, res) => {
-  // 登入邏輯
-};
+const loginUser = async (req, res) => {
+  try {
+    const { identifier, password } = req.body;
 
-const register = (req, res) => {
-  // 註冊邏輯
-};
+    if (!identifier || !password) {
+      return res.status(400).json({
+        success: false,
+        message: '請提供帳號（電話或電郵）和密碼'
+      });
+    }
 
-const getUserProfile = (req, res) => {
-  // 獲取用戶資料邏輯
-};
+    // 檢查是否為 email 或電話
+    const isEmail = identifier.includes('@');
+    const isPhone = /^([69]\d{7})$/.test(identifier);
 
-const getCurrentUser = (req, res) => {
-  // 獲取當前用戶邏輯
-};
+    if (!isEmail && !isPhone) {
+      return res.status(400).json({
+        success: false,
+        message: '請提供有效的電郵或電話號碼'
+      });
+    }
 
-const forgotPassword = (req, res) => {
-  const { email } = req.body;
+    // 使用 $or 運算符同時查詢 email 和電話
+    const user = await User.findOne({
+      $or: [
+        { email: identifier },
+        { phone: identifier }
+      ]
+    });
 
-  if (!email) {
-    return res.status(400).json({ message: '請提供註冊用的電郵地址' });
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: '帳號或密碼錯誤'
+      });
+    }
+
+    // 使用 User 模型的 comparePassword 方法比對密碼
+    const isMatch = await user.comparePassword(password);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: '帳號或密碼錯誤'
+      });
+    }
+
+    // 生成 JWT token
+    const token = jwt.sign(
+      { 
+        id: user._id, 
+        email: user.email,
+        phone: user.phone 
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    return res.json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.userType
+      },
+      message: '登入成功'
+    });
+  } catch (error) {
+    console.error("❌ 登入過程發生錯誤：", error);
+    return res.status(500).json({
+      success: false,
+      message: '登入時發生錯誤'
+    });
   }
+};
 
-  const users = loadUsers();
-  const user = users.find(u => u.email === email);
+const register = async (req, res) => {
+  try {
+    const { name, email, phone, password, userType, token } = req.body;
+    const role = 'user'; // 統一預設 role 為 'user'
 
-  if (!user) {
-    return res.status(404).json({ message: '查無此電郵帳戶' });
+    // 檢查必要欄位
+    if (!name || !email || !phone || !password || !userType || !token) {
+      return res.status(400).json({ 
+        success: false, 
+        message: '請提供所有必要資訊'
+      });
+    }
+
+    // 檢查 token 是否有效
+    const tokenData = await RegisterToken.findOne({ token });
+    if (!tokenData || tokenData.phone !== phone || tokenData.isUsed || Date.now() > tokenData.expiresAt) {
+      return res.status(400).json({ 
+        success: false, 
+        message: '驗證碼無效或已過期' 
+      });
+    }
+
+    // 驗證 email 格式
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: '請提供有效的電子郵件地址' 
+      });
+    }
+
+    // 驗證電話格式（香港手機號碼）
+    if (!/^([69]\d{7})$/.test(phone)) {
+      return res.status(400).json({
+        success: false,
+        message: '請提供有效的香港電話號碼（8碼，9或6開頭）'
+      });
+    }
+
+    // 驗證密碼長度
+    if (password.length < 6) {
+      return res.status(400).json({ 
+        success: false, 
+        message: '密碼長度必須至少為6個字符' 
+      });
+    }
+
+    // 驗證 userType
+    if (!['student', 'organization'].includes(userType)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: '無效的用戶類型，只能選擇學生或機構' 
+      });
+    }
+
+    // 檢查 email 是否已存在
+    const existingUserByEmail = await User.findOne({ email });
+    if (existingUserByEmail) {
+      return res.status(400).json({
+        success: false,
+        message: '此電子郵件已被註冊'
+      });
+    }
+
+    // 檢查電話是否已存在
+    const existingUserByPhone = await User.findOne({ phone });
+    if (existingUserByPhone) {
+      return res.status(400).json({
+        success: false,
+        message: '此電話號碼已被註冊'
+      });
+    }
+
+    // 創建新用戶
+    const newUser = new User({
+      name,
+      email,
+      phone,
+      password,
+      role,
+      userType,
+      status: userType === 'organization' ? 'pending' : 'active'
+    });
+
+    // 保存用戶資料到 MongoDB
+    const savedUser = await newUser.save();
+
+    // 標記 token 為已使用
+    tokenData.isUsed = true;
+    await tokenData.save();
+
+    // 生成 JWT token
+    const jwtToken = jwt.sign(
+      { 
+        id: savedUser._id, 
+        email: savedUser.email,
+        phone: savedUser.phone 
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: userType === 'organization' ? '註冊成功，等待管理員審核' : '註冊成功',
+      token: jwtToken,
+      user: {
+        id: savedUser._id,
+        name: savedUser.name,
+        email: savedUser.email,
+        phone: savedUser.phone,
+        role: savedUser.role,
+        userType: savedUser.userType,
+        status: savedUser.status
+      }
+    });
+
+  } catch (error) {
+    console.error("❌ 註冊過程發生錯誤：", error);
+    return res.status(500).json({
+      success: false,
+      message: '註冊過程發生錯誤，請稍後再試'
+    });
   }
+};
 
-  // 模擬發送密碼重設信
-  return res.status(200).json({ message: '密碼重設連結已發送（模擬）' });
+const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: '找不到用戶'
+      });
+    }
+
+    // 移除敏感資料
+    const { password, ...safeUser } = user.toObject();
+    res.json({
+      success: true,
+      data: safeUser
+    });
+  } catch (error) {
+    console.error('獲取用戶資料失敗:', error);
+    res.status(500).json({
+      success: false,
+      message: '獲取用戶資料時發生錯誤'
+    });
+  }
+};
+
+const getCurrentUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: '找不到用戶'
+      });
+    }
+
+    // 移除敏感資料
+    const { password, ...safeUser } = user.toObject();
+    res.json({
+      success: true,
+      data: safeUser
+    });
+  } catch (error) {
+    console.error('獲取當前用戶資料失敗:', error);
+    res.status(500).json({
+      success: false,
+      message: '獲取用戶資料時發生錯誤'
+    });
+  }
+};
+
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ 
+        success: false,
+        message: '請提供註冊用的電郵地址' 
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ 
+        success: false,
+        message: '查無此電郵帳戶' 
+      });
+    }
+
+    // TODO: 實現密碼重設邏輯
+    return res.status(200).json({ 
+      success: true,
+      message: '密碼重設連結已發送（模擬）' 
+    });
+  } catch (error) {
+    console.error('忘記密碼處理失敗:', error);
+    return res.status(500).json({
+      success: false,
+      message: '處理忘記密碼請求時發生錯誤'
+    });
+  }
 };
 
 const sendVerificationCode = async (req, res) => {
