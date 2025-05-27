@@ -178,7 +178,7 @@ export default function RegisterPage() {
         email: formData.email,
         phone: formData.phone,
         password: formData.password,
-        role: formData.userType, // 使用 userType 作為 role
+        userType: formData.userType,
         token: tempToken
       };
 

@@ -25,15 +25,15 @@ export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
       headers,
     });
 
+    const responseData = await response.json().catch(() => ({ message: '無法解析回應' }));
+    console.log('📥 API 回應:', responseData);
+
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'API 請求失敗' }));
-      console.error('❌ API 錯誤:', error);
-      throw new Error(error.message || 'API 請求失敗');
+      console.error('❌ API 錯誤:', responseData);
+      throw new Error(responseData.message || 'API 請求失敗');
     }
 
-    const data = await response.json();
-    console.log('✅ API 回應:', data);
-    return data;
+    return responseData;
   } catch (error) {
     console.error('❌ API 請求錯誤:', error);
     throw error;
@@ -44,15 +44,19 @@ export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
 export const authApi = {
   // 用戶登入
   login: async (identifier: string, password: string) => {
+    console.log('🔑 嘗試登入:', { identifier });
+    
     const res = await fetchApi("/auth/login", {
       method: "POST",
       body: JSON.stringify({ identifier, password }),
     });
 
     if (!res.success || !res.token || !res.user) {
-      throw new Error("登入回應格式錯誤");
+      console.error('❌ 登入回應格式錯誤:', res);
+      throw new Error(res.message || "登入回應格式錯誤");
     }
 
+    console.log('✅ 登入成功:', res.user);
     localStorage.setItem("token", res.token);
     return res.user;
   },
@@ -63,7 +67,8 @@ export const authApi = {
     email: string;
     phone: string;
     password: string;
-    role: 'student' | 'organization';
+    userType: 'student' | 'organization';
+    role?: string;
     token?: string;
   }) => 
     fetchApi('/auth/register', {
