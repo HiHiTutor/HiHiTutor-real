@@ -126,7 +126,7 @@ export const caseApi = {
   getAllStudentCases: () => fetchApi('/find-student-cases'),
   
   // 獲取最新/推薦的找學生個案
-  getRecommendedStudentCases: () => fetchApi('/find-student-cases?featured=true&limit=8'),
+  getRecommendedStudentCases: () => fetchApi('/find-student-cases?featured=true&limit=8&sort=latest'),
   
   // 獲取推薦的找導師個案
   getRecommendedTutorCases: () => fetchApi('/find-tutor-cases?featured=true&limit=8'),
