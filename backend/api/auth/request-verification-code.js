@@ -6,6 +6,10 @@ module.exports = async (req, res) => {
   }
 
   try {
+    // 強制將請求 body 解析為 JSON
+    if (typeof req.body === 'string') {
+      req.body = JSON.parse(req.body);
+    }
     await sendVerificationCode(req, res);
   } catch (error) {
     console.error('Error in request-verification-code:', error);
