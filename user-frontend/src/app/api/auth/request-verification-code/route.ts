@@ -4,8 +4,8 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     
-    // 使用相對路徑，讓 Next.js 的 rewrites 處理
-    const response = await fetch('/api/auth/request-verification-code', {
+    // 使用完整的後端 API URL
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/auth/request-verification-code`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
