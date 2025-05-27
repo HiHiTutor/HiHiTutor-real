@@ -73,7 +73,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/request-verification-code', {
+      const response = await fetch('http://localhost:3001/api/auth/request-verification-code', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -114,7 +114,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/verify-code', {
+      const response = await fetch('http://localhost:3002/api/auth/verify-code', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
