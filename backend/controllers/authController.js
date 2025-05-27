@@ -564,7 +564,138 @@ const verifyCode = async (req, res) => {
   }
 };
 
-// 在文件結尾，確保 forgotPassword 有 export
+// 更新用戶資料
+const updateUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { name, email, phone, token } = req.body;
+
+    // 獲取當前用戶
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: '找不到用戶'
+      });
+    }
+
+    // 檢查電話是否被其他用戶使用
+    if (phone && phone !== user.phone) {
+      const existingUserByPhone = await User.findOne({ phone, _id: { $ne: userId } });
+      if (existingUserByPhone) {
+        return res.status(400).json({
+          success: false,
+          message: '此電話號碼已被其他用戶使用'
+        });
+      }
+
+      // 驗證電話驗證碼
+      if (!token) {
+        return res.status(400).json({
+          success: false,
+          message: '更新電話號碼需要驗證碼'
+        });
+      }
+
+      const tokenData = await RegisterToken.findOne({ token });
+      if (!tokenData || tokenData.phone !== phone || tokenData.isUsed || Date.now() > tokenData.expiresAt) {
+        return res.status(400).json({
+          success: false,
+          message: '驗證碼無效或已過期'
+        });
+      }
+
+      // 標記 token 為已使用
+      tokenData.isUsed = true;
+      await tokenData.save();
+    }
+
+    // 檢查郵箱是否被其他用戶使用
+    if (email && email !== user.email) {
+      const existingUserByEmail = await User.findOne({ email, _id: { $ne: userId } });
+      if (existingUserByEmail) {
+        return res.status(400).json({
+          success: false,
+          message: '此電子郵件已被其他用戶使用'
+        });
+      }
+    }
+
+    // 更新用戶資料
+    const updates = {};
+    if (name) updates.name = name;
+    if (email) updates.email = email;
+    if (phone) updates.phone = phone;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updates },
+      { new: true }
+    );
+
+    return res.json({
+      success: true,
+      message: '用戶資料更新成功',
+      user: {
+        id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        userType: updatedUser.userType,
+        status: updatedUser.status
+      }
+    });
+  } catch (error) {
+    console.error('更新用戶資料失敗:', error);
+    return res.status(500).json({
+      success: false,
+      message: '更新用戶資料時發生錯誤'
+    });
+  }
+};
+
+// 申請升級為導師
+const requestTutorUpgrade = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: '找不到用戶'
+      });
+    }
+
+    if (user.userType === 'tutor' || user.tutorProfile?.applicationStatus === 'pending') {
+      return res.status(400).json({
+        success: false,
+        message: '您已經是導師或已申請升級'
+      });
+    }
+
+    // 設置升級申請狀態
+    user.tutorProfile = {
+      ...user.tutorProfile,
+      applicationStatus: 'pending'
+    };
+
+    await user.save();
+
+    return res.json({
+      success: true,
+      message: '升級申請已提交'
+    });
+  } catch (error) {
+    console.error('申請升級導師失敗:', error);
+    return res.status(500).json({
+      success: false,
+      message: '申請升級導師時發生錯誤'
+    });
+  }
+};
+
+// 在文件結尾，確保新增的函數有 export
 module.exports = {
   loginUser,
   register,
@@ -575,5 +706,7 @@ module.exports = {
   getMe,
   getProfile,
   sendVerificationCode,
-  verifyCode
+  verifyCode,
+  updateUserProfile,
+  requestTutorUpgrade
 }; 
