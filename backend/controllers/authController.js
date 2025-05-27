@@ -536,6 +536,20 @@ const sendVerificationCode = async (req, res) => {
       });
     }
 
+    // 檢查電話是否已被註冊
+    const existingUser = await User.findOne({ phone });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: '此電話號碼已被註冊',
+        action: 'phone-exists',
+        options: {
+          loginUrl: '/login',
+          resetUrl: '/forgot-password'
+        }
+      });
+    }
+
     // 生成 6 位數字驗證碼
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     console.log(`📱 發送驗證碼 ${code} 到 ${phone}`);
