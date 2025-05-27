@@ -14,21 +14,33 @@ export async function POST(req: Request) {
       );
     }
 
-    // 使用完整的後端 API URL
-    const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE}/api/auth/request-verification-code`;
+    // 使用相對路徑
+    const apiUrl = '/api/auth/request-verification-code';
     console.log('🌐 請求後端 API:', apiUrl);
 
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
       body: JSON.stringify(body),
+      cache: 'no-store',
     });
 
     console.log('📥 後端回應狀態:', response.status);
-    const data = await response.json();
-    console.log('📦 後端回應內容:', data);
+    
+    let data;
+    try {
+      data = await response.json();
+      console.log('📦 後端回應內容:', data);
+    } catch (error) {
+      console.error('❌ 解析後端回應失敗:', error);
+      return NextResponse.json(
+        { success: false, message: '無法解析後端回應' },
+        { status: 500 }
+      );
+    }
 
     if (!response.ok) {
       console.error('❌ 後端 API 錯誤:', data);
