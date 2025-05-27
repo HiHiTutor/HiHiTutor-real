@@ -6,16 +6,19 @@ const {
   register,
   getUserProfile,
   getCurrentUser,
-  forgotPassword
+  forgotPassword,
+  sendVerificationCode,
+  verifyCode
 } = require('../controllers/authController');
 
 // 公開路由（不需要驗證）
 router.post('/login', loginUser);
 router.post('/register', register);
-router.post('/forgot-password', forgotPassword);
+router.post('/request-verification-code', sendVerificationCode);
+router.post('/verify-code', verifyCode);
 
 // 需要驗證的路由
-router.get('/profile', verifyToken, getUserProfile);
 router.get('/me', verifyToken, getCurrentUser);
+router.get('/profile', verifyToken, getUserProfile);
 
 module.exports = router; 
