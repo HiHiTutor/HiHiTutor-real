@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requestVerificationCode } from '@/services/verificationService';
+import { isPhoneRegistered } from '@/services/userService';
 
 export async function POST(req: Request) {
   try {
@@ -10,6 +11,19 @@ export async function POST(req: Request) {
         { status: 'error', message: '請提供電話號碼' },
         { status: 400 }
       );
+    }
+
+    // 檢查電話是否已註冊
+    if (isPhoneRegistered(phone)) {
+      return NextResponse.json({
+        status: 'error',
+        action: 'phone-exists',
+        message: '此電話號碼已註冊',
+        options: {
+          loginUrl: '/login',
+          resetUrl: '/forgot-password'
+        }
+      }, { status: 400 });
     }
 
     const response = requestVerificationCode(phone);

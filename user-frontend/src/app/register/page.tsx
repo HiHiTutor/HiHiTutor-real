@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useVerificationStore } from '@/stores/verificationStore';
 import { authApi } from '@/services/api';
+import Dialog from '@/components/Dialog';
 
 interface FormData {
   name: string;
@@ -32,6 +33,17 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
+  const [dialogConfig, setDialogConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    actions: { label: string; onClick: () => void }[];
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    actions: []
+  });
 
   // 檢查是否已有臨時令牌
   useEffect(() => {
@@ -57,6 +69,19 @@ export default function RegisterPage() {
       const data = await response.json();
 
       if (!response.ok) {
+        // 處理已註冊電話號碼的情況
+        if (data.action === 'phone-exists') {
+          setDialogConfig({
+            isOpen: true,
+            title: '此電話號碼已註冊',
+            message: '請選擇以下操作：',
+            actions: [
+              { label: '前往登入', onClick: () => router.push(data.options.loginUrl) },
+              { label: '忘記密碼', onClick: () => router.push(data.options.resetUrl) }
+            ]
+          });
+          return; // 阻止後續註冊流程
+        }
         throw new Error(data.message || '發送驗證碼失敗');
       }
 
@@ -368,6 +393,14 @@ export default function RegisterPage() {
           </form>
         )}
       </div>
+
+      <Dialog
+        isOpen={dialogConfig.isOpen}
+        onClose={() => setDialogConfig(prev => ({ ...prev, isOpen: false }))}
+        title={dialogConfig.title}
+        message={dialogConfig.message}
+        actions={dialogConfig.actions}
+      />
     </div>
   );
 } 
