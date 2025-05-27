@@ -123,10 +123,10 @@ export const caseApi = {
   getAllTutorCases: () => fetchApi('/find-tutor-cases'),
   
   // 獲取所有找學生的個案
-  getAllStudentCases: () => fetchApi('/find-student-cases'),
+  getAllStudentCases: () => fetchApi('/api/find-student-cases'),
   
   // 獲取最新/推薦的找學生個案
-  getRecommendedStudentCases: () => fetchApi('/find-student-cases?featured=true&limit=8&sort=latest'),
+  getRecommendedStudentCases: () => fetchApi('/api/find-student-cases?featured=true&limit=8&sort=latest'),
   
   // 獲取推薦的找導師個案
   getRecommendedTutorCases: () => fetchApi('/find-tutor-cases?featured=true&limit=8'),
@@ -143,7 +143,7 @@ export const caseApi = {
   
   // 創建找學生個案
   createStudentCase: (data: any) => 
-    fetchApi('/find-student-cases', {
+    fetchApi('/api/find-student-cases', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
