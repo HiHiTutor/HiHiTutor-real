@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const { loadUsers, saveUsers } = require('../data/users');
 const { getUserById } = require('../utils/userStorage');
 const User = require('../models/User');
+const RegisterToken = require('../models/RegisterToken');
 
 // 模擬 JWT token 生成
 const generateToken = (user) => {
@@ -159,7 +160,7 @@ const register = async (req, res) => {
     }
 
     // 檢查 token 是否有效
-    const tokenData = tokenMap.get(token);
+    const tokenData = await RegisterToken.findOne({ token });
     if (!tokenData || tokenData.phone !== phone || tokenData.isUsed || Date.now() > tokenData.expiresAt) {
       console.log("❌ 無效的驗證碼：", { token, phone });
       return res.status(400).json({ 
@@ -264,7 +265,7 @@ const register = async (req, res) => {
 
       // 標記 token 為已使用
       tokenData.isUsed = true;
-      tokenMap.set(token, tokenData);
+      await tokenData.save();
 
       // 生成 JWT token
       console.log("🔑 生成 JWT token...");
@@ -469,6 +470,100 @@ const getProfile = (req, res) => {
   });
 };
 
+// 發送驗證碼
+const sendVerificationCode = async (req, res) => {
+  try {
+    const { phone } = req.body;
+
+    if (!phone) {
+      return res.status(400).json({
+        success: false,
+        message: '請提供電話號碼'
+      });
+    }
+
+    // 驗證電話格式（香港手機號碼）
+    if (!/^([69]\d{7})$/.test(phone)) {
+      return res.status(400).json({
+        success: false,
+        message: '請提供有效的香港電話號碼（8碼，9或6開頭）'
+      });
+    }
+
+    // 生成 6 位數字驗證碼
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log(`📱 發送驗證碼 ${code} 到 ${phone}`);
+
+    // TODO: 實際發送 SMS 的邏輯
+    // 這裡先模擬發送成功
+
+    // 生成臨時令牌
+    const token = `TEMP-REGISTER-TOKEN-${Math.random().toString(36).substring(2, 15)}`;
+    const expiresAt = new Date(Date.now() + 600000); // 10 分鐘後過期
+
+    // 保存令牌到數據庫
+    await RegisterToken.create({
+      token,
+      phone,
+      expiresAt,
+      isUsed: false
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: '驗證碼已發送',
+      token
+    });
+  } catch (error) {
+    console.error('發送驗證碼失敗:', error);
+    return res.status(500).json({
+      success: false,
+      message: '發送驗證碼失敗，請稍後再試'
+    });
+  }
+};
+
+// 驗證驗證碼
+const verifyCode = async (req, res) => {
+  try {
+    const { phone, code } = req.body;
+
+    if (!phone || !code) {
+      return res.status(400).json({
+        success: false,
+        message: '請提供電話號碼和驗證碼'
+      });
+    }
+
+    // TODO: 實際驗證 SMS 的邏輯
+    // 這裡先模擬驗證成功
+
+    // 生成臨時令牌
+    const token = `TEMP-REGISTER-TOKEN-${Math.random().toString(36).substring(2, 15)}`;
+    const expiresAt = new Date(Date.now() + 600000); // 10 分鐘後過期
+
+    // 保存令牌到數據庫
+    await RegisterToken.create({
+      token,
+      phone,
+      expiresAt,
+      isUsed: false
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: '驗證成功',
+      token
+    });
+  } catch (error) {
+    console.error('驗證碼驗證失敗:', error);
+    return res.status(500).json({
+      success: false,
+      message: '驗證碼驗證失敗，請稍後再試'
+    });
+  }
+};
+
 // 在文件結尾，確保 forgotPassword 有 export
 module.exports = {
   loginUser,
@@ -478,5 +573,7 @@ module.exports = {
   forgotPassword,
   resetPassword,
   getMe,
-  getProfile
+  getProfile,
+  sendVerificationCode,
+  verifyCode
 }; 
