@@ -559,12 +559,19 @@ const sendVerificationCode = async (req, res) => {
     const expiresAt = new Date(Date.now() + 300000); // 5 分鐘後過期
 
     // 保存驗證碼和令牌到數據庫
-    await RegisterToken.create({
+    const registerToken = await RegisterToken.create({
       token,
       phone,
-      code, // 添加驗證碼
+      code,
       expiresAt,
       isUsed: false
+    });
+
+    console.log('✅ 驗證碼已保存到數據庫:', {
+      token: registerToken.token,
+      phone: registerToken.phone,
+      code: registerToken.code,
+      expiresAt: registerToken.expiresAt
     });
 
     // TODO: 實際發送 SMS 的邏輯
@@ -600,9 +607,19 @@ const verifyCode = async (req, res) => {
     // 查找該電話號碼的驗證碼記錄
     const tokenData = await RegisterToken.findOne({
       phone,
+      code,
       isUsed: false,
       expiresAt: { $gt: new Date() }
     }).sort({ createdAt: -1 });
+
+    console.log('🔍 查找驗證碼記錄:', {
+      phone,
+      code,
+      found: !!tokenData,
+      isUsed: tokenData?.isUsed,
+      expiresAt: tokenData?.expiresAt,
+      currentTime: new Date()
+    });
 
     if (!tokenData) {
       return res.status(400).json({
@@ -620,11 +637,18 @@ const verifyCode = async (req, res) => {
     await tokenData.save();
 
     // 保存新的註冊令牌
-    await RegisterToken.create({
+    const newToken = await RegisterToken.create({
       token,
       phone,
+      code: tokenData.code, // 保留原始驗證碼
       expiresAt,
       isUsed: false
+    });
+
+    console.log('✅ 驗證成功，生成新令牌:', {
+      token: newToken.token,
+      phone: newToken.phone,
+      expiresAt: newToken.expiresAt
     });
 
     return res.status(200).json({
