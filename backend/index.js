@@ -135,7 +135,7 @@ app.post('/api/upload', upload.array('files'), (req, res) => {
 // 錯誤處理中間件
 app.use((err, req, res, next) => {
   console.error('Error:', err);
-  res.status(500).json({ error: 'Internal server error' });
+  res.status(500).json({ success: false, message: 'Internal Server Error' });
 });
 
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
