@@ -189,6 +189,8 @@ export default function RegisterPage() {
         token: tempToken
       };
 
+      console.log('📤 發送註冊請求，token:', tempToken);
+
       // 如果是組織用戶，添加文件
       if (formData.userType === 'organization' && formData.organizationDocuments) {
         const formDataToSend = new FormData();
@@ -201,15 +203,37 @@ export default function RegisterPage() {
         Object.entries(registerData).forEach(([key, value]) => {
           formDataToSend.append(key, value);
         });
-      }
 
-      // 使用 authApi 進行註冊
-      const data = await authApi.register(registerData);
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          body: formDataToSend,
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.message || '註冊失敗');
+        }
+      } else {
+        // 普通用戶註冊
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(registerData),
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.message || '註冊失敗');
+        }
+      }
 
       // 清除臨時令牌並導向登入頁
       clearTempToken();
       router.push('/login');
     } catch (err) {
+      console.error('註冊失敗:', err);
       setError(err instanceof Error ? err.message : '註冊失敗');
     } finally {
       setLoading(false);

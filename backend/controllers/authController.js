@@ -161,13 +161,59 @@ const register = async (req, res) => {
 
     // 檢查 token 是否有效
     const tokenData = await RegisterToken.findOne({ token });
-    if (!tokenData || tokenData.phone !== phone || tokenData.isUsed || Date.now() > tokenData.expiresAt) {
-      console.log("❌ 無效的驗證碼：", { token, phone });
+    console.log('🔍 查找註冊令牌:', {
+      token,
+      found: !!tokenData,
+      phone: tokenData?.phone,
+      isUsed: tokenData?.isUsed,
+      expiresAt: tokenData?.expiresAt,
+      currentTime: new Date()
+    });
+
+    if (!tokenData) {
+      console.log('❌ 找不到令牌:', token);
       return res.status(400).json({ 
         success: false, 
         message: '驗證碼無效或已過期' 
       });
     }
+
+    if (tokenData.phone !== phone) {
+      console.log('❌ 電話號碼不匹配:', {
+        tokenPhone: tokenData.phone,
+        requestPhone: phone
+      });
+      return res.status(400).json({ 
+        success: false, 
+        message: '驗證碼無效或已過期' 
+      });
+    }
+
+    if (tokenData.isUsed) {
+      console.log('❌ 令牌已被使用:', token);
+      return res.status(400).json({ 
+        success: false, 
+        message: '驗證碼無效或已過期' 
+      });
+    }
+
+    if (Date.now() > tokenData.expiresAt) {
+      console.log('❌ 令牌已過期:', {
+        token,
+        expiresAt: tokenData.expiresAt,
+        currentTime: new Date()
+      });
+      return res.status(400).json({ 
+        success: false, 
+        message: '驗證碼無效或已過期' 
+      });
+    }
+
+    console.log('✅ 令牌驗證通過:', {
+      token,
+      phone: tokenData.phone,
+      expiresAt: tokenData.expiresAt
+    });
 
     // 驗證 email 格式
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
