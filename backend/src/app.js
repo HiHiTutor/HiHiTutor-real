@@ -3,6 +3,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const path = require('path');
 const { verifyToken } = require('./middleware/authMiddleware');
+const connectDB = require('./config/db');
 
 // Import routes
 const tutorCasesRouter = require('./routes/tutorCases');
@@ -16,6 +17,9 @@ const authRoutes = require('./routes/auth');
 const meRouter = require('./routes/me');
 const applicationRouter = require('./routes/applications');
 const caseApplicationRouter = require('./routes/caseApplications');
+
+// 連接數據庫
+connectDB();
 
 const app = express();
 
