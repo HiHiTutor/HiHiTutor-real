@@ -7,7 +7,8 @@ export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
   try {
     // 確保 endpoint 以 / 開頭
     const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-    const url = `/api${normalizedEndpoint}`;
+    // 構建完整的 URL
+    const url = baseURL ? `${baseURL}${normalizedEndpoint}` : normalizedEndpoint;
     
     console.log('🚀 發送 API 請求:', url);
     console.log('📦 請求參數:', options);
@@ -25,13 +26,14 @@ export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
       headers,
     });
 
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: '無法解析回應' }));
+      console.error('❌ API 錯誤:', errorData);
+      throw new Error(errorData.message || 'API 請求失敗');
+    }
+
     const responseData = await response.json().catch(() => ({ message: '無法解析回應' }));
     console.log('📥 API 回應:', responseData);
-
-    if (!response.ok) {
-      console.error('❌ API 錯誤:', responseData);
-      throw new Error(responseData.message || 'API 請求失敗');
-    }
 
     return responseData;
   } catch (error) {
@@ -123,10 +125,10 @@ export const caseApi = {
   getAllTutorCases: () => fetchApi('/find-tutor-cases'),
   
   // 獲取所有找學生的個案
-  getAllStudentCases: () => fetchApi('/api/find-student-cases'),
+  getAllStudentCases: () => fetchApi('/find-student-cases'),
   
   // 獲取最新/推薦的找學生個案
-  getRecommendedStudentCases: () => fetchApi('/api/find-student-cases?featured=true&limit=8&sort=latest'),
+  getRecommendedStudentCases: () => fetchApi('/find-student-cases?featured=true&limit=8&sort=latest'),
   
   // 獲取推薦的找導師個案
   getRecommendedTutorCases: () => fetchApi('/find-tutor-cases?featured=true&limit=8'),
