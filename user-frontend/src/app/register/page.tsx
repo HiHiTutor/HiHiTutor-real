@@ -13,8 +13,12 @@ interface FormData {
   email: string;
   password: string;
   confirmPassword: string;
-  userType: 'normal' | 'organization';
+  userType: 'student' | 'organization';
   verificationCode: string;
+  organizationDocuments?: {
+    businessRegistration: File | null;
+    addressProof: File | null;
+  };
 }
 
 export default function RegisterPage() {
@@ -27,8 +31,12 @@ export default function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    userType: 'normal',
-    verificationCode: ''
+    userType: 'student',
+    verificationCode: '',
+    organizationDocuments: {
+      businessRegistration: null,
+      addressProof: null
+    }
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -153,18 +161,43 @@ export default function RegisterPage() {
       return;
     }
 
+    // 如果是組織用戶，檢查是否上傳了必要文件
+    if (formData.userType === 'organization') {
+      if (!formData.organizationDocuments?.businessRegistration || !formData.organizationDocuments?.addressProof) {
+        setError('請上傳商業登記證和地址證明');
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
-      // 使用 authApi 進行註冊
-      const data = await authApi.register({
+      // 準備註冊數據
+      const registerData = {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
         password: formData.password,
-        role: formData.userType === 'normal' ? 'student' : 'organization',
+        role: formData.userType, // 使用 userType 作為 role
         token: tempToken
-      });
+      };
+
+      // 如果是組織用戶，添加文件
+      if (formData.userType === 'organization' && formData.organizationDocuments) {
+        const formDataToSend = new FormData();
+        if (formData.organizationDocuments.businessRegistration) {
+          formDataToSend.append('businessRegistration', formData.organizationDocuments.businessRegistration);
+        }
+        if (formData.organizationDocuments.addressProof) {
+          formDataToSend.append('addressProof', formData.organizationDocuments.addressProof);
+        }
+        Object.entries(registerData).forEach(([key, value]) => {
+          formDataToSend.append(key, value);
+        });
+      }
+
+      // 使用 authApi 進行註冊
+      const data = await authApi.register(registerData);
 
       // 清除臨時令牌並導向登入頁
       clearTempToken();
@@ -332,15 +365,15 @@ export default function RegisterPage() {
                 <div className="space-y-2">
                   <div className="flex items-center">
                     <input
-                      id="normal"
+                      id="student"
                       name="userType"
                       type="radio"
-                      value="normal"
-                      checked={formData.userType === 'normal'}
+                      value="student"
+                      checked={formData.userType === 'student'}
                       onChange={handleChange}
                       className="h-4 w-4 text-yellow-400 focus:ring-yellow-400 border-gray-300"
                     />
-                    <label htmlFor="normal" className="ml-2 block text-sm text-gray-700">
+                    <label htmlFor="student" className="ml-2 block text-sm text-gray-700">
                       普通用戶
                     </label>
                   </div>
@@ -360,6 +393,58 @@ export default function RegisterPage() {
                   </div>
                 </div>
               </div>
+
+              {formData.userType === 'organization' && (
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="businessRegistration" className="block text-sm font-medium text-gray-700">
+                      商業登記證
+                    </label>
+                    <input
+                      id="businessRegistration"
+                      name="organizationDocuments.businessRegistration"
+                      type="file"
+                      required
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        setFormData(prev => ({
+                          ...prev,
+                          organizationDocuments: {
+                            ...prev.organizationDocuments,
+                            businessRegistration: file
+                          } as FormData['organizationDocuments']
+                        }));
+                      }}
+                      className="mt-1 block w-full"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="addressProof" className="block text-sm font-medium text-gray-700">
+                      地址證明
+                    </label>
+                    <input
+                      id="addressProof"
+                      name="organizationDocuments.addressProof"
+                      type="file"
+                      required
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        setFormData(prev => ({
+                          ...prev,
+                          organizationDocuments: {
+                            ...prev.organizationDocuments,
+                            addressProof: file
+                          } as FormData['organizationDocuments']
+                        }));
+                      }}
+                      className="mt-1 block w-full"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {error && (

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requestVerificationCode } from '@/services/verificationService';
-import { isPhoneRegistered } from '@/services/userService';
+import { connectToDatabase } from '@/lib/mongodb';
+import User from '@/models/User';
 
 export async function POST(req: Request) {
   try {
@@ -13,8 +14,12 @@ export async function POST(req: Request) {
       );
     }
 
+    // 連接到 MongoDB
+    await connectToDatabase();
+
     // 檢查電話是否已註冊
-    if (isPhoneRegistered(phone)) {
+    const existingUser = await User.findOne({ phone });
+    if (existingUser) {
       return NextResponse.json({
         status: 'error',
         action: 'phone-exists',
@@ -41,6 +46,7 @@ export async function POST(req: Request) {
       ...(process.env.NODE_ENV === 'development' ? { code: response.code } : {})
     }, { status: 200 });
   } catch (error) {
+    console.error('請求驗證碼失敗:', error);
     return NextResponse.json(
       { status: 'error', message: '請求處理失敗' },
       { status: 500 }
