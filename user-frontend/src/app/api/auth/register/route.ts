@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { MongoClient } from 'mongodb';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://hihitutor:hihitutor@cluster0.mongodb.net/hihitutor?retryWrites=true&w=majority';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://hihitutor:hihitutor@cluster0.mongodb.net/HiHiTutor?retryWrites=true&w=majority';
 
 export async function POST(req: Request) {
   let client: MongoClient | null = null;
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     await client.connect();
     console.log('✅ 已連接到 MongoDB');
 
-    const db = client.db('hihitutor');
+    const db = client.db('HiHiTutor');
     const usersCollection = db.collection('users');
 
     // 檢查用戶是否已存在
