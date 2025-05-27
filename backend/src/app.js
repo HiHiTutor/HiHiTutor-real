@@ -23,25 +23,16 @@ connectDB();
 
 const app = express();
 
-// Middleware
-app.use(cors({
+// 官方推薦簡化版 CORS 設定
+const corsOptions = {
   origin: ['http://localhost:3000', 'https://hi-hi-tutor-real.vercel.app'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: [
-    'Content-Type',
-    'Authorization',
-    'X-Requested-With',
-    'Accept',
-    'Origin',
-    'Access-Control-Allow-Origin',
-    'Access-Control-Allow-Headers',
-    'Access-Control-Allow-Methods',
-    'Access-Control-Allow-Credentials'
-  ],
-  exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  maxAge: 86400 // 24 hours
-}));
+  optionsSuccessStatus: 200,
+  maxAge: 86400,
+};
+app.use(cors(corsOptions));
 
 // 添加 JSON 解析中間件
 app.use(express.json());
