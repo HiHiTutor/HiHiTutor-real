@@ -75,6 +75,10 @@ process.on('unhandledRejection', (reason, promise) => {
 app.use(cors({
   origin: 'https://hi-hi-tutor-real.vercel.app',
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  maxAge: 86400 // 24 hours
 }));
 
 app.use(express.json());
