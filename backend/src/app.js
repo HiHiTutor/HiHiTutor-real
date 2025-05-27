@@ -38,7 +38,10 @@ app.use(cors({
   exposedHeaders: ['Content-Range', 'X-Content-Range'],
   maxAge: 86400 // 24 hours
 }));
+
+// 添加 JSON 解析中間件
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 // Request timestamp logging
