@@ -104,7 +104,7 @@ export const verifyCode = (phoneNumber: string, code: string) => {
 
   // 生成臨時令牌
   const token = `TEMP-REGISTER-TOKEN-${Math.random().toString(36).substring(2, 15)}`;
-  const expiresAt = Date.now() + 600000; // 10 分鐘後過期
+  const expiresAt = Date.now() + 300000; // 5 分鐘後過期
 
   // 儲存令牌
   validRegisterTokens.set(token, {

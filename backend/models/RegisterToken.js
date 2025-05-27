@@ -10,6 +10,10 @@ const registerTokenSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  code: {
+    type: String,
+    required: true
+  },
   isUsed: {
     type: Boolean,
     default: false

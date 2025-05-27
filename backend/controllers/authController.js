@@ -494,25 +494,27 @@ const sendVerificationCode = async (req, res) => {
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     console.log(`📱 發送驗證碼 ${code} 到 ${phone}`);
 
-    // TODO: 實際發送 SMS 的邏輯
-    // 這裡先模擬發送成功
-
     // 生成臨時令牌
     const token = `TEMP-REGISTER-TOKEN-${Math.random().toString(36).substring(2, 15)}`;
-    const expiresAt = new Date(Date.now() + 600000); // 10 分鐘後過期
+    const expiresAt = new Date(Date.now() + 300000); // 5 分鐘後過期
 
-    // 保存令牌到數據庫
+    // 保存驗證碼和令牌到數據庫
     await RegisterToken.create({
       token,
       phone,
+      code, // 添加驗證碼
       expiresAt,
       isUsed: false
     });
 
+    // TODO: 實際發送 SMS 的邏輯
+    // 這裡先模擬發送成功
+
     return res.status(200).json({
       success: true,
       message: '驗證碼已發送',
-      token
+      token,
+      code: process.env.NODE_ENV === 'development' ? code : undefined // 在開發環境中返回驗證碼
     });
   } catch (error) {
     console.error('發送驗證碼失敗:', error);
@@ -535,14 +537,29 @@ const verifyCode = async (req, res) => {
       });
     }
 
-    // TODO: 實際驗證 SMS 的邏輯
-    // 這裡先模擬驗證成功
+    // 查找該電話號碼的驗證碼記錄
+    const tokenData = await RegisterToken.findOne({
+      phone,
+      isUsed: false,
+      expiresAt: { $gt: new Date() }
+    }).sort({ createdAt: -1 });
 
-    // 生成臨時令牌
+    if (!tokenData) {
+      return res.status(400).json({
+        success: false,
+        message: '驗證碼無效或已過期'
+      });
+    }
+
+    // 驗證碼驗證成功，生成新的註冊令牌
     const token = `TEMP-REGISTER-TOKEN-${Math.random().toString(36).substring(2, 15)}`;
-    const expiresAt = new Date(Date.now() + 600000); // 10 分鐘後過期
+    const expiresAt = new Date(Date.now() + 300000); // 5 分鐘後過期
 
-    // 保存令牌到數據庫
+    // 標記舊的驗證碼為已使用
+    tokenData.isUsed = true;
+    await tokenData.save();
+
+    // 保存新的註冊令牌
     await RegisterToken.create({
       token,
       phone,

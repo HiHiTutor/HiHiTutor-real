@@ -60,6 +60,13 @@ export default function RegisterPage() {
     }
   }, [tempToken]);
 
+  // 在用戶離開頁面時清除token
+  useEffect(() => {
+    return () => {
+      clearTempToken();
+    };
+  }, [clearTempToken]);
+
   const handlePhoneVerification = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
