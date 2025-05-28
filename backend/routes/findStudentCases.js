@@ -18,36 +18,135 @@ const mapModeToChineseValue = (mode) => {
   return modeMap[mode] || mode;
 };
 
+// 測試端點 - 用於診斷問題
+router.get('/test', async (req, res) => {
+  console.log('📥 Test endpoint called');
+  
+  try {
+    const diagnostics = {
+      timestamp: new Date().toISOString(),
+      environment: {
+        NODE_ENV: process.env.NODE_ENV,
+        hasMongoUri: !!process.env.MONGODB_URI,
+        mongoUriLength: process.env.MONGODB_URI ? process.env.MONGODB_URI.length : 0,
+        mongoUriStart: process.env.MONGODB_URI ? process.env.MONGODB_URI.substring(0, 20) + '...' : 'N/A'
+      },
+      mongoose: {
+        connectionState: mongoose.connection.readyState,
+        connectionStates: {
+          0: 'disconnected',
+          1: 'connected', 
+          2: 'connecting',
+          3: 'disconnecting'
+        },
+        currentState: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState] || 'unknown'
+      }
+    };
+
+    // 嘗試簡單的數據庫操作
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const count = await StudentCase.countDocuments();
+        diagnostics.database = {
+          connected: true,
+          studentCaseCount: count
+        };
+      } catch (dbError) {
+        diagnostics.database = {
+          connected: false,
+          error: dbError.message
+        };
+      }
+    } else {
+      diagnostics.database = {
+        connected: false,
+        reason: 'MongoDB not connected'
+      };
+    }
+
+    res.json({
+      success: true,
+      message: 'Test endpoint working',
+      diagnostics
+    });
+  } catch (error) {
+    console.error('❌ Test endpoint error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Test endpoint failed',
+      error: error.message
+    });
+  }
+});
+
 // GET 查詢學生案例
 router.get('/', async (req, res) => {
   console.log('📥 Received request to /api/find-student-cases');
   console.log('👉 Query:', req.query);
+  console.log('👉 Headers:', req.headers);
+  console.log('👉 Environment check:', {
+    NODE_ENV: process.env.NODE_ENV,
+    hasMongoUri: !!process.env.MONGODB_URI,
+    mongoUriLength: process.env.MONGODB_URI ? process.env.MONGODB_URI.length : 0
+  });
 
   try {
-    // 先返回一個簡單的測試響應，確保路由工作
-    console.log('🔍 Testing basic response...');
-    
     // 檢查數據庫連接狀態
     console.log('📊 MongoDB connection state:', mongoose.connection.readyState);
-    console.log('📊 MongoDB URI exists:', !!process.env.MONGODB_URI);
+    console.log('📊 MongoDB connection states: 0=disconnected, 1=connected, 2=connecting, 3=disconnecting');
     
+    // 如果數據庫未連接，嘗試重新連接
     if (mongoose.connection.readyState !== 1) {
-      console.log('⚠️ MongoDB not connected, returning empty result');
-      return res.json({
-        success: true,
-        message: 'MongoDB not connected',
-        data: {
-          cases: [],
-          mongoState: mongoose.connection.readyState,
-          hasMongoUri: !!process.env.MONGODB_URI
+      console.log('⚠️ MongoDB not connected, current state:', mongoose.connection.readyState);
+      
+      // 嘗試重新連接
+      if (process.env.MONGODB_URI) {
+        console.log('🔄 Attempting to reconnect to MongoDB...');
+        try {
+          await mongoose.connect(process.env.MONGODB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
+          });
+          console.log('✅ Reconnected to MongoDB');
+        } catch (reconnectError) {
+          console.error('❌ Failed to reconnect to MongoDB:', reconnectError);
+          return res.status(500).json({
+            success: false,
+            message: 'Database connection failed',
+            error: reconnectError.message,
+            mongoState: mongoose.connection.readyState,
+            hasMongoUri: !!process.env.MONGODB_URI
+          });
         }
-      });
+      } else {
+        console.error('❌ No MongoDB URI found in environment variables');
+        return res.status(500).json({
+          success: false,
+          message: 'Database configuration error',
+          error: 'MONGODB_URI not found',
+          mongoState: mongoose.connection.readyState,
+          hasMongoUri: false
+        });
+      }
     }
 
-    // 嘗試簡單的數據庫操作
+    // 測試數據庫連接
     console.log('🔍 Testing database connection...');
-    const count = await StudentCase.countDocuments();
-    console.log('📊 Total documents in collection:', count);
+    let count;
+    try {
+      count = await StudentCase.countDocuments();
+      console.log('📊 Total documents in collection:', count);
+    } catch (countError) {
+      console.error('❌ Error counting documents:', countError);
+      return res.status(500).json({
+        success: false,
+        message: 'Database query failed',
+        error: countError.message,
+        mongoState: mongoose.connection.readyState
+      });
+    }
 
     const { featured, limit, sort } = req.query;
     const query = {};
@@ -73,8 +172,19 @@ router.get('/', async (req, res) => {
     }
 
     console.log('🔍 Executing query...');
-    const cases = await findQuery;
-    console.log('✅ Query returned', cases.length, 'results');
+    let cases;
+    try {
+      cases = await findQuery;
+      console.log('✅ Query returned', cases.length, 'results');
+    } catch (queryError) {
+      console.error('❌ Error executing query:', queryError);
+      return res.status(500).json({
+        success: false,
+        message: 'Database query execution failed',
+        error: queryError.message,
+        mongoState: mongoose.connection.readyState
+      });
+    }
     
     if (cases.length > 0) {
       console.log('📄 Sample case structure:', JSON.stringify(cases[0], null, 2));
@@ -132,8 +242,10 @@ router.get('/', async (req, res) => {
       message: '獲取學生案例時發生錯誤', 
       error: err.message,
       errorName: err.name,
+      errorCode: err.code,
       mongoState: mongoose.connection.readyState,
-      hasMongoUri: !!process.env.MONGODB_URI
+      hasMongoUri: !!process.env.MONGODB_URI,
+      timestamp: new Date().toISOString()
     });
   }
 });

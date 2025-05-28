@@ -101,6 +101,47 @@ app.get('/api/test', (req, res) => {
   });
 });
 
+// Health check endpoint with database status
+app.get('/api/health', async (req, res) => {
+  try {
+    const health = {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV,
+      database: {
+        connected: mongoose.connection.readyState === 1,
+        state: mongoose.connection.readyState,
+        stateDescription: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState] || 'unknown'
+      }
+    };
+
+    // 如果數據庫連接，嘗試簡單查詢
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const StudentCase = require('./models/StudentCase');
+        const count = await StudentCase.countDocuments();
+        health.database.testQuery = {
+          success: true,
+          studentCaseCount: count
+        };
+      } catch (dbError) {
+        health.database.testQuery = {
+          success: false,
+          error: dbError.message
+        };
+      }
+    }
+
+    res.json(health);
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      timestamp: new Date().toISOString(),
+      error: error.message
+    });
+  }
+});
+
 // 404 handler
 app.use((req, res) => {
   console.log(`[404] 找不到路由: ${req.method} ${req.url}`);

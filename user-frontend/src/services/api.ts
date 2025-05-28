@@ -1,5 +1,5 @@
 // API 基礎 URL
-const baseURL = process.env.NEXT_PUBLIC_API_BASE || '';
+const baseURL = process.env.NEXT_PUBLIC_API_BASE || 'https://hi-hi-tutor-real-backend2.vercel.app';
 console.log('🌐 API baseURL:', baseURL);
 
 // 通用 API 請求函數
@@ -7,8 +7,12 @@ export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
   try {
     // 確保 endpoint 以 / 開頭
     const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    
+    // 確保 baseURL 不以斜線結尾
+    const cleanBaseURL = baseURL.replace(/\/$/, '');
+    
     // 構建完整的 URL，確保包含 /api 前綴
-    const url = baseURL ? `${baseURL}/api${normalizedEndpoint}` : `/api${normalizedEndpoint}`;
+    const url = `${cleanBaseURL}/api${normalizedEndpoint}`;
     
     console.log('🚀 發送 API 請求:', url);
     console.log('📦 請求參數:', options);
