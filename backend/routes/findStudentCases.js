@@ -24,6 +24,17 @@ router.get('/', async (req, res) => {
   console.log('👉 Query:', req.query);
 
   try {
+    // 檢查數據庫連接狀態
+    console.log('📊 MongoDB connection state:', mongoose.connection.readyState);
+    console.log('📊 MongoDB URI exists:', !!process.env.MONGODB_URI);
+    
+    if (mongoose.connection.readyState !== 1) {
+      console.log('⚠️ MongoDB not connected, attempting to connect...');
+      // 如果沒有連接，嘗試重新連接
+      const connectDB = require('../config/db');
+      await connectDB();
+    }
+
     const { featured, limit, sort } = req.query;
     const query = {};
     
@@ -34,12 +45,13 @@ router.get('/', async (req, res) => {
 
     console.log('🔍 Running MongoDB query:', query);
 
-    // 首先檢查數據庫連接
-    console.log('📊 MongoDB connection state:', mongoose.connection.readyState);
-    
     // 檢查集合是否存在
-    const collections = await mongoose.connection.db.listCollections().toArray();
-    console.log('📋 Available collections:', collections.map(c => c.name));
+    try {
+      const collections = await mongoose.connection.db.listCollections().toArray();
+      console.log('📋 Available collections:', collections.map(c => c.name));
+    } catch (collErr) {
+      console.log('⚠️ Could not list collections:', collErr.message);
+    }
 
     // 構建查詢
     let findQuery = StudentCase.find(query);
@@ -103,13 +115,18 @@ router.get('/', async (req, res) => {
     console.error('❌ Error details:', {
       name: err.name,
       message: err.message,
-      code: err.code
+      code: err.code,
+      stack: err.stack
     });
+    
+    // 返回更詳細的錯誤信息用於調試
     res.status(500).json({ 
       success: false,
       message: '獲取學生案例時發生錯誤', 
       error: err.message,
-      errorName: err.name
+      errorName: err.name,
+      mongoState: mongoose.connection.readyState,
+      hasMongoUri: !!process.env.MONGODB_URI
     });
   }
 });
