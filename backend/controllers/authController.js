@@ -390,11 +390,44 @@ const getUserProfile = (req, res) => {
 };
 
 // 獲取當前用戶資料
-const getCurrentUser = (req, res) => {
-  if (!req.user) {
-    return res.status(401).json({ message: '未登入或無效 Token' });
+const getCurrentUser = async (req, res) => {
+  try {
+    console.log('[getCurrentUser] 開始獲取用戶資料');
+    console.log('[getCurrentUser] req.user:', req.user);
+    
+    if (!req.user || !req.user.id) {
+      console.log('[getCurrentUser] ❌ 未登入或無效 Token');
+      return res.status(401).json({ success: false, message: '未登入' });
+    }
+    
+    console.log('[getCurrentUser] 正在查找用戶 ID:', req.user.id);
+    const user = await User.findById(req.user.id);
+    console.log('[getCurrentUser] 找到用戶:', user);
+    
+    if (!user) {
+      console.log('[getCurrentUser] ❌ 找不到用戶');
+      return res.status(404).json({ success: false, message: '找不到用戶' });
+    }
+    
+    // 移除敏感資料並確保返回所有必要欄位
+    const userData = {
+      id: user._id,
+      name: user.name || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      userType: user.userType || 'student',
+      role: user.role || 'user',
+      status: user.status || 'active',
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    };
+    
+    console.log('[getCurrentUser] ✅ 返回用戶資料:', userData);
+    res.json(userData);
+  } catch (error) {
+    console.error('[getCurrentUser] ❌ 獲取用戶資料錯誤:', error);
+    res.status(500).json({ success: false, message: '伺服器錯誤' });
   }
-  res.json({ user: req.user });
 };
 
 // 忘記密碼（支援 email 或電話）
