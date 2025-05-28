@@ -33,12 +33,20 @@ const getCaseById = async (req, res) => {
     const id = req.params.id;
     console.log("🔍 查找個案 ID:", id);
     
-    // 嘗試通過 _id 或 id 字段查找
-    let caseItem = await StudentCase.findById(id);
+    let caseItem = null;
+    
+    // 檢查是否為有效的 MongoDB ObjectId 格式
+    const mongoose = require('mongoose');
+    if (mongoose.Types.ObjectId.isValid(id) && id.length === 24) {
+      // 如果是有效的 ObjectId，使用 findById
+      caseItem = await StudentCase.findById(id);
+      console.log("🔍 使用 findById 查詢結果:", caseItem ? "找到" : "未找到");
+    }
     
     if (!caseItem) {
-      // 如果通過 _id 找不到，嘗試通過 id 字段查找
+      // 如果通過 _id 找不到，或者不是有效的 ObjectId，嘗試通過 id 字段查找
       caseItem = await StudentCase.findOne({ id: id });
+      console.log("🔍 使用 findOne({id}) 查詢結果:", caseItem ? "找到" : "未找到");
     }
     
     if (!caseItem) {
