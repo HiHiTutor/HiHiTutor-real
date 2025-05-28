@@ -333,6 +333,7 @@ function FindStudentCasesPageContent() {
           {cases.map((caseItem, index) => (
             <CaseCard
               key={`${caseItem.id}-${currentPage}-${index}`}
+              routeType="student"
               caseData={{
                 id: caseItem.id,
                 subject: caseItem.subjects && caseItem.subjects[0] ? { label: caseItem.subjects[0] } : undefined,

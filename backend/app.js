@@ -78,6 +78,7 @@ mongoose.connection.on('disconnected', () => {
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoriesRouter);
 app.use('/api/tutors', tutorsRouter);
+app.use('/api/cases', casesRouter);
 app.use('/api/find-student-cases', findStudentCases);
 app.use('/api/find-tutor-cases', findTutorCases);
 app.use('/api/user', userRouter);

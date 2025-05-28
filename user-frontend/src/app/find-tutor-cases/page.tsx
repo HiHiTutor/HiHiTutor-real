@@ -298,6 +298,7 @@ function FindTutorCasesPageContent() {
           {cases.map((caseItem, index) => (
             <CaseCard
               key={`${caseItem.id}-${currentPage}-${index}`}
+              routeType="tutor"
               caseData={{
                 id: caseItem.id,
                 subject: caseItem.subjects && caseItem.subjects[0] ? { label: caseItem.subjects[0] } : undefined,

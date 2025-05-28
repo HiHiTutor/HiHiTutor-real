@@ -138,8 +138,14 @@ export const caseApi = {
   // 獲取推薦的找導師個案
   getRecommendedTutorCases: () => fetchApi('/find-tutor-cases?featured=true&limit=8'),
   
-  // 獲取單一個案詳情
+  // 獲取單一個案詳情（通用方法）
   getCaseById: (id: string) => fetchApi(`/cases/${id}`),
+  
+  // 獲取學生搵導師個案詳情
+  getTutorCaseById: (id: string) => fetchApi(`/cases/${id}`),
+  
+  // 獲取導師搵學生個案詳情  
+  getStudentCaseById: (id: string) => fetchApi(`/cases/${id}`),
   
   // 創建找導師個案
   createTutorCase: (data: any) => 

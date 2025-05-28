@@ -167,9 +167,10 @@ interface CaseData {
 interface CaseCardProps {
   caseData?: CaseData
   borderColor?: string
+  routeType?: 'student' | 'tutor'
 }
 
-export default function CaseCard({ caseData, borderColor = 'border-gray-200' }: CaseCardProps) {
+export default function CaseCard({ caseData, borderColor = 'border-gray-200', routeType = 'student' }: CaseCardProps) {
   const router = useRouter()
 
   if (!caseData) return null // 防止 undefined 時 crash
@@ -177,7 +178,8 @@ export default function CaseCard({ caseData, borderColor = 'border-gray-200' }: 
   console.log('CaseCard received:', caseData);
 
   const handleClick = () => {
-    router.push(`/cases/${caseData.id}`)
+    const basePath = routeType === 'student' ? '/find-student-cases' : '/find-tutor-cases';
+    router.push(`${basePath}/${caseData.id}`);
   }
 
   const subjectLabel = caseData.subject?.label
@@ -187,15 +189,15 @@ export default function CaseCard({ caseData, borderColor = 'border-gray-200' }: 
   return (
     <div
       onClick={handleClick}
-      className={`cursor-pointer border rounded-lg p-4 hover:shadow-md transition-all duration-200 ${borderColor}`}
+      className={`cursor-pointer border rounded-lg p-4 hover:shadow-md transition-all duration-200 bg-gray-50 hover:bg-gray-100 ${borderColor}`}
     >
       <h3 className="text-lg font-semibold text-blue-700 mb-2">
         {subjectLabel}
       </h3>
-      <p>地點：{caseData.region?.label || '地點待定'}</p>
-      <p>教學模式：{caseData.mode?.label || '教學模式待定'}</p>
-      <p>經驗要求：{caseData.experienceLevel?.label || '經驗要求待定'}</p>
-      <p>價格：{caseData.budget || '價格待議'}</p>
+      <p className="text-gray-700">地點：{caseData.region?.label || '地點待定'}</p>
+      <p className="text-gray-700">教學模式：{caseData.mode?.label || '教學模式待定'}</p>
+      <p className="text-gray-700">經驗要求：{caseData.experienceLevel?.label || '經驗要求待定'}</p>
+      <p className="text-gray-700">價格：{caseData.budget || '價格待議'}</p>
       <p className="text-sm text-gray-500 mt-2">
         發佈於 {caseData.createdAt ? new Date(caseData.createdAt).toLocaleDateString('zh-HK', { year: 'numeric', month: 'long', day: 'numeric' }) : '未知日期'}
       </p>
