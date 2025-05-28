@@ -67,24 +67,61 @@ router.post('/', verifyToken, async (req, res) => {
     const {
       tutorId,
       title,
+      description,
       category,
       subCategory,
       subjects,
       regions,
       subRegions,
       modes,
+      price,
       budget,
+      location,
+      lessonDuration,
       duration,
       durationUnit,
       weeklyLessons,
       requirements
     } = req.body;
 
-    // 驗證必要欄位
-    if (!tutorId || !title || !category || !subjects || !regions || !modes || !budget) {
+    console.log('🔍 驗證欄位:', {
+      tutorId: !!tutorId,
+      title: title !== undefined,
+      category: !!category,
+      subjects: subjects && subjects.length > 0,
+      regions: regions && regions.length > 0,
+      modes: modes && modes.length > 0,
+      budget: !!(budget || price)
+    });
+
+    if (!tutorId || title === undefined || !category || 
+        !subjects || !Array.isArray(subjects) || subjects.length === 0 ||
+        !regions || !Array.isArray(regions) || regions.length === 0 ||
+        !modes || !Array.isArray(modes) || modes.length === 0 ||
+        !(budget || price)) {
+      
+      console.log('❌ 驗證失敗，缺少必要欄位:', {
+        tutorId,
+        title,
+        category,
+        subjects,
+        regions,
+        modes,
+        budget: budget || price
+      });
+      
       return res.status(400).json({
         success: false,
-        message: '請填寫所有必要欄位'
+        message: '請填寫所有必要欄位',
+        details: {
+          tutorId: !tutorId ? '缺少導師ID' : null,
+          title: title === undefined ? '缺少標題' : null,
+          category: !category ? '缺少分類' : null,
+          subjects: (!subjects || !Array.isArray(subjects) || subjects.length === 0) ? '缺少科目' : null,
+          regions: (!regions || !Array.isArray(regions) || regions.length === 0) ? '缺少地區' : null,
+          modes: (!modes || !Array.isArray(modes) || modes.length === 0) ? '缺少上課模式' : null,
+          budget: !(budget || price) ? '缺少預算/價錢' : null
+        }
       });
     }
 
@@ -92,18 +129,20 @@ router.post('/', verifyToken, async (req, res) => {
     const newCase = new StudentCase({
       id: tutorId, // 使用 tutorId 作為案例 ID
       tutorId,
-      title,
+      title: title || '',
       category,
       subCategory: subCategory || '',
       subjects: Array.isArray(subjects) ? subjects : [subjects],
       regions: Array.isArray(regions) ? regions : [regions],
       subRegions: Array.isArray(subRegions) ? subRegions : [subRegions],
       mode: Array.isArray(modes) ? modes[0] : modes, // StudentCase 模型期待單個值
-      budget: budget.toString(),
-      duration: duration || 60,
+      modes: Array.isArray(modes) ? modes : [modes],
+      budget: (budget || price || '').toString(),
+      location: location || '',
+      duration: lessonDuration || duration || 60,
       durationUnit: durationUnit || 'minutes',
       weeklyLessons: weeklyLessons || 1,
-      requirements: requirements || '',
+      requirements: requirements || description || '',
       featured: false,
       status: 'open',
       createdAt: new Date(),
