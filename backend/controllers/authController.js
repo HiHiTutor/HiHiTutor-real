@@ -26,8 +26,8 @@ const isValidEmail = (email) => {
 const isValidPhone = (phone) => {
   // 移除所有非數字字符
   const cleanPhone = phone.replace(/\D/g, '');
-  // 檢查是否為8位數字
-  return cleanPhone.length === 8;
+  // 檢查是否為8位數字，且以5、6、8或9開頭
+  return /^[5689]\d{7}$/.test(cleanPhone);
 };
 
 // 用戶登入
@@ -48,7 +48,7 @@ const loginUser = async (req, res) => {
 
     // 檢查是否為 email 或電話
     const isEmail = identifier.includes('@');
-    const isPhone = /^([69]\d{7})$/.test(identifier);
+    const isPhone = /^[5689]\d{7}$/.test(identifier);
 
     if (!isEmail && !isPhone) {
       console.log("❌ 無效的帳號格式：", identifier);
@@ -98,7 +98,7 @@ const loginUser = async (req, res) => {
         email: user.email,
         phone: user.phone 
       },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '24h' }
     );
     console.log("✅ JWT token 生成成功");
@@ -226,11 +226,11 @@ const register = async (req, res) => {
     }
 
     // 驗證電話格式（香港手機號碼）
-    if (!/^([69]\d{7})$/.test(phone)) {
+    if (!/^[5689]\d{7}$/.test(phone)) {
       console.log("❌ 無效的電話格式：", phone);
       return res.status(400).json({
         success: false,
-        message: '請提供有效的香港電話號碼（8碼，9或6開頭）'
+        message: '請提供有效的香港電話號碼（8碼，5、6、8或9開頭）'
       });
     }
 
@@ -529,10 +529,10 @@ const sendVerificationCode = async (req, res) => {
     }
 
     // 驗證電話格式（香港手機號碼）
-    if (!/^([69]\d{7})$/.test(phone)) {
+    if (!/^[5689]\d{7}$/.test(phone)) {
       return res.status(400).json({
         success: false,
-        message: '請提供有效的香港電話號碼（8碼，9或6開頭）'
+        message: '請提供有效的香港電話號碼（8碼，5、6、8或9開頭）'
       });
     }
 
