@@ -21,6 +21,7 @@ const authRoutes = require('./routes/auth');
 const userRouter = require('./routes/user');
 const applicationRouter = require('./routes/applications');
 const caseApplicationRouter = require('./routes/caseApplications');
+const regionsRouter = require('./routes/regions');
 
 const app = express();
 
@@ -85,6 +86,7 @@ app.use('/api/case-applications', caseApplicationRouter);
 app.use('/api/contact', contactRoutes);
 app.use('/api/faq', faqRoutes);
 app.use('/api/articles', articlesRoutes);
+app.use('/api/regions', regionsRouter);
 
 // 404 handler
 app.use((req, res) => {
