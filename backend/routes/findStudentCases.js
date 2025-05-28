@@ -24,6 +24,20 @@ router.get('/', async (req, res) => {
   console.log('👉 Query:', req.query);
 
   try {
+    // 簡單測試：先返回一個固定的響應
+    console.log('🧪 Testing simple response...');
+    
+    res.json({
+      success: true,
+      message: 'API is working',
+      data: {
+        cases: [],
+        total: 0
+      }
+    });
+    
+    return; // 暫時跳過數據庫查詢
+    
     const { featured, limit, sort } = req.query;
     const query = {};
     
