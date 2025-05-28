@@ -34,6 +34,13 @@ router.get('/', async (req, res) => {
 
     console.log('🔍 Running MongoDB query:', query);
 
+    // 首先檢查數據庫連接
+    console.log('📊 MongoDB connection state:', mongoose.connection.readyState);
+    
+    // 檢查集合是否存在
+    const collections = await mongoose.connection.db.listCollections().toArray();
+    console.log('📋 Available collections:', collections.map(c => c.name));
+
     // 構建查詢
     let findQuery = StudentCase.find(query);
 
@@ -47,8 +54,13 @@ router.get('/', async (req, res) => {
       findQuery = findQuery.limit(parseInt(limit));
     }
 
+    console.log('🔍 Executing query...');
     const cases = await findQuery;
     console.log('✅ Query returned', cases.length, 'results');
+    
+    if (cases.length > 0) {
+      console.log('📄 Sample case structure:', JSON.stringify(cases[0], null, 2));
+    }
 
     // 返回與前端期望一致的格式
     res.json({
@@ -63,10 +75,16 @@ router.get('/', async (req, res) => {
     });
   } catch (err) {
     console.error('❌ Error in /api/find-student-cases:', err.stack);
+    console.error('❌ Error details:', {
+      name: err.name,
+      message: err.message,
+      code: err.code
+    });
     res.status(500).json({ 
       success: false,
       message: '獲取學生案例時發生錯誤', 
-      error: err.message 
+      error: err.message,
+      errorName: err.name
     });
   }
 });
