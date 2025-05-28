@@ -24,9 +24,20 @@ const caseApplicationRouter = require('./routes/caseApplications');
 
 const app = express();
 
-// Middleware
+// CORS 設定
+const allowedOrigins = [
+  'https://hi-hi-tutor-real.vercel.app',
+  'http://localhost:3000'
+];
+
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://hi-hi-tutor-real.vercel.app'],
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: [
@@ -34,18 +45,9 @@ app.use(cors({
     'Authorization',
     'X-Requested-With',
     'Accept',
-    'Origin',
-    'Access-Control-Allow-Origin',
-    'Access-Control-Allow-Headers',
-    'Access-Control-Allow-Methods',
-    'Access-Control-Allow-Credentials'
-  ],
-  exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  maxAge: 86400 // 24 hours
+    'Origin'
+  ]
 }));
-
-// 處理 OPTIONS 請求
-app.options('*', cors());
 
 // 確保請求體解析中間件在 CORS 之後
 app.use(express.json());
