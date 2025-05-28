@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const StudentCase = require('../models/StudentCase');
+const mongoose = require('mongoose');
 
 // GET 查詢學生案例
 router.get('/', async (req, res) => {
@@ -55,10 +56,62 @@ router.get('/', async (req, res) => {
   }
 });
 
-// 測試用：接收 POST 請求
-router.post('/', (req, res) => {
-  console.log('✅ 收到導師個案 POST 請求');
-  res.json({ message: '成功收到導師個案 POST 請求', data: req.body });
+// 測試用：創建示例案例
+router.post('/seed', async (req, res) => {
+  try {
+    // 清除現有資料
+    await StudentCase.deleteMany({});
+
+    // 創建示例案例
+    const sampleCases = [
+      {
+        title: '尋找數學補習老師',
+        subject: '數學',
+        location: '香港島',
+        budget: '300-400',
+        mode: 'offline',
+        requirement: '需要一位有經驗的數學老師，可以教授中學數學',
+        category: '中學',
+        subCategory: ['數學'],
+        region: ['香港島'],
+        priceRange: '300-400',
+        featured: true,
+        isApproved: true,
+        status: 'open',
+        studentId: new mongoose.Types.ObjectId(), // 使用隨機 ID
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        title: '尋找英文會話老師',
+        subject: '英文',
+        location: '九龍',
+        budget: '400-500',
+        mode: 'online',
+        requirement: '需要一位母語為英語的老師，專注於口語訓練',
+        category: '中學',
+        subCategory: ['英文'],
+        region: ['九龍'],
+        priceRange: '400-500',
+        featured: true,
+        isApproved: true,
+        status: 'open',
+        studentId: new mongoose.Types.ObjectId(),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ];
+
+    await StudentCase.insertMany(sampleCases);
+    res.json({ success: true, message: '成功創建示例案例' });
+  } catch (err) {
+    console.error('❌ Error creating sample cases:', err);
+    res.status(500).json({ 
+      success: false,
+      message: '創建示例案例時發生錯誤',
+      error: err.message 
+    });
+  }
 });
 
 module.exports = router; 

@@ -1,10 +1,9 @@
 const mongoose = require('mongoose');
 
 const studentCaseSchema = new mongoose.Schema({
-  id: {
+  title: {
     type: String,
-    required: true,
-    unique: true
+    required: true
   },
   subject: {
     type: String,
@@ -20,7 +19,8 @@ const studentCaseSchema = new mongoose.Schema({
   },
   mode: {
     type: String,
-    required: true
+    required: true,
+    enum: ['online', 'offline', 'both']
   },
   requirement: {
     type: String,
@@ -46,10 +46,34 @@ const studentCaseSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  isApproved: {
+    type: Boolean,
+    default: true
+  },
+  status: {
+    type: String,
+    enum: ['open', 'closed', 'in_progress'],
+    default: 'open'
+  },
+  studentId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
+});
+
+// 更新 updatedAt 欄位
+studentCaseSchema.pre('save', function(next) {
+  this.updatedAt = new Date();
+  next();
 });
 
 module.exports = mongoose.model('StudentCase', studentCaseSchema); 
