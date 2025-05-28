@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 const userRepository = require('../repositories/UserRepository.js');
 const crypto = require('crypto');
 const { loadUsers, saveUsers } = require('../data/users');
@@ -77,12 +77,12 @@ const loginUser = async (req, res) => {
       });
     }
 
-    // 使用 User 模型的 comparePassword 方法比對密碼
+    // 使用 bcrypt 比對密碼
     console.log("🔑 開始比對密碼...");
-    const isMatch = await user.comparePassword(password);
-    console.log("🔑 密碼比對結果：", isMatch ? "密碼正確" : "密碼錯誤");
+    const match = await bcrypt.compare(password, user.password);
+    console.log("🔑 密碼比對結果：", match ? "密碼正確" : "密碼錯誤");
 
-    if (!isMatch) {
+    if (!match) {
       console.log("❌ 密碼錯誤");
       return res.status(401).json({
         success: false,
@@ -288,13 +288,17 @@ const register = async (req, res) => {
         });
       }
 
+      // 使用 bcrypt 加密密碼
+      console.log("🔐 加密密碼...");
+      const hashedPassword = await bcrypt.hash(password, 10);
+
       // 創建新用戶
       console.log("📝 準備創建新用戶...");
       const newUser = new User({
         name,
         email,
         phone,
-        password,
+        password: hashedPassword,
         role,
         userType,
         status: userType === 'organization' ? 'pending' : 'active',
@@ -321,7 +325,7 @@ const register = async (req, res) => {
           email: savedUser.email,
           phone: savedUser.phone 
         },
-        process.env.JWT_SECRET,
+        process.env.JWT_SECRET || 'your-secret-key',
         { expiresIn: '7d' }
       );
       console.log("✅ JWT token 生成成功！");
