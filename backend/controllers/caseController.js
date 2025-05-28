@@ -1,8 +1,12 @@
 const StudentCase = require('../models/StudentCase');
+const connectDB = require('../config/db');
 
 // 獲取所有學生個案
 const getAllCases = async (req, res) => {
   try {
+    // 確保數據庫連接
+    await connectDB();
+    
     const cases = await StudentCase.find({ featured: true }).sort({ createdAt: -1 });
     console.log("📦 已返回所有個案數量:", cases.length);
     res.json(cases);
@@ -15,6 +19,9 @@ const getAllCases = async (req, res) => {
 // 獲取最新的學生個案（以創建時間倒序排序，取前 8 個）
 const getLatestCases = async (req, res) => {
   try {
+    // 確保數據庫連接
+    await connectDB();
+    
     const latestCases = await StudentCase.find({ featured: true })
       .sort({ createdAt: -1 })
       .limit(8);
@@ -30,6 +37,9 @@ const getLatestCases = async (req, res) => {
 // 根據 ID 獲取單一個案
 const getCaseById = async (req, res) => {
   try {
+    // 確保數據庫連接
+    await connectDB();
+    
     const id = req.params.id;
     console.log("🔍 查找個案 ID:", id);
     
