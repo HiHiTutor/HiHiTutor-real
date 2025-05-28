@@ -27,12 +27,14 @@ const studentCaseSchema = new mongoose.Schema({
   },
   budget: {
     type: String,
-    required: true
+    required: false,
+    default: ''
   },
   mode: {
     type: String,
-    required: true,
-    enum: ['面對面', '線上', 'both', '網課', '面授']
+    required: false,
+    enum: ['面對面', '線上', 'both', '網課', '面授', 'offline', 'online', 'in-person'],
+    default: '線上'
   },
   modes: {
     type: [String],
@@ -48,7 +50,8 @@ const studentCaseSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    required: true
+    required: false,
+    default: ''
   },
   subCategory: {
     type: String,

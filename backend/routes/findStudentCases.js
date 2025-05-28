@@ -66,11 +66,36 @@ router.get('/', async (req, res) => {
     res.json({
       success: true,
       data: {
-        cases: cases.map(case_ => ({
-          ...case_.toObject(),
-          id: case_.id || case_._id.toString(),
-          date: case_.createdAt
-        }))
+        cases: cases.map(case_ => {
+          try {
+            const caseObj = case_.toObject();
+            return {
+              ...caseObj,
+              id: case_.id || case_._id.toString(),
+              date: case_.createdAt,
+              // 確保必要欄位存在
+              title: caseObj.title || '',
+              category: caseObj.category || '',
+              budget: caseObj.budget || '',
+              mode: caseObj.mode || '線上',
+              subjects: Array.isArray(caseObj.subjects) ? caseObj.subjects : [],
+              regions: Array.isArray(caseObj.regions) ? caseObj.regions : []
+            };
+          } catch (err) {
+            console.error('❌ Error processing case:', case_._id, err);
+            // 返回一個基本的案例對象
+            return {
+              id: case_._id.toString(),
+              title: '數據錯誤',
+              category: '',
+              budget: '',
+              mode: '線上',
+              subjects: [],
+              regions: [],
+              date: case_.createdAt || new Date()
+            };
+          }
+        })
       }
     });
   } catch (err) {
