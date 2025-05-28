@@ -1,9 +1,13 @@
 const mongoose = require('mongoose');
 
 const studentCaseSchema = new mongoose.Schema({
-  title: {
+  id: {
     type: String,
     required: true
+  },
+  title: {
+    type: String,
+    required: false
   },
   subject: {
     type: String,
@@ -20,7 +24,7 @@ const studentCaseSchema = new mongoose.Schema({
   mode: {
     type: String,
     required: true,
-    enum: ['online', 'offline', 'both']
+    enum: ['面對面', '線上', 'both']
   },
   requirement: {
     type: String,
@@ -58,7 +62,7 @@ const studentCaseSchema = new mongoose.Schema({
   studentId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: false
   },
   createdAt: {
     type: Date,

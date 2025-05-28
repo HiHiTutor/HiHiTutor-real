@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
 
   try {
     const { featured, limit, sort } = req.query;
-    const query = { isApproved: true };
+    const query = {};
     
     // 如果是獲取推薦案例
     if (featured === 'true') {
@@ -41,7 +41,7 @@ router.get('/', async (req, res) => {
       data: {
         cases: cases.map(case_ => ({
           ...case_.toObject(),
-          id: case_._id.toString(),
+          id: case_.id || case_._id.toString(),
           date: case_.createdAt
         }))
       }
