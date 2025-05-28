@@ -88,6 +88,19 @@ app.use('/api/faq', faqRoutes);
 app.use('/api/articles', articlesRoutes);
 app.use('/api/regions', regionsRouter);
 
+// Test route
+app.get('/api/test', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'API is working!', 
+    timestamp: new Date().toISOString(),
+    env: {
+      NODE_ENV: process.env.NODE_ENV,
+      hasMongoUri: !!process.env.MONGODB_URI
+    }
+  });
+});
+
 // 404 handler
 app.use((req, res) => {
   console.log(`[404] 找不到路由: ${req.method} ${req.url}`);
