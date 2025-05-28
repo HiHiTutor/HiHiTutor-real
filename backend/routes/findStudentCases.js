@@ -158,6 +158,21 @@ router.get('/', async (req, res) => {
 
     console.log('🔍 Running MongoDB query:', query);
 
+    // 計算符合查詢條件的文檔總數
+    let filteredCount;
+    try {
+      filteredCount = await StudentCase.countDocuments(query);
+      console.log('📊 Documents matching query:', filteredCount);
+    } catch (countError) {
+      console.error('❌ Error counting filtered documents:', countError);
+      return res.status(500).json({
+        success: false,
+        message: 'Database query failed',
+        error: countError.message,
+        mongoState: mongoose.connection.readyState
+      });
+    }
+
     // 構建查詢
     let findQuery = StudentCase.find(query);
 
@@ -207,7 +222,12 @@ router.get('/', async (req, res) => {
               budget: caseObj.budget || '',
               mode: caseObj.mode || '線上',
               subjects: Array.isArray(caseObj.subjects) ? caseObj.subjects : [],
-              regions: Array.isArray(caseObj.regions) ? caseObj.regions : []
+              regions: Array.isArray(caseObj.regions) ? caseObj.regions : [],
+              // 處理舊格式的兼容性
+              subject: caseObj.subject || (Array.isArray(caseObj.subjects) && caseObj.subjects.length > 0 ? caseObj.subjects[0] : ''),
+              location: caseObj.location || (Array.isArray(caseObj.regions) && caseObj.regions.length > 0 ? caseObj.regions[0] : ''),
+              requirement: caseObj.requirement || caseObj.requirements || '',
+              priceRange: caseObj.priceRange || caseObj.budget || ''
             };
           } catch (err) {
             console.error('❌ Error processing case:', case_._id, err);
@@ -224,7 +244,8 @@ router.get('/', async (req, res) => {
             };
           }
         }),
-        totalCount: count
+        totalCount: filteredCount, // 使用符合查詢條件的總數
+        allDocumentsCount: count // 可選：提供所有文檔的總數用於調試
       }
     });
   } catch (err) {
