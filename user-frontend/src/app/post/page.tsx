@@ -18,9 +18,15 @@ export default function PostPage() {
     const fetchUserData = async () => {
       try {
         const data = await authApi.getProfile();
+        console.log('🔍 獲取到的用戶資料:', data);
+        
         // 設置用戶角色，優先使用 userType，如果沒有則使用 role
         const role = data.userType || data.role;
+        console.log('🎭 設置用戶角色:', role);
         setUserRole(role);
+        
+        // 同時保存到 localStorage 供其他頁面使用
+        localStorage.setItem('userType', role);
       } catch (err) {
         console.error('獲取用戶資料失敗:', err);
         router.replace('/login');

@@ -23,7 +23,6 @@ export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
 
     const response = await fetch(url, {
       ...options,
-      mode: 'cors',
       credentials: 'include',
       headers,
     });
