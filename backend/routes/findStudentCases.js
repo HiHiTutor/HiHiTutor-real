@@ -18,6 +18,177 @@ const mapModeToChineseValue = (mode) => {
   return modeMap[mode] || mode;
 };
 
+// 複雜的推薦演算法函數
+const getRecommendedCases = async (maxResults = 8) => {
+  console.log('🎯 Starting recommendation algorithm with maxResults:', maxResults);
+  
+  const usedIds = new Set();
+  const results = [];
+  
+  // 定義各類型的最大數量限制
+  const limits = {
+    vipHighRating: 2,    // VIP 置頂 + 高評分：最多 2 個
+    vipNormal: 2,        // VIP 置頂（無評分限制）：最多 2 個
+    topHighRating: 1,    // 置頂 + 高評分：最多 1 個
+    topNormal: 1,        // 置頂（無評分限制）：最多 1 個
+    normalHighRating: 1, // 普通高評分：最多 1 個
+    fallback: 1          // 其他普通 fallback 個案：最多 1 個
+  };
+  
+  try {
+    // 1. VIP 置頂 + 高評分（ratingScore >= 4）
+    console.log('🔍 Fetching VIP + High Rating cases...');
+    const vipHighRatingCases = await StudentCase.find({
+      featured: true,
+      isVip: true,
+      ratingScore: { $gte: 4 },
+      _id: { $nin: Array.from(usedIds) }
+    }).sort({ 
+      vipLevel: -1, 
+      ratingScore: -1, 
+      createdAt: -1 
+    }).limit(limits.vipHighRating);
+    
+    vipHighRatingCases.forEach(case_ => {
+      if (results.length < maxResults) {
+        case_._recommendationType = 'vip_high_rating';
+        case_._priorityScore = 100 + case_.ratingScore * 10 + case_.vipLevel * 5;
+        results.push(case_);
+        usedIds.add(case_._id.toString());
+      }
+    });
+    
+    // 2. VIP 置頂（無評分限制）
+    console.log('🔍 Fetching VIP cases...');
+    const vipNormalCases = await StudentCase.find({
+      featured: true,
+      isVip: true,
+      _id: { $nin: Array.from(usedIds) }
+    }).sort({ 
+      vipLevel: -1, 
+      ratingScore: -1, 
+      createdAt: -1 
+    }).limit(limits.vipNormal);
+    
+    vipNormalCases.forEach(case_ => {
+      if (results.length < maxResults) {
+        case_._recommendationType = 'vip_normal';
+        case_._priorityScore = 80 + case_.ratingScore * 5 + case_.vipLevel * 5;
+        results.push(case_);
+        usedIds.add(case_._id.toString());
+      }
+    });
+    
+    // 3. 置頂 + 高評分（ratingScore >= 4）
+    console.log('🔍 Fetching Top + High Rating cases...');
+    const topHighRatingCases = await StudentCase.find({
+      featured: true,
+      isTop: true,
+      isVip: { $ne: true }, // 排除已經是 VIP 的
+      ratingScore: { $gte: 4 },
+      _id: { $nin: Array.from(usedIds) }
+    }).sort({ 
+      topLevel: -1, 
+      ratingScore: -1, 
+      createdAt: -1 
+    }).limit(limits.topHighRating);
+    
+    topHighRatingCases.forEach(case_ => {
+      if (results.length < maxResults) {
+        case_._recommendationType = 'top_high_rating';
+        case_._priorityScore = 70 + case_.ratingScore * 8 + case_.topLevel * 3;
+        results.push(case_);
+        usedIds.add(case_._id.toString());
+      }
+    });
+    
+    // 4. 置頂（無評分限制）
+    console.log('🔍 Fetching Top cases...');
+    const topNormalCases = await StudentCase.find({
+      featured: true,
+      isTop: true,
+      isVip: { $ne: true }, // 排除已經是 VIP 的
+      _id: { $nin: Array.from(usedIds) }
+    }).sort({ 
+      topLevel: -1, 
+      ratingScore: -1, 
+      createdAt: -1 
+    }).limit(limits.topNormal);
+    
+    topNormalCases.forEach(case_ => {
+      if (results.length < maxResults) {
+        case_._recommendationType = 'top_normal';
+        case_._priorityScore = 60 + case_.ratingScore * 3 + case_.topLevel * 3;
+        results.push(case_);
+        usedIds.add(case_._id.toString());
+      }
+    });
+    
+    // 5. 普通 + 高評分
+    console.log('🔍 Fetching Normal + High Rating cases...');
+    const normalHighRatingCases = await StudentCase.find({
+      featured: true,
+      isVip: { $ne: true },
+      isTop: { $ne: true },
+      ratingScore: { $gte: 4 },
+      _id: { $nin: Array.from(usedIds) }
+    }).sort({ 
+      ratingScore: -1, 
+      createdAt: -1 
+    }).limit(limits.normalHighRating);
+    
+    normalHighRatingCases.forEach(case_ => {
+      if (results.length < maxResults) {
+        case_._recommendationType = 'normal_high_rating';
+        case_._priorityScore = 50 + case_.ratingScore * 5;
+        results.push(case_);
+        usedIds.add(case_._id.toString());
+      }
+    });
+    
+    // 6. 其他普通 fallback 個案
+    console.log('🔍 Fetching Fallback cases...');
+    const fallbackCases = await StudentCase.find({
+      featured: true,
+      isVip: { $ne: true },
+      isTop: { $ne: true },
+      _id: { $nin: Array.from(usedIds) }
+    }).sort({ 
+      ratingScore: -1, 
+      createdAt: -1 
+    }).limit(Math.max(limits.fallback, maxResults - results.length));
+    
+    fallbackCases.forEach(case_ => {
+      if (results.length < maxResults) {
+        case_._recommendationType = 'fallback';
+        case_._priorityScore = 30 + case_.ratingScore * 2;
+        results.push(case_);
+        usedIds.add(case_._id.toString());
+      }
+    });
+    
+    console.log('✅ Recommendation algorithm completed');
+    console.log('📊 Results breakdown:', {
+      total: results.length,
+      vipHighRating: results.filter(c => c._recommendationType === 'vip_high_rating').length,
+      vipNormal: results.filter(c => c._recommendationType === 'vip_normal').length,
+      topHighRating: results.filter(c => c._recommendationType === 'top_high_rating').length,
+      topNormal: results.filter(c => c._recommendationType === 'top_normal').length,
+      normalHighRating: results.filter(c => c._recommendationType === 'normal_high_rating').length,
+      fallback: results.filter(c => c._recommendationType === 'fallback').length
+    });
+    
+    return results;
+    
+  } catch (error) {
+    console.error('❌ Error in recommendation algorithm:', error);
+    // 如果推薦演算法失敗，返回基本的 featured 案例
+    return await StudentCase.find({ featured: true })
+      .sort({ createdAt: -1 })
+      .limit(maxResults);
+  }
+};
+
 // 測試端點 - 用於診斷問題
 router.get('/test', async (req, res) => {
   console.log('📥 Test endpoint called');
@@ -151,9 +322,64 @@ router.get('/', async (req, res) => {
     const { featured, limit, sort } = req.query;
     const query = {};
     
-    // 如果是獲取推薦案例
+    // 如果是獲取推薦案例，使用複雜的混合演算法
     if (featured === 'true') {
       query.featured = true;
+      
+      // 實現混合推薦演算法
+      const recommendedCases = await getRecommendedCases(limit ? parseInt(limit) : 8);
+      
+      // 返回推薦結果
+      res.json({
+        success: true,
+        data: {
+          cases: recommendedCases.map(case_ => {
+            try {
+              const caseObj = case_.toObject();
+              return {
+                ...caseObj,
+                id: case_.id || case_._id.toString(),
+                date: case_.createdAt,
+                // 確保必要欄位存在
+                title: caseObj.title || '',
+                category: caseObj.category || '',
+                budget: caseObj.budget || '',
+                mode: caseObj.mode || '線上',
+                subjects: Array.isArray(caseObj.subjects) ? caseObj.subjects : [],
+                regions: Array.isArray(caseObj.regions) ? caseObj.regions : [],
+                // 處理舊格式的兼容性
+                subject: caseObj.subject || (Array.isArray(caseObj.subjects) && caseObj.subjects.length > 0 ? caseObj.subjects[0] : ''),
+                location: caseObj.location || (Array.isArray(caseObj.regions) && caseObj.regions.length > 0 ? caseObj.regions[0] : ''),
+                requirement: caseObj.requirement || caseObj.requirements || '',
+                priceRange: caseObj.priceRange || caseObj.budget || '',
+                // 添加推薦相關信息
+                recommendationType: caseObj._recommendationType || 'normal',
+                priorityScore: caseObj._priorityScore || 0
+              };
+            } catch (err) {
+              console.error('❌ Error processing case:', case_._id, err);
+              return {
+                id: case_._id.toString(),
+                title: '數據錯誤',
+                category: '',
+                budget: '',
+                mode: '線上',
+                subjects: [],
+                regions: [],
+                date: case_.createdAt || new Date()
+              };
+            }
+          }),
+          totalCount: recommendedCases.length,
+          allDocumentsCount: count,
+          recommendationInfo: {
+            algorithm: 'mixed_priority',
+            maxResults: limit ? parseInt(limit) : 8,
+            appliedAt: new Date().toISOString()
+          }
+        }
+      });
+      return;
     }
 
     console.log('🔍 Running MongoDB query:', query);
@@ -312,7 +538,18 @@ router.post('/', verifyToken, async (req, res) => {
       duration,
       durationUnit,
       weeklyLessons,
-      requirements
+      requirements,
+      // 新增的推薦相關字段
+      isVip,
+      vipLevel,
+      isTop,
+      topLevel,
+      ratingScore,
+      ratingCount,
+      isPaid,
+      paymentType,
+      promotionLevel,
+      featured
     } = req.body;
 
     console.log('🔍 驗證欄位:', {
@@ -322,7 +559,14 @@ router.post('/', verifyToken, async (req, res) => {
       subjects: subjects && subjects.length > 0,
       regions: regions && regions.length > 0,
       modes: modes && modes.length > 0,
-      budget: !!(budget || price)
+      budget: !!(budget || price),
+      // 新增字段的驗證
+      isVip: isVip !== undefined,
+      vipLevel: vipLevel !== undefined,
+      isTop: isTop !== undefined,
+      topLevel: topLevel !== undefined,
+      ratingScore: ratingScore !== undefined,
+      paymentType: paymentType !== undefined
     });
 
     if (!tutorId || title === undefined || !category || 
@@ -374,7 +618,17 @@ router.post('/', verifyToken, async (req, res) => {
       durationUnit: durationUnit || 'minutes',
       weeklyLessons: weeklyLessons || 1,
       requirements: requirements || description || '',
-      featured: false,
+      featured: featured !== undefined ? featured : false,
+      // 新增的推薦相關字段
+      isVip: isVip !== undefined ? isVip : false,
+      vipLevel: vipLevel !== undefined ? Math.max(0, Math.min(2, vipLevel)) : 0,
+      isTop: isTop !== undefined ? isTop : false,
+      topLevel: topLevel !== undefined ? Math.max(0, Math.min(2, topLevel)) : 0,
+      ratingScore: ratingScore !== undefined ? Math.max(0, Math.min(5, ratingScore)) : 0,
+      ratingCount: ratingCount !== undefined ? Math.max(0, ratingCount) : 0,
+      isPaid: isPaid !== undefined ? isPaid : false,
+      paymentType: paymentType || 'free',
+      promotionLevel: promotionLevel !== undefined ? Math.max(0, Math.min(5, promotionLevel)) : 0,
       status: 'open',
       createdAt: new Date(),
       updatedAt: new Date()

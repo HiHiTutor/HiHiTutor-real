@@ -92,6 +92,57 @@ const studentCaseSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  // VIP 相關字段
+  isVip: {
+    type: Boolean,
+    default: false
+  },
+  vipLevel: {
+    type: Number,
+    default: 0, // 0: 普通, 1: VIP, 2: 超級VIP
+    min: 0,
+    max: 2
+  },
+  // 置頂相關字段
+  isTop: {
+    type: Boolean,
+    default: false
+  },
+  topLevel: {
+    type: Number,
+    default: 0, // 0: 普通, 1: 置頂, 2: 超級置頂
+    min: 0,
+    max: 2
+  },
+  // 評分相關字段
+  ratingScore: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 5
+  },
+  ratingCount: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  // 付費相關字段
+  isPaid: {
+    type: Boolean,
+    default: false
+  },
+  paymentType: {
+    type: String,
+    enum: ['free', 'basic', 'premium', 'vip'],
+    default: 'free'
+  },
+  // 推廣相關字段
+  promotionLevel: {
+    type: Number,
+    default: 0, // 0: 無推廣, 1-5: 推廣等級
+    min: 0,
+    max: 5
+  },
   isApproved: {
     type: Boolean,
     default: true
