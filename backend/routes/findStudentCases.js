@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const StudentCase = require('../models/StudentCase');
 const mongoose = require('mongoose');
+const { verifyToken } = require('../middleware/authMiddleware');
 
 // GET 查詢學生案例
 router.get('/', async (req, res) => {
@@ -52,6 +53,80 @@ router.get('/', async (req, res) => {
       success: false,
       message: '獲取學生案例時發生錯誤', 
       error: err.message 
+    });
+  }
+});
+
+// POST 創建新的學生案例
+router.post('/', verifyToken, async (req, res) => {
+  console.log('📥 Received POST request to /api/find-student-cases');
+  console.log('👉 Body:', req.body);
+  console.log('👤 User:', req.user);
+
+  try {
+    const {
+      tutorId,
+      title,
+      category,
+      subCategory,
+      subjects,
+      regions,
+      subRegions,
+      modes,
+      budget,
+      duration,
+      durationUnit,
+      weeklyLessons,
+      requirements
+    } = req.body;
+
+    // 驗證必要欄位
+    if (!tutorId || !title || !category || !subjects || !regions || !modes || !budget) {
+      return res.status(400).json({
+        success: false,
+        message: '請填寫所有必要欄位'
+      });
+    }
+
+    // 創建新案例
+    const newCase = new StudentCase({
+      id: tutorId, // 使用 tutorId 作為案例 ID
+      tutorId,
+      title,
+      category,
+      subCategory: subCategory || '',
+      subjects: Array.isArray(subjects) ? subjects : [subjects],
+      regions: Array.isArray(regions) ? regions : [regions],
+      subRegions: Array.isArray(subRegions) ? subRegions : [subRegions],
+      mode: Array.isArray(modes) ? modes[0] : modes, // StudentCase 模型期待單個值
+      budget: budget.toString(),
+      duration: duration || 60,
+      durationUnit: durationUnit || 'minutes',
+      weeklyLessons: weeklyLessons || 1,
+      requirements: requirements || '',
+      featured: false,
+      status: 'open',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+
+    const savedCase = await newCase.save();
+    console.log('✅ 成功創建學生案例:', savedCase);
+
+    res.status(201).json({
+      success: true,
+      message: '成功創建學生案例',
+      data: {
+        id: savedCase._id,
+        ...savedCase.toObject()
+      }
+    });
+  } catch (err) {
+    console.error('❌ Error creating student case:', err);
+    res.status(500).json({
+      success: false,
+      message: '創建學生案例時發生錯誤',
+      error: err.message
     });
   }
 });

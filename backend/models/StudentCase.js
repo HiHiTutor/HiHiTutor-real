@@ -5,17 +5,25 @@ const studentCaseSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  tutorId: {
+    type: String,
+    required: false
+  },
   title: {
     type: String,
     required: false
   },
   subject: {
     type: String,
-    required: true
+    required: false
+  },
+  subjects: {
+    type: [String],
+    required: false
   },
   location: {
     type: String,
-    required: true
+    required: false
   },
   budget: {
     type: String,
@@ -24,27 +32,58 @@ const studentCaseSchema = new mongoose.Schema({
   mode: {
     type: String,
     required: true,
-    enum: ['面對面', '線上', 'both']
+    enum: ['面對面', '線上', 'both', '網課', '面授']
+  },
+  modes: {
+    type: [String],
+    required: false
   },
   requirement: {
     type: String,
-    required: true
+    required: false
+  },
+  requirements: {
+    type: String,
+    required: false
   },
   category: {
     type: String,
     required: true
   },
   subCategory: {
-    type: [String],
-    required: true
+    type: String,
+    required: false
   },
   region: {
     type: [String],
-    required: true
+    required: false
+  },
+  regions: {
+    type: [String],
+    required: false
+  },
+  subRegions: {
+    type: [String],
+    required: false
   },
   priceRange: {
     type: String,
-    required: true
+    required: false
+  },
+  duration: {
+    type: Number,
+    required: false,
+    default: 60
+  },
+  durationUnit: {
+    type: String,
+    required: false,
+    default: 'minutes'
+  },
+  weeklyLessons: {
+    type: Number,
+    required: false,
+    default: 1
   },
   featured: {
     type: Boolean,
