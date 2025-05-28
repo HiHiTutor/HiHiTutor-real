@@ -177,9 +177,26 @@ router.get('/', async (req, res) => {
     let findQuery = StudentCase.find(query);
 
     // 根據 sort 參數決定排序方式
+    let sortCriteria;
     if (sort === 'latest') {
-      findQuery = findQuery.sort({ createdAt: -1 }); // 倒序排序，最新的在前
+      sortCriteria = { createdAt: -1 }; // 倒序排序，最新的在前
+      findQuery = findQuery.sort(sortCriteria);
+    } else if (sort === 'oldest') {
+      sortCriteria = { createdAt: 1 }; // 正序排序，最舊的在前
+      findQuery = findQuery.sort(sortCriteria);
+    } else if (sort === 'featured') {
+      sortCriteria = { featured: -1, createdAt: -1 }; // featured 優先，然後按時間倒序
+      findQuery = findQuery.sort(sortCriteria);
+    } else {
+      // 默認排序：featured 案例優先，然後按創建時間倒序
+      sortCriteria = { 
+        featured: -1,    // featured 案例優先 (true > false)
+        createdAt: -1    // 然後按創建時間倒序 (最新的在前)
+      };
+      findQuery = findQuery.sort(sortCriteria);
     }
+
+    console.log('🔍 Sort criteria:', sortCriteria);
 
     // 限制返回數量
     if (limit) {
