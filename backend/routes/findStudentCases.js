@@ -24,16 +24,30 @@ router.get('/', async (req, res) => {
   console.log('👉 Query:', req.query);
 
   try {
+    // 先返回一個簡單的測試響應，確保路由工作
+    console.log('🔍 Testing basic response...');
+    
     // 檢查數據庫連接狀態
     console.log('📊 MongoDB connection state:', mongoose.connection.readyState);
     console.log('📊 MongoDB URI exists:', !!process.env.MONGODB_URI);
     
     if (mongoose.connection.readyState !== 1) {
-      console.log('⚠️ MongoDB not connected, attempting to connect...');
-      // 如果沒有連接，嘗試重新連接
-      const connectDB = require('../config/db');
-      await connectDB();
+      console.log('⚠️ MongoDB not connected, returning empty result');
+      return res.json({
+        success: true,
+        message: 'MongoDB not connected',
+        data: {
+          cases: [],
+          mongoState: mongoose.connection.readyState,
+          hasMongoUri: !!process.env.MONGODB_URI
+        }
+      });
     }
+
+    // 嘗試簡單的數據庫操作
+    console.log('🔍 Testing database connection...');
+    const count = await StudentCase.countDocuments();
+    console.log('📊 Total documents in collection:', count);
 
     const { featured, limit, sort } = req.query;
     const query = {};
@@ -44,14 +58,6 @@ router.get('/', async (req, res) => {
     }
 
     console.log('🔍 Running MongoDB query:', query);
-
-    // 檢查集合是否存在
-    try {
-      const collections = await mongoose.connection.db.listCollections().toArray();
-      console.log('📋 Available collections:', collections.map(c => c.name));
-    } catch (collErr) {
-      console.log('⚠️ Could not list collections:', collErr.message);
-    }
 
     // 構建查詢
     let findQuery = StudentCase.find(query);
@@ -107,7 +113,8 @@ router.get('/', async (req, res) => {
               date: case_.createdAt || new Date()
             };
           }
-        })
+        }),
+        totalCount: count
       }
     });
   } catch (err) {
