@@ -4,6 +4,20 @@ const StudentCase = require('../models/StudentCase');
 const mongoose = require('mongoose');
 const { verifyToken } = require('../middleware/authMiddleware');
 
+// 模式映射函數：將前端的英文值轉換為後端的中文值
+const mapModeToChineseValue = (mode) => {
+  const modeMap = {
+    'in-person': '面對面',
+    'online': '線上',
+    'both': 'both',
+    '面對面': '面對面',
+    '線上': '線上',
+    '網課': '線上',
+    '面授': '面對面'
+  };
+  return modeMap[mode] || mode;
+};
+
 // GET 查詢學生案例
 router.get('/', async (req, res) => {
   console.log('📥 Received request to /api/find-student-cases');
@@ -135,8 +149,8 @@ router.post('/', verifyToken, async (req, res) => {
       subjects: Array.isArray(subjects) ? subjects : [subjects],
       regions: Array.isArray(regions) ? regions : [regions],
       subRegions: Array.isArray(subRegions) ? subRegions : [subRegions],
-      mode: Array.isArray(modes) ? modes[0] : modes, // StudentCase 模型期待單個值
-      modes: Array.isArray(modes) ? modes : [modes],
+      mode: mapModeToChineseValue(Array.isArray(modes) ? modes[0] : modes), // 轉換模式值
+      modes: Array.isArray(modes) ? modes.map(mapModeToChineseValue) : [mapModeToChineseValue(modes)],
       budget: (budget || price || '').toString(),
       location: location || '',
       duration: lessonDuration || duration || 60,
