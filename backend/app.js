@@ -18,7 +18,7 @@ const articlesRoutes = require('./routes/articles');
 const contactRoutes = require('./routes/contact');
 const faqRoutes = require('./routes/faq');
 const authRoutes = require('./routes/auth');
-const meRouter = require('./routes/me');
+const userRouter = require('./routes/user');
 const applicationRouter = require('./routes/applications');
 const caseApplicationRouter = require('./routes/caseApplications');
 
@@ -79,7 +79,7 @@ app.use('/api/categories', categoriesRouter);
 app.use('/api/tutors', tutorsRouter);
 app.use('/api/find-student-cases', findStudentCases);
 app.use('/api/find-tutor-cases', findTutorCases);
-app.use('/api/me', meRouter);
+app.use('/api/user', userRouter);
 app.use('/api/applications', applicationRouter);
 app.use('/api/case-applications', caseApplicationRouter);
 app.use('/api/contact', contactRoutes);
