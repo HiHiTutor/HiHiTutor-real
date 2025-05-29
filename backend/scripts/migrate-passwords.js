@@ -5,8 +5,7 @@ require('dotenv').config();
 // 連接到 MongoDB
 const connectDB = async () => {
   try {
-    const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://hihitutoredu:HKP-01668@hihitutorcluster.1scf1xj.mongodb.net/HiHiTutorReally?retryWrites=true&w=majority&appName=HiHiTutorCluster';
-    await mongoose.connect(MONGODB_URI);
+    await mongoose.connect(process.env.MONGODB_URI);
     console.log('✅ 已連接到 MongoDB');
   } catch (error) {
     console.error('❌ MongoDB 連接失敗:', error);
@@ -66,9 +65,9 @@ const migratePasswords = async () => {
 };
 
 // 執行遷移
-const runMigration = async () => {
+const run = async () => {
   await connectDB();
   await migratePasswords();
 };
 
-runMigration(); 
+run(); 

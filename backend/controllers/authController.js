@@ -226,11 +226,10 @@ const register = async (req, res) => {
     }
 
     // 驗證電話格式（香港手機號碼）
-    if (!/^[5689]\d{7}$/.test(phone)) {
-      console.log("❌ 無效的電話格式：", phone);
+    if (!/^([69]\d{7})$/.test(phone)) {
       return res.status(400).json({
         success: false,
-        message: '請提供有效的香港電話號碼（8碼，5、6、8或9開頭）'
+        message: '請提供有效的香港電話號碼（8碼，9或6開頭）'
       });
     }
 
@@ -288,7 +287,7 @@ const register = async (req, res) => {
         });
       }
 
-      // 使用 bcrypt 加密密碼
+      // 加密密碼
       console.log("🔐 加密密碼...");
       const hashedPassword = await bcrypt.hash(password, 10);
 
