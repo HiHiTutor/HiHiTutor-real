@@ -34,6 +34,7 @@ app.use(cors({
       'http://localhost:3002',  // 添加管理員前端
       'https://hi-hi-tutor-real.vercel.app',
       'https://hi-hi-tutor-real-git-main-hihitutor.vercel.app',
+      'https://hi-hi-tutor-real-admin-frontend.vercel.app',  // 明確添加管理員前端域名
       /\.vercel\.app$/
     ];
     
