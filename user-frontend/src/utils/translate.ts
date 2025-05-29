@@ -123,60 +123,26 @@ export const MODE_MAP: { [key: string]: string } = {
 };
 
 // 科目映射
-export const SUBJECTS: { [key: string]: { [key: string]: string } } = {
-  'primary-secondary': {
-    'primary-english': '英文',
-    'primary-chinese': '中文',
-    'primary-math': '數學',
-    'secondary-english': '英文',
-    'secondary-chinese': '中文',
-    'secondary-math': '數學',
-    'secondary-all': '全科',
-    'secondary-ls': '通識'
-  },
-  'interest': {
-    'interest-language': '語言',
-    'interest-music': '音樂',
-    'interest-art': '藝術',
-    'interest-programming': '程式設計'
-  },
-  'adult': {
-    'adult-business': '商業英語',
-    'adult-workplace': '職場英語'
-  }
-};
-
-// 獲取地區完整名稱
-export const getRegionName = (region: string): string => REGION_MAP[region] || '';
-
-// 獲取科目中文名稱
-export function getSubjectNames(subjects: string[] = [], category?: string, subCategory?: string) {
-  if (!subjects || subjects.length === 0) return '科目待定';
-  return subjects.map(s => SUBJECT_MAP[s] || s).join('、');
-}
-
-export const getSubRegionName = (subRegion: string): string => {
-  return SUBREGION_MAP[subRegion] || subRegion || '地點待定';
-};
-
-export const getModeName = (mode: string): string => MODE_MAP[mode] || '未指定';
-
-// 科目對應
 const SUBJECT_MAP: Record<string, string> = {
+  // 幼兒教育
   "early-childhood-chinese": "幼兒中文",
   "early-childhood-english": "幼兒英文",
   "early-childhood-math": "幼兒數學",
-  "early-childhood-phonics": "幼兒拼音",
-  "early-childhood-logic": "幼兒邏輯",
-  "early-childhood-interview": "幼兒面試",
-  "early-childhood-homework": "幼兒功課輔導",
+  "early-childhood-phonics": "拼音／注音",
+  "early-childhood-logic": "邏輯思維訓練",
+  "early-childhood-interview": "面試技巧訓練",
+  "early-childhood-homework": "幼稚園功課輔導",
+
+  // 小學教育
   "primary-chinese": "小學中文",
   "primary-english": "小學英文",
   "primary-math": "小學數學",
   "primary-general": "常識／常識科",
   "primary-mandarin": "普通話",
-  "primary-stem": "小學STEM",
+  "primary-stem": "常識／STEM",
   "primary-all": "小學全科",
+
+  // 中學教育
   "secondary-chinese": "中學中文",
   "secondary-english": "中學英文",
   "secondary-math": "中學數學",
@@ -193,41 +159,48 @@ const SUBJECT_MAP: Record<string, string> = {
   "secondary-integrated-science": "綜合科學",
   "secondary-dse": "DSE總溫習",
   "secondary-all": "中學全科",
-  "secondary-humanities": "人文學科",
-  "secondary-computer": "電腦科",
-  "interest-art": "藝術",
+
+  // 興趣班
+  "interest-art": "繪畫",
   "interest-music": "音樂",
   "interest-dance": "舞蹈",
   "interest-drama": "戲劇",
-  "interest-programming": "編程／程式",
+  "interest-programming": "編程／STEM",
   "interest-foreign-language": "外語",
-  "interest-magic-chess": "魔術／圍棋",
+  "interest-magic-chess": "魔術／棋藝",
   "interest-photography": "攝影",
-  "interest-language": "語言興趣",
-  "uni-liberal": "大學通識",
-  "uni-math": "大學數學",
-  "uni-economics": "大學經濟",
-  "uni-it": "大學資訊科技",
-  "uni-business": "大學商業課程",
-  "uni-engineering": "大學工程",
-  "uni-thesis": "大學論文輔導",
-  "undergraduate-programming": "本科程式設計",
-  "undergraduate-economics": "本科經濟",
-  "undergraduate-statistics": "本科統計",
-  "undergraduate-language": "本科語文",
-  "undergraduate-accounting": "本科會計",
-  "undergraduate-calculus": "本科微積分",
-  "postgraduate-thesis": "研究生論文",
-  "postgraduate-presentation": "研究生簡報",
-  "postgraduate-research": "研究計劃",
-  "postgraduate-spss": "SPSS分析",
-  "adult-language": "成人語言",
-  "adult-workplace": "職場技巧",
-  "adult-business": "成人商業課程",
-  "business-english": "商業英文",
-  "conversation": "會話訓練",
-  "chinese-language": "中文能力提升",
-  "second-language": "第二語言學習",
-  "computer-skills": "電腦技能",
-  "exam-prep": "考試預備"
-}; 
+
+  // 大專教育
+  "tertiary-liberal": "大學通識",
+  "tertiary-math": "大學統計與數學",
+  "tertiary-economics": "經濟學",
+  "tertiary-it": "資訊科技",
+  "tertiary-business": "商科",
+  "tertiary-engineering": "工程科目",
+  "tertiary-thesis": "論文指導",
+
+  // 成人教育
+  "adult-business-english": "商務英文",
+  "adult-conversation": "生活英語會話",
+  "adult-chinese": "廣東話／普通話",
+  "adult-second-language": "第二語言學習",
+  "adult-computer": "電腦技能",
+  "adult-exam-prep": "考試準備"
+};
+
+export { SUBJECT_MAP };
+
+// 獲取地區完整名稱
+export const getRegionName = (region: string): string => REGION_MAP[region] || '';
+
+// 獲取科目中文名稱
+export function getSubjectNames(subjects: string[] = [], category?: string, subCategory?: string) {
+  if (!subjects || subjects.length === 0) return '科目待定';
+  return subjects.map(s => SUBJECT_MAP[s] || s).join('、');
+}
+
+export const getSubRegionName = (subRegion: string): string => {
+  return SUBREGION_MAP[subRegion] || subRegion || '地點待定';
+};
+
+export const getModeName = (mode: string): string => MODE_MAP[mode] || '未指定'; 

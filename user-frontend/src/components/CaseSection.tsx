@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { fetchApi } from '@/services/api';
 import CaseCard from '@/components/CaseCard';
+import { SUBJECT_MAP } from '@/utils/translate';
 
 // 科目映射表
 const subjectMap: { [key: string]: string } = {
@@ -309,14 +310,8 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
                   id: caseItem.id || caseItem._id || '',
                   subject: (() => {
                     const s = caseItem.subjects && caseItem.subjects[0];
-                    const c = caseItem.category;
                     if (!s) return undefined;
-                    if (subjectMap[s]) return { label: subjectMap[s] };
-                    if (c && subjectMap[`${c}-${s}`]) return { label: subjectMap[`${c}-${s}`] };
-                    if (subjectMap[`interest-${s}`]) return { label: subjectMap[`interest-${s}`] };
-                    if (subjectMap[`early-childhood-${s}`]) return { label: subjectMap[`early-childhood-${s}`] };
-                    console.log('未能 mapping 中文科目:', { category: c, subject: s });
-                    return { label: s };
+                    return { label: s }; // 直接返回原始代碼，讓 CaseCard 處理映射
                   })(),
                   region: (() => {
                     if (caseItem.region) return { label: regionMap[caseItem.region] || caseItem.region };
@@ -326,7 +321,6 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
                   mode: (() => {
                     if (caseItem.mode) return { label: modeMap[caseItem.mode] || caseItem.mode };
                     if (Array.isArray(caseItem.modes) && caseItem.modes.length > 0) {
-                      // 顯示所有模式，用頓號分隔
                       const modeLabels = caseItem.modes.map(m => modeMap[m] || m).join('、');
                       return { label: modeLabels };
                     }

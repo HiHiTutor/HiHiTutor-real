@@ -1,3 +1,4 @@
+// 統一的科目分類和代碼
 module.exports = [
   { 
     value: 'early-childhood',
@@ -57,39 +58,39 @@ module.exports = [
     value: 'interest', 
     label: '興趣班',
     subjects: [
-      { value: 'art', label: '繪畫' },
-      { value: 'music', label: '音樂（鋼琴、結他、小提琴等）' },
-      { value: 'dance', label: '跳舞／舞蹈訓練' },
-      { value: 'drama', label: '戲劇／演講' },
-      { value: 'programming', label: '編程／STEM' },
-      { value: 'foreign-language', label: '外語（韓文／日文／法文／德文等）' },
-      { value: 'magic-chess', label: '魔術／棋藝' },
-      { value: 'photography', label: '攝影／影片剪接' }
+      { value: 'interest-art', label: '繪畫' },
+      { value: 'interest-music', label: '音樂（鋼琴、結他、小提琴等）' },
+      { value: 'interest-dance', label: '跳舞／舞蹈訓練' },
+      { value: 'interest-drama', label: '戲劇／演講' },
+      { value: 'interest-programming', label: '編程／STEM' },
+      { value: 'interest-foreign-language', label: '外語（韓文／日文／法文／德文等）' },
+      { value: 'interest-magic-chess', label: '魔術／棋藝' },
+      { value: 'interest-photography', label: '攝影／影片剪接' }
     ]
   },
   { 
     value: 'tertiary', 
     label: '大專補習課程',
     subjects: [
-      { value: 'uni-liberal', label: '大學通識' },
-      { value: 'uni-math', label: '大學統計與數學' },
-      { value: 'uni-economics', label: '經濟學' },
-      { value: 'uni-it', label: '資訊科技' },
-      { value: 'uni-business', label: '商科（會計、管理、市場學等）' },
-      { value: 'uni-engineering', label: '工程科目' },
-      { value: 'uni-thesis', label: '論文指導／報告協助' }
+      { value: 'tertiary-liberal', label: '大學通識' },
+      { value: 'tertiary-math', label: '大學統計與數學' },
+      { value: 'tertiary-economics', label: '經濟學' },
+      { value: 'tertiary-it', label: '資訊科技' },
+      { value: 'tertiary-business', label: '商科（會計、管理、市場學等）' },
+      { value: 'tertiary-engineering', label: '工程科目' },
+      { value: 'tertiary-thesis', label: '論文指導／報告協助' }
     ]
   },
   { 
     value: 'adult', 
     label: '成人教育',
     subjects: [
-      { value: 'business-english', label: '商務英文' },
-      { value: 'conversation', label: '生活英語會話' },
-      { value: 'chinese-language', label: '廣東話／普通話' },
-      { value: 'second-language', label: '興趣／第二語言學習' },
-      { value: 'computer-skills', label: '電腦技能（Excel／Photoshop 等）' },
-      { value: 'exam-prep', label: '考試準備（IELTS／TOEFL／JLPT）' }
+      { value: 'adult-business-english', label: '商務英文' },
+      { value: 'adult-conversation', label: '生活英語會話' },
+      { value: 'adult-chinese', label: '廣東話／普通話' },
+      { value: 'adult-second-language', label: '興趣／第二語言學習' },
+      { value: 'adult-computer', label: '電腦技能（Excel／Photoshop 等）' },
+      { value: 'adult-exam-prep', label: '考試準備（IELTS／TOEFL／JLPT）' }
     ]
   }
 ]; 
