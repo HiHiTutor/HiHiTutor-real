@@ -1,3 +1,5 @@
+import { RegisterFormData } from '@/types/auth';
+
 // API 基礎 URL
 const baseURL = process.env.NEXT_PUBLIC_API_BASE || 'https://hi-hi-tutor-real-backend2.vercel.app';
 console.log('🌐 API baseURL:', baseURL);
@@ -68,19 +70,13 @@ export const authApi = {
     return res.user;
   },
   
-  // 用戶註冊
-  register: (data: {
-    name: string;
-    email: string;
-    phone: string;
-    password: string;
-    userType: 'student' | 'organization';
-    token: string;
-  }) => 
-    fetchApi('/auth/register', {
+  // 註冊新用戶
+  register: async (data: RegisterFormData) => {
+    return fetchApi('/auth/register', {
       method: 'POST',
       body: JSON.stringify(data),
-    }),
+    });
+  },
 
   // 發送驗證碼
   sendVerificationCode: (identifier: string) =>
