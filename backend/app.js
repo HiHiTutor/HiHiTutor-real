@@ -30,6 +30,7 @@ app.use(cors({
   origin: function(origin, callback) {
     const allowedOrigins = [
       'http://localhost:3000',
+      'http://localhost:3002',  // 添加管理員前端
       'https://hi-hi-tutor-real.vercel.app',
       'https://hi-hi-tutor-real-git-main-hihitutor.vercel.app',
       /\.vercel\.app$/

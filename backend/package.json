@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "Backend API for HiHiTutor",
   "main": "app.js",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "vercel-build": "echo 'Building...'"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
