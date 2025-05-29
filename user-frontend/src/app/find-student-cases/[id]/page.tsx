@@ -15,17 +15,27 @@ const EXPERIENCES: { [key: string]: string } = {
 
 export default function FindStudentCaseDetailPage() {
   const params = useParams();
-  const id = params?.id;
+  const id = typeof params?.id === 'string' ? params.id : '';
   const [caseDetail, setCaseDetail] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [userType, setUserType] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
   const [showError, setShowError] = useState(false);
 
   useEffect(() => {
-    setUserType(localStorage.getItem('userType'));
+    // 從 localStorage 獲取完整的用戶資料
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const userData = JSON.parse(userStr);
+        setUser(userData);
+      } catch (error) {
+        console.error('解析用戶資料失敗:', error);
+      }
+    }
+
     const fetchCase = async () => {
       try {
-        const result = await caseApi.getStudentCaseById(id as string);
+        const result = await caseApi.getStudentCaseById(id);
         console.log('📥 API 返回的資料:', result);
         setCaseDetail(Array.isArray(result) ? result[0] : result?.data);
       } catch (error) {
@@ -42,12 +52,28 @@ export default function FindStudentCaseDetailPage() {
   if (!caseDetail) return <div>此個案未找到或已被刪除。</div>;
 
   const handleApply = async () => {
-    if (userType !== 'tutor') {
+    // 檢查用戶是否已登入
+    if (!user) {
       setShowError(true);
       return;
     }
+
+    // 檢查用戶是否為導師（同時檢查 userType 和 role）
+    const isTutor = user.userType === 'tutor' || user.role === 'tutor';
+    if (!isTutor) {
+      setShowError(true);
+      return;
+    }
+
     setShowError(false);
     console.log(`Applying for case: ${id}`);
+    try {
+      await caseApi.applyCase(id, user.id);
+      // TODO: 顯示成功訊息
+    } catch (error) {
+      console.error('申請失敗:', error);
+      // TODO: 顯示錯誤訊息
+    }
   };
 
   // 處理個案 ID
@@ -55,84 +81,45 @@ export default function FindStudentCaseDetailPage() {
     return caseDetail.id || caseDetail._id || '無ID';
   };
 
-  // 處理科目資料
+  // 處理科目
   const getSubjects = () => {
-    if (!caseDetail.subjects || !Array.isArray(caseDetail.subjects)) {
-      // 處理舊格式的 subject 欄位
-      if (caseDetail.subject) {
-        return caseDetail.subject;
-      }
-      return "無科目資料";
-    }
-    
-    return getSubjectNames(caseDetail.subjects, caseDetail.category, caseDetail.subCategory);
+    if (!caseDetail.subjects) return '未指定';
+    return getSubjectNames(caseDetail.subjects);
   };
 
-  // 處理預算資料
-  const getBudget = () => {
-    if (!caseDetail.budget) return "價格待議";
-    
-    if (typeof caseDetail.budget === 'string') {
-      return caseDetail.budget;
-    }
-    
-    if (typeof caseDetail.budget === 'object' && caseDetail.budget !== null) {
-      const { min, max } = caseDetail.budget;
-      if (min && max) {
-        return `${min} - ${max}/小時`;
-      }
-    }
-    
-    return "價格待議";
-  };
-
-  // 處理地區資料
+  // 處理地點
   const getLocation = () => {
-    let locationParts = [];
+    const regions = caseDetail.regions || [];
+    const subRegions = caseDetail.subRegions || [];
     
-    // 處理主要地區
-    if (caseDetail.regions && Array.isArray(caseDetail.regions) && caseDetail.regions.length > 0) {
-      const regionName = getRegionName(caseDetail.regions[0]);
-      if (regionName) {
-        locationParts.push(regionName);
-      }
-    } else if (caseDetail.region) {
-      // 處理舊格式的 region 欄位
-      const regionName = getRegionName(caseDetail.region);
-      if (regionName) {
-        locationParts.push(regionName);
-      }
+    if (regions.length === 0 && subRegions.length === 0) {
+      return '未指定';
     }
+
+    const regionNames = regions.map(getRegionName);
+    const subRegionNames = subRegions.map(getSubRegionName);
     
-    // 處理子地區
-    if (caseDetail.subRegions && Array.isArray(caseDetail.subRegions) && caseDetail.subRegions.length > 0) {
-      const subRegionNames = caseDetail.subRegions.map((subRegion: string) => getSubRegionName(subRegion)).filter(Boolean);
-      locationParts = locationParts.concat(subRegionNames);
-    } else if (caseDetail.subRegion) {
-      // 處理舊格式的 subRegion 欄位
-      const subRegionName = getSubRegionName(caseDetail.subRegion);
-      if (subRegionName && subRegionName !== '地點待定') {
-        locationParts.push(subRegionName);
-      }
-    }
-    
-    // 如果沒有地區資料，檢查 location 欄位
-    if (locationParts.length === 0 && caseDetail.location) {
-      return caseDetail.location;
-    }
-    
-    return locationParts.length > 0 ? locationParts.join('、') : '地點待定';
+    return [...regionNames, ...subRegionNames].join('、');
   };
 
-  // 處理教學模式
+  // 處理預算
+  const getBudget = () => {
+    if (!caseDetail.budget) return '待議';
+    const { min, max } = caseDetail.budget;
+    if (!min && !max) return '待議';
+    if (min === max) return `${min}/小時`;
+    return `${min} - ${max}/小時`;
+  };
+
+  // 處理模式
   const getMode = () => {
+    if (!caseDetail.mode && (!caseDetail.modes || caseDetail.modes.length === 0)) {
+      return '未指定';
+    }
     if (caseDetail.mode) {
       return getModeName(caseDetail.mode);
     }
-    if (caseDetail.modes && Array.isArray(caseDetail.modes) && caseDetail.modes.length > 0) {
-      return caseDetail.modes.map((mode: string) => getModeName(mode)).join('、');
-    }
-    return '導師未指定教學模式';
+    return caseDetail.modes.map(getModeName).join('、');
   };
 
   // 處理要求
@@ -143,16 +130,16 @@ export default function FindStudentCaseDetailPage() {
     if (caseDetail.experience) {
       return EXPERIENCES[caseDetail.experience] || caseDetail.experience;
     }
-    return '導師未指定特別要求';
+    return '學生未指定特別要求';
   };
 
   return (
     <section className="px-4 py-8 max-w-screen-xl mx-auto">
       <div className="flex items-center gap-2 mb-6">
-        <span className="text-2xl">👩‍🏫</span>
-        <h2 className="text-2xl font-bold border-l-4 border-yellow-400 pl-3">精選導師個案</h2>
+        <span className="text-2xl">📝</span>
+        <h2 className="text-2xl font-bold border-l-4 border-blue-400 pl-3">學生個案詳情</h2>
       </div>
-      <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-8">
+      <div className="bg-blue-100 border border-blue-300 rounded-xl p-8">
         <p className="text-gray-600">個案 ID：{getCaseId()}</p>
         <p className="text-gray-600">科目：{getSubjects()}</p>
         <p className="text-gray-600">地點：{getLocation()}</p>
@@ -167,7 +154,9 @@ export default function FindStudentCaseDetailPage() {
             申請此個案
           </button>
           {showError && (
-            <div className="mt-4 text-red-600">需要升級為導師才可申請此個案</div>
+            <div className="mt-4 text-red-600">
+              {!user ? '請先登入' : '需要升級為導師才可申請此個案'}
+            </div>
           )}
         </div>
       </div>
