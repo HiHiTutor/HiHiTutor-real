@@ -143,10 +143,10 @@ export default function FindTutorCaseDetailPage() {
   return (
     <section className="px-4 py-8 max-w-screen-xl mx-auto">
       <div className="flex items-center gap-2 mb-6">
-        <span className="text-2xl">👩‍🏫</span>
-        <h2 className="text-2xl font-bold border-l-4 border-yellow-400 pl-3">導師個案詳情</h2>
+        <span className="text-2xl">📝</span>
+        <h2 className="text-2xl font-bold border-l-4 border-blue-400 pl-3">學生個案詳情</h2>
       </div>
-      <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-8">
+      <div className="bg-blue-100 border border-blue-300 rounded-xl p-8">
         <p className="text-gray-600">個案 ID：{getCaseId()}</p>
         <p className="text-gray-600">科目：{getSubjects()}</p>
         <p className="text-gray-600">地點：{getLocation()}</p>
