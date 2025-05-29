@@ -163,7 +163,7 @@ export const caseApi = {
 
   // 申請個案
   applyCase: async (caseId: number | string, tutorId: number | string) => {
-    return fetchApi(`/case-applications/${caseId}`, {
+    return fetchApi(`/case-applications/${caseId}/apply`, {
       method: 'POST',
       body: JSON.stringify({ tutorId }),
     });
