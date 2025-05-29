@@ -209,28 +209,16 @@ export default function RegisterPage() {
           formDataToSend.append(key, value);
         });
 
-        const response = await fetch('/api/auth/register', {
-          method: 'POST',
-          body: formDataToSend,
-        });
-
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.message || '註冊失敗');
+        // 使用 authApi.register 並傳遞 FormData
+        const response = await authApi.register(formDataToSend as any);
+        if (!response.success) {
+          throw new Error(response.message || '註冊失敗');
         }
       } else {
         // 普通用戶註冊
-        const response = await fetch('/api/auth/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(registerData),
-        });
-
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.message || '註冊失敗');
+        const response = await authApi.register(registerData);
+        if (!response.success) {
+          throw new Error(response.message || '註冊失敗');
         }
       }
 

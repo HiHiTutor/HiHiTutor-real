@@ -71,11 +71,22 @@ export const authApi = {
   },
   
   // 註冊新用戶
-  register: async (data: RegisterFormData) => {
-    return fetchApi('/auth/register', {
+  register: async (data: RegisterFormData | FormData) => {
+    const options: RequestInit = {
       method: 'POST',
-      body: JSON.stringify(data),
-    });
+    };
+
+    // 如果是 FormData，不設置 Content-Type，讓瀏覽器自動設置
+    if (data instanceof FormData) {
+      options.body = data;
+    } else {
+      options.headers = {
+        'Content-Type': 'application/json',
+      };
+      options.body = JSON.stringify(data);
+    }
+
+    return fetchApi('/auth/register', options);
   },
 
   // 發送驗證碼
