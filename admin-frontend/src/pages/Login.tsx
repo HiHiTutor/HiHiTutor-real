@@ -11,6 +11,7 @@ import {
 import { useAppDispatch } from '../hooks/redux';
 import { authAPI } from '../services/api';
 import { setAuth } from '../store/slices/authSlice';
+import axios from 'axios';
 
 const Login: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -25,11 +26,19 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
+      console.log('Attempting login with:', { identifier });
       const response = await authAPI.login({ identifier, password });
+      console.log('Login response:', response.data);
       localStorage.setItem('adminToken', response.data.token);
       dispatch(setAuth({ isAuthenticated: true, user: response.data.user }));
     } catch (error) {
-      setError('Invalid login credentials');
+      console.error('Login error:', error);
+      if (axios.isAxiosError(error)) {
+        const errorMessage = error.response?.data?.message || error.message;
+        setError(`Login failed: ${errorMessage}`);
+      } else {
+        setError('An unexpected error occurred during login');
+      }
     } finally {
       setLoading(false);
     }
