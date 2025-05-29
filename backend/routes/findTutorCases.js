@@ -180,6 +180,88 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET 單一導師案例詳情
+router.get('/:id', async (req, res) => {
+  console.log('📥 Received request to /api/find-tutor-cases/:id');
+  console.log('👉 Case ID:', req.params.id);
+
+  try {
+    // 檢查數據庫連接狀態
+    console.log('📊 MongoDB connection state:', mongoose.connection.readyState);
+    
+    // 如果數據庫未連接，嘗試重新連接
+    if (mongoose.connection.readyState !== 1) {
+      console.log('⚠️ MongoDB not connected, current state:', mongoose.connection.readyState);
+      
+      if (process.env.MONGODB_URI) {
+        console.log('🔄 Attempting to reconnect to MongoDB...');
+        try {
+          await mongoose.connect(process.env.MONGODB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
+          });
+          console.log('✅ Reconnected to MongoDB');
+        } catch (reconnectError) {
+          console.error('❌ Failed to reconnect to MongoDB:', reconnectError);
+          return res.status(500).json({
+            success: false,
+            message: 'Database connection failed',
+            error: reconnectError.message
+          });
+        }
+      } else {
+        console.error('❌ No MongoDB URI found in environment variables');
+        return res.status(500).json({
+          success: false,
+          message: 'Database configuration error',
+          error: 'MONGODB_URI not found'
+        });
+      }
+    }
+
+    const id = req.params.id;
+    let caseItem = null;
+
+    // 檢查是否為有效的 MongoDB ObjectId 格式
+    if (mongoose.Types.ObjectId.isValid(id) && id.length === 24) {
+      // 如果是有效的 ObjectId，使用 findById
+      caseItem = await TutorCase.findById(id);
+      console.log('🔍 使用 findById 查詢結果:', caseItem ? '找到' : '未找到');
+    }
+
+    if (!caseItem) {
+      // 如果通過 _id 找不到，或者不是有效的 ObjectId，嘗試通過 id 字段查找
+      caseItem = await TutorCase.findOne({ id: id });
+      console.log('🔍 使用 findOne({id}) 查詢結果:', caseItem ? '找到' : '未找到');
+    }
+
+    if (!caseItem) {
+      console.log('❌ 找不到個案 ID:', id);
+      return res.status(404).json({
+        success: false,
+        error: 'Case not found',
+        message: '找不到指定的個案'
+      });
+    }
+
+    console.log('✅ 成功找到個案:', id);
+    res.json({
+      success: true,
+      data: caseItem,
+      message: '成功獲取個案詳情'
+    });
+  } catch (err) {
+    console.error('❌ Error in /api/find-tutor-cases/:id:', err.stack);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: err.message
+    });
+  }
+});
+
 // POST 創建導師案例
 router.post('/', verifyToken, async (req, res) => {
   console.log('📥 Received POST request to /api/find-tutor-cases');

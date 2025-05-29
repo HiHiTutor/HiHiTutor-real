@@ -167,7 +167,7 @@ export default function FindStudentCaseDetailPage() {
     setUserType(localStorage.getItem('userType'));
     const fetchCase = async () => {
       try {
-        const result = await caseApi.getCaseById(id as string);
+        const result = await caseApi.getStudentCaseById(id as string);
         setCaseDetail(Array.isArray(result) ? result[0] : result?.data);
       } catch (error) {
         setCaseDetail(null);
