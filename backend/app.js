@@ -28,33 +28,7 @@ const app = express();
 
 // CORS 設定
 app.use(cors({
-  origin: function(origin, callback) {
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:3002',  // 添加管理員前端
-      'https://hi-hi-tutor-real.vercel.app',
-      'https://hi-hi-tutor-real-git-main-hihitutor.vercel.app',
-      'https://hi-hi-tutor-real-admin-frontend.vercel.app',  // 明確添加管理員前端域名
-      /\.vercel\.app$/
-    ];
-    
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    // Check if the origin is allowed
-    const isAllowed = allowedOrigins.some(allowedOrigin => {
-      if (allowedOrigin instanceof RegExp) {
-        return allowedOrigin.test(origin);
-      }
-      return allowedOrigin === origin;
-    });
-    
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: 'https://hi-hi-tutor-real-admin-frontend.vercel.app',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: [
     'Content-Type',
