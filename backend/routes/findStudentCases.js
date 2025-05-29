@@ -4,6 +4,24 @@ const StudentCase = require('../models/StudentCase');
 const mongoose = require('mongoose');
 const { verifyToken } = require('../middleware/authMiddleware');
 
+// 分類映射函數：將中文值轉換為前端的英文值
+const mapCategoryToEnglishValue = (category) => {
+  const categoryMap = {
+    '幼兒': 'early-childhood',
+    '幼稚園': 'early-childhood',
+    '小學': 'primary-secondary',
+    '中學': 'primary-secondary',
+    '高中': 'primary-secondary',
+    '國中': 'primary-secondary',
+    '興趣': 'interest',
+    '大學': 'tertiary',
+    '大專': 'tertiary',
+    '成人': 'adult',
+    '職業': 'adult'
+  };
+  return categoryMap[category] || category;
+};
+
 // 模式映射函數：將前端的英文值轉換為後端的中文值
 const mapModeToChineseValue = (mode) => {
   const modeMap = {
@@ -449,49 +467,21 @@ router.get('/', async (req, res) => {
       console.log('📄 Sample case structure:', JSON.stringify(cases[0], null, 2));
     }
 
+    // 轉換分類值
+    const transformedCases = cases.map(case_ => ({
+      ...case_._doc,
+      category: mapCategoryToEnglishValue(case_.category)
+    }));
+
     // 返回與前端期望一致的格式
     res.json({
       success: true,
       data: {
-        cases: cases.map(case_ => {
-          try {
-            const caseObj = case_.toObject();
-            return {
-              ...caseObj,
-              id: case_.id || case_._id.toString(),
-              date: case_.createdAt,
-              // 確保必要欄位存在
-              title: caseObj.title || '',
-              category: caseObj.category || '',
-              budget: caseObj.budget || '',
-              mode: caseObj.mode || (Array.isArray(caseObj.modes) && caseObj.modes.length > 0 ? caseObj.modes[0] : '線上'),
-              modes: Array.isArray(caseObj.modes) ? caseObj.modes : (caseObj.mode ? [caseObj.mode] : ['線上']),
-              subjects: Array.isArray(caseObj.subjects) ? caseObj.subjects : [],
-              regions: Array.isArray(caseObj.regions) ? caseObj.regions : [],
-              // 處理舊格式的兼容性
-              subject: caseObj.subject || (Array.isArray(caseObj.subjects) && caseObj.subjects.length > 0 ? caseObj.subjects[0] : ''),
-              location: caseObj.location || (Array.isArray(caseObj.regions) && caseObj.regions.length > 0 ? caseObj.regions[0] : ''),
-              requirement: caseObj.requirement || caseObj.requirements || '',
-              priceRange: caseObj.priceRange || caseObj.budget || ''
-            };
-          } catch (err) {
-            console.error('❌ Error processing case:', case_._id, err);
-            // 返回一個基本的案例對象
-            return {
-              id: case_._id.toString(),
-              title: '數據錯誤',
-              category: '',
-              budget: '',
-              mode: '線上',
-              subjects: [],
-              regions: [],
-              date: case_.createdAt || new Date()
-            };
-          }
-        }),
+        cases: transformedCases,
         totalCount: filteredCount, // 使用符合查詢條件的總數
         allDocumentsCount: count // 可選：提供所有文檔的總數用於調試
-      }
+      },
+      message: '成功獲取學生案例列表'
     });
   } catch (err) {
     console.error('❌ Error in /api/find-student-cases:', err.stack);
