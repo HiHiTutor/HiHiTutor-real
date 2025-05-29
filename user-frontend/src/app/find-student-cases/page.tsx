@@ -6,6 +6,19 @@ import CaseFilterBar from '@/components/CaseFilterBar';
 import LoadMoreButton from '@/components/LoadMoreButton';
 import CaseCard from '@/components/CaseCard';
 
+// 分類映射
+const CATEGORY_MAP: Record<string, string[]> = {
+  'primary-secondary': ['小學', '中學', '高中', '國中'],
+  'early-childhood': ['幼兒', '幼稚園'],
+  'interest': ['興趣', 'interest'],
+  'tertiary': ['大學', '大專'],
+  'adult': ['成人', '職業']
+};
+
+const mapCategoryToBackend = (frontendCategory: string) => {
+  return CATEGORY_MAP[frontendCategory] || [frontendCategory];
+};
+
 interface Case {
   id: string;
   category: string;
@@ -162,9 +175,12 @@ function FindStudentCasesPageContent() {
     // 從 allCases 過濾
     const filtered = allCases.filter(item => {
       // 分類篩選
-      if (filters.category && item.category !== filters.category) {
-        console.log("❌ 分類不匹配：", { caseCategory: item.category, filterCategory: filters.category });
-        return false;
+      if (filters.category) {
+        const validCategories = mapCategoryToBackend(filters.category);
+        if (!validCategories.some(cat => item.category.includes(cat))) {
+          console.log("❌ 分類不匹配：", { caseCategory: item.category, filterCategory: filters.category });
+          return false;
+        }
       }
       
       // 子分類篩選
