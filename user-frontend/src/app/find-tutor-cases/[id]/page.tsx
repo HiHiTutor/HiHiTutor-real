@@ -34,8 +34,10 @@ export default function FindTutorCaseDetailPage() {
     const fetchCase = async () => {
       try {
         const result = await caseApi.getTutorCaseById(id as string);
+        console.log('📥 API 返回的資料:', result);
         setCaseDetail(Array.isArray(result) ? result[0] : result?.data);
       } catch (error) {
+        console.error('❌ 獲取案例失敗:', error);
         setCaseDetail(null);
       } finally {
         setLoading(false);
@@ -57,16 +59,18 @@ export default function FindTutorCaseDetailPage() {
     console.log(`Applying for case: ${id}`);
   };
 
+  // 處理個案 ID
+  const getCaseId = () => {
+    return caseDetail.id || caseDetail._id || '無ID';
+  };
+
   // 處理科目資料
   const getSubjects = () => {
-    if (!caseDetail.subjects) return "無科目資料";
+    if (!caseDetail.subjects || !Array.isArray(caseDetail.subjects)) {
+      return "無科目資料";
+    }
     
-    // 如果是字串，轉換為陣列
-    const subjects = Array.isArray(caseDetail.subjects) 
-      ? caseDetail.subjects 
-      : [caseDetail.subjects];
-    
-    return subjects.join('、');
+    return getSubjectNames(caseDetail.subjects, caseDetail.category, caseDetail.subCategory);
   };
 
   // 處理預算資料
@@ -89,9 +93,45 @@ export default function FindTutorCaseDetailPage() {
 
   // 處理地區資料
   const getLocation = () => {
-    const region = caseDetail.region || '';
-    const subRegion = caseDetail.subRegion || '';
-    return [region, subRegion].filter(Boolean).join(' ');
+    let locationParts = [];
+    
+    // 處理主要地區
+    if (caseDetail.regions && Array.isArray(caseDetail.regions) && caseDetail.regions.length > 0) {
+      const regionName = getRegionName(caseDetail.regions[0]);
+      if (regionName) {
+        locationParts.push(regionName);
+      }
+    }
+    
+    // 處理子地區
+    if (caseDetail.subRegions && Array.isArray(caseDetail.subRegions) && caseDetail.subRegions.length > 0) {
+      const subRegionNames = caseDetail.subRegions.map((subRegion: string) => getSubRegionName(subRegion)).filter(Boolean);
+      locationParts = locationParts.concat(subRegionNames);
+    }
+    
+    return locationParts.length > 0 ? locationParts.join('、') : '地點待定';
+  };
+
+  // 處理教學模式
+  const getMode = () => {
+    if (caseDetail.mode) {
+      return getModeName(caseDetail.mode);
+    }
+    if (caseDetail.modes && Array.isArray(caseDetail.modes) && caseDetail.modes.length > 0) {
+      return caseDetail.modes.map((mode: string) => getModeName(mode)).join('、');
+    }
+    return '未指定';
+  };
+
+  // 處理要求
+  const getRequirements = () => {
+    if (caseDetail.requirements) return caseDetail.requirements;
+    if (caseDetail.requirement) return caseDetail.requirement;
+    if (caseDetail.description) return caseDetail.description;
+    if (caseDetail.experience) {
+      return EXPERIENCES[caseDetail.experience] || caseDetail.experience;
+    }
+    return '未指定';
   };
 
   return (
@@ -101,12 +141,12 @@ export default function FindTutorCaseDetailPage() {
         <h2 className="text-2xl font-bold border-l-4 border-blue-400 pl-3">學生個案詳情</h2>
       </div>
       <div className="bg-blue-100 border border-blue-300 rounded-xl p-8">
-        <p className="text-gray-600">個案 ID：{caseDetail.id || '無ID'}</p>
-        <p className="text-gray-600">科目：{getSubjectNames(caseDetail.subjects, caseDetail.category, caseDetail.subCategory)}</p>
-        <p className="text-gray-600">地點：{getRegionName(caseDetail.region)} {getSubRegionName(caseDetail.subRegion)}</p>
+        <p className="text-gray-600">個案 ID：{getCaseId()}</p>
+        <p className="text-gray-600">科目：{getSubjects()}</p>
+        <p className="text-gray-600">地點：{getLocation()}</p>
         <p className="text-gray-600">收費：{getBudget()}</p>
-        <p className="text-gray-600">模式：{getModeName(caseDetail.mode)}</p>
-        <p className="text-gray-600">要求：{EXPERIENCES[caseDetail.experience] || caseDetail.experience || '未指定'}</p>
+        <p className="text-gray-600">模式：{getMode()}</p>
+        <p className="text-gray-600">要求：{getRequirements()}</p>
         <div>
           <button
             onClick={handleApply}
