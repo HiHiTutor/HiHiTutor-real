@@ -1,14 +1,139 @@
 const express = require('express');
 const router = express.Router();
 const TutorCase = require('../models/TutorCase');
+const mongoose = require('mongoose');
 const { verifyToken } = require('../middleware/authMiddleware');
+
+// 測試端點 - 用於診斷問題
+router.get('/test', async (req, res) => {
+  console.log('📥 Test endpoint called');
+  
+  try {
+    const diagnostics = {
+      timestamp: new Date().toISOString(),
+      environment: {
+        NODE_ENV: process.env.NODE_ENV,
+        hasMongoUri: !!process.env.MONGODB_URI,
+        mongoUriLength: process.env.MONGODB_URI ? process.env.MONGODB_URI.length : 0,
+        mongoUriStart: process.env.MONGODB_URI ? process.env.MONGODB_URI.substring(0, 20) + '...' : 'N/A'
+      },
+      mongoose: {
+        connectionState: mongoose.connection.readyState,
+        connectionStates: {
+          0: 'disconnected',
+          1: 'connected', 
+          2: 'connecting',
+          3: 'disconnecting'
+        },
+        currentState: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState] || 'unknown'
+      }
+    };
+
+    // 嘗試簡單的數據庫操作
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const count = await TutorCase.countDocuments();
+        diagnostics.database = {
+          connected: true,
+          tutorCaseCount: count
+        };
+      } catch (dbError) {
+        diagnostics.database = {
+          connected: false,
+          error: dbError.message
+        };
+      }
+    } else {
+      diagnostics.database = {
+        connected: false,
+        reason: 'MongoDB not connected'
+      };
+    }
+
+    res.json({
+      success: true,
+      message: 'Test endpoint working',
+      diagnostics
+    });
+  } catch (error) {
+    console.error('❌ Test endpoint error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Test endpoint failed',
+      error: error.message
+    });
+  }
+});
 
 // GET 查詢導師案例
 router.get('/', async (req, res) => {
   console.log('📥 Received request to /api/find-tutor-cases');
   console.log('👉 Query:', req.query);
+  console.log('👉 Headers:', req.headers);
+  console.log('👉 Environment check:', {
+    NODE_ENV: process.env.NODE_ENV,
+    hasMongoUri: !!process.env.MONGODB_URI,
+    mongoUriLength: process.env.MONGODB_URI ? process.env.MONGODB_URI.length : 0
+  });
 
   try {
+    // 檢查數據庫連接狀態
+    console.log('📊 MongoDB connection state:', mongoose.connection.readyState);
+    console.log('📊 MongoDB connection states: 0=disconnected, 1=connected, 2=connecting, 3=disconnecting');
+    
+    // 如果數據庫未連接，嘗試重新連接
+    if (mongoose.connection.readyState !== 1) {
+      console.log('⚠️ MongoDB not connected, current state:', mongoose.connection.readyState);
+      
+      // 嘗試重新連接
+      if (process.env.MONGODB_URI) {
+        console.log('🔄 Attempting to reconnect to MongoDB...');
+        try {
+          await mongoose.connect(process.env.MONGODB_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
+          });
+          console.log('✅ Reconnected to MongoDB');
+        } catch (reconnectError) {
+          console.error('❌ Failed to reconnect to MongoDB:', reconnectError);
+          return res.status(500).json({
+            success: false,
+            message: 'Database connection failed',
+            error: reconnectError.message,
+            mongoState: mongoose.connection.readyState,
+            hasMongoUri: !!process.env.MONGODB_URI
+          });
+        }
+      } else {
+        console.error('❌ No MongoDB URI found in environment variables');
+        return res.status(500).json({
+          success: false,
+          message: 'Database configuration error',
+          error: 'MONGODB_URI not found',
+          mongoState: mongoose.connection.readyState,
+          hasMongoUri: false
+        });
+      }
+    }
+
+    // 測試數據庫連接
+    console.log('🔍 Testing database connection...');
+    let count;
+    try {
+      count = await TutorCase.countDocuments();
+      console.log('📊 Total documents in collection:', count);
+    } catch (countError) {
+      console.error('❌ Error counting documents:', countError);
+      return res.status(500).json({
+        success: false,
+        message: 'Database query failed',
+        error: countError.message,
+        mongoState: mongoose.connection.readyState
+      });
+    }
+
     // 構建查詢條件
     const query = {};
     
@@ -34,7 +159,9 @@ router.get('/', async (req, res) => {
     res.json({
       success: true,
       data: {
-        cases: cases
+        cases: cases,
+        totalCount: cases.length,
+        allDocumentsCount: count
       }
     });
   } catch (err) {
@@ -42,7 +169,8 @@ router.get('/', async (req, res) => {
     res.status(500).json({ 
       success: false,
       message: 'Server error', 
-      error: err.message 
+      error: err.message,
+      mongoState: mongoose.connection.readyState
     });
   }
 });
