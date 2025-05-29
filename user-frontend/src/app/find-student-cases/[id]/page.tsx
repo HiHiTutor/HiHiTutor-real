@@ -2,150 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import Link from 'next/link';
 import { getSubjectNames, getRegionName, getSubRegionName, getModeName } from '@/utils/translate';
 import { caseApi } from '@/services/api';
-
-interface Case {
-  id: string;
-  category: string;
-  subCategory: string;
-  subjects: string[];
-  region: string;
-  subRegion: string;
-  mode: string;
-  budget: {
-    min: number;
-    max: number;
-  };
-  experience: string;
-  date: string;
-}
-
-// 地區映射
-const REGIONS: { [key: string]: string } = {
-  'hong-kong-island': '香港島',
-  'kowloon': '九龍',
-  'new-territories': '新界',
-  'islands': '離島'
-};
-
-// 子地區映射
-const SUB_REGIONS: { [key: string]: { [key: string]: string } } = {
-  'hong-kong-island': {
-    'central-western': '中西區',
-    'wan-chai': '灣仔區',
-    'eastern': '東區',
-    'southern': '南區'
-  },
-  'kowloon': {
-    'yau-tsim-mong': '油尖旺區',
-    'sham-shui-po': '深水埗區',
-    'kowloon-city': '九龍城區',
-    'wong-tai-sin': '黃大仙區',
-    'kwun-tong': '觀塘區'
-  },
-  'new-territories': {
-    'kwai-tsing': '葵青區',
-    'tuen-mun': '屯門區',
-    'yuen-long': '元朗區',
-    'north': '北區',
-    'tai-po': '大埔區',
-    'sha-tin': '沙田區',
-    'sai-kung': '西貢區'
-  },
-  'islands': {
-    'islands': '離島區'
-  }
-};
-
-// 類別映射
-const CATEGORIES: { [key: string]: string } = {
-  'preschool': '幼兒教育',
-  'primary-secondary': '中小學教育',
-  'tertiary': '大專補習課程',
-  'interest': '興趣班',
-  'adult': '成人教育'
-};
-
-// 子類別映射
-const SUB_CATEGORIES: { [key: string]: { [key: string]: string } } = {
-  'preschool': {
-    '': '幼兒教育'
-  },
-  'primary-secondary': {
-    'primary': '小學',
-    'secondary': '中學'
-  },
-  'tertiary': {
-    'undergraduate': '大學本科',
-    'postgraduate': '研究生'
-  },
-  'interest': {
-    '': '興趣班'
-  },
-  'adult': {
-    '': '成人教育'
-  }
-};
-
-// 科目映射
-const SUBJECTS: { [key: string]: { [key: string]: string } } = {
-  'preschool': {
-    'preschool-chinese': '中文',
-    'preschool-english': '英文',
-    'preschool-math': '數學'
-  },
-  'primary': {
-    'primary-chinese': '中文',
-    'primary-english': '英文',
-    'primary-math': '數學',
-    'primary-general': '常識',
-    'primary-stem': 'STEM'
-  },
-  'secondary': {
-    'secondary-chinese': '中文',
-    'secondary-english': '英文',
-    'secondary-math': '數學',
-    'secondary-ls': '通識',
-    'secondary-humanities': '人文學科',
-    'secondary-economics': '經濟',
-    'secondary-computer': '電腦',
-    'secondary-dse': 'DSE',
-    'secondary-all': '全科'
-  },
-  'undergraduate': {
-    'undergraduate-calculus': '微積分',
-    'undergraduate-economics': '經濟學',
-    'undergraduate-statistics': '統計學',
-    'undergraduate-accounting': '會計學',
-    'undergraduate-programming': '程式設計',
-    'undergraduate-language': '語言課程'
-  },
-  'postgraduate': {
-    'postgraduate-thesis': '論文寫作',
-    'postgraduate-research': '研究方法',
-    'postgraduate-spss': 'SPSS',
-    'postgraduate-presentation': '學術簡報'
-  },
-  'interest': {
-    'interest-music': '音樂',
-    'interest-art': '藝術',
-    'interest-programming': '程式設計',
-    'interest-language': '語言'
-  },
-  'adult': {
-    'adult-business': '商業英語',
-    'adult-language': '語言課程',
-    'adult-workplace': '職場技能'
-  }
-};
-
-// 教學模式映射
-const MODES: { [key: string]: string } = {
-  'online': '網課',
-  'offline': '面授'
-};
 
 // 經驗要求映射
 const EXPERIENCES: { [key: string]: string } = {
@@ -168,8 +26,10 @@ export default function FindStudentCaseDetailPage() {
     const fetchCase = async () => {
       try {
         const result = await caseApi.getStudentCaseById(id as string);
+        console.log('📥 API 返回的資料:', result);
         setCaseDetail(Array.isArray(result) ? result[0] : result?.data);
       } catch (error) {
+        console.error('❌ 獲取案例失敗:', error);
         setCaseDetail(null);
       } finally {
         setLoading(false);
@@ -190,6 +50,24 @@ export default function FindStudentCaseDetailPage() {
     console.log(`Applying for case: ${id}`);
   };
 
+  // 處理個案 ID
+  const getCaseId = () => {
+    return caseDetail.id || caseDetail._id || '無ID';
+  };
+
+  // 處理科目資料
+  const getSubjects = () => {
+    if (!caseDetail.subjects || !Array.isArray(caseDetail.subjects)) {
+      // 處理舊格式的 subject 欄位
+      if (caseDetail.subject) {
+        return caseDetail.subject;
+      }
+      return "無科目資料";
+    }
+    
+    return getSubjectNames(caseDetail.subjects, caseDetail.category, caseDetail.subCategory);
+  };
+
   // 處理預算資料
   const getBudget = () => {
     if (!caseDetail.budget) return "價格待議";
@@ -208,6 +86,66 @@ export default function FindStudentCaseDetailPage() {
     return "價格待議";
   };
 
+  // 處理地區資料
+  const getLocation = () => {
+    let locationParts = [];
+    
+    // 處理主要地區
+    if (caseDetail.regions && Array.isArray(caseDetail.regions) && caseDetail.regions.length > 0) {
+      const regionName = getRegionName(caseDetail.regions[0]);
+      if (regionName) {
+        locationParts.push(regionName);
+      }
+    } else if (caseDetail.region) {
+      // 處理舊格式的 region 欄位
+      const regionName = getRegionName(caseDetail.region);
+      if (regionName) {
+        locationParts.push(regionName);
+      }
+    }
+    
+    // 處理子地區
+    if (caseDetail.subRegions && Array.isArray(caseDetail.subRegions) && caseDetail.subRegions.length > 0) {
+      const subRegionNames = caseDetail.subRegions.map((subRegion: string) => getSubRegionName(subRegion)).filter(Boolean);
+      locationParts = locationParts.concat(subRegionNames);
+    } else if (caseDetail.subRegion) {
+      // 處理舊格式的 subRegion 欄位
+      const subRegionName = getSubRegionName(caseDetail.subRegion);
+      if (subRegionName && subRegionName !== '地點待定') {
+        locationParts.push(subRegionName);
+      }
+    }
+    
+    // 如果沒有地區資料，檢查 location 欄位
+    if (locationParts.length === 0 && caseDetail.location) {
+      return caseDetail.location;
+    }
+    
+    return locationParts.length > 0 ? locationParts.join('、') : '地點待定';
+  };
+
+  // 處理教學模式
+  const getMode = () => {
+    if (caseDetail.mode) {
+      return getModeName(caseDetail.mode);
+    }
+    if (caseDetail.modes && Array.isArray(caseDetail.modes) && caseDetail.modes.length > 0) {
+      return caseDetail.modes.map((mode: string) => getModeName(mode)).join('、');
+    }
+    return '導師未指定教學模式';
+  };
+
+  // 處理要求
+  const getRequirements = () => {
+    if (caseDetail.requirements) return caseDetail.requirements;
+    if (caseDetail.requirement) return caseDetail.requirement;
+    if (caseDetail.description) return caseDetail.description;
+    if (caseDetail.experience) {
+      return EXPERIENCES[caseDetail.experience] || caseDetail.experience;
+    }
+    return '導師未指定特別要求';
+  };
+
   return (
     <section className="px-4 py-8 max-w-screen-xl mx-auto">
       <div className="flex items-center gap-2 mb-6">
@@ -215,12 +153,12 @@ export default function FindStudentCaseDetailPage() {
         <h2 className="text-2xl font-bold border-l-4 border-yellow-400 pl-3">精選導師個案</h2>
       </div>
       <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-8">
-        <p className="text-gray-600">個案 ID：{caseDetail.id || '無ID'}</p>
-        <p className="text-gray-600">科目：{getSubjectNames(caseDetail.subjects, caseDetail.category, caseDetail.subCategory)}</p>
-        <p className="text-gray-600">地點：{getRegionName(caseDetail.region)} {getSubRegionName(caseDetail.subRegion)}</p>
+        <p className="text-gray-600">個案 ID：{getCaseId()}</p>
+        <p className="text-gray-600">科目：{getSubjects()}</p>
+        <p className="text-gray-600">地點：{getLocation()}</p>
         <p className="text-gray-600">收費：{getBudget()}</p>
-        <p className="text-gray-600">模式：{getModeName(caseDetail.mode)}</p>
-        <p className="text-gray-600">要求：{EXPERIENCES[caseDetail.experience] || caseDetail.experience || '未指定'}</p>
+        <p className="text-gray-600">模式：{getMode()}</p>
+        <p className="text-gray-600">要求：{getRequirements()}</p>
         <div>
           <button
             onClick={handleApply}
