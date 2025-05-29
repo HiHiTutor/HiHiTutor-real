@@ -115,9 +115,12 @@ function FindStudentCasesPageContent() {
     // 從 allCases 過濾
     const filtered = allCases.filter(item => {
       // 分類篩選
-      if (category && item.category !== category) {
-        console.log("❌ 分類不匹配：", { caseCategory: item.category, filterCategory: category });
-        return false;
+      if (category) {
+        const validCategories = mapCategoryToBackend(category);
+        if (!validCategories.some(cat => item.category.includes(cat))) {
+          console.log("❌ 分類不匹配：", { caseCategory: item.category, filterCategory: category });
+          return false;
+        }
       }
       
       // 子分類篩選
