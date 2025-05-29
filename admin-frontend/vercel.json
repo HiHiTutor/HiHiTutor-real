@@ -6,11 +6,11 @@
     }
   ],
   "env": {
-    "REACT_APP_API_BASE_URL": "https://hihitutor-backend.vercel.app/api"
+    "REACT_APP_API_BASE_URL": "https://hi-hi-tutor-real-backend2.vercel.app/api"
   },
   "build": {
     "env": {
-      "REACT_APP_API_BASE_URL": "https://hihitutor-backend.vercel.app/api"
+      "REACT_APP_API_BASE_URL": "https://hi-hi-tutor-real-backend2.vercel.app/api"
     }
   }
 } 
