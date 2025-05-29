@@ -120,7 +120,7 @@ export default function FindTutorCaseDetailPage() {
     if (caseDetail.modes && Array.isArray(caseDetail.modes) && caseDetail.modes.length > 0) {
       return caseDetail.modes.map((mode: string) => getModeName(mode)).join('、');
     }
-    return '未指定';
+    return '學生未指定教學模式';
   };
 
   // 處理要求
@@ -131,7 +131,7 @@ export default function FindTutorCaseDetailPage() {
     if (caseDetail.experience) {
       return EXPERIENCES[caseDetail.experience] || caseDetail.experience;
     }
-    return '未指定';
+    return '學生未指定特別要求';
   };
 
   return (
