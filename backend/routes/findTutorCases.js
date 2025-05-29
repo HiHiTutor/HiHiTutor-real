@@ -142,11 +142,16 @@ router.get('/', async (req, res) => {
       query.isApproved = true;
       query.featured = true;
     } else {
-      // 否則顯示所有已審批的案例，以及當前用戶發布的未審批案例
-      query.$or = [
-        { isApproved: true },
-        { studentId: req.query.studentId } // 如果是當前用戶發布的案例，即使未審批也顯示
-      ];
+      // 如果有 studentId 參數，顯示所有已審批的案例，以及當前用戶發布的未審批案例
+      if (req.query.studentId) {
+        query.$or = [
+          { isApproved: true },
+          { studentId: req.query.studentId } // 如果是當前用戶發布的案例，即使未審批也顯示
+        ];
+      } else {
+        // 如果沒有 studentId（如首頁），只顯示已審批的案例
+        query.isApproved = true;
+      }
     }
 
     console.log('🔍 Running MongoDB query:', query);

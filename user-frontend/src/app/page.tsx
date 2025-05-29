@@ -103,6 +103,7 @@ function HomeContent() {
             borderColor="border-[#2563eb]"
             bgColor="bg-blue-50"
             icon="📄"
+            routeType="tutor"
           />
         </div>
       </section>

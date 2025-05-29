@@ -186,6 +186,7 @@ interface CaseSectionProps {
   borderColor?: string;
   bgColor?: string;
   icon?: React.ReactNode;
+  routeType?: 'student' | 'tutor';
 }
 
 // 預算顯示組件
@@ -200,7 +201,7 @@ const BudgetDisplay = ({ budget }: { budget: any }) => {
   return <span>{`${min} - ${max}/小時`}</span>;
 };
 
-const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400', bgColor = 'bg-blue-50', icon }: CaseSectionProps) => {
+const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400', bgColor = 'bg-blue-50', icon, routeType }: CaseSectionProps) => {
   const [cases, setCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -305,7 +306,7 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
                 key={caseItem.id || (caseItem.tutorId ? caseItem.tutorId : 'noid') + '_' + (caseItem.createdAt || caseItem.date || idx)}
                 borderColor={borderColor}
                 caseData={{
-                  id: caseItem.id || '',
+                  id: caseItem.id || caseItem._id || '',
                   subject: (() => {
                     const s = caseItem.subjects && caseItem.subjects[0];
                     const c = caseItem.category;
@@ -333,6 +334,7 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
                     : (caseItem.budget || caseItem.price || ''),
                   createdAt: (caseItem.createdAt || caseItem.date || ''),
                 }}
+                routeType={routeType}
               />
             ))}
           </div>
