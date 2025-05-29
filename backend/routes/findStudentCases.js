@@ -344,7 +344,8 @@ router.get('/', async (req, res) => {
                 title: caseObj.title || '',
                 category: caseObj.category || '',
                 budget: caseObj.budget || '',
-                mode: caseObj.mode || '線上',
+                mode: caseObj.mode || (Array.isArray(caseObj.modes) && caseObj.modes.length > 0 ? caseObj.modes[0] : '線上'),
+                modes: Array.isArray(caseObj.modes) ? caseObj.modes : (caseObj.mode ? [caseObj.mode] : ['線上']),
                 subjects: Array.isArray(caseObj.subjects) ? caseObj.subjects : [],
                 regions: Array.isArray(caseObj.regions) ? caseObj.regions : [],
                 // 處理舊格式的兼容性
@@ -463,7 +464,8 @@ router.get('/', async (req, res) => {
               title: caseObj.title || '',
               category: caseObj.category || '',
               budget: caseObj.budget || '',
-              mode: caseObj.mode || '線上',
+              mode: caseObj.mode || (Array.isArray(caseObj.modes) && caseObj.modes.length > 0 ? caseObj.modes[0] : '線上'),
+              modes: Array.isArray(caseObj.modes) ? caseObj.modes : (caseObj.mode ? [caseObj.mode] : ['線上']),
               subjects: Array.isArray(caseObj.subjects) ? caseObj.subjects : [],
               regions: Array.isArray(caseObj.regions) ? caseObj.regions : [],
               // 處理舊格式的兼容性

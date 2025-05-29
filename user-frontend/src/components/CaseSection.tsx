@@ -325,7 +325,11 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
                   })(),
                   mode: (() => {
                     if (caseItem.mode) return { label: modeMap[caseItem.mode] || caseItem.mode };
-                    if (Array.isArray(caseItem.modes) && caseItem.modes[0]) return { label: modeMap[caseItem.modes[0]] || caseItem.modes[0] };
+                    if (Array.isArray(caseItem.modes) && caseItem.modes.length > 0) {
+                      // 顯示所有模式，用頓號分隔
+                      const modeLabels = caseItem.modes.map(m => modeMap[m] || m).join('、');
+                      return { label: modeLabels };
+                    }
                     return undefined;
                   })(),
                   experienceLevel: caseItem.experience ? { label: caseItem.experience } : undefined,
