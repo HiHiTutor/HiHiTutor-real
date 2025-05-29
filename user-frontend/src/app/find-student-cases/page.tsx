@@ -15,6 +15,16 @@ const CATEGORY_MAP: Record<string, string[]> = {
   'adult': ['成人', '職業']
 };
 
+// 反向分類映射：從後端分類映射到前端分類
+const mapBackendToFrontend = (backendCategory: string) => {
+  for (const [frontend, backends] of Object.entries(CATEGORY_MAP)) {
+    if (backends.some(cat => backendCategory.includes(cat))) {
+      return frontend;
+    }
+  }
+  return backendCategory;
+};
+
 const mapCategoryToBackend = (frontendCategory: string) => {
   return CATEGORY_MAP[frontendCategory] || [frontendCategory];
 };
@@ -116,9 +126,13 @@ function FindStudentCasesPageContent() {
     const filtered = allCases.filter(item => {
       // 分類篩選
       if (category) {
-        const validCategories = mapCategoryToBackend(category);
-        if (!validCategories.some(cat => item.category.includes(cat))) {
-          console.log("❌ 分類不匹配：", { caseCategory: item.category, filterCategory: category });
+        const itemFrontendCategory = mapBackendToFrontend(item.category);
+        if (itemFrontendCategory !== category) {
+          console.log("❌ 分類不匹配：", { 
+            caseCategory: item.category, 
+            caseFrontendCategory: itemFrontendCategory,
+            filterCategory: category 
+          });
           return false;
         }
       }
@@ -179,9 +193,13 @@ function FindStudentCasesPageContent() {
     const filtered = allCases.filter(item => {
       // 分類篩選
       if (filters.category) {
-        const validCategories = mapCategoryToBackend(filters.category);
-        if (!validCategories.some(cat => item.category.includes(cat))) {
-          console.log("❌ 分類不匹配：", { caseCategory: item.category, filterCategory: filters.category });
+        const itemFrontendCategory = mapBackendToFrontend(item.category);
+        if (itemFrontendCategory !== filters.category) {
+          console.log("❌ 分類不匹配：", { 
+            caseCategory: item.category, 
+            caseFrontendCategory: itemFrontendCategory,
+            filterCategory: filters.category 
+          });
           return false;
         }
       }
