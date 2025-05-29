@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
+const mongoose = require('mongoose');
 
 const login = async (req, res) => {
   console.log('👉 收到管理員登入請求:', {
@@ -12,6 +13,12 @@ const login = async (req, res) => {
   });
 
   try {
+    // 檢查 MongoDB 連接狀態
+    console.log('📊 MongoDB 連接狀態:', {
+      readyState: mongoose.connection.readyState,
+      stateDescription: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState] || 'unknown'
+    });
+
     const { identifier, password } = req.body;
 
     if (!identifier || !password) {
@@ -21,6 +28,17 @@ const login = async (req, res) => {
         message: '請提供帳號和密碼'
       });
     }
+
+    console.log('🔍 開始查找管理員用戶:', {
+      identifier,
+      query: {
+        $or: [
+          { email: identifier },
+          { phone: identifier }
+        ],
+        userType: 'admin'
+      }
+    });
 
     // 使用 email 或 phone 查找用戶
     const user = await User.findOne({
@@ -38,6 +56,12 @@ const login = async (req, res) => {
         message: '帳號或密碼錯誤'
       });
     }
+
+    console.log('✅ 找到管理員用戶:', {
+      userId: user._id,
+      userType: user.userType,
+      hasPassword: !!user.password
+    });
 
     // 驗證密碼
     const isMatch = await bcrypt.compare(password, user.password);
@@ -57,6 +81,8 @@ const login = async (req, res) => {
         message: '伺服器配置錯誤'
       });
     }
+
+    console.log('🔑 JWT_SECRET 已設置，長度:', process.env.JWT_SECRET.length);
 
     // 生成 JWT token
     const token = jwt.sign(
@@ -89,7 +115,11 @@ const login = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('❌ 管理員登入錯誤:', error);
+    console.error('❌ 管理員登入錯誤:', {
+      error: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     res.status(500).json({
       success: false,
       message: '登入過程發生錯誤',
