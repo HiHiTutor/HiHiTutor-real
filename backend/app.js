@@ -22,6 +22,7 @@ const userRouter = require('./routes/user');
 const applicationRouter = require('./routes/applications');
 const caseApplicationRouter = require('./routes/caseApplications');
 const regionsRouter = require('./routes/regions');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
@@ -96,6 +97,7 @@ mongoose.connection.on('disconnected', () => {
 
 // Mount routes
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/categories', categoriesRouter);
 app.use('/api/tutors', tutorsRouter);
 app.use('/api/cases', casesRouter);
