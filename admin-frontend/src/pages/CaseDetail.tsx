@@ -24,7 +24,12 @@ const CaseDetail: React.FC = () => {
       try {
         if (id) {
           const response = await casesAPI.getCaseById(id);
-          dispatch(setSelectedCase(response.data));
+          if (response.data.success && response.data.data) {
+            const caseData = response.data.data;
+            dispatch(setSelectedCase(caseData));
+          } else {
+            console.error('Invalid case data:', response.data);
+          }
         }
       } catch (error) {
         console.error('Error fetching case:', error);
