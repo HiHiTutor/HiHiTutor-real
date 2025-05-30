@@ -119,19 +119,19 @@ const CaseDetail: React.FC = () => {
                 <Typography color="textSecondary">Name</Typography>
               </Grid>
               <Grid item xs={8}>
-                <Typography>{selectedCase.student.name}</Typography>
+                <Typography>{selectedCase.student?.name || 'N/A'}</Typography>
               </Grid>
               <Grid item xs={4}>
                 <Typography color="textSecondary">Email</Typography>
               </Grid>
               <Grid item xs={8}>
-                <Typography>{selectedCase.student.email}</Typography>
+                <Typography>{selectedCase.student?.email || 'N/A'}</Typography>
               </Grid>
               <Grid item xs={4}>
                 <Typography color="textSecondary">Phone</Typography>
               </Grid>
               <Grid item xs={8}>
-                <Typography>{selectedCase.student.phone}</Typography>
+                <Typography>{selectedCase.student?.phone || 'N/A'}</Typography>
               </Grid>
             </Grid>
           </Paper>
@@ -149,19 +149,19 @@ const CaseDetail: React.FC = () => {
                   <Typography color="textSecondary">Name</Typography>
                 </Grid>
                 <Grid item xs={8}>
-                  <Typography>{selectedCase.tutor.name}</Typography>
+                  <Typography>{selectedCase.tutor?.name || 'N/A'}</Typography>
                 </Grid>
                 <Grid item xs={4}>
                   <Typography color="textSecondary">Email</Typography>
                 </Grid>
                 <Grid item xs={8}>
-                  <Typography>{selectedCase.tutor.email}</Typography>
+                  <Typography>{selectedCase.tutor?.email || 'N/A'}</Typography>
                 </Grid>
                 <Grid item xs={4}>
                   <Typography color="textSecondary">Phone</Typography>
                 </Grid>
                 <Grid item xs={8}>
-                  <Typography>{selectedCase.tutor.phone}</Typography>
+                  <Typography>{selectedCase.tutor?.phone || 'N/A'}</Typography>
                 </Grid>
               </Grid>
             </Paper>
