@@ -83,7 +83,7 @@ export const usersAPI = {
     limit?: number;
     role?: string;
     search?: string;
-  }) => api.get<{ users: User[] }>('/admin/users', { params }),
+  }) => api.get<{ users: User[]; pagination: { total: number; page: number; limit: number } }>('/admin/users', { params }),
 
   getUserById: (id: string) => {
     if (!id) {

@@ -15,6 +15,7 @@ import {
   Chip,
   TextField,
   MenuItem,
+  CircularProgress,
 } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { usersAPI } from '../services/api';
@@ -23,11 +24,12 @@ import { setUsers, setLoading, setError } from '../store/slices/userSlice';
 const Users: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { users } = useAppSelector((state) => state.users);
+  const { users, loading } = useAppSelector((state) => state.users);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [roleFilter, setRoleFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -39,9 +41,16 @@ const Users: React.FC = () => {
           role: roleFilter,
           search: searchQuery,
         });
-        dispatch(setUsers(response.data.users));
+        if (response.data && response.data.users) {
+          dispatch(setUsers(response.data.users));
+          setTotalCount(response.data.pagination?.total || 0);
+        } else {
+          dispatch(setError('Invalid response format'));
+          dispatch(setUsers([]));
+        }
       } catch (error) {
         dispatch(setError('Failed to fetch users'));
+        dispatch(setUsers([]));
       } finally {
         dispatch(setLoading(false));
       }
@@ -84,6 +93,22 @@ const Users: React.FC = () => {
         return 'default';
     }
   };
+
+  const handleViewUser = (userId: string | undefined) => {
+    if (!userId) {
+      console.error('Invalid user ID');
+      return;
+    }
+    navigate(`/users/${userId}`);
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ p: 3 }}>
@@ -132,7 +157,7 @@ const Users: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map((user) => (
+            {(users || []).map((user) => (
               <TableRow key={user.id}>
                 <TableCell>{user.id}</TableCell>
                 <TableCell>{user.name}</TableCell>
@@ -159,7 +184,7 @@ const Users: React.FC = () => {
                   <Button
                     variant="outlined"
                     size="small"
-                    onClick={() => navigate(`/users/${user.id}`)}
+                    onClick={() => handleViewUser(user.id)}
                   >
                     View
                   </Button>
@@ -170,7 +195,7 @@ const Users: React.FC = () => {
         </Table>
         <TablePagination
           component="div"
-          count={-1}
+          count={totalCount}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
