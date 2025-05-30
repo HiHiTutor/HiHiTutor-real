@@ -2,6 +2,7 @@ export type CaseStatus = 'open' | 'matched' | 'closed' | 'pending' | '';
 export type CaseType = 'student' | 'tutor' | 'all';
 
 export interface Case {
+  _id?: string;
   id: string;
   title: string;
   description: string;

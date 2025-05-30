@@ -5,7 +5,8 @@ const validateUserUpdate = (data) => {
     name: Joi.string().min(2).max(50),
     email: Joi.string().email(),
     phone: Joi.string().pattern(/^[0-9+\-\s()]*$/),
-    role: Joi.string().valid('student', 'tutor', 'institution', 'admin'),
+    userType: Joi.string().valid('student', 'tutor', 'organization'),
+    role: Joi.string().valid('user', 'admin'),
     status: Joi.string().valid('active', 'pending', 'blocked'),
     upgradeStatus: Joi.string().valid('pending', 'approved', 'rejected'),
     upgradeRejectionReason: Joi.string().when('upgradeStatus', {

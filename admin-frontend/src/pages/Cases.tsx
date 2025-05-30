@@ -199,12 +199,12 @@ const Cases: React.FC = () => {
           <TableBody>
             {(cases || []).map((caseItem) => (
               <TableRow
-                key={caseItem.id}
+                key={caseItem.id || caseItem._id}
                 hover
-                onClick={() => handleRowClick(caseItem.id, caseItem.type)}
+                onClick={() => handleRowClick(caseItem.id || caseItem._id, caseItem.type)}
                 sx={{ cursor: 'pointer' }}
               >
-                <TableCell>{caseItem.id}</TableCell>
+                <TableCell>{caseItem.id || caseItem._id}</TableCell>
                 <TableCell>
                   <Chip
                     label={getCaseType(caseItem)}
