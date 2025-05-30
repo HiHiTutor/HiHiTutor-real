@@ -1,46 +1,79 @@
 import axios from 'axios';
 import { User, Case, Statistics } from '../types';
 
-const API_BASE_URL = 'https://hi-hi-tutor-real-backend2.vercel.app/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://hi-hi-tutor-real-backend2.vercel.app/api';
+
+console.log('🌐 Initializing API with base URL:', API_BASE_URL);
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true
+  withCredentials: true,
+  timeout: 10000, // 10 seconds timeout
 });
 
 // Add request interceptor to include auth token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('adminToken');
+  
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-  console.log('Request:', {
+  
+  // Add CORS headers
+  config.headers['Access-Control-Allow-Origin'] = '*';
+  config.headers['Access-Control-Allow-Methods'] = 'GET,POST,PUT,DELETE,OPTIONS';
+  config.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization';
+  
+  console.log('🚀 API Request:', {
     url: config.url,
     method: config.method,
-    headers: config.headers,
+    baseURL: config.baseURL,
+    headers: {
+      'Content-Type': config.headers['Content-Type'],
+      'Authorization': config.headers.Authorization ? 'Bearer [hidden]' : 'none',
+    },
     data: config.data
   });
+  
   return config;
+}, (error) => {
+  console.error('❌ Request interceptor error:', error);
+  return Promise.reject(error);
 });
 
 // Add response interceptor to handle errors
 api.interceptors.response.use(
   (response) => {
-    console.log('Response:', {
+    console.log('✅ API Response:', {
+      url: response.config.url,
       status: response.status,
       data: response.data
     });
     return response;
   },
   (error) => {
-    console.error('API Error:', {
+    console.error('❌ API Error:', {
+      url: error.config?.url,
+      method: error.config?.method,
       status: error.response?.status,
       data: error.response?.data,
-      message: error.message
+      message: error.message,
+      code: error.code
     });
+
+    // Handle specific error cases
+    if (!error.response) {
+      // Network error
+      error.message = 'Network error. Please check your connection.';
+    } else if (error.response.status === 401) {
+      // Unauthorized - clear token and reload
+      localStorage.removeItem('adminToken');
+      window.location.reload();
+    }
+
     return Promise.reject(error);
   }
 );
@@ -87,7 +120,15 @@ export const statisticsAPI = {
 // Auth API
 export const authAPI = {
   login: (credentials: { identifier: string; password: string }) =>
-    api.post<{ token: string; user: User }>('/admin/auth/login', credentials),
+    api.post<{ token: string; user: User; success: boolean; message?: string }>(
+      '/admin/auth/login',
+      credentials,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    ),
 
   logout: () => api.post('/admin/auth/logout'),
 

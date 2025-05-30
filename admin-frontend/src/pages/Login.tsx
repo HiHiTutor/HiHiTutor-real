@@ -7,6 +7,7 @@ import {
   Button,
   Container,
   Alert,
+  CircularProgress
 } from '@mui/material';
 import { useAppDispatch } from '../hooks/redux';
 import { authAPI } from '../services/api';
@@ -26,18 +27,48 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      console.log('Attempting login with:', { identifier });
+      console.log('🔑 Attempting login with:', { identifier });
+      console.log('🌐 API URL:', process.env.REACT_APP_API_URL);
+      
       const response = await authAPI.login({ identifier, password });
-      console.log('Login response:', response.data);
+      console.log('✅ Login response:', {
+        success: response.data.success,
+        hasToken: !!response.data.token,
+        hasUser: !!response.data.user
+      });
+      
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Login failed');
+      }
+      
       localStorage.setItem('adminToken', response.data.token);
-      dispatch(setAuth({ isAuthenticated: true, user: response.data.user }));
+      dispatch(setAuth({ 
+        isAuthenticated: true, 
+        user: response.data.user 
+      }));
+      
+      console.log('✅ Login successful, user:', response.data.user);
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('❌ Login error:', error);
+      
       if (axios.isAxiosError(error)) {
-        const errorMessage = error.response?.data?.message || error.message;
-        setError(`Login failed: ${errorMessage}`);
+        const errorData = error.response?.data;
+        let errorMessage = 'Login failed';
+        
+        if (error.response?.status === 0) {
+          errorMessage = 'Cannot connect to server. Please check your internet connection.';
+        } else if (error.response?.status === 401) {
+          errorMessage = 'Invalid email/phone or password';
+        } else if (error.response?.status === 403) {
+          errorMessage = 'Access denied. Admin privileges required.';
+        } else if (error.response?.status === 500) {
+          errorMessage = 'Server error. Please try again later.';
+          console.error('Server error details:', errorData);
+        }
+        
+        setError(errorMessage);
       } else {
-        setError('An unexpected error occurred during login');
+        setError('An unexpected error occurred');
       }
     } finally {
       setLoading(false);
@@ -69,7 +100,10 @@ const Login: React.FC = () => {
           </Typography>
 
           {error && (
-            <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
+            <Alert 
+              severity="error"
+              sx={{ width: '100%', mb: 2 }}
+            >
               {error}
             </Alert>
           )}
@@ -93,6 +127,7 @@ const Login: React.FC = () => {
               required
               fullWidth
               placeholder="Enter email or phone number"
+              disabled={loading}
             />
             <TextField
               label="Password"
@@ -101,6 +136,7 @@ const Login: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               fullWidth
+              disabled={loading}
             />
             <Button
               type="submit"
@@ -108,6 +144,7 @@ const Login: React.FC = () => {
               size="large"
               fullWidth
               disabled={loading}
+              startIcon={loading && <CircularProgress size={20} color="inherit" />}
             >
               {loading ? 'Logging in...' : 'Login'}
             </Button>
