@@ -26,27 +26,19 @@ const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
-// CORS 設定
+// CORS configuration
 app.use(cors({
-  origin: 'https://hi-hi-tutor-real-admin-frontend.vercel.app',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: [
-    'Content-Type',
-    'Authorization',
-    'X-Requested-With',
-    'Accept',
-    'Origin',
-    'Access-Control-Allow-Headers',
-    'Access-Control-Request-Method',
-    'Access-Control-Request-Headers'
+  origin: [
+    'https://hi-hi-tutor-real.vercel.app',
+    'https://hi-hi-tutor-real-admin-frontend.vercel.app'
   ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
-  maxAge: 86400,
-  preflightContinue: false,
-  optionsSuccessStatus: 204
+  maxAge: 86400 // 24 hours
 }));
 
-// 確保請求體解析中間件在 CORS 之後
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
@@ -57,10 +49,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// 連接 MongoDB
+// Connect to MongoDB
 connectDB();
 
-// 監聽連線狀態
+// Monitor MongoDB connection
 mongoose.connection.on('error', err => {
   console.error('MongoDB connection error:', err);
 });
@@ -146,10 +138,14 @@ app.use((req, res) => {
   res.status(404).json({ message: '找不到請求的資源' });
 });
 
-// Error handler
+// Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('伺服器錯誤:', err);
-  res.status(500).json({ message: '伺服器發生錯誤，請稍後再試' });
+  console.error('Global error handler:', err);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Internal server error',
+    error: process.env.NODE_ENV === 'development' ? err : {}
+  });
 });
 
 // Log available routes
@@ -163,7 +159,7 @@ console.log('- GET /api/find-tutor-cases');
 console.log('- GET /api/find-student-cases?featured=true&limit=8');
 console.log('- GET /api/find-tutor-cases?featured=true&limit=8');
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

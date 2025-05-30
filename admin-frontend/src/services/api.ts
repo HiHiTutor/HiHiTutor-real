@@ -22,11 +22,6 @@ api.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
   
-  // Add CORS headers
-  config.headers['Access-Control-Allow-Origin'] = '*';
-  config.headers['Access-Control-Allow-Methods'] = 'GET,POST,PUT,DELETE,OPTIONS';
-  config.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization';
-  
   console.log('🚀 API Request:', {
     url: config.url,
     method: config.method,
@@ -34,8 +29,7 @@ api.interceptors.request.use((config) => {
     headers: {
       'Content-Type': config.headers['Content-Type'],
       'Authorization': config.headers.Authorization ? 'Bearer [hidden]' : 'none',
-    },
-    data: config.data
+    }
   });
   
   return config;
@@ -55,21 +49,25 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.error('❌ API Error:', {
-      url: error.config?.url,
-      method: error.config?.method,
-      status: error.response?.status,
-      data: error.response?.data,
-      message: error.message,
-      code: error.code
-    });
+    if (error.response) {
+      console.error('❌ API Error:', {
+        url: error.config?.url,
+        method: error.config?.method,
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      });
+    } else {
+      console.error('❌ Network Error:', {
+        url: error.config?.url,
+        message: error.message
+      });
+    }
 
     // Handle specific error cases
     if (!error.response) {
-      // Network error
       error.message = 'Network error. Please check your connection.';
     } else if (error.response.status === 401) {
-      // Unauthorized - clear token and reload
       localStorage.removeItem('adminToken');
       window.location.reload();
     }
@@ -122,12 +120,7 @@ export const authAPI = {
   login: (credentials: { identifier: string; password: string }) =>
     api.post<{ token: string; user: User; success: boolean; message?: string }>(
       '/admin/auth/login',
-      credentials,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      }
+      credentials
     ),
 
   logout: () => api.post('/admin/auth/logout'),
