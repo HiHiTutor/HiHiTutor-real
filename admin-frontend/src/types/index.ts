@@ -41,6 +41,10 @@ export interface PlatformUsers {
   students: number;
   tutors: number;
   institutions: number;
+  totalStudents?: number;
+  totalTutors?: number;
+  activeUsers?: number;
+  newUsers?: number;
 }
 
 export interface PlatformCases {
@@ -49,6 +53,8 @@ export interface PlatformCases {
   matchedCases: number;
   studentCases: number;
   tutorCases: number;
+  activeCases?: number;
+  completedCases?: number;
 }
 
 export interface Statistics {

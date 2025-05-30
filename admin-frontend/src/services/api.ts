@@ -85,13 +85,26 @@ export const usersAPI = {
     search?: string;
   }) => api.get<{ users: User[] }>('/admin/users', { params }),
 
-  getUserById: (id: string) => api.get<User>(`/admin/users/${id}`),
+  getUserById: (id: string) => {
+    if (!id) {
+      throw new Error('User ID is required');
+    }
+    return api.get<User>(`/admin/users/${id}`);
+  },
 
-  updateUser: (id: string, data: Partial<User>) =>
-    api.put<User>(`/admin/users/${id}`, data),
+  updateUser: (id: string, data: Partial<User>) => {
+    if (!id) {
+      throw new Error('User ID is required');
+    }
+    return api.put<User>(`/admin/users/${id}`, data);
+  },
 
-  approveUserUpgrade: (id: string, role: string) =>
-    api.post<User>(`/admin/users/${id}/approve-upgrade`, { role }),
+  approveUserUpgrade: (id: string, role: string) => {
+    if (!id) {
+      throw new Error('User ID is required');
+    }
+    return api.post<User>(`/admin/users/${id}/approve-upgrade`, { role });
+  },
 };
 
 // Cases API
@@ -105,34 +118,31 @@ export const casesAPI = {
     try {
       console.log('Fetching cases with params:', params);
       
-      // Fetch both student and tutor cases
-      const [studentCases, tutorCases] = await Promise.all([
-        api.get<{ cases: Case[] }>('/admin/find-student-cases', { params }),
-        api.get<{ cases: Case[] }>('/admin/find-tutor-cases', { params })
-      ]);
-
-      console.log('Student cases:', studentCases.data);
-      console.log('Tutor cases:', tutorCases.data);
-
-      // Combine and deduplicate cases based on case ID
-      const allCases = [...studentCases.data.cases, ...tutorCases.data.cases];
-      const uniqueCases = Array.from(new Map(allCases.map(c => [c.id, c])).values());
-
-      return {
-        data: {
-          cases: uniqueCases
-        }
-      };
+      // Use the single cases endpoint
+      const response = await api.get<{ cases: Case[] }>('/admin/cases', { params });
+      
+      console.log('Cases response:', response.data);
+      
+      return response;
     } catch (error) {
       console.error('Error fetching cases:', error);
       throw error;
     }
   },
 
-  getCaseById: (id: string) => api.get<Case>(`/admin/cases/${id}`),
+  getCaseById: (id: string) => {
+    if (!id) {
+      throw new Error('Case ID is required');
+    }
+    return api.get<Case>(`/admin/cases/${id}`);
+  },
 
-  updateCase: (id: string, data: Partial<Case>) =>
-    api.put<Case>(`/admin/cases/${id}`, data),
+  updateCase: (id: string, data: Partial<Case>) => {
+    if (!id) {
+      throw new Error('Case ID is required');
+    }
+    return api.put<Case>(`/admin/cases/${id}`, data);
+  },
 };
 
 // Statistics API
@@ -147,13 +157,13 @@ export const statisticsAPI = {
     return {
       ...response,
       data: {
-        totalStudents: users.students || 0,
-        totalTutors: users.tutors || 0,
-        activeCases: cases.openCases || 0,
-        activeUsers: users.totalUsers || 0,
-        newUsersThisMonth: 0, // This will need to be implemented on the backend
+        totalStudents: users.students || users.totalStudents || 0,
+        totalTutors: users.tutors || users.totalTutors || 0,
+        activeCases: cases.openCases || cases.activeCases || 0,
+        activeUsers: users.totalUsers || users.activeUsers || 0,
+        newUsersThisMonth: users.newUsers || 0,
         totalCases: cases.totalCases || 0,
-        completedCases: cases.matchedCases || 0,
+        completedCases: cases.matchedCases || cases.completedCases || 0,
         successRate: cases.totalCases > 0
           ? Math.round((cases.matchedCases / cases.totalCases) * 100)
           : 0,
