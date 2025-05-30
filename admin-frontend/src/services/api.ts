@@ -117,6 +117,10 @@ export const statisticsAPI = {
       totalStudents: response.data.users.students,
       totalTutors: response.data.users.tutors,
       activeCases: response.data.cases.openCases,
+      activeUsers: response.data.users.totalUsers,
+      newUsersThisMonth: 0, // This will need to be implemented on the backend
+      totalCases: response.data.cases.totalCases,
+      completedCases: response.data.cases.matchedCases,
       successRate: response.data.cases.totalCases > 0
         ? Math.round((response.data.cases.matchedCases / response.data.cases.totalCases) * 100)
         : 0,

@@ -61,6 +61,10 @@ export interface DashboardStatistics {
   totalTutors: number;
   activeCases: number;
   successRate: number;
+  activeUsers: number;
+  newUsersThisMonth: number;
+  totalCases: number;
+  completedCases: number;
   hotSubjects: Subject[];
   recentActivities: Activity[];
 }
