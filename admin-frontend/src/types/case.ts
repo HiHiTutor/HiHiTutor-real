@@ -37,6 +37,7 @@ export interface CaseResponse {
       limit: number;
     };
   };
+  message?: string;
 }
 
 export interface SingleCaseResponse {

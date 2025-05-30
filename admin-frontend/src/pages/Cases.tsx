@@ -47,10 +47,16 @@ const Cases: React.FC = () => {
           type: caseType === 'all' ? undefined : caseType,
         });
 
-        const { cases, pagination } = response.data;
-        if (Array.isArray(cases)) {
-          dispatch(setCases(cases));
-          setTotalCount(pagination.total);
+        if (response.data.success && response.data.data) {
+          const { cases, pagination } = response.data.data;
+          if (Array.isArray(cases)) {
+            dispatch(setCases(cases));
+            setTotalCount(pagination.total);
+          } else {
+            console.error('Invalid response format:', response);
+            dispatch(setError('Invalid response format'));
+            dispatch(setCases([]));
+          }
         } else {
           console.error('Invalid response format:', response);
           dispatch(setError('Invalid response format'));
