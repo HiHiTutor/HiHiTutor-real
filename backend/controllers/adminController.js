@@ -283,7 +283,8 @@ const getAllCases = async (req, res) => {
         pagination: {
           total,
           page: parseInt(page),
-          limit: parseInt(limit)
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / limit)
         }
       }
     });
@@ -291,7 +292,8 @@ const getAllCases = async (req, res) => {
     console.error('Error getting cases:', error);
     res.status(500).json({ 
       success: false, 
-      message: 'Internal server error' 
+      message: 'Internal server error',
+      data: null
     });
   }
 };

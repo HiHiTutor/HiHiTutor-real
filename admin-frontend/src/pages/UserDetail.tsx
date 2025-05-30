@@ -254,9 +254,6 @@ const UserDetail: React.FC = () => {
               }
             >
               <MenuItem value="user">User</MenuItem>
-              <MenuItem value="student">Student</MenuItem>
-              <MenuItem value="tutor">Tutor</MenuItem>
-              <MenuItem value="institution">Institution</MenuItem>
               <MenuItem value="admin">Admin</MenuItem>
             </TextField>
             <TextField
