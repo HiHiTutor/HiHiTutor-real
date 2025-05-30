@@ -249,14 +249,22 @@ const getAllCases = async (req, res) => {
     const total = await Case.countDocuments(query);
 
     res.json({
-      cases,
-      total,
-      page: parseInt(page),
-      totalPages: Math.ceil(total / limit),
+      success: true,
+      data: {
+        cases,
+        pagination: {
+          total,
+          page: parseInt(page),
+          limit: parseInt(limit)
+        }
+      }
     });
   } catch (error) {
     console.error('Error getting cases:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ 
+      success: false, 
+      message: 'Internal server error' 
+    });
   }
 };
 

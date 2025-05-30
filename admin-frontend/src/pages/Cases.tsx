@@ -53,13 +53,13 @@ const Cases: React.FC = () => {
             dispatch(setCases(cases));
             setTotalCount(pagination.total);
           } else {
-            console.error('Invalid response format:', response);
+            console.error('Invalid cases data format:', cases);
             dispatch(setError('Invalid response format'));
             dispatch(setCases([]));
           }
         } else {
-          console.error('Invalid response format:', response);
-          dispatch(setError('Invalid response format'));
+          console.error('Invalid response format:', response.data);
+          dispatch(setError(response.data.message || 'Invalid response format'));
           dispatch(setCases([]));
         }
       } catch (error: any) {
