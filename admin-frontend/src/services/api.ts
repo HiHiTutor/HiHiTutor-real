@@ -118,8 +118,7 @@ export const casesAPI = {
     try {
       console.log('Fetching cases with params:', params);
       
-      // Use the correct cases endpoint
-      const response = await api.get<{ cases: Case[]; pagination: { page: number; limit: number; total: number; totalPages: number; } }>('/api/cases', { params });
+      const response = await api.get<{ cases: Case[]; pagination: { page: number; limit: number; total: number; totalPages: number; } }>('/cases', { params });
       
       console.log('Cases response:', response.data);
       
@@ -134,14 +133,14 @@ export const casesAPI = {
     if (!id) {
       throw new Error('Case ID is required');
     }
-    return api.get<{ success: boolean; data: Case }>(`/api/cases/${id}`);
+    return api.get<{ success: boolean; data: Case }>(`/cases/${id}`);
   },
 
   updateCase: (id: string, data: Partial<Case>) => {
     if (!id) {
       throw new Error('Case ID is required');
     }
-    return api.put<{ success: boolean; data: Case }>(`/api/cases/${id}`, data);
+    return api.put<{ success: boolean; data: Case }>(`/cases/${id}`, data);
   },
 };
 
