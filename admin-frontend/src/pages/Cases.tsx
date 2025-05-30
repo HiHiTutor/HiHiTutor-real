@@ -22,16 +22,19 @@ import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { casesAPI } from '../services/api';
 import { setCases, setLoading, setError } from '../store/slices/caseSlice';
 
+type CaseType = 'all' | 'student' | 'tutor';
+type CaseStatus = '' | 'open' | 'matched' | 'closed' | 'pending';
+
 const Cases: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { cases, loading } = useAppSelector((state) => state.cases);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [statusFilter, setStatusFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState<CaseStatus>('');
   const [searchQuery, setSearchQuery] = useState('');
   const [totalCount, setTotalCount] = useState(0);
-  const [caseType, setCaseType] = useState('all'); // 'all', 'student', 'tutor'
+  const [caseType, setCaseType] = useState<CaseType>('all');
 
   useEffect(() => {
     const fetchCases = async () => {
@@ -40,7 +43,7 @@ const Cases: React.FC = () => {
         const response = await casesAPI.getCases({
           page: page + 1,
           limit: rowsPerPage,
-          status: statusFilter,
+          status: statusFilter || undefined,
           search: searchQuery,
           type: caseType === 'all' ? undefined : caseType,
         });
@@ -100,8 +103,8 @@ const Cases: React.FC = () => {
     }
   };
 
-  const getCaseType = (caseItem: any) => {
-    if (caseItem.type) return caseItem.type;
+  const getCaseType = (caseItem: any): 'student' | 'tutor' => {
+    if (caseItem.type === 'student' || caseItem.type === 'tutor') return caseItem.type;
     // 如果沒有明確的類型，根據是否有導師來判斷
     return caseItem.tutor ? 'tutor' : 'student';
   };
@@ -137,7 +140,7 @@ const Cases: React.FC = () => {
             variant="outlined"
             size="small"
             value={caseType}
-            onChange={(e) => setCaseType(e.target.value)}
+            onChange={(e) => setCaseType(e.target.value as CaseType)}
             sx={{ width: 150 }}
           >
             <MenuItem value="all">All Cases</MenuItem>
@@ -150,7 +153,7 @@ const Cases: React.FC = () => {
             variant="outlined"
             size="small"
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => setStatusFilter(e.target.value as CaseStatus)}
             sx={{ width: 150 }}
           >
             <MenuItem value="">All Status</MenuItem>
