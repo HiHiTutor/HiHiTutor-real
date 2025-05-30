@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Paper,
@@ -15,6 +16,7 @@ import { setAuth } from '../store/slices/authSlice';
 import axios from 'axios';
 
 const Login: React.FC = () => {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
@@ -66,6 +68,9 @@ const Login: React.FC = () => {
         userType: response.data.user.userType,
         role: response.data.user.role
       });
+
+      // Navigate to dashboard after successful login
+      navigate('/dashboard');
     } catch (error) {
       console.error('❌ Login error:', error);
       
