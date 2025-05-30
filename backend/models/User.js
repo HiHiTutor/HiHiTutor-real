@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
   },
   userType: {
     type: String,
-    enum: ['student', 'organization', 'tutor'],
+    enum: ['student', 'organization', 'tutor', 'admin'],
     default: 'student'
   },
   phone: {
@@ -66,6 +66,11 @@ const userSchema = new mongoose.Schema({
 userSchema.pre('save', function(next) {
   if (this.isNew && this.userType === 'organization') {
     this.status = 'pending';
+  }
+  // 確保管理員用戶總是 active
+  if (this.userType === 'admin') {
+    this.status = 'active';
+    this.role = 'admin';
   }
   next();
 });
