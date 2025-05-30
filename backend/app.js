@@ -27,8 +27,31 @@ const adminAuthRoutes = require('./routes/adminAuth');
 
 const app = express();
 
+// Error handling
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught Exception:', {
+    message: error.message,
+    stack: error.stack,
+    name: error.name
+  });
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection:', {
+    reason: reason,
+    promise: promise
+  });
+});
+
 // Enhanced request logging
-morgan.token('request-body', (req) => JSON.stringify(req.body));
+morgan.token('request-body', (req) => {
+  const body = {...req.body};
+  if (body.password) {
+    body.password = '[HIDDEN]';
+  }
+  return JSON.stringify(body);
+});
+
 app.use(morgan(':method :url :status :response-time ms - :request-body'));
 
 // CORS configuration
@@ -46,7 +69,7 @@ app.use(cors({
   maxAge: 86400 // 24 hours
 }));
 
-// Body parsing middleware
+// Body parsing middleware - BEFORE routes
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -57,17 +80,33 @@ app.use((req, res, next) => {
     timestamp: new Date().toISOString(),
     method: req.method,
     url: req.url,
+    path: req.path,
     headers: {
       'content-type': req.headers['content-type'],
       'origin': req.headers['origin'],
       'authorization': req.headers['authorization'] ? 'Bearer [hidden]' : 'none'
     },
     body: req.method !== 'GET' ? (
-      req.body.password ? { ...req.body, password: '[hidden]' } : req.body
+      req.body.password ? {...req.body, password: '[HIDDEN]'} : req.body
     ) : undefined,
     query: req.query,
     ip: req.ip
   });
+
+  // Add request ID to response headers
+  res.setHeader('X-Request-ID', requestId);
+  
+  // Capture response
+  const oldSend = res.send;
+  res.send = function(data) {
+    console.log(`[${requestId}] 📤 Response:`, {
+      status: res.statusCode,
+      headers: res.getHeaders(),
+      body: typeof data === 'string' ? data : JSON.stringify(data)
+    });
+    oldSend.apply(res, arguments);
+  };
+
   next();
 });
 
@@ -161,13 +200,33 @@ app.use((req, res) => {
   res.status(404).json({ message: '找不到請求的資源' });
 });
 
-// Error handling middleware
+// Error handling middleware (should be last)
 app.use((err, req, res, next) => {
-  console.error('Global error handler:', err);
+  const requestId = res.getHeader('X-Request-ID');
+  console.error(`[${requestId}] ❌ Global error handler:`, {
+    error: {
+      message: err.message,
+      stack: err.stack,
+      name: err.name,
+      code: err.code
+    },
+    request: {
+      method: req.method,
+      url: req.url,
+      headers: req.headers,
+      body: req.body
+    }
+  });
+
   res.status(err.status || 500).json({
     success: false,
     message: err.message || 'Internal server error',
-    error: process.env.NODE_ENV === 'development' ? err : {}
+    requestId: requestId,
+    error: {
+      name: err.name,
+      message: err.message,
+      ...(process.env.NODE_ENV === 'development' ? { stack: err.stack } : {})
+    }
   });
 });
 

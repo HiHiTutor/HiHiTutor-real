@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 
 const login = async (req, res) => {
-  const requestId = Math.random().toString(36).substring(7);
+  const requestId = res.getHeader('X-Request-ID');
   console.log(`[${requestId}] 👉 Admin login request received:`, {
     body: req.body,
     headers: req.headers,
@@ -31,7 +31,8 @@ const login = async (req, res) => {
       console.log(`[${requestId}] ❌ Login failed: Missing credentials`);
       return res.status(400).json({
         success: false,
-        message: 'Please provide both identifier and password'
+        message: 'Please provide both identifier and password',
+        requestId
       });
     }
 
@@ -40,7 +41,8 @@ const login = async (req, res) => {
       console.error(`[${requestId}] ❌ Critical error: JWT_SECRET not set`);
       return res.status(500).json({
         success: false,
-        message: 'Server configuration error: JWT_SECRET missing'
+        message: 'Server configuration error: JWT_SECRET missing',
+        requestId
       });
     }
 
@@ -48,7 +50,8 @@ const login = async (req, res) => {
       console.error(`[${requestId}] ❌ Critical error: MONGODB_URI not set`);
       return res.status(500).json({
         success: false,
-        message: 'Server configuration error: MONGODB_URI missing'
+        message: 'Server configuration error: MONGODB_URI missing',
+        requestId
       });
     }
 
@@ -72,53 +75,78 @@ const login = async (req, res) => {
         return res.status(500).json({
           success: false,
           message: 'Database connection failed',
-          error: reconnectError.message
+          error: reconnectError.message,
+          requestId
         });
       }
     }
 
-    console.log(`[${requestId}] 🔍 Looking for admin user:`, {
-      identifier,
-      query: {
+    // Find user by email or phone
+    let user;
+    try {
+      console.log(`[${requestId}] 🔍 Looking for admin user:`, {
+        identifier,
+        query: {
+          $or: [
+            { email: identifier },
+            { phone: identifier }
+          ]
+        }
+      });
+
+      user = await User.findOne({
         $or: [
           { email: identifier },
           { phone: identifier }
-        ],
-        userType: 'admin',
-        status: 'active',
-        role: 'admin'
+        ]
+      });
+
+      if (!user) {
+        console.log(`[${requestId}] ❌ Login failed: User not found for identifier:`, identifier);
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid credentials',
+          requestId
+        });
       }
-    });
 
-    // Find user by email or phone
-    const user = await User.findOne({
-      $or: [
-        { email: identifier },
-        { phone: identifier }
-      ],
-      userType: 'admin',
-      status: 'active',
-      role: 'admin'
-    });
+      console.log(`[${requestId}] ✅ User found:`, {
+        userId: user._id,
+        email: user.email,
+        phone: user.phone,
+        userType: user.userType,
+        role: user.role,
+        status: user.status,
+        hasPassword: !!user.password,
+        passwordLength: user.password?.length
+      });
 
-    if (!user) {
-      console.log(`[${requestId}] ❌ Login failed: Admin user not found for identifier:`, identifier);
-      return res.status(401).json({
+      // Check if user is admin
+      if (user.userType !== 'admin' || user.role !== 'admin') {
+        console.log(`[${requestId}] ❌ Login failed: User is not an admin`, {
+          userType: user.userType,
+          role: user.role
+        });
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. Admin privileges required.',
+          requestId
+        });
+      }
+
+    } catch (dbError) {
+      console.error(`[${requestId}] ❌ Database error:`, {
+        error: dbError.message,
+        stack: dbError.stack,
+        code: dbError.code
+      });
+      return res.status(500).json({
         success: false,
-        message: 'Invalid credentials'
+        message: 'Database error',
+        error: dbError.message,
+        requestId
       });
     }
-
-    console.log(`[${requestId}] ✅ Admin user found:`, {
-      userId: user._id,
-      email: user.email,
-      phone: user.phone,
-      userType: user.userType,
-      role: user.role,
-      status: user.status,
-      hasPassword: !!user.password,
-      passwordLength: user.password?.length
-    });
 
     // Verify password
     try {
@@ -133,7 +161,8 @@ const login = async (req, res) => {
         console.log(`[${requestId}] ❌ Login failed: Invalid password`);
         return res.status(401).json({
           success: false,
-          message: 'Invalid credentials'
+          message: 'Invalid credentials',
+          requestId
         });
       }
     } catch (bcryptError) {
@@ -144,7 +173,8 @@ const login = async (req, res) => {
       return res.status(500).json({
         success: false,
         message: 'Error verifying password',
-        error: bcryptError.message
+        error: bcryptError.message,
+        requestId
       });
     }
 
@@ -182,7 +212,8 @@ const login = async (req, res) => {
           userType: user.userType,
           role: user.role,
           status: user.status
-        }
+        },
+        requestId
       };
 
       console.log(`[${requestId}] ✅ Login successful:`, {
@@ -200,11 +231,12 @@ const login = async (req, res) => {
       return res.status(500).json({
         success: false,
         message: 'Error generating authentication token',
-        error: jwtError.message
+        error: jwtError.message,
+        requestId
       });
     }
   } catch (error) {
-    console.error(`[${requestId}] ❌ Login error:`, {
+    console.error(`[${requestId}] ❌ Unhandled error:`, {
       message: error.message,
       stack: error.stack,
       name: error.name,
@@ -214,7 +246,8 @@ const login = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Internal server error',
-      error: error.message
+      error: error.message,
+      requestId
     });
   }
 };
