@@ -3,6 +3,9 @@ const Case = require('../models/Case');
 const UpgradeDocument = require('../models/UpgradeDocument');
 const { validateUserUpdate } = require('../validators/userValidator');
 const bcrypt = require('bcryptjs');
+const StudentCase = require('../models/StudentCase');
+const TutorCase = require('../models/TutorCase');
+const connectDB = require('../config/db');
 
 // User Management
 const createUser = async (req, res) => {
@@ -224,11 +227,10 @@ const createCase = async (req, res) => {
       experience,
     } = req.body;
 
-    const newCase = new Case({
+    const caseData = {
       title,
       description,
       subject,
-      type,
       student,
       tutor,
       category,
@@ -240,7 +242,19 @@ const createCase = async (req, res) => {
       mode,
       experience,
       status: 'open',
-    });
+    };
+
+    let newCase;
+    if (type === 'student') {
+      newCase = new StudentCase(caseData);
+    } else if (type === 'tutor') {
+      newCase = new TutorCase(caseData);
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid case type. Must be either "student" or "tutor".'
+      });
+    }
 
     await newCase.save();
 
@@ -259,27 +273,42 @@ const getAllCases = async (req, res) => {
     const { page = 1, limit = 10, type, status, search } = req.query;
     const query = {};
 
-    if (type) query.type = type;
     if (status) query.status = status;
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: 'i' } },
-        { content: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
       ];
     }
 
-    const cases = await Case.find(query)
-      .populate('userId', 'name email')
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit))
-      .lean();
+    let cases = [];
+    let total = 0;
 
-    const total = await Case.countDocuments(query);
+    if (!type || type === 'student') {
+      // Get student cases
+      const studentCases = await StudentCase.find(query)
+        .sort({ createdAt: -1 });
+      cases = cases.concat(studentCases.map(c => ({...c.toObject(), type: 'student'})));
+      total += await StudentCase.countDocuments(query);
+    }
+
+    if (!type || type === 'tutor') {
+      // Get tutor cases
+      const tutorCases = await TutorCase.find(query)
+        .sort({ createdAt: -1 });
+      cases = cases.concat(tutorCases.map(c => ({...c.toObject(), type: 'tutor'})));
+      total += await TutorCase.countDocuments(query);
+    }
+
+    // Manual pagination
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const paginatedCases = cases.slice(startIndex, endIndex);
 
     res.json({
       success: true,
       data: {
-        cases,
+        cases: paginatedCases,
         pagination: {
           total,
           page: parseInt(page),
@@ -300,13 +329,27 @@ const getAllCases = async (req, res) => {
 
 const getCaseById = async (req, res) => {
   try {
-    const case_ = await Case.findById(req.params.id)
-      .populate('userId', 'name email')
-      .lean();
+    const { id } = req.params;
+    const { type } = req.query;
+
+    let case_;
+    if (type === 'student') {
+      case_ = await StudentCase.findById(id).lean();
+    } else if (type === 'tutor') {
+      case_ = await TutorCase.findById(id).lean();
+    } else {
+      // Try both collections if type is not specified
+      case_ = await StudentCase.findById(id).lean() || await TutorCase.findById(id).lean();
+    }
+
     if (!case_) {
       return res.status(404).json({ message: 'Case not found' });
     }
-    res.json(case_);
+
+    res.json({
+      success: true,
+      data: case_
+    });
   } catch (error) {
     console.error('Error getting case:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -315,17 +358,29 @@ const getCaseById = async (req, res) => {
 
 const updateCase = async (req, res) => {
   try {
-    const case_ = await Case.findByIdAndUpdate(
-      req.params.id,
-      { $set: req.body },
-      { new: true }
-    ).populate('userId', 'name email');
+    const { id } = req.params;
+    const { type } = req.query;
+    const updateData = req.body;
+
+    let case_;
+    if (type === 'student') {
+      case_ = await StudentCase.findByIdAndUpdate(id, { $set: updateData }, { new: true }).lean();
+    } else if (type === 'tutor') {
+      case_ = await TutorCase.findByIdAndUpdate(id, { $set: updateData }, { new: true }).lean();
+    } else {
+      // Try both collections if type is not specified
+      case_ = await StudentCase.findByIdAndUpdate(id, { $set: updateData }, { new: true }).lean() ||
+              await TutorCase.findByIdAndUpdate(id, { $set: updateData }, { new: true }).lean();
+    }
 
     if (!case_) {
       return res.status(404).json({ message: 'Case not found' });
     }
 
-    res.json(case_);
+    res.json({
+      success: true,
+      data: case_
+    });
   } catch (error) {
     console.error('Error updating case:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -334,24 +389,45 @@ const updateCase = async (req, res) => {
 
 const updateCaseStatus = async (req, res) => {
   try {
-    const { status, matchedUserId } = req.body;
-    const case_ = await Case.findByIdAndUpdate(
-      req.params.id,
-      {
-        $set: {
-          status,
-          matchedUserId,
-          matchedAt: status === 'matched' ? new Date() : null,
-        },
-      },
-      { new: true }
-    ).populate('userId', 'name email');
+    const { id } = req.params;
+    const { type } = req.query;
+    const { status } = req.body;
+
+    let case_;
+    if (type === 'student') {
+      case_ = await StudentCase.findByIdAndUpdate(
+        id,
+        { $set: { status, updatedAt: new Date() } },
+        { new: true }
+      ).lean();
+    } else if (type === 'tutor') {
+      case_ = await TutorCase.findByIdAndUpdate(
+        id,
+        { $set: { status, updatedAt: new Date() } },
+        { new: true }
+      ).lean();
+    } else {
+      // Try both collections if type is not specified
+      case_ = await StudentCase.findByIdAndUpdate(
+        id,
+        { $set: { status, updatedAt: new Date() } },
+        { new: true }
+      ).lean() ||
+      await TutorCase.findByIdAndUpdate(
+        id,
+        { $set: { status, updatedAt: new Date() } },
+        { new: true }
+      ).lean();
+    }
 
     if (!case_) {
       return res.status(404).json({ message: 'Case not found' });
     }
 
-    res.json(case_);
+    res.json({
+      success: true,
+      data: case_
+    });
   } catch (error) {
     console.error('Error updating case status:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -360,23 +436,65 @@ const updateCaseStatus = async (req, res) => {
 
 const updatePromotionLevel = async (req, res) => {
   try {
+    const { id } = req.params;
+    const { type } = req.query;
     const { level } = req.body;
-    const case_ = await Case.findByIdAndUpdate(
-      req.params.id,
-      {
-        $set: {
-          promotionLevel: level,
-          promotionUpdatedAt: new Date(),
+
+    let case_;
+    if (type === 'student') {
+      case_ = await StudentCase.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            promotionLevel: level,
+            updatedAt: new Date()
+          }
         },
-      },
-      { new: true }
-    ).populate('userId', 'name email');
+        { new: true }
+      ).lean();
+    } else if (type === 'tutor') {
+      case_ = await TutorCase.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            promotionLevel: level,
+            updatedAt: new Date()
+          }
+        },
+        { new: true }
+      ).lean();
+    } else {
+      // Try both collections if type is not specified
+      case_ = await StudentCase.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            promotionLevel: level,
+            updatedAt: new Date()
+          }
+        },
+        { new: true }
+      ).lean() ||
+      await TutorCase.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            promotionLevel: level,
+            updatedAt: new Date()
+          }
+        },
+        { new: true }
+      ).lean();
+    }
 
     if (!case_) {
       return res.status(404).json({ message: 'Case not found' });
     }
 
-    res.json(case_);
+    res.json({
+      success: true,
+      data: case_
+    });
   } catch (error) {
     console.error('Error updating promotion level:', error);
     res.status(500).json({ message: 'Internal server error' });
