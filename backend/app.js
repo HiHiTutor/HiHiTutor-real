@@ -74,11 +74,16 @@ app.use(cors({
     'http://localhost:3001'
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept', 'X-Requested-With'],
   exposedHeaders: ['Content-Length', 'X-Requested-With'],
-  credentials: false,
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
   maxAge: 86400 // 24 hours
 }));
+
+// Handle OPTIONS preflight requests
+app.options('*', cors());
 
 // Body parsing middleware - BEFORE routes
 app.use(express.json());
