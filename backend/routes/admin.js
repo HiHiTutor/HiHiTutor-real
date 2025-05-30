@@ -8,6 +8,13 @@ const {
   getUserUpgradeDocuments,
   approveUserUpgrade,
   rejectUserUpgrade,
+  getAllCases,
+  getCaseById,
+  updateCase,
+  updateCaseStatus,
+  updatePromotionLevel,
+  getSubjectStats,
+  getPlatformStats
 } = require('../controllers/adminController');
 
 // User management routes

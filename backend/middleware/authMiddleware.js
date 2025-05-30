@@ -8,7 +8,7 @@ const verifyToken = (req, res, next) => {
 
   const token = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'defaultsecret');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || process.env.REACT_APP_JWT_SECRET);
     req.user = decoded;
     next();
   } catch (err) {
@@ -17,4 +17,16 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-module.exports = { verifyToken }; 
+const isAdmin = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ message: '未經過身份驗證' });
+  }
+
+  if (req.user.userType !== 'admin' || req.user.role !== 'admin') {
+    return res.status(403).json({ message: '需要管理員權限' });
+  }
+
+  next();
+};
+
+module.exports = { verifyToken, isAdmin }; 
