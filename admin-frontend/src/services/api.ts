@@ -119,14 +119,11 @@ export const casesAPI = {
       console.log('Fetching cases with params:', params);
       
       // Use the correct cases endpoint
-      const response = await api.get<{ success: boolean; data: { cases: Case[]; pagination: { page: number; limit: number; total: number; totalPages: number; } } }>('/api/cases', { params });
+      const response = await api.get<{ cases: Case[]; pagination: { page: number; limit: number; total: number; totalPages: number; } }>('/api/cases', { params });
       
       console.log('Cases response:', response.data);
       
-      return {
-        ...response,
-        data: response.data.data
-      };
+      return response;
     } catch (error) {
       console.error('Error fetching cases:', error);
       throw error;

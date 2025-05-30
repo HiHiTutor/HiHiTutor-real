@@ -28,6 +28,7 @@ const Cases: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [statusFilter, setStatusFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     const fetchCases = async () => {
@@ -39,7 +40,9 @@ const Cases: React.FC = () => {
           status: statusFilter,
           search: searchQuery,
         });
+        
         dispatch(setCases(response.data.cases));
+        setTotalCount(response.data.pagination.total);
       } catch (error) {
         dispatch(setError('Failed to fetch cases'));
       } finally {
@@ -156,7 +159,7 @@ const Cases: React.FC = () => {
         </Table>
         <TablePagination
           component="div"
-          count={-1}
+          count={totalCount}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
