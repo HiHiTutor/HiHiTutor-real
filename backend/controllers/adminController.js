@@ -1,5 +1,4 @@
 const User = require('../models/User');
-const Case = require('../models/Case');
 const UpgradeDocument = require('../models/UpgradeDocument');
 const { validateUserUpdate } = require('../validators/userValidator');
 const bcrypt = require('bcryptjs');
@@ -543,56 +542,86 @@ const updatePromotionLevel = async (req, res) => {
 const getSubjectStats = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    const stats = await Case.aggregate([
-      {
-        $match: {
-          createdAt: {
-            $gte: new Date(startDate),
-            $lte: new Date(endDate),
+    const dateMatch = {
+      createdAt: {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate),
+      },
+    };
+
+    // Get stats from both collections
+    const [studentStats, tutorStats] = await Promise.all([
+      StudentCase.aggregate([
+        { $match: dateMatch },
+        { $unwind: '$subjects' },
+        {
+          $group: {
+            _id: '$subjects',
+            count: { $sum: 1 },
+            studentCount: { $sum: 1 },
+            successCount: {
+              $sum: { $cond: [{ $eq: ['$status', 'matched'] }, 1, 0] },
+            },
           },
         },
-      },
-      {
-        $unwind: '$subjects',
-      },
-      {
-        $group: {
-          _id: '$subjects',
-          count: { $sum: 1 },
-          studentCount: {
-            $sum: { $cond: [{ $eq: ['$type', 'student'] }, 1, 0] },
-          },
-          tutorCount: {
-            $sum: { $cond: [{ $eq: ['$type', 'tutor'] }, 1, 0] },
-          },
-          successCount: {
-            $sum: { $cond: [{ $eq: ['$status', 'matched'] }, 1, 0] },
+      ]),
+      TutorCase.aggregate([
+        { $match: dateMatch },
+        { $unwind: '$subjects' },
+        {
+          $group: {
+            _id: '$subjects',
+            count: { $sum: 1 },
+            tutorCount: { $sum: 1 },
+            successCount: {
+              $sum: { $cond: [{ $eq: ['$status', 'matched'] }, 1, 0] },
+            },
           },
         },
-      },
-      {
-        $project: {
-          subject: '$_id',
-          searchCount: '$count',
-          studentCount: 1,
-          tutorCount: 1,
-          successRate: {
-            $multiply: [
-              { $divide: ['$successCount', '$count'] },
-              100,
-            ],
-          },
-        },
-      },
-      {
-        $sort: { searchCount: -1 },
-      },
+      ]),
     ]);
+
+    // Combine stats
+    const combinedStats = {};
+    studentStats.forEach(stat => {
+      combinedStats[stat._id] = {
+        subject: stat._id,
+        searchCount: stat.count,
+        studentCount: stat.studentCount,
+        tutorCount: 0,
+        successCount: stat.successCount,
+      };
+    });
+
+    tutorStats.forEach(stat => {
+      if (combinedStats[stat._id]) {
+        combinedStats[stat._id].searchCount += stat.count;
+        combinedStats[stat._id].tutorCount = stat.tutorCount;
+        combinedStats[stat._id].successCount += stat.successCount;
+      } else {
+        combinedStats[stat._id] = {
+          subject: stat._id,
+          searchCount: stat.count,
+          studentCount: 0,
+          tutorCount: stat.tutorCount,
+          successCount: stat.successCount,
+        };
+      }
+    });
+
+    const stats = Object.values(combinedStats).map(stat => ({
+      ...stat,
+      successRate: (stat.successCount / stat.searchCount) * 100,
+    }));
 
     res.json(stats);
   } catch (error) {
     console.error('Error getting subject statistics:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Internal server error',
+      error: error.message 
+    });
   }
 };
 
@@ -600,7 +629,7 @@ const getPlatformStats = async (req, res) => {
   try {
     console.log('Fetching platform statistics...');
     
-    const [userStats, caseStats] = await Promise.all([
+    const [userStats, studentCaseStats, tutorCaseStats] = await Promise.all([
       User.aggregate([
         {
           $group: {
@@ -618,7 +647,7 @@ const getPlatformStats = async (req, res) => {
           },
         },
       ]),
-      Case.aggregate([
+      StudentCase.aggregate([
         {
           $group: {
             _id: null,
@@ -629,27 +658,54 @@ const getPlatformStats = async (req, res) => {
             matchedCases: {
               $sum: { $cond: [{ $eq: ['$status', 'matched'] }, 1, 0] },
             },
-            studentCases: {
-              $sum: { $cond: [{ $eq: ['$type', 'student'] }, 1, 0] },
+          },
+        },
+      ]),
+      TutorCase.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalCases: { $sum: 1 },
+            openCases: {
+              $sum: { $cond: [{ $eq: ['$status', 'open'] }, 1, 0] },
             },
-            tutorCases: {
-              $sum: { $cond: [{ $eq: ['$type', 'tutor'] }, 1, 0] },
+            matchedCases: {
+              $sum: { $cond: [{ $eq: ['$status', 'matched'] }, 1, 0] },
             },
           },
         },
       ]),
     ]);
 
+    const defaultStats = { totalCases: 0, openCases: 0, matchedCases: 0 };
+    const sStats = studentCaseStats[0] || defaultStats;
+    const tStats = tutorCaseStats[0] || defaultStats;
+
+    const combinedCaseStats = {
+      totalCases: sStats.totalCases + tStats.totalCases,
+      openCases: sStats.openCases + tStats.openCases,
+      matchedCases: sStats.matchedCases + tStats.matchedCases,
+      studentCases: sStats.totalCases,
+      tutorCases: tStats.totalCases,
+    };
+
     console.log('User stats:', userStats[0] || { totalUsers: 0, students: 0, tutors: 0, institutions: 0 });
-    console.log('Case stats:', caseStats[0] || { totalCases: 0, openCases: 0, matchedCases: 0, studentCases: 0, tutorCases: 0 });
+    console.log('Case stats:', combinedCaseStats);
 
     res.json({
-      users: userStats[0] || { totalUsers: 0, students: 0, tutors: 0, institutions: 0 },
-      cases: caseStats[0] || { totalCases: 0, openCases: 0, matchedCases: 0, studentCases: 0, tutorCases: 0 },
+      success: true,
+      data: {
+        users: userStats[0] || { totalUsers: 0, students: 0, tutors: 0, institutions: 0 },
+        cases: combinedCaseStats,
+      }
     });
   } catch (error) {
     console.error('Error getting platform statistics:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Internal server error',
+      error: error.message 
+    });
   }
 };
 

@@ -253,7 +253,9 @@ const UserDetail: React.FC = () => {
                 setEditForm({ ...editForm, role: e.target.value })
               }
             >
-              <MenuItem value="user">User</MenuItem>
+              <MenuItem value="student">Student</MenuItem>
+              <MenuItem value="tutor">Tutor</MenuItem>
+              <MenuItem value="institution">Institution</MenuItem>
               <MenuItem value="admin">Admin</MenuItem>
             </TextField>
             <TextField
