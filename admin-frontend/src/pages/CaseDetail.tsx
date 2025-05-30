@@ -13,7 +13,7 @@ import {
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { casesAPI } from '../services/api';
 import { setSelectedCase, setLoading, setError } from '../store/slices/caseSlice';
-import { SingleCaseResponse } from '../types/case';
+import { Case, SingleCaseResponse } from '../types/case';
 
 const CaseDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,8 +27,27 @@ const CaseDetail: React.FC = () => {
         dispatch(setLoading(true));
         if (id) {
           const response = await casesAPI.getCaseById(id);
-          const caseData = response.data;
-          if (caseData) {
+          const { success, data } = response.data;
+          if (success && data) {
+            const caseData: Case = {
+              id: data.id,
+              title: data.title,
+              description: data.description,
+              type: data.type as 'student' | 'tutor',
+              category: data.category,
+              subCategory: data.subCategory,
+              subjects: data.subjects,
+              regions: data.regions,
+              subRegions: data.subRegions,
+              budget: data.budget,
+              mode: data.mode as 'online' | 'offline' | 'hybrid',
+              experience: data.experience,
+              status: data.status,
+              student: data.student,
+              tutor: data.tutor,
+              createdAt: data.createdAt,
+              updatedAt: data.updatedAt,
+            };
             dispatch(setSelectedCase(caseData));
           } else {
             dispatch(setError('Case not found'));
