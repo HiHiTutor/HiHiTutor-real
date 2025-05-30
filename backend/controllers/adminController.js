@@ -365,17 +365,22 @@ const getPlatformStats = async (req, res) => {
 };
 
 module.exports = {
+  // User Management
   getAllUsers,
   getUserById,
   updateUser,
   getUserUpgradeDocuments,
   approveUserUpgrade,
   rejectUserUpgrade,
+  
+  // Case Management
   getAllCases,
   getCaseById,
   updateCase,
   updateCaseStatus,
   updatePromotionLevel,
+  
+  // Statistics
   getSubjectStats,
-  getPlatformStats,
+  getPlatformStats
 }; 
