@@ -11,10 +11,10 @@
       "src": "/api/admin/auth/login",
       "methods": ["OPTIONS"],
       "headers": {
-        "Access-Control-Allow-Origin": "https://hi-hi-tutor-real-admin-frontend.vercel.app",
-        "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS,PATCH",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, Origin, Accept",
+        "Access-Control-Expose-Headers": "Content-Length, X-Requested-With",
         "Access-Control-Max-Age": "86400"
       },
       "status": 204
@@ -23,10 +23,10 @@
       "src": "/api/admin/auth/login",
       "methods": ["POST"],
       "headers": {
-        "Access-Control-Allow-Origin": "https://hi-hi-tutor-real-admin-frontend.vercel.app",
-        "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS,PATCH",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, Origin, Accept",
+        "Access-Control-Expose-Headers": "Content-Length, X-Requested-With",
         "Access-Control-Max-Age": "86400"
       },
       "dest": "app.js"
@@ -35,10 +35,10 @@
       "src": "/api/admin/(.*)",
       "methods": ["OPTIONS"],
       "headers": {
-        "Access-Control-Allow-Origin": "https://hi-hi-tutor-real-admin-frontend.vercel.app",
-        "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS,PATCH",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, Origin, Accept",
+        "Access-Control-Expose-Headers": "Content-Length, X-Requested-With",
         "Access-Control-Max-Age": "86400"
       },
       "status": 204
@@ -46,10 +46,10 @@
     {
       "src": "/api/admin/(.*)",
       "headers": {
-        "Access-Control-Allow-Origin": "https://hi-hi-tutor-real-admin-frontend.vercel.app",
-        "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS,PATCH",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, Origin, Accept",
+        "Access-Control-Expose-Headers": "Content-Length, X-Requested-With",
         "Access-Control-Max-Age": "86400"
       },
       "dest": "app.js"

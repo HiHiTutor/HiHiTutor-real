@@ -27,26 +27,47 @@ const adminAuthRoutes = require('./routes/adminAuth');
 
 const app = express();
 
+// Enhanced request logging
+morgan.token('request-body', (req) => JSON.stringify(req.body));
+app.use(morgan(':method :url :status :response-time ms - :request-body'));
+
 // CORS configuration
 app.use(cors({
   origin: [
     'https://hi-hi-tutor-real.vercel.app',
-    'https://hi-hi-tutor-real-admin-frontend.vercel.app'
+    'https://hi-hi-tutor-real-admin-frontend.vercel.app',
+    'http://localhost:3000',
+    'http://localhost:3001'
   ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
+  exposedHeaders: ['Content-Length', 'X-Requested-With'],
+  credentials: false,
   maxAge: 86400 // 24 hours
 }));
 
-// Middleware
+// Body parsing middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(morgan('dev'));
 
-// Request timestamp logging
+// Request logging middleware
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  const requestId = Math.random().toString(36).substring(7);
+  console.log(`[${requestId}] 📝 Request received:`, {
+    timestamp: new Date().toISOString(),
+    method: req.method,
+    url: req.url,
+    headers: {
+      'content-type': req.headers['content-type'],
+      'origin': req.headers['origin'],
+      'authorization': req.headers['authorization'] ? 'Bearer [hidden]' : 'none'
+    },
+    body: req.method !== 'GET' ? (
+      req.body.password ? { ...req.body, password: '[hidden]' } : req.body
+    ) : undefined,
+    query: req.query,
+    ip: req.ip
+  });
   next();
 });
 
