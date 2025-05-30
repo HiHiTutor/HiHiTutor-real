@@ -15,6 +15,7 @@ import {
   Chip,
   TextField,
   MenuItem,
+  CircularProgress,
 } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { casesAPI } from '../services/api';
@@ -23,7 +24,7 @@ import { setCases, setLoading, setError } from '../store/slices/caseSlice';
 const Cases: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { cases } = useAppSelector((state) => state.cases);
+  const { cases, loading } = useAppSelector((state) => state.cases);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [statusFilter, setStatusFilter] = useState('');
@@ -40,11 +41,19 @@ const Cases: React.FC = () => {
           status: statusFilter,
           search: searchQuery,
         });
-        
-        dispatch(setCases(response.data.cases));
-        setTotalCount(response.data.pagination.total);
+
+        if (response.data && Array.isArray(response.data.cases)) {
+          dispatch(setCases(response.data.cases));
+          setTotalCount(response.data.pagination.total);
+        } else {
+          console.error('Invalid response format:', response);
+          dispatch(setError('Invalid response format'));
+          dispatch(setCases([]));
+        }
       } catch (error) {
+        console.error('Error fetching cases:', error);
         dispatch(setError('Failed to fetch cases'));
+        dispatch(setCases([]));
       } finally {
         dispatch(setLoading(false));
       }
@@ -76,6 +85,14 @@ const Cases: React.FC = () => {
         return 'default';
     }
   };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ p: 3 }}>
@@ -125,11 +142,11 @@ const Cases: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {cases.map((caseItem) => (
+            {(cases || []).map((caseItem) => (
               <TableRow key={caseItem.id}>
                 <TableCell>{caseItem.id}</TableCell>
                 <TableCell>{caseItem.title}</TableCell>
-                <TableCell>{caseItem.student.name}</TableCell>
+                <TableCell>{caseItem.student?.name || 'N/A'}</TableCell>
                 <TableCell>
                   {caseItem.tutor ? caseItem.tutor.name : 'Not Assigned'}
                 </TableCell>

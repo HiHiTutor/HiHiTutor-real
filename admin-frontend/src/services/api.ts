@@ -118,11 +118,21 @@ export const casesAPI = {
     try {
       console.log('Fetching cases with params:', params);
       
-      const response = await api.get<{ cases: Case[]; pagination: { page: number; limit: number; total: number; totalPages: number; } }>('/cases', { params });
+      const response = await api.get<Case[]>('/cases', { params });
       
       console.log('Cases response:', response.data);
       
-      return response;
+      return {
+        data: {
+          cases: response.data,
+          pagination: {
+            total: response.data.length,
+            page: params.page || 1,
+            limit: params.limit || 10,
+            totalPages: Math.ceil(response.data.length / (params.limit || 10))
+          }
+        }
+      };
     } catch (error) {
       console.error('Error fetching cases:', error);
       throw error;
