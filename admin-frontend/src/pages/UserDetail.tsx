@@ -13,10 +13,12 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  MenuItem,
 } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { usersAPI } from '../services/api';
 import { setSelectedUser } from '../store/slices/userSlice';
+import { User } from '../types';
 
 const UserDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,10 +26,20 @@ const UserDetail: React.FC = () => {
   const dispatch = useAppDispatch();
   const { selectedUser } = useAppSelector((state) => state.users);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editForm, setEditForm] = useState({
+  const [editForm, setEditForm] = useState<{
+    name: string;
+    email: string;
+    phone: string;
+    userType: User['userType'];
+    role: string;
+    status: User['status'];
+  }>({
     name: '',
     email: '',
     phone: '',
+    userType: 'student',
+    role: 'user',
+    status: 'active',
   });
 
   useEffect(() => {
@@ -40,6 +52,9 @@ const UserDetail: React.FC = () => {
             name: response.data.name,
             email: response.data.email,
             phone: response.data.phone,
+            userType: response.data.userType,
+            role: response.data.role,
+            status: response.data.status,
           });
         }
       } catch (error) {
@@ -115,10 +130,16 @@ const UserDetail: React.FC = () => {
                 <Typography>{selectedUser.phone}</Typography>
               </Grid>
               <Grid item xs={4}>
+                <Typography color="textSecondary">User Type</Typography>
+              </Grid>
+              <Grid item xs={8}>
+                <Chip label={selectedUser.userType} color="primary" />
+              </Grid>
+              <Grid item xs={4}>
                 <Typography color="textSecondary">Role</Typography>
               </Grid>
               <Grid item xs={8}>
-                <Chip label={selectedUser.role} color="primary" />
+                <Chip label={selectedUser.role} color="secondary" />
               </Grid>
               <Grid item xs={4}>
                 <Typography color="textSecondary">Status</Typography>
@@ -209,6 +230,48 @@ const UserDetail: React.FC = () => {
                 setEditForm({ ...editForm, phone: e.target.value })
               }
             />
+            <TextField
+              select
+              label="User Type"
+              fullWidth
+              value={editForm.userType}
+              onChange={(e) =>
+                setEditForm({ ...editForm, userType: e.target.value as User['userType'] })
+              }
+            >
+              <MenuItem value="student">Student</MenuItem>
+              <MenuItem value="tutor">Tutor</MenuItem>
+              <MenuItem value="organization">Organization</MenuItem>
+              <MenuItem value="admin">Admin</MenuItem>
+            </TextField>
+            <TextField
+              select
+              label="Role"
+              fullWidth
+              value={editForm.role}
+              onChange={(e) =>
+                setEditForm({ ...editForm, role: e.target.value })
+              }
+            >
+              <MenuItem value="user">User</MenuItem>
+              <MenuItem value="student">Student</MenuItem>
+              <MenuItem value="tutor">Tutor</MenuItem>
+              <MenuItem value="institution">Institution</MenuItem>
+              <MenuItem value="admin">Admin</MenuItem>
+            </TextField>
+            <TextField
+              select
+              label="Status"
+              fullWidth
+              value={editForm.status}
+              onChange={(e) =>
+                setEditForm({ ...editForm, status: e.target.value as User['status'] })
+              }
+            >
+              <MenuItem value="active">Active</MenuItem>
+              <MenuItem value="pending">Pending</MenuItem>
+              <MenuItem value="blocked">Blocked</MenuItem>
+            </TextField>
           </Box>
         </DialogContent>
         <DialogActions>

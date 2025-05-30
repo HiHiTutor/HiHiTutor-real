@@ -99,20 +99,48 @@ const updateUser = async (req, res) => {
       return res.status(400).json({ message: error.details[0].message });
     }
 
+    // 檢查是否嘗試將用戶升級為管理員
+    if (req.body.userType === 'admin' || req.body.role === 'admin') {
+      // 確保當前用戶是管理員
+      const currentUser = await User.findById(req.user.id);
+      if (!currentUser || currentUser.userType !== 'admin') {
+        return res.status(403).json({ 
+          success: false,
+          message: 'Only administrators can create other administrators' 
+        });
+      }
+    }
+
+    const updateData = {
+      ...req.body,
+      // 如果設置為管理員，確保兩個字段都正確設置
+      ...(req.body.userType === 'admin' ? { role: 'admin', status: 'active' } : {}),
+      ...(req.body.role === 'admin' ? { userType: 'admin', status: 'active' } : {})
+    };
+
     const user = await User.findByIdAndUpdate(
       req.params.id,
-      { $set: req.body },
+      { $set: updateData },
       { new: true }
     ).select('-password');
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'User not found' 
+      });
     }
 
-    res.json(user);
+    res.json({
+      success: true,
+      data: user
+    });
   } catch (error) {
     console.error('Error updating user:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Internal server error' 
+    });
   }
 };
 
