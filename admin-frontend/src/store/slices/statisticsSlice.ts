@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { StatisticsState, Statistics } from '../../types';
+import { StatisticsState, DashboardStatistics } from '../../types';
 
 const initialState: StatisticsState = {
   statistics: null,
@@ -11,7 +11,7 @@ const statisticsSlice = createSlice({
   name: 'statistics',
   initialState,
   reducers: {
-    setStatistics: (state, action: PayloadAction<Statistics>) => {
+    setStatistics: (state, action: PayloadAction<DashboardStatistics>) => {
       state.statistics = action.payload;
     },
     setLoading: (state, action: PayloadAction<boolean>) => {

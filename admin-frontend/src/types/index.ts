@@ -36,14 +36,30 @@ export interface Activity {
   timestamp: string;
 }
 
+export interface PlatformUsers {
+  totalUsers: number;
+  students: number;
+  tutors: number;
+  institutions: number;
+}
+
+export interface PlatformCases {
+  totalCases: number;
+  openCases: number;
+  matchedCases: number;
+  studentCases: number;
+  tutorCases: number;
+}
+
 export interface Statistics {
+  users: PlatformUsers;
+  cases: PlatformCases;
+}
+
+export interface DashboardStatistics {
   totalStudents: number;
   totalTutors: number;
-  activeUsers: number;
-  newUsersThisMonth: number;
-  totalCases: number;
   activeCases: number;
-  completedCases: number;
   successRate: number;
   hotSubjects: Subject[];
   recentActivities: Activity[];
@@ -65,7 +81,7 @@ export interface CaseState {
 }
 
 export interface StatisticsState {
-  statistics: Statistics | null;
+  statistics: DashboardStatistics | null;
   loading: boolean;
   error: string | null;
 } 
