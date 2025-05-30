@@ -314,6 +314,8 @@ const getSubjectStats = async (req, res) => {
 
 const getPlatformStats = async (req, res) => {
   try {
+    console.log('Fetching platform statistics...');
+    
     const [userStats, caseStats] = await Promise.all([
       User.aggregate([
         {
@@ -321,13 +323,13 @@ const getPlatformStats = async (req, res) => {
             _id: null,
             totalUsers: { $sum: 1 },
             students: {
-              $sum: { $cond: [{ $eq: ['$role', 'student'] }, 1, 0] },
+              $sum: { $cond: [{ $eq: ['$userType', 'student'] }, 1, 0] },
             },
             tutors: {
-              $sum: { $cond: [{ $eq: ['$role', 'tutor'] }, 1, 0] },
+              $sum: { $cond: [{ $eq: ['$userType', 'tutor'] }, 1, 0] },
             },
             institutions: {
-              $sum: { $cond: [{ $eq: ['$role', 'institution'] }, 1, 0] },
+              $sum: { $cond: [{ $eq: ['$userType', 'organization'] }, 1, 0] },
             },
           },
         },
@@ -354,9 +356,12 @@ const getPlatformStats = async (req, res) => {
       ]),
     ]);
 
+    console.log('User stats:', userStats[0] || { totalUsers: 0, students: 0, tutors: 0, institutions: 0 });
+    console.log('Case stats:', caseStats[0] || { totalCases: 0, openCases: 0, matchedCases: 0, studentCases: 0, tutorCases: 0 });
+
     res.json({
-      users: userStats[0],
-      cases: caseStats[0],
+      users: userStats[0] || { totalUsers: 0, students: 0, tutors: 0, institutions: 0 },
+      cases: caseStats[0] || { totalCases: 0, openCases: 0, matchedCases: 0, studentCases: 0, tutorCases: 0 },
     });
   } catch (error) {
     console.error('Error getting platform statistics:', error);
