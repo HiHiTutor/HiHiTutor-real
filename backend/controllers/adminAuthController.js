@@ -6,56 +6,62 @@ const mongoose = require('mongoose');
 const login = async (req, res) => {
   const requestId = res.getHeader('X-Request-ID') || Date.now().toString();
   
-  // Log request details
-  console.log(`[${requestId}] 👉 Admin login attempt:`, {
-    headers: {
-      'content-type': req.headers['content-type'],
-      'origin': req.headers['origin'],
-      'user-agent': req.headers['user-agent']
-    },
-    body: req.body ? {
-      identifier: req.body.identifier,
-      hasPassword: !!req.body.password
-    } : 'No body',
-    method: req.method,
-    path: req.path,
-    query: req.query
-  });
-
   try {
-    // Validate request body
-    if (!req.body) {
-      throw new Error('Request body is missing');
-    }
+    // Log request details (sanitized)
+    console.log(`[${requestId}] 👉 Admin login attempt:`, {
+      headers: {
+        'content-type': req.headers['content-type'],
+        'origin': req.headers['origin'],
+        'user-agent': req.headers['user-agent']
+      },
+      body: req.body ? {
+        identifier: req.body.identifier,
+        hasPassword: !!req.body.password
+      } : 'No body',
+      method: req.method,
+      path: req.path
+    });
 
-    const { identifier, password } = req.body;
-
-    if (!identifier || !password) {
-      console.log(`[${requestId}] ❌ Login failed: Missing credentials`);
+    // Basic request validation
+    if (!req.body || typeof req.body !== 'object') {
       return res.status(400).json({
         success: false,
-        message: 'Please provide both identifier and password',
-        debug: { hasIdentifier: !!identifier, hasPassword: !!password }
-      });
-    }
-
-    // Environment check
-    if (!process.env.JWT_SECRET && !process.env.REACT_APP_JWT_SECRET) {
-      console.error(`[${requestId}] ❌ Critical error: No JWT secret found`);
-      return res.status(500).json({
-        success: false,
-        message: 'Server configuration error',
-        debug: {
-          hasJwtSecret: false,
-          env: process.env.NODE_ENV,
-          availableEnvVars: Object.keys(process.env).filter(key => 
-            key.includes('JWT') || key.includes('MONGO') || key.includes('NODE')
-          )
+        message: '無效的請求格式',
+        debug: { 
+          hasBody: !!req.body,
+          bodyType: typeof req.body
         }
       });
     }
 
+    const { identifier, password } = req.body;
+
+    // Validate required fields
+    if (!identifier || !password) {
+      console.log(`[${requestId}] ❌ Login failed: Missing credentials`);
+      return res.status(400).json({
+        success: false,
+        message: '請提供帳號與密碼',
+        debug: { 
+          hasIdentifier: !!identifier, 
+          hasPassword: !!password 
+        }
+      });
+    }
+
+    // Environment check
     const jwtSecret = process.env.JWT_SECRET || process.env.REACT_APP_JWT_SECRET;
+    if (!jwtSecret) {
+      console.error(`[${requestId}] ❌ Critical error: No JWT secret found`);
+      return res.status(500).json({
+        success: false,
+        message: '伺服器配置錯誤',
+        debug: {
+          hasJwtSecret: false,
+          env: process.env.NODE_ENV
+        }
+      });
+    }
 
     // Database connection check
     if (mongoose.connection.readyState !== 1) {
@@ -76,7 +82,7 @@ const login = async (req, res) => {
         });
         return res.status(500).json({
           success: false,
-          message: 'Database connection failed',
+          message: '資料庫連接失敗',
           debug: {
             error: dbError.message,
             mongoState: mongoose.connection.readyState
@@ -85,9 +91,21 @@ const login = async (req, res) => {
       }
     }
 
-    // Find user
+    // Find user with safe error handling
     let user;
     try {
+      // Validate identifier format
+      if (typeof identifier !== 'string' || identifier.length < 3) {
+        return res.status(400).json({
+          success: false,
+          message: '無效的帳號格式',
+          debug: { 
+            identifierType: typeof identifier,
+            identifierLength: identifier?.length 
+          }
+        });
+      }
+
       user = await User.findOne({
         $or: [
           { email: identifier },
@@ -99,45 +117,37 @@ const login = async (req, res) => {
         console.log(`[${requestId}] ❌ User not found:`, identifier);
         return res.status(401).json({
           success: false,
-          message: 'Invalid credentials'
+          message: '帳號或密碼錯誤'
         });
       }
 
-      console.log(`[${requestId}] ✅ User found:`, {
-        id: user._id,
-        email: user.email,
-        phone: user.phone,
-        userType: user.userType,
-        role: user.role,
-        status: user.status,
-        hasPassword: !!user.password,
-        passwordLength: user.password?.length
-      });
-
       // Verify admin status
-      if (user.userType !== 'admin' || user.role !== 'admin') {
+      if (!user.userType || !user.role || user.userType !== 'admin' || user.role !== 'admin') {
         console.log(`[${requestId}] ❌ Non-admin user attempted login:`, {
           userType: user.userType,
           role: user.role
         });
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Admin privileges required.'
+          message: '拒絕訪問。需要管理員權限。'
         });
       }
 
-      // Verify password
-      const isMatch = await bcrypt.compare(password, user.password);
-      console.log(`[${requestId}] 🔐 Password verification:`, {
-        isMatch,
-        providedPasswordLength: password.length,
-        storedPasswordLength: user.password.length
-      });
+      // Verify password with safe error handling
+      if (!user.password) {
+        console.error(`[${requestId}] ❌ User has no password hash`);
+        return res.status(500).json({
+          success: false,
+          message: '帳號配置錯誤'
+        });
+      }
 
+      const isMatch = await bcrypt.compare(password, user.password);
+      
       if (!isMatch) {
         return res.status(401).json({
           success: false,
-          message: 'Invalid credentials'
+          message: '帳號或密碼錯誤'
         });
       }
 
@@ -155,6 +165,7 @@ const login = async (req, res) => {
       );
 
       // Send success response
+      console.log(`[${requestId}] ✅ Login successful for user:`, user._id);
       return res.json({
         success: true,
         token,
@@ -177,7 +188,7 @@ const login = async (req, res) => {
       });
       return res.status(500).json({
         success: false,
-        message: 'Database error',
+        message: '資料庫錯誤',
         debug: {
           error: dbError.message,
           code: dbError.code
@@ -194,11 +205,10 @@ const login = async (req, res) => {
     
     return res.status(500).json({
       success: false,
-      message: 'Internal server error',
+      message: '內部伺服器錯誤',
       debug: {
         error: error.message,
-        type: error.name,
-        env: process.env.NODE_ENV
+        type: error.name
       }
     });
   }
