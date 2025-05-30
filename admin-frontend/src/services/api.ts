@@ -78,26 +78,49 @@ api.interceptors.response.use(
 );
 
 // Users API
+interface UserResponse {
+  users: User[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+  };
+}
+
+interface CreateUserData {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  userType: string;
+}
+
+interface CreateUserResponse {
+  success: boolean;
+  data: User;
+  message?: string;
+}
+
 export const usersAPI = {
   getUsers: (params: {
     page?: number;
     limit?: number;
     role?: string;
     search?: string;
-  }) => api.get<{ users: User[]; pagination: { total: number; page: number; limit: number } }>('/admin/users', { params }),
+  }) => {
+    return axios.get<UserResponse>(`${API_BASE_URL}/admin/users`, { params });
+  },
 
   getUserById: (id: string) => {
-    if (!id) {
-      throw new Error('User ID is required');
-    }
-    return api.get<User>(`/admin/users/${id}`);
+    return axios.get<User>(`${API_BASE_URL}/admin/users/${id}`);
+  },
+
+  createUser: (data: CreateUserData) => {
+    return axios.post<CreateUserResponse>(`${API_BASE_URL}/admin/users`, data);
   },
 
   updateUser: (id: string, data: Partial<User>) => {
-    if (!id) {
-      throw new Error('User ID is required');
-    }
-    return api.put<User>(`/admin/users/${id}`, data);
+    return axios.put<User>(`${API_BASE_URL}/admin/users/${id}`, data);
   },
 
   approveUserUpgrade: (id: string, role: string) => {
@@ -109,40 +132,56 @@ export const usersAPI = {
 };
 
 // Cases API
+interface CaseResponse {
+  cases: Case[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+  };
+}
+
+interface CreateCaseData {
+  title: string;
+  description: string;
+  type: string;
+  category: string;
+  subCategory?: string;
+  subjects: string[];
+  regions: string[];
+  subRegions: string[];
+  budget: string;
+  mode: string;
+  experience?: string;
+}
+
+interface CreateCaseResponse {
+  success: boolean;
+  data: Case;
+  message?: string;
+}
+
 export const casesAPI = {
-  getCases: async (params: {
+  getCases: (params: {
     page?: number;
     limit?: number;
     status?: string;
     search?: string;
     type?: string;
-  }): Promise<CaseResponse> => {
-    const queryParams = new URLSearchParams();
-    if (params.page) queryParams.append('page', params.page.toString());
-    if (params.limit) queryParams.append('limit', params.limit.toString());
-    if (params.status) queryParams.append('status', params.status);
-    if (params.search) queryParams.append('search', params.search);
-    if (params.type) queryParams.append('type', params.type);
-
-    const response = await fetch(`${API_BASE_URL}/cases?${queryParams.toString()}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch cases');
-    }
-    return response.json();
+  }) => {
+    return axios.get<CaseResponse>(`${API_BASE_URL}/admin/cases`, { params });
   },
 
   getCaseById: (id: string) => {
-    if (!id) {
-      throw new Error('Case ID is required');
-    }
-    return api.get<{ success: boolean; data: Case }>(`/cases/${id}`);
+    return axios.get<Case>(`${API_BASE_URL}/admin/cases/${id}`);
+  },
+
+  createCase: (data: CreateCaseData) => {
+    return axios.post<CreateCaseResponse>(`${API_BASE_URL}/admin/cases`, data);
   },
 
   updateCase: (id: string, data: Partial<Case>) => {
-    if (!id) {
-      throw new Error('Case ID is required');
-    }
-    return api.put<{ success: boolean; data: Case }>(`/cases/${id}`, data);
+    return axios.put<Case>(`${API_BASE_URL}/admin/cases/${id}`, data);
   },
 };
 

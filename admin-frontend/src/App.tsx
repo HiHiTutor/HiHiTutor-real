@@ -9,6 +9,9 @@ import CaseDetail from './pages/CaseDetail';
 import Statistics from './pages/Statistics';
 import Login from './pages/Login';
 import { useAppSelector } from './hooks/redux';
+import CreateUser from './pages/CreateUser';
+import CreateCase from './pages/CreateCase';
+import NotFound from './pages/NotFound';
 
 // Protected Route component
 const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
@@ -35,13 +38,15 @@ const App: React.FC = () => {
       <Route path="/" element={<ProtectedRoute element={<Layout><Dashboard /></Layout>} />} />
       <Route path="/dashboard" element={<ProtectedRoute element={<Layout><Dashboard /></Layout>} />} />
       <Route path="/users" element={<ProtectedRoute element={<Layout><Users /></Layout>} />} />
+      <Route path="/users/create" element={<ProtectedRoute element={<Layout><CreateUser /></Layout>} />} />
       <Route path="/users/:id" element={<ProtectedRoute element={<Layout><UserDetail /></Layout>} />} />
       <Route path="/cases" element={<ProtectedRoute element={<Layout><Cases /></Layout>} />} />
+      <Route path="/cases/create" element={<ProtectedRoute element={<Layout><CreateCase /></Layout>} />} />
       <Route path="/cases/:id" element={<ProtectedRoute element={<Layout><CaseDetail /></Layout>} />} />
       <Route path="/statistics" element={<ProtectedRoute element={<Layout><Statistics /></Layout>} />} />
       
       {/* Fallback route */}
-      <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };

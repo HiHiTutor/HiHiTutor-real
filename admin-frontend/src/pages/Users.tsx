@@ -20,6 +20,7 @@ import {
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { usersAPI } from '../services/api';
 import { setUsers, setLoading, setError } from '../store/slices/userSlice';
+import AddIcon from '@mui/icons-material/Add';
 
 const Users: React.FC = () => {
   const navigate = useNavigate();
@@ -112,9 +113,17 @@ const Users: React.FC = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        Users Management
-      </Typography>
+      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h4">Users</Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => navigate('/users/create')}
+          startIcon={<AddIcon />}
+        >
+          Create User
+        </Button>
+      </Box>
 
       {/* Filters */}
       <Box sx={{ mb: 3, display: 'flex', gap: 2 }}>

@@ -22,6 +22,7 @@ import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { casesAPI } from '../services/api';
 import { setCases, setLoading, setError } from '../store/slices/caseSlice';
 import { Case, CaseResponse, CaseStatus, CaseType } from '../types/case';
+import AddIcon from '@mui/icons-material/Add';
 
 const Cases: React.FC = () => {
   const navigate = useNavigate();
@@ -117,9 +118,17 @@ const Cases: React.FC = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        Cases Management
-      </Typography>
+      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h4">Cases</Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => navigate('/cases/create')}
+          startIcon={<AddIcon />}
+        >
+          Create Case
+        </Button>
+      </Box>
 
       {/* Filters */}
       <Stack spacing={2} sx={{ mb: 3 }}>

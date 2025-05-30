@@ -2,8 +2,49 @@ const User = require('../models/User');
 const Case = require('../models/Case');
 const UpgradeDocument = require('../models/UpgradeDocument');
 const { validateUserUpdate } = require('../validators/userValidator');
+const bcrypt = require('bcryptjs');
 
 // User Management
+const createUser = async (req, res) => {
+  try {
+    const { name, email, phone, password, userType } = req.body;
+
+    // 檢查郵箱是否已存在
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already exists' });
+    }
+
+    // 加密密碼
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // 創建新用戶
+    const user = new User({
+      name,
+      email,
+      phone,
+      password: hashedPassword,
+      userType,
+      status: 'active',
+    });
+
+    await user.save();
+
+    // 返回用戶信息（不包含密碼）
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
+    res.status(201).json({
+      success: true,
+      data: userResponse,
+    });
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 const getAllUsers = async (req, res) => {
   try {
     const { page = 1, limit = 10, role, status, search } = req.query;
@@ -136,6 +177,55 @@ const rejectUserUpgrade = async (req, res) => {
 };
 
 // Case Management
+const createCase = async (req, res) => {
+  try {
+    const {
+      title,
+      description,
+      subject,
+      type,
+      student,
+      tutor,
+      category,
+      subCategory,
+      subjects,
+      regions,
+      subRegions,
+      budget,
+      mode,
+      experience,
+    } = req.body;
+
+    const newCase = new Case({
+      title,
+      description,
+      subject,
+      type,
+      student,
+      tutor,
+      category,
+      subCategory,
+      subjects,
+      regions,
+      subRegions,
+      budget,
+      mode,
+      experience,
+      status: 'open',
+    });
+
+    await newCase.save();
+
+    res.status(201).json({
+      success: true,
+      data: newCase,
+    });
+  } catch (error) {
+    console.error('Error creating case:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 const getAllCases = async (req, res) => {
   try {
     const { page = 1, limit = 10, type, status, search } = req.query;
@@ -371,6 +461,7 @@ const getPlatformStats = async (req, res) => {
 
 module.exports = {
   // User Management
+  createUser,
   getAllUsers,
   getUserById,
   updateUser,
@@ -379,6 +470,7 @@ module.exports = {
   rejectUserUpgrade,
   
   // Case Management
+  createCase,
   getAllCases,
   getCaseById,
   updateCase,
