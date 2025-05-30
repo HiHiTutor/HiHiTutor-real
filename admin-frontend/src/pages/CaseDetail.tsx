@@ -4,35 +4,40 @@ import {
   Box,
   Typography,
   Paper,
-  Grid,
   Button,
+  Grid,
   Chip,
-  Divider,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { casesAPI } from '../services/api';
-import { setSelectedCase } from '../store/slices/caseSlice';
+import { setSelectedCase, setLoading, setError } from '../store/slices/caseSlice';
+import { SingleCaseResponse } from '../types/case';
 
 const CaseDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { selectedCase } = useAppSelector((state) => state.cases);
+  const { selectedCase, loading, error } = useAppSelector((state) => state.cases);
 
   useEffect(() => {
     const fetchCase = async () => {
       try {
+        dispatch(setLoading(true));
         if (id) {
           const response = await casesAPI.getCaseById(id);
-          if (response.data.success && response.data.data) {
-            const caseData = response.data.data;
+          const caseData = response.data;
+          if (caseData) {
             dispatch(setSelectedCase(caseData));
           } else {
-            console.error('Invalid case data:', response.data);
+            dispatch(setError('Case not found'));
           }
         }
-      } catch (error) {
-        console.error('Error fetching case:', error);
+      } catch (error: any) {
+        dispatch(setError(error.message || 'Failed to fetch case details'));
+      } finally {
+        dispatch(setLoading(false));
       }
     };
 
@@ -54,8 +59,28 @@ const CaseDetail: React.FC = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Alert severity="error">{error}</Alert>
+      </Box>
+    );
+  }
+
   if (!selectedCase) {
-    return <Typography>Loading...</Typography>;
+    return (
+      <Box sx={{ p: 3 }}>
+        <Alert severity="info">No case found</Alert>
+      </Box>
+    );
   }
 
   return (
@@ -67,117 +92,105 @@ const CaseDetail: React.FC = () => {
         </Button>
       </Box>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Basic Information
+      <Paper sx={{ p: 3 }}>
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <Typography variant="h5" gutterBottom>
+              {selectedCase.title}
             </Typography>
-            <Divider sx={{ my: 2 }} />
-            <Grid container spacing={2}>
-              <Grid item xs={4}>
-                <Typography color="textSecondary">Title</Typography>
-              </Grid>
-              <Grid item xs={8}>
-                <Typography>{selectedCase.title}</Typography>
-              </Grid>
-              <Grid item xs={4}>
-                <Typography color="textSecondary">Subject</Typography>
-              </Grid>
-              <Grid item xs={8}>
-                <Typography>{selectedCase.subject}</Typography>
-              </Grid>
-              <Grid item xs={4}>
-                <Typography color="textSecondary">Status</Typography>
-              </Grid>
-              <Grid item xs={8}>
-                <Chip
-                  label={selectedCase.status}
-                  color={getStatusColor(selectedCase.status)}
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <Typography color="textSecondary">Created At</Typography>
-              </Grid>
-              <Grid item xs={8}>
-                <Typography>
-                  {new Date(selectedCase.createdAt).toLocaleString()}
-                </Typography>
-              </Grid>
-            </Grid>
-          </Paper>
-        </Grid>
-
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Student Information
-            </Typography>
-            <Divider sx={{ my: 2 }} />
-            <Grid container spacing={2}>
-              <Grid item xs={4}>
-                <Typography color="textSecondary">Name</Typography>
-              </Grid>
-              <Grid item xs={8}>
-                <Typography>{selectedCase.student?.name || 'N/A'}</Typography>
-              </Grid>
-              <Grid item xs={4}>
-                <Typography color="textSecondary">Email</Typography>
-              </Grid>
-              <Grid item xs={8}>
-                <Typography>{selectedCase.student?.email || 'N/A'}</Typography>
-              </Grid>
-              <Grid item xs={4}>
-                <Typography color="textSecondary">Phone</Typography>
-              </Grid>
-              <Grid item xs={8}>
-                <Typography>{selectedCase.student?.phone || 'N/A'}</Typography>
-              </Grid>
-            </Grid>
-          </Paper>
-        </Grid>
-
-        {selectedCase.tutor && (
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Tutor Information
-              </Typography>
-              <Divider sx={{ my: 2 }} />
-              <Grid container spacing={2}>
-                <Grid item xs={4}>
-                  <Typography color="textSecondary">Name</Typography>
-                </Grid>
-                <Grid item xs={8}>
-                  <Typography>{selectedCase.tutor?.name || 'N/A'}</Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <Typography color="textSecondary">Email</Typography>
-                </Grid>
-                <Grid item xs={8}>
-                  <Typography>{selectedCase.tutor?.email || 'N/A'}</Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <Typography color="textSecondary">Phone</Typography>
-                </Grid>
-                <Grid item xs={8}>
-                  <Typography>{selectedCase.tutor?.phone || 'N/A'}</Typography>
-                </Grid>
-              </Grid>
-            </Paper>
+            <Chip
+              label={selectedCase.status}
+              color={getStatusColor(selectedCase.status)}
+              sx={{ mr: 1 }}
+            />
+            <Chip label={selectedCase.type} color="secondary" />
           </Grid>
-        )}
 
-        <Grid item xs={12}>
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Case Description
+          <Grid item xs={12}>
+            <Typography variant="subtitle1" gutterBottom>
+              Description
             </Typography>
-            <Divider sx={{ my: 2 }} />
             <Typography>{selectedCase.description}</Typography>
-          </Paper>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle1" gutterBottom>
+              Category
+            </Typography>
+            <Typography>{selectedCase.category}</Typography>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle1" gutterBottom>
+              Sub Category
+            </Typography>
+            <Typography>{selectedCase.subCategory || 'N/A'}</Typography>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Typography variant="subtitle1" gutterBottom>
+              Subjects
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              {selectedCase.subjects.map((subject) => (
+                <Chip key={subject} label={subject} />
+              ))}
+            </Box>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Typography variant="subtitle1" gutterBottom>
+              Regions
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              {selectedCase.regions.map((region) => (
+                <Chip key={region} label={region} />
+              ))}
+            </Box>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Typography variant="subtitle1" gutterBottom>
+              Sub Regions
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              {selectedCase.subRegions.map((subRegion) => (
+                <Chip key={subRegion} label={subRegion} />
+              ))}
+            </Box>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle1" gutterBottom>
+              Budget
+            </Typography>
+            <Typography>{selectedCase.budget}</Typography>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <Typography variant="subtitle1" gutterBottom>
+              Mode
+            </Typography>
+            <Typography>{selectedCase.mode}</Typography>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Typography variant="subtitle1" gutterBottom>
+              Experience
+            </Typography>
+            <Typography>{selectedCase.experience || 'N/A'}</Typography>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Typography variant="subtitle1" gutterBottom>
+              Created At
+            </Typography>
+            <Typography>
+              {new Date(selectedCase.createdAt).toLocaleString()}
+            </Typography>
+          </Grid>
         </Grid>
-      </Grid>
+      </Paper>
     </Box>
   );
 };

@@ -1,44 +1,30 @@
+export type CaseStatus = 'open' | 'matched' | 'closed' | 'pending' | '';
+export type CaseType = 'student' | 'tutor' | 'all';
+
 export interface Case {
-  _id: string;
   id: string;
   title: string;
   description: string;
+  type: 'student' | 'tutor';
+  category: string;
+  subCategory?: string;
+  subjects: string[];
+  regions: string[];
+  subRegions: string[];
+  budget: string;
+  mode: 'online' | 'offline' | 'hybrid';
+  experience?: string;
   status: CaseStatus;
-  type: CaseType;
-  subject: string;
-  createdAt: string;
-  student: {
-    _id: string;
+  student?: {
+    id: string;
     name: string;
-    email: string;
-    phone: string;
-    role: string;
-    userType: 'student' | 'tutor' | 'admin' | 'organization';
-    status: 'active' | 'pending' | 'blocked';
   };
   tutor?: {
-    _id: string;
+    id: string;
     name: string;
-    email: string;
-    phone: string;
-    role: string;
-    userType: 'student' | 'tutor' | 'admin' | 'organization';
-    status: 'active' | 'pending' | 'blocked';
   };
-  category?: string;
-  subCategory?: string;
-  subjects?: string[];
-  regions?: string[];
-  subRegions?: string[];
-  budget?: {
-    min: number;
-    max: number;
-  };
-  mode?: string;
-  experience?: string;
-  featured?: boolean;
-  isApproved?: boolean;
-  // ... other case fields ...
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CaseResponse {
@@ -49,11 +35,12 @@ export interface CaseResponse {
       total: number;
       page: number;
       limit: number;
-      totalPages: number;
     };
   };
 }
 
-export type CaseType = 'student' | 'tutor' | 'all';
-
-export type CaseStatus = 'open' | 'matched' | 'closed' | 'pending' | ''; 
+export interface SingleCaseResponse {
+  success: boolean;
+  data: Case;
+  message?: string;
+} 
