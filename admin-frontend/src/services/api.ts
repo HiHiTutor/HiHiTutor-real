@@ -114,6 +114,7 @@ export const casesAPI = {
     limit?: number;
     status?: string;
     search?: string;
+    type?: 'student' | 'tutor';
   }) => {
     try {
       console.log('Fetching cases with params:', params);

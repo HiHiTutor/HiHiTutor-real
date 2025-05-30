@@ -16,6 +16,7 @@ import {
   TextField,
   MenuItem,
   CircularProgress,
+  Stack,
 } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { casesAPI } from '../services/api';
@@ -30,6 +31,7 @@ const Cases: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [totalCount, setTotalCount] = useState(0);
+  const [caseType, setCaseType] = useState('all'); // 'all', 'student', 'tutor'
 
   useEffect(() => {
     const fetchCases = async () => {
@@ -40,6 +42,7 @@ const Cases: React.FC = () => {
           limit: rowsPerPage,
           status: statusFilter,
           search: searchQuery,
+          type: caseType === 'all' ? undefined : caseType,
         });
 
         if (response.data && Array.isArray(response.data.cases)) {
@@ -60,7 +63,7 @@ const Cases: React.FC = () => {
     };
 
     fetchCases();
-  }, [dispatch, page, rowsPerPage, statusFilter, searchQuery]);
+  }, [dispatch, page, rowsPerPage, statusFilter, searchQuery, caseType]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -86,6 +89,23 @@ const Cases: React.FC = () => {
     }
   };
 
+  const getCaseTypeColor = (type: string) => {
+    switch (type) {
+      case 'student':
+        return 'info';
+      case 'tutor':
+        return 'secondary';
+      default:
+        return 'default';
+    }
+  };
+
+  const getCaseType = (caseItem: any) => {
+    if (caseItem.type) return caseItem.type;
+    // 如果沒有明確的類型，根據是否有導師來判斷
+    return caseItem.tutor ? 'tutor' : 'student';
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
@@ -101,37 +121,53 @@ const Cases: React.FC = () => {
       </Typography>
 
       {/* Filters */}
-      <Box sx={{ mb: 3, display: 'flex', gap: 2 }}>
-        <TextField
-          label="Search"
-          variant="outlined"
-          size="small"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          sx={{ width: 200 }}
-        />
-        <TextField
-          select
-          label="Status"
-          variant="outlined"
-          size="small"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          sx={{ width: 150 }}
-        >
-          <MenuItem value="">All Status</MenuItem>
-          <MenuItem value="open">Open</MenuItem>
-          <MenuItem value="matched">Matched</MenuItem>
-          <MenuItem value="closed">Closed</MenuItem>
-          <MenuItem value="pending">Pending</MenuItem>
-        </TextField>
-      </Box>
+      <Stack spacing={2} sx={{ mb: 3 }}>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <TextField
+            label="Search"
+            variant="outlined"
+            size="small"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            sx={{ width: 200 }}
+          />
+          <TextField
+            select
+            label="Case Type"
+            variant="outlined"
+            size="small"
+            value={caseType}
+            onChange={(e) => setCaseType(e.target.value)}
+            sx={{ width: 150 }}
+          >
+            <MenuItem value="all">All Cases</MenuItem>
+            <MenuItem value="student">Student Cases</MenuItem>
+            <MenuItem value="tutor">Tutor Cases</MenuItem>
+          </TextField>
+          <TextField
+            select
+            label="Status"
+            variant="outlined"
+            size="small"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            sx={{ width: 150 }}
+          >
+            <MenuItem value="">All Status</MenuItem>
+            <MenuItem value="open">Open</MenuItem>
+            <MenuItem value="matched">Matched</MenuItem>
+            <MenuItem value="closed">Closed</MenuItem>
+            <MenuItem value="pending">Pending</MenuItem>
+          </TextField>
+        </Box>
+      </Stack>
 
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
+              <TableCell>Type</TableCell>
               <TableCell>Title</TableCell>
               <TableCell>Student</TableCell>
               <TableCell>Tutor</TableCell>
@@ -145,6 +181,13 @@ const Cases: React.FC = () => {
             {(cases || []).map((caseItem) => (
               <TableRow key={caseItem.id}>
                 <TableCell>{caseItem.id}</TableCell>
+                <TableCell>
+                  <Chip
+                    label={getCaseType(caseItem)}
+                    color={getCaseTypeColor(getCaseType(caseItem))}
+                    size="small"
+                  />
+                </TableCell>
                 <TableCell>{caseItem.title}</TableCell>
                 <TableCell>{caseItem.student?.name || 'N/A'}</TableCell>
                 <TableCell>
