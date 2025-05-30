@@ -332,14 +332,29 @@ const getCaseById = async (req, res) => {
     const { type } = req.query;
 
     let case_;
+    const query = { id: id }; // 首先嘗試使用 id 字段
+
     if (type === 'student') {
-      case_ = await StudentCase.findOne({ $or: [{ _id: id }, { id: id }] }).lean();
+      case_ = await StudentCase.findOne(query).lean();
     } else if (type === 'tutor') {
-      case_ = await TutorCase.findOne({ $or: [{ _id: id }, { id: id }] }).lean();
+      case_ = await TutorCase.findOne(query).lean();
     } else {
       // Try both collections if type is not specified
-      case_ = await StudentCase.findOne({ $or: [{ _id: id }, { id: id }] }).lean() || 
-              await TutorCase.findOne({ $or: [{ _id: id }, { id: id }] }).lean();
+      case_ = await StudentCase.findOne(query).lean() || 
+              await TutorCase.findOne(query).lean();
+    }
+
+    // 如果找不到，嘗試使用 _id（如果是有效的 ObjectId）
+    if (!case_ && /^[0-9a-fA-F]{24}$/.test(id)) {
+      const idQuery = { _id: id };
+      if (type === 'student') {
+        case_ = await StudentCase.findOne(idQuery).lean();
+      } else if (type === 'tutor') {
+        case_ = await TutorCase.findOne(idQuery).lean();
+      } else {
+        case_ = await StudentCase.findOne(idQuery).lean() || 
+                await TutorCase.findOne(idQuery).lean();
+      }
     }
 
     if (!case_) {
