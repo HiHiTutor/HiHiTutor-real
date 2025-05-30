@@ -1,9 +1,36 @@
 const mongoose = require('mongoose');
 
 const tutorCaseSchema = new mongoose.Schema({
-  studentId: {
+  id: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  title: {
     type: String,
     required: true
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  subject: {
+    type: String,
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ['open', 'matched', 'closed', 'pending'],
+    default: 'open'
+  },
+  student: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  tutor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   },
   category: {
     type: String,
@@ -47,11 +74,16 @@ const tutorCaseSchema = new mongoose.Schema({
   isApproved: {
     type: Boolean,
     default: false
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
   }
-}, { timestamps: true });
+}, { 
+  timestamps: true,
+  toObject: { virtuals: true },
+  toJSON: { virtuals: true }
+});
+
+// 添加虛擬字段
+tutorCaseSchema.virtual('type').get(function() {
+  return 'tutor';
+});
 
 module.exports = mongoose.model('TutorCase', tutorCaseSchema); 
