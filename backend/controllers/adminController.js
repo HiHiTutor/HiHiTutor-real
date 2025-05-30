@@ -372,17 +372,36 @@ const updateCase = async (req, res) => {
 
     let case_;
     if (type === 'student') {
-      case_ = await StudentCase.findByIdAndUpdate(id, { $set: updateData }, { new: true }).lean();
+      case_ = await StudentCase.findOneAndUpdate(
+        { $or: [{ _id: id }, { id: id }] },
+        { $set: updateData },
+        { new: true }
+      ).lean();
     } else if (type === 'tutor') {
-      case_ = await TutorCase.findByIdAndUpdate(id, { $set: updateData }, { new: true }).lean();
+      case_ = await TutorCase.findOneAndUpdate(
+        { $or: [{ _id: id }, { id: id }] },
+        { $set: updateData },
+        { new: true }
+      ).lean();
     } else {
       // Try both collections if type is not specified
-      case_ = await StudentCase.findByIdAndUpdate(id, { $set: updateData }, { new: true }).lean() ||
-              await TutorCase.findByIdAndUpdate(id, { $set: updateData }, { new: true }).lean();
+      case_ = await StudentCase.findOneAndUpdate(
+        { $or: [{ _id: id }, { id: id }] },
+        { $set: updateData },
+        { new: true }
+      ).lean() ||
+      await TutorCase.findOneAndUpdate(
+        { $or: [{ _id: id }, { id: id }] },
+        { $set: updateData },
+        { new: true }
+      ).lean();
     }
 
     if (!case_) {
-      return res.status(404).json({ message: 'Case not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'Case not found'
+      });
     }
 
     res.json({
@@ -391,7 +410,11 @@ const updateCase = async (req, res) => {
     });
   } catch (error) {
     console.error('Error updating case:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message
+    });
   }
 };
 
@@ -403,33 +426,36 @@ const updateCaseStatus = async (req, res) => {
 
     let case_;
     if (type === 'student') {
-      case_ = await StudentCase.findByIdAndUpdate(
-        id,
+      case_ = await StudentCase.findOneAndUpdate(
+        { $or: [{ _id: id }, { id: id }] },
         { $set: { status, updatedAt: new Date() } },
         { new: true }
       ).lean();
     } else if (type === 'tutor') {
-      case_ = await TutorCase.findByIdAndUpdate(
-        id,
+      case_ = await TutorCase.findOneAndUpdate(
+        { $or: [{ _id: id }, { id: id }] },
         { $set: { status, updatedAt: new Date() } },
         { new: true }
       ).lean();
     } else {
       // Try both collections if type is not specified
-      case_ = await StudentCase.findByIdAndUpdate(
-        id,
+      case_ = await StudentCase.findOneAndUpdate(
+        { $or: [{ _id: id }, { id: id }] },
         { $set: { status, updatedAt: new Date() } },
         { new: true }
       ).lean() ||
-      await TutorCase.findByIdAndUpdate(
-        id,
+      await TutorCase.findOneAndUpdate(
+        { $or: [{ _id: id }, { id: id }] },
         { $set: { status, updatedAt: new Date() } },
         { new: true }
       ).lean();
     }
 
     if (!case_) {
-      return res.status(404).json({ message: 'Case not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'Case not found'
+      });
     }
 
     res.json({
@@ -438,7 +464,11 @@ const updateCaseStatus = async (req, res) => {
     });
   } catch (error) {
     console.error('Error updating case status:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message
+    });
   }
 };
 
