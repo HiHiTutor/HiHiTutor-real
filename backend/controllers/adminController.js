@@ -334,16 +334,20 @@ const getCaseById = async (req, res) => {
 
     let case_;
     if (type === 'student') {
-      case_ = await StudentCase.findById(id).lean();
+      case_ = await StudentCase.findOne({ $or: [{ _id: id }, { id: id }] }).lean();
     } else if (type === 'tutor') {
-      case_ = await TutorCase.findById(id).lean();
+      case_ = await TutorCase.findOne({ $or: [{ _id: id }, { id: id }] }).lean();
     } else {
       // Try both collections if type is not specified
-      case_ = await StudentCase.findById(id).lean() || await TutorCase.findById(id).lean();
+      case_ = await StudentCase.findOne({ $or: [{ _id: id }, { id: id }] }).lean() || 
+              await TutorCase.findOne({ $or: [{ _id: id }, { id: id }] }).lean();
     }
 
     if (!case_) {
-      return res.status(404).json({ message: 'Case not found' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'Case not found' 
+      });
     }
 
     res.json({
@@ -352,7 +356,11 @@ const getCaseById = async (req, res) => {
     });
   } catch (error) {
     console.error('Error getting case:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Internal server error',
+      error: error.message 
+    });
   }
 };
 
