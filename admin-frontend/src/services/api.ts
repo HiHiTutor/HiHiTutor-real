@@ -118,12 +118,15 @@ export const casesAPI = {
     try {
       console.log('Fetching cases with params:', params);
       
-      // Use the single cases endpoint
-      const response = await api.get<{ cases: Case[] }>('/admin/cases', { params });
+      // Use the correct cases endpoint
+      const response = await api.get<{ success: boolean; data: { cases: Case[]; pagination: { page: number; limit: number; total: number; totalPages: number; } } }>('/api/cases', { params });
       
       console.log('Cases response:', response.data);
       
-      return response;
+      return {
+        ...response,
+        data: response.data.data
+      };
     } catch (error) {
       console.error('Error fetching cases:', error);
       throw error;
@@ -134,14 +137,14 @@ export const casesAPI = {
     if (!id) {
       throw new Error('Case ID is required');
     }
-    return api.get<Case>(`/admin/cases/${id}`);
+    return api.get<{ success: boolean; data: Case }>(`/api/cases/${id}`);
   },
 
   updateCase: (id: string, data: Partial<Case>) => {
     if (!id) {
       throw new Error('Case ID is required');
     }
-    return api.put<Case>(`/admin/cases/${id}`, data);
+    return api.put<{ success: boolean; data: Case }>(`/api/cases/${id}`, data);
   },
 };
 
