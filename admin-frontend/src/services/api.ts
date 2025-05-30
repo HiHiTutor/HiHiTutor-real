@@ -12,7 +12,7 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: false,
-  timeout: 10000, // 10 seconds timeout
+  timeout: 30000, // 增加到 30 秒
 });
 
 // Add request interceptor to include auth token
@@ -49,7 +49,18 @@ api.interceptors.response.use(
     });
     return response;
   },
-  (error) => {
+  async (error) => {
+    if (error.code === 'ECONNABORTED' && error.message.includes('timeout')) {
+      console.log('🔄 Retrying request due to timeout...');
+      const config = error.config;
+      // 最多重試 2 次
+      config.retry = config.retry || 0;
+      if (config.retry < 2) {
+        config.retry += 1;
+        return api(config);
+      }
+    }
+
     if (error.response) {
       console.error('❌ API Error:', {
         url: error.config?.url,
