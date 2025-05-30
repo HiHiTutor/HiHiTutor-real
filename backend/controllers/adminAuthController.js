@@ -84,7 +84,9 @@ const login = async (req, res) => {
           { email: identifier },
           { phone: identifier }
         ],
-        userType: 'admin'
+        userType: 'admin',
+        status: 'active',
+        role: 'admin'
       }
     });
 
@@ -94,7 +96,9 @@ const login = async (req, res) => {
         { email: identifier },
         { phone: identifier }
       ],
-      userType: 'admin'
+      userType: 'admin',
+      status: 'active',
+      role: 'admin'
     });
 
     if (!user) {
