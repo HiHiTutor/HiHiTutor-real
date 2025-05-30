@@ -18,20 +18,7 @@ import {
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { statisticsAPI } from '../services/api';
 import { setStatistics, setError, setLoading } from '../store/slices/statisticsSlice';
-import { Statistics, DashboardStatistics } from '../types';
-
-const transformStatistics = (apiResponse: Statistics): DashboardStatistics => {
-  return {
-    totalStudents: apiResponse.users.students || 0,
-    totalTutors: apiResponse.users.tutors || 0,
-    activeCases: apiResponse.cases.openCases || 0,
-    successRate: apiResponse.cases.totalCases > 0
-      ? Math.round((apiResponse.cases.matchedCases / apiResponse.cases.totalCases) * 100)
-      : 0,
-    hotSubjects: [], // We'll need to implement this endpoint
-    recentActivities: [] // We'll need to implement this endpoint
-  };
-};
+import { DashboardStatistics } from '../types';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -47,9 +34,7 @@ const Dashboard: React.FC = () => {
       try {
         const response = await statisticsAPI.getPlatformStats();
         console.log('Statistics response:', response.data);
-        
-        const transformedData = transformStatistics(response.data);
-        dispatch(setStatistics(transformedData));
+        dispatch(setStatistics(response.data));
       } catch (error) {
         console.error('Error fetching statistics:', error);
         dispatch(setError('Failed to load dashboard data'));

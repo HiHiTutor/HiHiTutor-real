@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { User, Case, Statistics } from '../types';
+import { User, Case, Statistics, DashboardStatistics } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://hi-hi-tutor-real-backend2.vercel.app/api';
 
@@ -111,7 +111,19 @@ export const casesAPI = {
 
 // Statistics API
 export const statisticsAPI = {
-  getPlatformStats: () => api.get<Statistics>('/admin/statistics/platform'),
+  getPlatformStats: () => api.get<Statistics>('/admin/statistics/platform').then(response => ({
+    ...response,
+    data: {
+      totalStudents: response.data.users.students,
+      totalTutors: response.data.users.tutors,
+      activeCases: response.data.cases.openCases,
+      successRate: response.data.cases.totalCases > 0
+        ? Math.round((response.data.cases.matchedCases / response.data.cases.totalCases) * 100)
+        : 0,
+      hotSubjects: [], // We'll implement this later
+      recentActivities: [] // We'll implement this later
+    } as DashboardStatistics
+  })),
   getSubjectStats: () => api.get<Statistics>('/admin/statistics/subjects'),
 };
 
