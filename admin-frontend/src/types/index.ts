@@ -1,27 +1,18 @@
+import { Case } from './case';
+export * from './case';
+
 // User types
 export interface User {
-  id: string;
+  _id: string;
   name: string;
   email: string;
   phone: string;
-  role: 'user' | 'admin';
+  role: string;
   userType: 'student' | 'tutor' | 'admin' | 'organization';
   status: 'active' | 'pending' | 'blocked';
   createdAt: string;
   upgradeStatus?: 'pending' | 'approved' | 'rejected';
   requestedRole?: string;
-}
-
-// Case types
-export interface Case {
-  id: string;
-  title: string;
-  subject: string;
-  status: 'open' | 'matched' | 'closed' | 'pending';
-  createdAt: string;
-  description: string;
-  student: User;
-  tutor?: User;
 }
 
 // Statistics types

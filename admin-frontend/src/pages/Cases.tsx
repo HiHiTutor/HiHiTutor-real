@@ -21,9 +21,7 @@ import {
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { casesAPI } from '../services/api';
 import { setCases, setLoading, setError } from '../store/slices/caseSlice';
-
-type CaseType = 'all' | 'student' | 'tutor';
-type CaseStatus = '' | 'open' | 'matched' | 'closed' | 'pending';
+import { Case, CaseResponse, CaseStatus, CaseType } from '../types/case';
 
 const Cases: React.FC = () => {
   const navigate = useNavigate();
@@ -48,7 +46,7 @@ const Cases: React.FC = () => {
           type: caseType === 'all' ? undefined : caseType,
         });
 
-        if (response.data && Array.isArray(response.data.cases)) {
+        if (response.success && Array.isArray(response.data.cases)) {
           dispatch(setCases(response.data.cases));
           setTotalCount(response.data.pagination.total);
         } else {

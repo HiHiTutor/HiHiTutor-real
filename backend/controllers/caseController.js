@@ -54,6 +54,18 @@ const getAllCases = async (req, res) => {
     console.log("📦 查詢條件:", { ...query, type });
     console.log("📦 已返回個案數量:", paginatedCases.length);
     console.log("📦 總個案數量:", total);
+    console.log("📦 完整響應:", {
+      success: true,
+      data: {
+        cases: paginatedCases,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit)
+        }
+      }
+    });
     
     res.json({
       success: true,

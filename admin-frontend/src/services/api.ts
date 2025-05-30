@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { User, Case, Statistics, DashboardStatistics } from '../types';
+import { CaseResponse } from '../types/case';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://hi-hi-tutor-real-backend2.vercel.app/api';
 
@@ -114,30 +115,20 @@ export const casesAPI = {
     limit?: number;
     status?: string;
     search?: string;
-    type?: 'student' | 'tutor';
-  }) => {
-    try {
-      console.log('Fetching cases with params:', params);
-      
-      const response = await api.get<Case[]>('/cases', { params });
-      
-      console.log('Cases response:', response.data);
-      
-      return {
-        data: {
-          cases: response.data,
-          pagination: {
-            total: response.data.length,
-            page: params.page || 1,
-            limit: params.limit || 10,
-            totalPages: Math.ceil(response.data.length / (params.limit || 10))
-          }
-        }
-      };
-    } catch (error) {
-      console.error('Error fetching cases:', error);
-      throw error;
+    type?: string;
+  }): Promise<CaseResponse> => {
+    const queryParams = new URLSearchParams();
+    if (params.page) queryParams.append('page', params.page.toString());
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    if (params.status) queryParams.append('status', params.status);
+    if (params.search) queryParams.append('search', params.search);
+    if (params.type) queryParams.append('type', params.type);
+
+    const response = await fetch(`${API_BASE_URL}/cases?${queryParams.toString()}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch cases');
     }
+    return response.json();
   },
 
   getCaseById: (id: string) => {
