@@ -157,8 +157,8 @@ export const casesAPI = {
     return api.get<CaseResponse>(`/admin/cases`, { params });
   },
 
-  getCaseById: (id: string) => {
-    return api.get<SingleCaseResponse>(`/admin/cases/${id}`);
+  getCaseById: (id: string, type?: string) => {
+    return api.get<SingleCaseResponse>(`/admin/cases/${id}`, { params: { type } });
   },
 
   createCase: (data: CreateCaseData) => {

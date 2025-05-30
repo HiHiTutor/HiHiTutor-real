@@ -26,7 +26,9 @@ const CaseDetail: React.FC = () => {
       try {
         dispatch(setLoading(true));
         if (id) {
-          const response = await casesAPI.getCaseById(id);
+          const searchParams = new URLSearchParams(window.location.search);
+          const type = searchParams.get('type');
+          const response = await casesAPI.getCaseById(id, type || undefined);
           const { success, data } = response.data;
           if (success && data) {
             const caseData: Case = {

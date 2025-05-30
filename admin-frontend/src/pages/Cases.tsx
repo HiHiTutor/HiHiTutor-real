@@ -113,6 +113,10 @@ const Cases: React.FC = () => {
     return caseItem.type;
   };
 
+  const handleRowClick = (id: string, type: string) => {
+    navigate(`/cases/${id}?type=${type}`);
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
@@ -194,7 +198,12 @@ const Cases: React.FC = () => {
           </TableHead>
           <TableBody>
             {(cases || []).map((caseItem) => (
-              <TableRow key={caseItem.id}>
+              <TableRow
+                key={caseItem.id}
+                hover
+                onClick={() => handleRowClick(caseItem.id, caseItem.type)}
+                sx={{ cursor: 'pointer' }}
+              >
                 <TableCell>{caseItem.id}</TableCell>
                 <TableCell>
                   <Chip
@@ -223,7 +232,9 @@ const Cases: React.FC = () => {
                   <Button
                     variant="outlined"
                     size="small"
-                    onClick={() => navigate(`/cases/${caseItem.id}`)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
                   >
                     View
                   </Button>
