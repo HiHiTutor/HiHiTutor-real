@@ -96,12 +96,38 @@ export const usersAPI = {
 
 // Cases API
 export const casesAPI = {
-  getCases: (params: {
+  getCases: async (params: {
     page?: number;
     limit?: number;
     status?: string;
     search?: string;
-  }) => api.get<{ cases: Case[] }>('/admin/cases', { params }),
+  }) => {
+    try {
+      console.log('Fetching cases with params:', params);
+      
+      // Fetch both student and tutor cases
+      const [studentCases, tutorCases] = await Promise.all([
+        api.get<{ cases: Case[] }>('/admin/find-student-cases', { params }),
+        api.get<{ cases: Case[] }>('/admin/find-tutor-cases', { params })
+      ]);
+
+      console.log('Student cases:', studentCases.data);
+      console.log('Tutor cases:', tutorCases.data);
+
+      // Combine and deduplicate cases based on case ID
+      const allCases = [...studentCases.data.cases, ...tutorCases.data.cases];
+      const uniqueCases = Array.from(new Map(allCases.map(c => [c.id, c])).values());
+
+      return {
+        data: {
+          cases: uniqueCases
+        }
+      };
+    } catch (error) {
+      console.error('Error fetching cases:', error);
+      throw error;
+    }
+  },
 
   getCaseById: (id: string) => api.get<Case>(`/admin/cases/${id}`),
 
@@ -111,23 +137,31 @@ export const casesAPI = {
 
 // Statistics API
 export const statisticsAPI = {
-  getPlatformStats: () => api.get<Statistics>('/admin/statistics/platform').then(response => ({
-    ...response,
-    data: {
-      totalStudents: response.data.users.students,
-      totalTutors: response.data.users.tutors,
-      activeCases: response.data.cases.openCases,
-      activeUsers: response.data.users.totalUsers,
-      newUsersThisMonth: 0, // This will need to be implemented on the backend
-      totalCases: response.data.cases.totalCases,
-      completedCases: response.data.cases.matchedCases,
-      successRate: response.data.cases.totalCases > 0
-        ? Math.round((response.data.cases.matchedCases / response.data.cases.totalCases) * 100)
-        : 0,
-      hotSubjects: [], // We'll implement this later
-      recentActivities: [] // We'll implement this later
-    } as DashboardStatistics
-  })),
+  getPlatformStats: () => api.get<Statistics>('/admin/statistics/platform').then(response => {
+    console.log('Raw statistics response:', response.data);
+    
+    // Safely extract values with fallbacks
+    const users = response.data?.users || {};
+    const cases = response.data?.cases || {};
+    
+    return {
+      ...response,
+      data: {
+        totalStudents: users.students || 0,
+        totalTutors: users.tutors || 0,
+        activeCases: cases.openCases || 0,
+        activeUsers: users.totalUsers || 0,
+        newUsersThisMonth: 0, // This will need to be implemented on the backend
+        totalCases: cases.totalCases || 0,
+        completedCases: cases.matchedCases || 0,
+        successRate: cases.totalCases > 0
+          ? Math.round((cases.matchedCases / cases.totalCases) * 100)
+          : 0,
+        hotSubjects: [], // We'll implement this later
+        recentActivities: [] // We'll implement this later
+      } as DashboardStatistics
+    };
+  }),
   getSubjectStats: () => api.get<Statistics>('/admin/statistics/subjects'),
 };
 
