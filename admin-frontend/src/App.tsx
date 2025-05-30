@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Users from './pages/Users';
@@ -28,23 +28,21 @@ const App: React.FC = () => {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" replace />} />
-        
-        {/* Protected Routes */}
-        <Route path="/" element={<ProtectedRoute element={<Layout><Dashboard /></Layout>} />} />
-        <Route path="/dashboard" element={<ProtectedRoute element={<Layout><Dashboard /></Layout>} />} />
-        <Route path="/users" element={<ProtectedRoute element={<Layout><Users /></Layout>} />} />
-        <Route path="/users/:id" element={<ProtectedRoute element={<Layout><UserDetail /></Layout>} />} />
-        <Route path="/cases" element={<ProtectedRoute element={<Layout><Cases /></Layout>} />} />
-        <Route path="/cases/:id" element={<ProtectedRoute element={<Layout><CaseDetail /></Layout>} />} />
-        <Route path="/statistics" element={<ProtectedRoute element={<Layout><Statistics /></Layout>} />} />
-        
-        {/* Fallback route */}
-        <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
-      </Routes>
-    </Router>
+    <Routes>
+      <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" replace />} />
+      
+      {/* Protected Routes */}
+      <Route path="/" element={<ProtectedRoute element={<Layout><Dashboard /></Layout>} />} />
+      <Route path="/dashboard" element={<ProtectedRoute element={<Layout><Dashboard /></Layout>} />} />
+      <Route path="/users" element={<ProtectedRoute element={<Layout><Users /></Layout>} />} />
+      <Route path="/users/:id" element={<ProtectedRoute element={<Layout><UserDetail /></Layout>} />} />
+      <Route path="/cases" element={<ProtectedRoute element={<Layout><Cases /></Layout>} />} />
+      <Route path="/cases/:id" element={<ProtectedRoute element={<Layout><CaseDetail /></Layout>} />} />
+      <Route path="/statistics" element={<ProtectedRoute element={<Layout><Statistics /></Layout>} />} />
+      
+      {/* Fallback route */}
+      <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
+    </Routes>
   );
 };
 

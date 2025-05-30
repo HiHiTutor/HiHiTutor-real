@@ -55,7 +55,11 @@ const Login: React.FC = () => {
         throw new Error('Access denied. Admin privileges required.');
       }
       
+      // Store auth data
       localStorage.setItem('adminToken', response.data.token);
+      localStorage.setItem('adminUser', JSON.stringify(response.data.user));
+      
+      // Update Redux state
       dispatch(setAuth({ 
         isAuthenticated: true, 
         user: response.data.user 
@@ -70,7 +74,7 @@ const Login: React.FC = () => {
       });
 
       // Navigate to dashboard after successful login
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     } catch (error) {
       console.error('❌ Login error:', error);
       
