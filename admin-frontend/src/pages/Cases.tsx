@@ -234,6 +234,7 @@ const Cases: React.FC = () => {
                     size="small"
                     onClick={(e) => {
                       e.stopPropagation();
+                      navigate(`/cases/${caseItem.id}?type=${caseItem.type}`);
                     }}
                   >
                     View
