@@ -4,26 +4,29 @@ const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 
 const login = async (req, res) => {
-  const requestId = res.getHeader('X-Request-ID');
-  console.log(`[${requestId}] 👉 Admin login request received:`, {
-    body: req.body,
-    headers: req.headers,
-    ip: req.ip,
+  const requestId = res.getHeader('X-Request-ID') || Date.now().toString();
+  
+  // Log request details
+  console.log(`[${requestId}] 👉 Admin login attempt:`, {
+    headers: {
+      'content-type': req.headers['content-type'],
+      'origin': req.headers['origin'],
+      'user-agent': req.headers['user-agent']
+    },
+    body: req.body ? {
+      identifier: req.body.identifier,
+      hasPassword: !!req.body.password
+    } : 'No body',
     method: req.method,
-    path: req.path
+    path: req.path,
+    query: req.query
   });
 
   try {
-    // Check environment variables
-    console.log(`[${requestId}] 🔧 Environment check:`, {
-      hasJwtSecret: !!process.env.JWT_SECRET,
-      jwtSecretLength: process.env.JWT_SECRET?.length,
-      nodeEnv: process.env.NODE_ENV,
-      hasMongoUri: !!process.env.MONGODB_URI,
-      mongoUriLength: process.env.MONGODB_URI?.length,
-      mongooseState: mongoose.connection.readyState,
-      mongooseStateText: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState]
-    });
+    // Validate request body
+    if (!req.body) {
+      throw new Error('Request body is missing');
+    }
 
     const { identifier, password } = req.body;
 
@@ -32,30 +35,29 @@ const login = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Please provide both identifier and password',
-        requestId
+        debug: { hasIdentifier: !!identifier, hasPassword: !!password }
       });
     }
 
-    // Check environment variables
-    if (!process.env.JWT_SECRET) {
-      console.error(`[${requestId}] ❌ Critical error: JWT_SECRET not set`);
+    // Environment check
+    if (!process.env.JWT_SECRET && !process.env.REACT_APP_JWT_SECRET) {
+      console.error(`[${requestId}] ❌ Critical error: No JWT secret found`);
       return res.status(500).json({
         success: false,
-        message: 'Server configuration error: JWT_SECRET missing',
-        requestId
+        message: 'Server configuration error',
+        debug: {
+          hasJwtSecret: false,
+          env: process.env.NODE_ENV,
+          availableEnvVars: Object.keys(process.env).filter(key => 
+            key.includes('JWT') || key.includes('MONGO') || key.includes('NODE')
+          )
+        }
       });
     }
 
-    if (!process.env.MONGODB_URI) {
-      console.error(`[${requestId}] ❌ Critical error: MONGODB_URI not set`);
-      return res.status(500).json({
-        success: false,
-        message: 'Server configuration error: MONGODB_URI missing',
-        requestId
-      });
-    }
+    const jwtSecret = process.env.JWT_SECRET || process.env.REACT_APP_JWT_SECRET;
 
-    // Check MongoDB connection
+    // Database connection check
     if (mongoose.connection.readyState !== 1) {
       console.log(`[${requestId}] ⚠️ MongoDB not connected, attempting to reconnect...`);
       try {
@@ -66,34 +68,26 @@ const login = async (req, res) => {
           socketTimeoutMS: 45000,
         });
         console.log(`[${requestId}] ✅ Successfully reconnected to MongoDB`);
-      } catch (reconnectError) {
-        console.error(`[${requestId}] ❌ MongoDB reconnection failed:`, {
-          error: reconnectError.message,
-          stack: reconnectError.stack,
-          code: reconnectError.code
+      } catch (dbError) {
+        console.error(`[${requestId}] ❌ MongoDB connection failed:`, {
+          error: dbError.message,
+          code: dbError.code,
+          name: dbError.name
         });
         return res.status(500).json({
           success: false,
           message: 'Database connection failed',
-          error: reconnectError.message,
-          requestId
+          debug: {
+            error: dbError.message,
+            mongoState: mongoose.connection.readyState
+          }
         });
       }
     }
 
-    // Find user by email or phone
+    // Find user
     let user;
     try {
-      console.log(`[${requestId}] 🔍 Looking for admin user:`, {
-        identifier,
-        query: {
-          $or: [
-            { email: identifier },
-            { phone: identifier }
-          ]
-        }
-      });
-
       user = await User.findOne({
         $or: [
           { email: identifier },
@@ -102,16 +96,15 @@ const login = async (req, res) => {
       });
 
       if (!user) {
-        console.log(`[${requestId}] ❌ Login failed: User not found for identifier:`, identifier);
+        console.log(`[${requestId}] ❌ User not found:`, identifier);
         return res.status(401).json({
           success: false,
-          message: 'Invalid credentials',
-          requestId
+          message: 'Invalid credentials'
         });
       }
 
       console.log(`[${requestId}] ✅ User found:`, {
-        userId: user._id,
+        id: user._id,
         email: user.email,
         phone: user.phone,
         userType: user.userType,
@@ -121,87 +114,48 @@ const login = async (req, res) => {
         passwordLength: user.password?.length
       });
 
-      // Check if user is admin
+      // Verify admin status
       if (user.userType !== 'admin' || user.role !== 'admin') {
-        console.log(`[${requestId}] ❌ Login failed: User is not an admin`, {
+        console.log(`[${requestId}] ❌ Non-admin user attempted login:`, {
           userType: user.userType,
           role: user.role
         });
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Admin privileges required.',
-          requestId
+          message: 'Access denied. Admin privileges required.'
         });
       }
 
-    } catch (dbError) {
-      console.error(`[${requestId}] ❌ Database error:`, {
-        error: dbError.message,
-        stack: dbError.stack,
-        code: dbError.code
-      });
-      return res.status(500).json({
-        success: false,
-        message: 'Database error',
-        error: dbError.message,
-        requestId
-      });
-    }
-
-    // Verify password
-    try {
+      // Verify password
       const isMatch = await bcrypt.compare(password, user.password);
       console.log(`[${requestId}] 🔐 Password verification:`, {
         isMatch,
         providedPasswordLength: password.length,
-        hashedPasswordLength: user.password.length
+        storedPasswordLength: user.password.length
       });
 
       if (!isMatch) {
-        console.log(`[${requestId}] ❌ Login failed: Invalid password`);
         return res.status(401).json({
           success: false,
-          message: 'Invalid credentials',
-          requestId
+          message: 'Invalid credentials'
         });
       }
-    } catch (bcryptError) {
-      console.error(`[${requestId}] ❌ Password verification error:`, {
-        error: bcryptError.message,
-        stack: bcryptError.stack
-      });
-      return res.status(500).json({
-        success: false,
-        message: 'Error verifying password',
-        error: bcryptError.message,
-        requestId
-      });
-    }
 
-    // Generate JWT token
-    try {
-      const tokenPayload = {
-        id: user._id,
-        email: user.email,
-        phone: user.phone,
-        userType: user.userType,
-        role: user.role
-      };
-      console.log(`[${requestId}] 🎟️ Generating token with payload:`, tokenPayload);
-
+      // Generate token
       const token = jwt.sign(
-        tokenPayload,
-        process.env.JWT_SECRET,
+        {
+          id: user._id,
+          email: user.email,
+          phone: user.phone,
+          userType: user.userType,
+          role: user.role
+        },
+        jwtSecret,
         { expiresIn: '24h' }
       );
 
-      console.log(`[${requestId}] ✅ Token generated successfully:`, {
-        tokenLength: token.length,
-        expiresIn: '24h'
-      });
-
-      // Return user info and token
-      const response = {
+      // Send success response
+      return res.json({
         success: true,
         token,
         user: {
@@ -212,27 +166,22 @@ const login = async (req, res) => {
           userType: user.userType,
           role: user.role,
           status: user.status
-        },
-        requestId
-      };
-
-      console.log(`[${requestId}] ✅ Login successful:`, {
-        userId: user._id,
-        userType: user.userType,
-        role: user.role
+        }
       });
 
-      res.json(response);
-    } catch (jwtError) {
-      console.error(`[${requestId}] ❌ Token generation error:`, {
-        error: jwtError.message,
-        stack: jwtError.stack
+    } catch (dbError) {
+      console.error(`[${requestId}] ❌ Database operation failed:`, {
+        error: dbError.message,
+        stack: dbError.stack,
+        code: dbError.code
       });
       return res.status(500).json({
         success: false,
-        message: 'Error generating authentication token',
-        error: jwtError.message,
-        requestId
+        message: 'Database error',
+        debug: {
+          error: dbError.message,
+          code: dbError.code
+        }
       });
     }
   } catch (error) {
@@ -243,11 +192,14 @@ const login = async (req, res) => {
       code: error.code
     });
     
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Internal server error',
-      error: error.message,
-      requestId
+      debug: {
+        error: error.message,
+        type: error.name,
+        env: process.env.NODE_ENV
+      }
     });
   }
 };

@@ -32,13 +32,23 @@ process.on('uncaughtException', (error) => {
   console.error('❌ Uncaught Exception:', {
     message: error.message,
     stack: error.stack,
-    name: error.name
+    name: error.name,
+    code: error.code
   });
+  // Don't exit the process on Vercel
+  if (process.env.VERCEL !== '1') {
+    process.exit(1);
+  }
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('❌ Unhandled Rejection:', {
-    reason: reason,
+    reason: typeof reason === 'object' ? {
+      message: reason.message,
+      stack: reason.stack,
+      name: reason.name,
+      code: reason.code
+    } : reason,
     promise: promise
   });
 });
@@ -202,7 +212,8 @@ app.use((req, res) => {
 
 // Error handling middleware (should be last)
 app.use((err, req, res, next) => {
-  const requestId = res.getHeader('X-Request-ID');
+  const requestId = res.getHeader('X-Request-ID') || req.headers['x-vercel-id'] || Date.now().toString();
+  
   console.error(`[${requestId}] ❌ Global error handler:`, {
     error: {
       message: err.message,
@@ -213,18 +224,32 @@ app.use((err, req, res, next) => {
     request: {
       method: req.method,
       url: req.url,
-      headers: req.headers,
-      body: req.body
+      headers: {
+        'content-type': req.headers['content-type'],
+        'origin': req.headers['origin'],
+        'user-agent': req.headers['user-agent']
+      },
+      body: req.method !== 'GET' ? (
+        req.body.password ? {...req.body, password: '[HIDDEN]'} : req.body
+      ) : undefined
+    },
+    environment: {
+      NODE_ENV: process.env.NODE_ENV,
+      VERCEL: process.env.VERCEL,
+      hasJwtSecret: !!process.env.JWT_SECRET,
+      hasMongoUri: !!process.env.MONGODB_URI,
+      mongooseState: mongoose.connection.readyState
     }
   });
 
   res.status(err.status || 500).json({
     success: false,
     message: err.message || 'Internal server error',
-    requestId: requestId,
-    error: {
-      name: err.name,
-      message: err.message,
+    debug: {
+      requestId,
+      error: err.name,
+      type: err.constructor.name,
+      env: process.env.NODE_ENV,
       ...(process.env.NODE_ENV === 'development' ? { stack: err.stack } : {})
     }
   });
