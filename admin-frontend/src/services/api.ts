@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { User, Case, Statistics, DashboardStatistics } from '../types';
-import { CaseResponse } from '../types/case';
+import { CaseResponse, SingleCaseResponse } from '../types/case';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://hi-hi-tutor-real-backend2.vercel.app/api';
 
@@ -108,19 +108,19 @@ export const usersAPI = {
     role?: string;
     search?: string;
   }) => {
-    return axios.get<UserResponse>(`${API_BASE_URL}/admin/users`, { params });
+    return api.get<UserResponse>(`/admin/users`, { params });
   },
 
   getUserById: (id: string) => {
-    return axios.get<User>(`${API_BASE_URL}/admin/users/${id}`);
+    return api.get<User>(`/admin/users/${id}`);
   },
 
   createUser: (data: CreateUserData) => {
-    return axios.post<CreateUserResponse>(`${API_BASE_URL}/admin/users`, data);
+    return api.post<CreateUserResponse>(`/admin/users`, data);
   },
 
   updateUser: (id: string, data: Partial<User>) => {
-    return axios.put<User>(`${API_BASE_URL}/admin/users/${id}`, data);
+    return api.put<User>(`/admin/users/${id}`, data);
   },
 
   approveUserUpgrade: (id: string, role: string) => {
@@ -132,15 +132,6 @@ export const usersAPI = {
 };
 
 // Cases API
-interface CaseResponse {
-  cases: Case[];
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-  };
-}
-
 interface CreateCaseData {
   title: string;
   description: string;
@@ -155,12 +146,6 @@ interface CreateCaseData {
   experience?: string;
 }
 
-interface CreateCaseResponse {
-  success: boolean;
-  data: Case;
-  message?: string;
-}
-
 export const casesAPI = {
   getCases: (params: {
     page?: number;
@@ -169,19 +154,19 @@ export const casesAPI = {
     search?: string;
     type?: string;
   }) => {
-    return axios.get<CaseResponse>(`${API_BASE_URL}/admin/cases`, { params });
+    return api.get<CaseResponse>(`/admin/cases`, { params });
   },
 
   getCaseById: (id: string) => {
-    return axios.get<Case>(`${API_BASE_URL}/admin/cases/${id}`);
+    return api.get<SingleCaseResponse>(`/admin/cases/${id}`);
   },
 
   createCase: (data: CreateCaseData) => {
-    return axios.post<CreateCaseResponse>(`${API_BASE_URL}/admin/cases`, data);
+    return api.post<SingleCaseResponse>(`/admin/cases`, data);
   },
 
   updateCase: (id: string, data: Partial<Case>) => {
-    return axios.put<Case>(`${API_BASE_URL}/admin/cases/${id}`, data);
+    return api.put<SingleCaseResponse>(`/admin/cases/${id}`, data);
   },
 };
 

@@ -47,17 +47,18 @@ const Cases: React.FC = () => {
           type: caseType === 'all' ? undefined : caseType,
         });
 
-        if (response.success && Array.isArray(response.data.cases)) {
-          dispatch(setCases(response.data.cases));
-          setTotalCount(response.data.pagination.total);
+        const { cases, pagination } = response.data;
+        if (Array.isArray(cases)) {
+          dispatch(setCases(cases));
+          setTotalCount(pagination.total);
         } else {
           console.error('Invalid response format:', response);
           dispatch(setError('Invalid response format'));
           dispatch(setCases([]));
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error fetching cases:', error);
-        dispatch(setError('Failed to fetch cases'));
+        dispatch(setError(error.message || 'Failed to fetch cases'));
         dispatch(setCases([]));
       } finally {
         dispatch(setLoading(false));
@@ -102,10 +103,8 @@ const Cases: React.FC = () => {
     }
   };
 
-  const getCaseType = (caseItem: any): 'student' | 'tutor' => {
-    if (caseItem.type === 'student' || caseItem.type === 'tutor') return caseItem.type;
-    // 如果沒有明確的類型，根據是否有導師來判斷
-    return caseItem.tutor ? 'tutor' : 'student';
+  const getCaseType = (caseItem: Case): 'student' | 'tutor' => {
+    return caseItem.type;
   };
 
   if (loading) {
@@ -181,7 +180,7 @@ const Cases: React.FC = () => {
               <TableCell>Title</TableCell>
               <TableCell>Student</TableCell>
               <TableCell>Tutor</TableCell>
-              <TableCell>Subject</TableCell>
+              <TableCell>Category</TableCell>
               <TableCell>Status</TableCell>
               <TableCell>Created At</TableCell>
               <TableCell>Actions</TableCell>
@@ -203,7 +202,7 @@ const Cases: React.FC = () => {
                 <TableCell>
                   {caseItem.tutor ? caseItem.tutor.name : 'Not Assigned'}
                 </TableCell>
-                <TableCell>{caseItem.subject}</TableCell>
+                <TableCell>{caseItem.category}</TableCell>
                 <TableCell>
                   <Chip
                     label={caseItem.status}
