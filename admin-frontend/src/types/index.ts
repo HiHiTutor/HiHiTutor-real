@@ -4,7 +4,8 @@ export interface User {
   name: string;
   email: string;
   phone: string;
-  role: 'student' | 'tutor' | 'admin' | 'institution';
+  role: 'user' | 'admin';
+  userType: 'student' | 'tutor' | 'admin' | 'organization';
   status: 'active' | 'pending' | 'blocked';
   createdAt: string;
   upgradeStatus?: 'pending' | 'approved' | 'rejected';

@@ -10,7 +10,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true,
+  withCredentials: false,
   timeout: 10000, // 10 seconds timeout
 });
 
@@ -117,11 +117,24 @@ export const statisticsAPI = {
 
 // Auth API
 export const authAPI = {
-  login: (credentials: { identifier: string; password: string }) =>
-    api.post<{ token: string; user: User; success: boolean; message?: string }>(
+  login: (credentials: { identifier: string; password: string }) => {
+    console.log('📤 Sending login request:', {
+      url: `${API_BASE_URL}/admin/auth/login`,
+      credentials: {
+        identifier: credentials.identifier,
+        password: '********'
+      }
+    });
+    return api.post<{ token: string; user: User; success: boolean; message?: string }>(
       '/admin/auth/login',
-      credentials
-    ),
+      credentials,
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+  },
 
   logout: () => api.post('/admin/auth/logout'),
 

@@ -27,18 +27,30 @@ const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      console.log('🔑 Attempting login with:', { identifier });
-      console.log('🌐 API URL:', process.env.REACT_APP_API_URL);
+      console.log('🔑 Attempting login with:', { 
+        identifier,
+        apiUrl: process.env.REACT_APP_API_URL || 'https://hi-hi-tutor-real-backend2.vercel.app/api'
+      });
       
-      const response = await authAPI.login({ identifier, password });
+      const response = await authAPI.login({ 
+        identifier: identifier.trim(), 
+        password: password.trim() 
+      });
+
       console.log('✅ Login response:', {
         success: response.data.success,
         hasToken: !!response.data.token,
-        hasUser: !!response.data.user
+        hasUser: !!response.data.user,
+        userType: response.data.user?.userType,
+        role: response.data.user?.role
       });
       
       if (!response.data.success) {
         throw new Error(response.data.message || 'Login failed');
+      }
+
+      if (response.data.user?.userType !== 'admin') {
+        throw new Error('Access denied. Admin privileges required.');
       }
       
       localStorage.setItem('adminToken', response.data.token);
@@ -47,7 +59,13 @@ const Login: React.FC = () => {
         user: response.data.user 
       }));
       
-      console.log('✅ Login successful, user:', response.data.user);
+      console.log('✅ Login successful, user:', {
+        id: response.data.user.id,
+        name: response.data.user.name,
+        email: response.data.user.email,
+        userType: response.data.user.userType,
+        role: response.data.user.role
+      });
     } catch (error) {
       console.error('❌ Login error:', error);
       
