@@ -19,16 +19,22 @@ export async function POST(req: Request) {
       );
     }
 
-    // 生成驗證碼
-    const code = generateVerificationCode();
-    console.log(`[SMS] 模擬發送驗證碼到 ${body.phone}，驗證碼：${code}`);
-    
-    // 返回成功響應，包含驗證碼（僅用於開發環境）
-    return NextResponse.json({
-      success: true,
-      message: '驗證碼已發送',
-      code: code // 在開發環境中返回驗證碼
+    // 調用後端 API 發送驗證碼
+    const backendUrl = process.env.BACKEND_API_URL || 'https://hi-hi-tutor-real-backend2.vercel.app/api';
+    const backendResponse = await fetch(`${backendUrl}/auth/request-verification-code`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        phone: body.phone
+      })
     });
+
+    const data = await backendResponse.json();
+    
+    // 返回後端的響應
+    return NextResponse.json(data, { status: backendResponse.status });
   } catch (error) {
     console.error('❌ 驗證碼請求失敗:', error);
     return NextResponse.json(
