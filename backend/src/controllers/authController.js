@@ -10,7 +10,6 @@ const loginUser = async (req, res) => {
       identifier: req.body.identifier,
       password: '[HIDDEN]'  // 不要在日誌中顯示密碼
     });
-    console.log('📥 請求標頭：', req.headers);
 
     const { identifier, password } = req.body;
 
@@ -50,7 +49,14 @@ const loginUser = async (req, res) => {
       ]
     });
 
-    console.log('🔍 查找結果：', user ? '找到用戶' : '找不到用戶');
+    console.log('🔍 查找結果：', {
+      found: !!user,
+      userId: user?._id,
+      userEmail: user?.email,
+      userPhone: user?.phone,
+      hashedPassword: user?.password?.substring(0, 10) + '...',
+      passwordLength: user?.password?.length
+    });
 
     if (!user) {
       return res.status(401).json({
@@ -60,11 +66,16 @@ const loginUser = async (req, res) => {
     }
 
     // 使用 User 模型的 comparePassword 方法比對密碼
-    console.log('🔑 開始比對密碼...');
+    console.log('🔑 開始比對密碼...', {
+      inputPasswordLength: password.length,
+      hashedPasswordLength: user.password.length
+    });
+    
     const isMatch = await user.comparePassword(password);
-    console.log('🔑 密碼比對結果：', isMatch ? '密碼正確' : '密碼錯誤', {
-      hashedPassword: user.password,
-      inputPasswordLength: password.length
+    
+    console.log('🔑 密碼比對結果：', {
+      isMatch,
+      bcryptVersion: await bcrypt.getRounds(user.password)
     });
 
     if (!isMatch) {
