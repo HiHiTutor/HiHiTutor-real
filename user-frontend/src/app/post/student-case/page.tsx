@@ -18,7 +18,7 @@ export default function StudentCasePage() {
     regions: '',
     subRegions: [] as string[],
     modes: [] as string[],
-    experience: 'not-specified',
+    experience: '無教學經驗要求' as '無教學經驗要求' | '1-3年教學經驗' | '3-5年教學經驗' | '5年以上教學經驗',  // 指定具體類型
     durationPerLesson: '60',  // 預設60分鐘
     pricePerLesson: '',
     weeklyLessons: '1'  // 預設每週1堂
@@ -30,7 +30,7 @@ export default function StudentCasePage() {
     { value: '1-3年教學經驗', label: '1-3年教學經驗' },
     { value: '3-5年教學經驗', label: '3-5年教學經驗' },
     { value: '5年以上教學經驗', label: '5年以上教學經驗' }
-  ];
+  ] as const;  // 使用 const assertion
 
   // 動態獲取科目選項
   const getSubjectOptions = () => {
@@ -87,8 +87,8 @@ export default function StudentCasePage() {
           pricePerLesson: Number(formData.pricePerLesson),
           lessonsPerWeek: Number(formData.weeklyLessons)
         },
-        experience: formData.experience || '無教學經驗要求',
-        status: 'open',
+        experience: formData.experience,
+        status: 'open' as 'open' | 'matched' | 'closed' | 'pending',
         featured: false,
         isApproved: false
       };
@@ -241,7 +241,7 @@ export default function StudentCasePage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">教學經驗要求</label>
               <select 
                 value={formData.experience} 
-                onChange={e => setFormData({ ...formData, experience: e.target.value })}
+                onChange={e => setFormData({ ...formData, experience: e.target.value as '無教學經驗要求' | '1-3年教學經驗' | '3-5年教學經驗' | '5年以上教學經驗' })}
                 className="w-full px-3 py-2 border rounded-md"
                 required
               >
