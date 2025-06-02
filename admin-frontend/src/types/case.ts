@@ -1,21 +1,21 @@
-export type CaseStatus = 'open' | 'matched' | 'closed' | 'pending' | '';
-export type CaseType = 'student' | 'tutor' | 'all';
+export type CaseStatus = '' | 'open' | 'matched' | 'closed' | 'pending';
+export type CaseType = 'all' | 'student' | 'tutor';
 
 export interface Case {
+  id?: string;
   _id?: string;
-  id: string;
+  type: 'student' | 'tutor';
   title: string;
   description: string;
-  type: 'student' | 'tutor';
+  status: CaseStatus;
   category: string;
   subCategory?: string;
   subjects: string[];
   regions: string[];
   subRegions: string[];
   budget: string;
-  mode: 'online' | 'offline' | 'hybrid';
+  mode: string;
   experience?: string;
-  status: CaseStatus;
   student?: {
     id: string;
     name: string;
@@ -28,6 +28,14 @@ export interface Case {
   updatedAt: string;
 }
 
+export interface SingleCaseResponse {
+  success: boolean;
+  data: {
+    case: Case;
+  };
+  message?: string;
+}
+
 export interface CaseResponse {
   success: boolean;
   data: {
@@ -36,13 +44,22 @@ export interface CaseResponse {
       total: number;
       page: number;
       limit: number;
+      totalPages: number;
     };
   };
   message?: string;
 }
 
-export interface SingleCaseResponse {
-  success: boolean;
-  data: Case;
-  message?: string;
+export interface CreateCaseData {
+  type: 'student' | 'tutor';
+  title: string;
+  description: string;
+  category: string;
+  subCategory?: string;
+  subjects: string[];
+  regions: string[];
+  subRegions: string[];
+  budget: string;
+  mode: string;
+  experience?: string;
 } 

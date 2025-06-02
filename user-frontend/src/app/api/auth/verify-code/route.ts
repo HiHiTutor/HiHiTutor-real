@@ -14,18 +14,22 @@ export async function POST(req: Request) {
       );
     }
 
-    // 模擬驗證碼驗證
-    console.log(`[SMS] 模擬驗證碼 ${body.code} 到 ${body.phone}`);
-    
-    // 生成正確格式的臨時令牌
-    const token = `TEMP-REGISTER-TOKEN-${Math.random().toString(36).substring(2, 15)}`;
-    
-    // 返回成功響應
-    return NextResponse.json({
-      success: true,
-      message: '驗證成功',
-      token
+    // 調用後端 API 進行驗證
+    const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/verify-code`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        phone: body.phone,
+        code: body.code
+      })
     });
+
+    const data = await backendResponse.json();
+    
+    // 返回後端的響應
+    return NextResponse.json(data, { status: backendResponse.status });
   } catch (error) {
     console.error('❌ 驗證碼驗證失敗:', error);
     return NextResponse.json(
