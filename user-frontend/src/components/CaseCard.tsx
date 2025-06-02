@@ -1,8 +1,7 @@
 'use client'
 import { useRouter } from 'next/navigation'
 import React from 'react'
-import { getRegionName, getSubjectNames, getSubRegionName } from '@/utils/translate';
-import { SUBJECT_MAP } from '@/utils/translate';
+import { getRegionName, getSubjectName, getSubRegionName } from '@/utils/translate';
 
 const MODES: Record<string, string> = {
   'in-person': '面授',
@@ -113,7 +112,7 @@ export default function CaseCard({ caseData, borderColor = 'border-gray-200', ro
   }
 
   const subjectLabel = caseData.subject?.label
-    ? SUBJECT_MAP[caseData.subject.label] || caseData.subject.label
+    ? getSubjectName(caseData.subject.label)
     : '未命名個案';
 
   return (

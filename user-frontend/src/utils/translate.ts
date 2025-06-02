@@ -1,3 +1,5 @@
+import { SUBJECT_MAP as SUBJECT_MAPPING } from '@/constants/subjectOptions';
+
 // 地區映射
 export const REGION_MAP: { [key: string]: string } = {
   'hong-kong-island': '香港島',
@@ -195,7 +197,7 @@ export const getRegionName = (region: string): string => REGION_MAP[region] || '
 
 // 獲取科目中文名稱
 export function getSubjectName(subject: string): string {
-  return SUBJECT_MAP[subject] || subject;
+  return SUBJECT_MAPPING[subject] || subject;
 }
 
 export function getSubjectNames(subjects: string[]): string {
