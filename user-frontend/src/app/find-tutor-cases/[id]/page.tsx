@@ -94,39 +94,44 @@ export default function FindTutorCaseDetailPage() {
     return getSubjectNames(caseDetail.subjects);
   };
 
+  // 處理模式
+  const getMode = () => {
+    const modes = caseDetail.modes || [];
+    if (modes.length === 0 && !caseDetail.mode) return '未指定';
+    
+    const allModes = [...new Set([...(caseDetail.mode ? [caseDetail.mode] : []), ...modes])];
+    return allModes.map(mode => MODES[mode] || mode).join('、');
+  };
+
   // 處理地點
   const getLocation = () => {
+    const modes = caseDetail.modes || [];
+    const hasInPerson = modes.includes('in-person');
+    
+    if (!hasInPerson) return '不適用（純網課）';
+    
     const regions = caseDetail.regions || [];
     const subRegions = caseDetail.subRegions || [];
     
-    if (regions.length === 0 && subRegions.length === 0) {
-      return '未指定';
-    }
-
+    if (regions.length === 0 && subRegions.length === 0) return '未指定';
+    
     const regionNames = regions.map(getRegionName);
     const subRegionNames = subRegions.map(getSubRegionName);
     
     return [...regionNames, ...subRegionNames].join('、');
   };
 
-  // 處理預算
-  const getBudget = () => {
-    if (!caseDetail.budget) return '待議';
-    const { min, max } = caseDetail.budget;
-    if (!min && !max) return '待議';
-    if (min === max) return `${min}/小時`;
-    return `${min} - ${max}/小時`;
-  };
-
-  // 處理模式
-  const getMode = () => {
-    if (!caseDetail.mode && (!caseDetail.modes || caseDetail.modes.length === 0)) {
-      return '未指定';
-    }
-    if (caseDetail.mode) {
-      return getModeName(caseDetail.mode);
-    }
-    return caseDetail.modes.map(getModeName).join('、');
+  // 處理收費
+  const getPrice = () => {
+    if (!caseDetail.lessonDetails) return '待議';
+    const { duration, pricePerLesson, lessonsPerWeek } = caseDetail.lessonDetails;
+    
+    let display = '';
+    if (duration) display += `每堂${duration}分鐘`;
+    if (pricePerLesson) display += `，每堂HKD ${pricePerLesson}`;
+    if (lessonsPerWeek) display += `，每週${lessonsPerWeek}堂`;
+    
+    return display || '待議';
   };
 
   // 處理要求
@@ -148,9 +153,10 @@ export default function FindTutorCaseDetailPage() {
       </div>
       <div className="bg-blue-100 border border-blue-300 rounded-xl p-8">
         <p className="text-gray-600">個案 ID：{getCaseId()}</p>
+        <p className="text-gray-600">標題：{caseDetail.title || '未命名個案'}</p>
         <p className="text-gray-600">科目：{getSubjects()}</p>
         <p className="text-gray-600">地點：{getLocation()}</p>
-        <p className="text-gray-600">收費：{getBudget()}</p>
+        <p className="text-gray-600">收費：{getPrice()}</p>
         <p className="text-gray-600">模式：{getMode()}</p>
         <p className="text-gray-600">要求：{getRequirements()}</p>
         <div>

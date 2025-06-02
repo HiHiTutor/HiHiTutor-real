@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 interface User {
   id: string
   name: string
-  role: 'student' | 'tutor' | 'admin'
+  userType: 'student' | 'tutor' | 'organization'
 }
 
 export function useSession() {

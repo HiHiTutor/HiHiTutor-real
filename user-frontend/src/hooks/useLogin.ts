@@ -5,7 +5,7 @@ interface LoginResponse {
   user: {
     id: string
     name: string
-    role: 'student' | 'tutor' | 'admin'
+    userType: 'student' | 'tutor' | 'organization'
   }
 }
 

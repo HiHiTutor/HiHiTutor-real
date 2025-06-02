@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 interface User {
   id: string
   name: string
-  role: 'student' | 'tutor' | 'admin'
+  userType: 'student' | 'tutor' | 'organization'
 }
 
 export function useUser() {
@@ -29,7 +29,7 @@ export function useUser() {
         // 兼容 userType/role
         setUser({
           ...data,
-          role: data.userType || data.role // 以 userType 為主
+          userType: data.userType || data.role // 以 userType 為主
         })
       } catch (err) {
         console.warn('🔒 無法取得用戶資料：', err instanceof Error ? err.message : '未知錯誤')

@@ -194,9 +194,13 @@ export { SUBJECT_MAP };
 export const getRegionName = (region: string): string => REGION_MAP[region] || '';
 
 // 獲取科目中文名稱
-export function getSubjectNames(subjects: string[] = [], category?: string, subCategory?: string) {
-  if (!subjects || subjects.length === 0) return '科目待定';
-  return subjects.map(s => SUBJECT_MAP[s] || s).join('、');
+export function getSubjectName(subject: string): string {
+  return SUBJECT_MAP[subject] || subject;
+}
+
+export function getSubjectNames(subjects: string[]): string {
+  if (!subjects || subjects.length === 0) return '未指定';
+  return subjects.map(getSubjectName).join('、');
 }
 
 export const getSubRegionName = (subRegion: string): string => {

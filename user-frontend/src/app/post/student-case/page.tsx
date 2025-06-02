@@ -99,7 +99,7 @@ export default function StudentCasePage() {
       const result = await caseApi.createTutorCase(submitData);
       console.log('✅ Case created successfully:', result);
       
-      alert('個案發布成功！');
+      alert('個案發布成功！請等待管理員審批，審批通過後個案將會顯示在網站上。');
       router.push('/find-tutor-cases');
 
     } catch (error) {

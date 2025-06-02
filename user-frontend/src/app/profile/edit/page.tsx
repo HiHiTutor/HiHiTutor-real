@@ -167,7 +167,8 @@ export default function EditProfilePage() {
       const updateData: any = {
         name: formData.name,
         email: formData.email,
-        phone: formData.phone
+        phone: formData.phone,
+        userType: formData.userType
       };
 
       // 如果電話號碼有變更，添加驗證 token

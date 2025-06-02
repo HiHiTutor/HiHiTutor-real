@@ -11,7 +11,7 @@ interface User {
   name: string;
   email: string;
   phone: string;
-  userType?: string;
+  userType: 'student' | 'tutor' | 'organization';
 }
 
 export default function ProfilePage() {
