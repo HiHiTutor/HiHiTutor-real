@@ -88,16 +88,33 @@ userSchema.pre('save', async function(next) {
 // Compare password method
 userSchema.methods.comparePassword = async function(candidatePassword) {
   try {
-    console.log('🔍 正在比對密碼...', {
+    console.log('🔍 開始密碼比對...', {
+      candidatePassword,
       candidatePasswordLength: candidatePassword.length,
-      hashedPasswordLength: this.password.length,
-      hashedPasswordStart: this.password.substring(0, 10) + '...'
+      hashedPassword: this.password,
+      hashedPasswordLength: this.password.length
     });
-    const isMatch = await bcrypt.compare(candidatePassword, this.password);
-    console.log('✅ 密碼比對結果:', isMatch);
-    return isMatch;
+
+    // 直接比對原始密碼（用於調試）
+    const directMatch = candidatePassword === this.password;
+    console.log('🔍 直接比對結果:', directMatch);
+
+    // 使用 bcrypt 比對
+    const bcryptMatch = await bcrypt.compare(candidatePassword, this.password);
+    console.log('🔍 bcrypt 比對結果:', bcryptMatch);
+
+    // 生成測試哈希（用於調試）
+    const testHash = await bcrypt.hash(candidatePassword, 10);
+    console.log('🔍 測試哈希:', {
+      testHash,
+      testHashLength: testHash.length,
+      originalHash: this.password,
+      originalHashLength: this.password.length
+    });
+
+    return bcryptMatch;
   } catch (error) {
-    console.error('❌ 密碼比對失敗:', error);
+    console.error('❌ 密碼比對過程中發生錯誤:', error);
     throw error;
   }
 };
