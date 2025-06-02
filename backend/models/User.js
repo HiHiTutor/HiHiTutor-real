@@ -62,19 +62,26 @@ const userSchema = new mongoose.Schema({
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {
-  // 如果密碼沒有被修改且不是新文檔，跳過
-  if (!this.isModified('password') && !this.isNew) {
-    return next();
-  }
-  try {
-    console.log('🔐 正在加密密碼...');
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    console.log('✅ 密碼加密完成');
+  // 如果密碼被修改或是新文檔，則進行加密
+  if (this.isModified('password') || this.isNew) {
+    try {
+      console.log('🔐 正在加密密碼...', {
+        isNew: this.isNew,
+        isModified: this.isModified('password'),
+        originalPassword: this.password
+      });
+      const salt = await bcrypt.genSalt(10);
+      this.password = await bcrypt.hash(this.password, salt);
+      console.log('✅ 密碼加密完成', {
+        hashedPassword: this.password
+      });
+      next();
+    } catch (error) {
+      console.error('❌ 密碼加密失敗:', error);
+      next(error);
+    }
+  } else {
     next();
-  } catch (error) {
-    console.error('❌ 密碼加密失敗:', error);
-    next(error);
   }
 });
 
