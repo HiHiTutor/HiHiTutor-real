@@ -14,14 +14,14 @@ export default function ArticlePostPage() {
     if (!user) {
       // 未登入 ➝ 跳轉至登入頁
       router.push('/login')
-    } else if (user.role !== 'tutor') {
+    } else if (user.userType !== 'tutor') {
       // 已登入但不是導師 ➝ 跳去升級頁並提示
       alert('只有導師可以投稿文章，請先升級為導師')
       router.push('/upgrade')
     }
   }, [user, isLoading, router])
 
-  if (isLoading || !user || user.role !== 'tutor') return null
+  if (isLoading || !user || user.userType !== 'tutor') return null
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
