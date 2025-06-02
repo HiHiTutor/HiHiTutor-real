@@ -10,7 +10,7 @@ interface User {
   name: string;
   email: string;
   phone: string;
-  userType?: 'normal' | 'organization';
+  userType?: 'student' | 'tutor' | 'organization';
 }
 
 export default function EditProfilePage() {
@@ -26,7 +26,7 @@ export default function EditProfilePage() {
     name: '',
     email: '',
     phone: '',
-    userType: 'normal'
+    userType: 'student' as const
   });
   const router = useRouter();
 
@@ -50,7 +50,7 @@ export default function EditProfilePage() {
             name: data.name || '',
             email: data.email || '',
             phone: data.phone || '',
-            userType: data.userType || 'normal'
+            userType: data.userType || 'student'
           };
           
           setUser(userData);
@@ -58,7 +58,7 @@ export default function EditProfilePage() {
             name: userData.name,
             email: userData.email,
             phone: userData.phone,
-            userType: userData.userType || 'normal'
+            userType: userData.userType || 'student'
           });
         } else {
           throw new Error('無效的用戶資料格式');
@@ -327,10 +327,11 @@ export default function EditProfilePage() {
                 <select
                   id="userType"
                   value={formData.userType}
-                  onChange={(e) => setFormData({ ...formData, userType: e.target.value as 'normal' | 'organization' })}
+                  onChange={(e) => setFormData({ ...formData, userType: e.target.value as 'student' | 'tutor' | 'organization' })}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 >
-                  <option value="normal">個人</option>
+                  <option value="student">學生</option>
+                  <option value="tutor">家教</option>
                   <option value="organization">機構</option>
                 </select>
               </div>

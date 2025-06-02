@@ -18,20 +18,18 @@ export default function StudentCasePage() {
     regions: '',
     subRegions: [] as string[],
     modes: [] as string[],
-    budgetMin: '',
-    budgetMax: '',
     experience: 'not-specified',
     durationPerLesson: '60',  // 預設60分鐘
     pricePerLesson: '',
     weeklyLessons: '1'  // 預設每週1堂
   });
 
-  // 經驗要求選項
+  // 教學經驗要求選項
   const EXPERIENCE_OPTIONS = [
-    { value: 'fresh', label: '無經驗要求' },
-    { value: 'junior', label: '1-3年經驗' },
-    { value: 'senior', label: '3-5年經驗' },
-    { value: 'expert', label: '5年以上經驗' }
+    { value: 'fresh', label: '無教學經驗要求' },
+    { value: 'junior', label: '1-3年教學經驗' },
+    { value: 'senior', label: '3-5年教學經驗' },
+    { value: 'expert', label: '5年以上教學經驗' }
   ];
 
   // 動態獲取科目選項
@@ -92,10 +90,6 @@ export default function StudentCasePage() {
         subCategory: formData.subCategory,
         regions: formData.regions ? [formData.regions] : [],
         subRegions: formData.subRegions,
-        budget: {
-          min: Number(formData.budgetMin) || 0,
-          max: Number(formData.budgetMax) || 0
-        },
         lessonDetails: {
           duration: Number(formData.durationPerLesson),
           pricePerLesson: Number(formData.pricePerLesson),
@@ -212,17 +206,6 @@ export default function StudentCasePage() {
                 </div>
               </div>
             )}
-            {/* 預算 */}
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">時薪預算（最低）</label>
-                <input type="number" value={formData.budgetMin} onChange={e => setFormData({ ...formData, budgetMin: e.target.value })} className="w-full px-3 py-2 border rounded-md" placeholder="例如：200" required />
-              </div>
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">時薪預算（最高）</label>
-                <input type="number" value={formData.budgetMax} onChange={e => setFormData({ ...formData, budgetMax: e.target.value })} className="w-full px-3 py-2 border rounded-md" placeholder="例如：400" required />
-              </div>
-            </div>
             {/* 每堂時長和收費 */}
             <div className="space-y-4">
               <div className="flex gap-2">
@@ -264,9 +247,9 @@ export default function StudentCasePage() {
                 />
               </div>
             </div>
-            {/* 經驗要求 */}
+            {/* 教學經驗要求 */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">經驗要求</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">教學經驗要求</label>
               <select 
                 value={formData.experience} 
                 onChange={e => setFormData({ ...formData, experience: e.target.value })}

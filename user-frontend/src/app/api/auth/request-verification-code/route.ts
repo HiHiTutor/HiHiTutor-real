@@ -33,6 +33,13 @@ export async function POST(req: Request) {
 
     const data = await backendResponse.json();
     
+    // 在開發環境中顯示驗證碼
+    if (data.success && data.code) {
+      console.log('\n==================================');
+      console.log('🎯 驗證碼：', data.code);
+      console.log('==================================\n');
+    }
+    
     // 返回後端的響應
     return NextResponse.json(data, { status: backendResponse.status });
   } catch (error) {

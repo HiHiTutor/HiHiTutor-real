@@ -1,15 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function UpgradePage() {
   const [files, setFiles] = useState<File[]>([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const currentUser = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || '{}') : {};
-
+  const router = useRouter();
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
+
+  useEffect(() => {
+    // 檢查用戶權限
+    const currentUser = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || '{}') : {};
+    if (!currentUser.userType || currentUser.userType !== 'student') {
+      router.replace('/');
+      return;
+    }
+  }, [router]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -26,6 +34,7 @@ export default function UpgradePage() {
     setLoading(true);
     setMessage("");
     try {
+      const currentUser = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || '{}') : {};
       // 1. 逐一上傳所有檔案，收集 url
       const uploadedUrls: string[] = [];
       for (const file of files) {

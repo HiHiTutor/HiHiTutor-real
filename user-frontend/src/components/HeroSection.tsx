@@ -96,7 +96,7 @@ export default function HeroSection() {
                 <UserIcon className="w-5 h-5" />
                 👤 我的帳戶
               </button>
-              {user.userType === 'normal' && (
+              {user.userType === 'student' && (
                 <Link href="/upgrade" className="w-full">
                   <div className="flex items-center gap-2 bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition">
                     <span>🆙</span>

@@ -300,15 +300,20 @@ router.post('/', verifyToken, async (req, res) => {
 
     // 創建新的案例，不要包含 id 欄位
     const newCase = {
-      studentId,
-      category,
-      subCategory: req.body.subCategory,
+      student: studentId,  // 使用 student 而不是 studentId
+      title: req.body.title,
+      description: req.body.description,
+      subject: req.body.subject,
       subjects: req.body.subjects,
+      category: req.body.category,
+      subCategory: req.body.subCategory,
       regions: req.body.regions || [],
       subRegions: req.body.subRegions || [],
-      budget: req.body.budget,
+      lessonDetails: req.body.lessonDetails,
       mode: req.body.mode,
+      modes: req.body.modes,
       experience: req.body.experience,
+      status: 'open',
       featured: false,
       isApproved: false
     };

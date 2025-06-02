@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { authApi } from '@/services/api';
+import { getUserTypeDisplay } from '@/utils/userTypeDisplay';
 
 interface User {
   id: string;
   name: string;
   email: string;
   phone: string;
-  userType?: 'personal' | 'organization' | 'normal' | 'tutor';
+  userType?: string;
 }
 
 export default function ProfilePage() {
@@ -39,7 +40,7 @@ export default function ProfilePage() {
             name: data.name || '',
             email: data.email || '',
             phone: data.phone || '',
-            userType: data.userType || 'normal'
+            userType: data.userType || 'student'
           });
         } else {
           throw new Error('無效的用戶資料格式');
@@ -118,7 +119,7 @@ export default function ProfilePage() {
               </div>
               <div>
                 <div className="text-gray-500 mb-1">用戶身份</div>
-                <div>{user?.userType === 'tutor' ? '導師' : user?.userType === 'normal' ? '學生' : user?.userType === 'organization' ? '機構' : '未知'}</div>
+                <div>{getUserTypeDisplay(user?.userType || '')}</div>
               </div>
             </div>
 
@@ -138,7 +139,7 @@ export default function ProfilePage() {
               </Link>
             </div>
 
-            {user?.userType === 'normal' && (
+            {user?.userType === 'student' && (
               <div className="mt-6">
                 <Link href="/upgrade">
                   <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-4 py-2 rounded transition">

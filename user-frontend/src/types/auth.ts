@@ -23,7 +23,7 @@ export interface RegisterFormData {
   email: string;
   password: string;
   phone: string;
-  userType: 'student' | 'organization';
+  userType: 'student' | 'tutor' | 'organization';
 }
 
 export interface User {
@@ -32,7 +32,7 @@ export interface User {
   email: string;
   phone: string;
   password: string;
-  userType: 'student' | 'organization';
+  userType: 'student' | 'tutor' | 'organization';
   createdAt: number;
 }
 
