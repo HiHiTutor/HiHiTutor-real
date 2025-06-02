@@ -113,7 +113,8 @@ const Cases: React.FC = () => {
     return caseItem.type;
   };
 
-  const handleRowClick = (id: string, type: string) => {
+  const handleRowClick = (id: string | undefined, type: string) => {
+    if (!id) return;
     navigate(`/cases/${id}?type=${type}`);
   };
 
