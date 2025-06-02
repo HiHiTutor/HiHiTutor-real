@@ -269,19 +269,13 @@ const register = async (req, res) => {
         });
       }
 
-      // 加密密碼
-      console.log("🔐 加密密碼...");
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
-      console.log("✅ 密碼加密完成");
-
-      // 創建新用戶
+      // 創建新用戶（密碼會在 User 模型的 pre('save') 中間件中自動加密）
       console.log("📝 準備創建新用戶...");
       const newUser = new User({
         name,
         email,
         phone,
-        password: hashedPassword,
+        password, // 直接使用原始密碼，讓 User 模型處理加密
         role,
         userType,
         status: userType === 'organization' ? 'pending' : 'active',
