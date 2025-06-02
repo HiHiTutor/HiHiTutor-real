@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const RegisterToken = require('../models/registerToken');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 
 const loginUser = async (req, res) => {
   try {
@@ -293,17 +294,28 @@ const forgotPassword = async (req, res) => {
 
 const sendVerificationCode = async (req, res) => {
   try {
+    console.log('📥 收到發送驗證碼請求:', {
+      body: req.body,
+      headers: req.headers
+    });
+
     const { phone } = req.body;
 
+    // 檢查電話號碼是否存在
     if (!phone) {
+      console.log('❌ 缺少電話號碼');
       return res.status(400).json({
         success: false,
         message: '請提供電話號碼'
       });
     }
 
+    // 格式化電話號碼（移除空格和特殊字符）
+    const formattedPhone = phone.replace(/\s+/g, '').replace(/[^0-9]/g, '');
+
     // 驗證電話格式（香港手機號碼）
-    if (!/^([69]\d{7})$/.test(phone)) {
+    if (!/^([69]\d{7})$/.test(formattedPhone)) {
+      console.log('❌ 無效的電話格式:', formattedPhone);
       return res.status(400).json({
         success: false,
         message: '請提供有效的香港電話號碼（8碼，9或6開頭）'
@@ -311,8 +323,9 @@ const sendVerificationCode = async (req, res) => {
     }
 
     // 檢查電話是否已被註冊
-    const existingUser = await User.findOne({ phone });
+    const existingUser = await User.findOne({ phone: formattedPhone });
     if (existingUser) {
+      console.log('❌ 電話已被註冊:', formattedPhone);
       return res.status(400).json({
         success: false,
         message: '此電話號碼已被註冊',
@@ -324,25 +337,41 @@ const sendVerificationCode = async (req, res) => {
       });
     }
 
+    // 檢查是否有未過期的驗證碼
+    const existingToken = await RegisterToken.findOne({
+      phone: formattedPhone,
+      isUsed: false,
+      expiresAt: { $gt: new Date() }
+    });
+
+    if (existingToken) {
+      const timeLeft = Math.ceil((existingToken.expiresAt - new Date()) / 1000);
+      console.log('⚠️ 已存在未過期的驗證碼:', {
+        phone: formattedPhone,
+        timeLeft: `${timeLeft}秒`
+      });
+      return res.status(400).json({
+        success: false,
+        message: `請等待 ${timeLeft} 秒後再重新發送驗證碼`
+      });
+    }
+
     // 生成 6 位數字驗證碼
     const code = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log(`📱 發送驗證碼 ${code} 到 ${phone}`);
+    console.log(`📱 生成驗證碼: ${code} 到 ${formattedPhone}`);
 
-    // 生成臨時令牌
-    const token = `TEMP-REGISTER-TOKEN-${Math.random().toString(36).substring(2, 15)}`;
-    const expiresAt = new Date(Date.now() + 300000); // 5 分鐘後過期
+    // 設置過期時間（5分鐘）
+    const expiresAt = new Date(Date.now() + 300000);
 
-    // 保存驗證碼和令牌到數據庫
+    // 保存驗證碼到數據庫
     const registerToken = await RegisterToken.create({
-      token,
-      phone,
+      phone: formattedPhone,
       code,
       expiresAt,
       isUsed: false
     });
 
     console.log('✅ 驗證碼已保存到數據庫:', {
-      token: registerToken.token,
       phone: registerToken.phone,
       code: registerToken.code,
       expiresAt: registerToken.expiresAt
@@ -354,40 +383,107 @@ const sendVerificationCode = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: '驗證碼已發送',
-      token,
       code: process.env.NODE_ENV === 'development' ? code : undefined // 在開發環境中返回驗證碼
     });
   } catch (error) {
-    console.error('發送驗證碼失敗:', error);
+    console.error('❌ 發送驗證碼失敗:', {
+      error: error.message,
+      stack: error.stack
+    });
     return res.status(500).json({
       success: false,
-      message: '發送驗證碼失敗，請稍後再試'
+      message: '發送驗證碼失敗，請稍後再試',
+      debug: {
+        error: error.message,
+        mongoState: mongoose.connection.readyState
+      }
     });
   }
 };
 
 const verifyCode = async (req, res) => {
   try {
+    console.log('📥 收到驗證碼驗證請求:', {
+      body: req.body,
+      headers: req.headers
+    });
+
     const { phone, code } = req.body;
 
+    // 檢查必要字段
     if (!phone || !code) {
+      console.log('❌ 缺少必要字段:', {
+        hasPhone: !!phone,
+        hasCode: !!code
+      });
       return res.status(400).json({
         success: false,
         message: '請提供電話號碼和驗證碼'
       });
     }
 
+    // 格式化電話號碼和驗證碼
+    const formattedPhone = phone.replace(/\s+/g, '').replace(/[^0-9]/g, '');
+    const formattedCode = code.replace(/\s+/g, '');
+
+    // 驗證電話格式
+    if (!/^([69]\d{7})$/.test(formattedPhone)) {
+      console.log('❌ 無效的電話格式:', formattedPhone);
+      return res.status(400).json({
+        success: false,
+        message: '請提供有效的香港電話號碼（8碼，9或6開頭）'
+      });
+    }
+
+    // 驗證碼格式檢查
+    if (!/^\d{6}$/.test(formattedCode)) {
+      console.log('❌ 無效的驗證碼格式:', formattedCode);
+      return res.status(400).json({
+        success: false,
+        message: '請提供有效的6位數字驗證碼'
+      });
+    }
+
+    // 檢查 MongoDB 連接狀態
+    if (mongoose.connection.readyState !== 1) {
+      console.log('⚠️ MongoDB 未連接，嘗試重新連接...');
+      try {
+        await mongoose.connect(process.env.MONGODB_URI, {
+          useNewUrlParser: true,
+          useUnifiedTopology: true,
+          serverSelectionTimeoutMS: 5000,
+          socketTimeoutMS: 45000,
+        });
+        console.log('✅ 成功重新連接到 MongoDB');
+      } catch (dbError) {
+        console.error('❌ MongoDB 連接失敗:', {
+          error: dbError.message,
+          code: dbError.code,
+          name: dbError.name
+        });
+        return res.status(500).json({
+          success: false,
+          message: '資料庫連接失敗',
+          debug: {
+            error: dbError.message,
+            mongoState: mongoose.connection.readyState
+          }
+        });
+      }
+    }
+
     // 查找該電話號碼的驗證碼記錄
+    console.log('🔍 查找驗證碼記錄...');
     const tokenData = await RegisterToken.findOne({
-      phone,
-      code,
+      phone: formattedPhone,
+      code: formattedCode,
       isUsed: false,
       expiresAt: { $gt: new Date() }
     }).sort({ createdAt: -1 });
 
-    console.log('🔍 查找驗證碼記錄:', {
-      phone,
-      code,
+    console.log('🔍 查找驗證碼記錄結果:', {
+      phone: formattedPhone,
+      code: formattedCode,
       found: !!tokenData,
       isUsed: tokenData?.isUsed,
       expiresAt: tokenData?.expiresAt,
@@ -395,9 +491,27 @@ const verifyCode = async (req, res) => {
     });
 
     if (!tokenData) {
+      // 檢查是否有過期的驗證碼
+      const expiredToken = await RegisterToken.findOne({
+        phone: formattedPhone,
+        code: formattedCode,
+        isUsed: false
+      }).sort({ createdAt: -1 });
+
+      if (expiredToken) {
+        console.log('⚠️ 找到過期的驗證碼:', {
+          expiresAt: expiredToken.expiresAt,
+          currentTime: new Date()
+        });
+        return res.status(400).json({
+          success: false,
+          message: '驗證碼已過期，請重新發送'
+        });
+      }
+
       return res.status(400).json({
         success: false,
-        message: '驗證碼無效或已過期'
+        message: '驗證碼無效，請重新輸入'
       });
     }
 
@@ -406,13 +520,15 @@ const verifyCode = async (req, res) => {
     const expiresAt = new Date(Date.now() + 300000); // 5 分鐘後過期
 
     // 標記舊的驗證碼為已使用
+    console.log('✏️ 標記舊的驗證碼為已使用...');
     tokenData.isUsed = true;
     await tokenData.save();
 
     // 保存新的註冊令牌
+    console.log('✏️ 保存新的註冊令牌...');
     const newToken = await RegisterToken.create({
       token,
-      phone,
+      phone: formattedPhone,
       code: tokenData.code, // 保留原始驗證碼
       expiresAt,
       isUsed: false
@@ -430,10 +546,17 @@ const verifyCode = async (req, res) => {
       token
     });
   } catch (error) {
-    console.error('驗證碼驗證失敗:', error);
+    console.error('❌ 驗證碼驗證失敗:', {
+      error: error.message,
+      stack: error.stack
+    });
     return res.status(500).json({
       success: false,
-      message: '驗證碼驗證失敗，請稍後再試'
+      message: '驗證碼驗證失敗，請稍後再試',
+      debug: {
+        error: error.message,
+        mongoState: mongoose.connection.readyState
+      }
     });
   }
 };
