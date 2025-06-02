@@ -316,8 +316,13 @@ router.post('/', verifyToken, async (req, res) => {
       });
     }
 
+    // 生成唯一ID
+    const timestamp = Date.now();
+    const uniqueId = `T${timestamp}`;
+
     // 創建新的案例
     const newCase = new TutorCase({
+      id: uniqueId,  // 添加唯一ID
       student: studentId,
       title,
       description,
