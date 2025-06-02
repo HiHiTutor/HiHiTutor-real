@@ -62,14 +62,18 @@ const userSchema = new mongoose.Schema({
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) {
+  // 如果密碼沒有被修改且不是新文檔，跳過
+  if (!this.isModified('password') && !this.isNew) {
     return next();
   }
   try {
+    console.log('🔐 正在加密密碼...');
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
+    console.log('✅ 密碼加密完成');
     next();
   } catch (error) {
+    console.error('❌ 密碼加密失敗:', error);
     next(error);
   }
 });
@@ -77,8 +81,16 @@ userSchema.pre('save', async function(next) {
 // Compare password method
 userSchema.methods.comparePassword = async function(candidatePassword) {
   try {
-    return await bcrypt.compare(candidatePassword, this.password);
+    console.log('🔍 正在比對密碼...', {
+      candidatePasswordLength: candidatePassword.length,
+      hashedPasswordLength: this.password.length,
+      hashedPasswordStart: this.password.substring(0, 10) + '...'
+    });
+    const isMatch = await bcrypt.compare(candidatePassword, this.password);
+    console.log('✅ 密碼比對結果:', isMatch);
+    return isMatch;
   } catch (error) {
+    console.error('❌ 密碼比對失敗:', error);
     throw error;
   }
 };
