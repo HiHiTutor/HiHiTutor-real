@@ -308,6 +308,7 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
                 borderColor={borderColor}
                 caseData={{
                   id: caseItem.id || caseItem._id || '',
+                  title: caseItem.title || '',
                   subject: (() => {
                     const s = caseItem.subjects && caseItem.subjects[0];
                     if (!s) return undefined;
@@ -326,11 +327,11 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
                     }
                     return undefined;
                   })(),
+                  modes: caseItem.modes || [],
                   experienceLevel: caseItem.experience ? { label: caseItem.experience } : undefined,
-                  budget: typeof caseItem.budget === 'object'
-                    ? `${caseItem.budget.min || ''} - ${caseItem.budget.max || ''}`
-                    : (caseItem.budget || caseItem.price || ''),
-                  createdAt: (caseItem.createdAt || caseItem.date || ''),
+                  lessonDetails: caseItem.lessonDetails,
+                  budget: caseItem.budget ? `${caseItem.budget.min} - ${caseItem.budget.max}` : undefined,
+                  createdAt: caseItem.createdAt || caseItem.date || new Date().toISOString()
                 }}
                 routeType={routeType}
               />

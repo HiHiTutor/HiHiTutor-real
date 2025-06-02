@@ -20,5 +20,47 @@ export const SUBJECT_MAP: { [key: string]: string } = {
   'uni-music': '大學音樂',
   'uni-computer-science': '大學電腦科學',
   'uni-thesis': '大學論文指導',
-  // 其他科目可以繼續添加...
+  'uni-calculus': '大學微積分',
+  'uni-statistics': '大學統計',
+  'uni-research': '研究方法',
+  'uni-programming': '大學編程',
+  'uni-language': '大學語言',
+  
+  // 中學科目
+  'secondary-chinese': '中學中文',
+  'secondary-english': '中學英文',
+  'secondary-math': '中學數學',
+  'secondary-ls': '通識教育',
+  'secondary-physics': '物理',
+  'secondary-chemistry': '化學',
+  'secondary-biology': '生物',
+  'secondary-economics': '經濟',
+  'secondary-geography': '地理',
+  'secondary-history': '歷史',
+  'secondary-chinese-history': '中國歷史',
+  'secondary-bafs': '企會財',
+  'secondary-ict': '資訊與通訊科技',
+  'secondary-integrated-science': '綜合科學',
+  'secondary-dse': 'DSE總溫習',
+  
+  // 小學科目
+  'primary-chinese': '小學中文',
+  'primary-english': '小學英文',
+  'primary-math': '小學數學',
+  'primary-general': '常識',
+  'primary-mandarin': '普通話',
+  'primary-stem': 'STEM',
+  
+  // 興趣班
+  'interest-art': '繪畫',
+  'interest-music': '音樂',
+  'interest-dance': '舞蹈',
+  'interest-drama': '戲劇',
+  'interest-programming': '編程',
+  'interest-foreign-language': '外語',
+  'interest-magic-chess': '魔術／棋藝',
+  'interest-photography': '攝影',
+  
+  // 其他
+  'other': '其他科目'
 }; 
