@@ -20,7 +20,10 @@ export default function StudentCasePage() {
     modes: [] as string[],
     budgetMin: '',
     budgetMax: '',
-    experience: 'not-specified'
+    experience: 'not-specified',
+    durationPerLesson: '60',  // 預設60分鐘
+    pricePerLesson: '',
+    weeklyLessons: '1'  // 預設每週1堂
   });
 
   // 經驗要求選項
@@ -80,12 +83,11 @@ export default function StudentCasePage() {
       }
 
       const submitData = {
-        id: `TC${Date.now()}${Math.floor(Math.random() * 1000)}`,
+        student: user.id,
         title: formData.title || `${formData.category}補習個案`,
         description: formData.description || '尋找合適導師中',
         subject: formData.subjects && formData.subjects.length > 0 ? formData.subjects[0] : '未指定',
         subjects: formData.subjects || [],
-        student: user.id,
         category: formData.category,
         subCategory: formData.subCategory,
         regions: formData.regions ? [formData.regions] : [],
@@ -94,7 +96,13 @@ export default function StudentCasePage() {
           min: Number(formData.budgetMin) || 0,
           max: Number(formData.budgetMax) || 0
         },
+        lessonDetails: {
+          duration: Number(formData.durationPerLesson),
+          pricePerLesson: Number(formData.pricePerLesson),
+          weeklyLessons: Number(formData.weeklyLessons)
+        },
         mode: formData.modes && formData.modes.length > 0 ? formData.modes[0] : 'not-specified',
+        modes: formData.modes,
         experience: formData.experience,
         status: 'open',
         featured: false,
@@ -207,12 +215,53 @@ export default function StudentCasePage() {
             {/* 預算 */}
             <div className="flex gap-2">
               <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">預算（最低）</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">時薪預算（最低）</label>
                 <input type="number" value={formData.budgetMin} onChange={e => setFormData({ ...formData, budgetMin: e.target.value })} className="w-full px-3 py-2 border rounded-md" placeholder="例如：200" required />
               </div>
               <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">預算（最高）</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">時薪預算（最高）</label>
                 <input type="number" value={formData.budgetMax} onChange={e => setFormData({ ...formData, budgetMax: e.target.value })} className="w-full px-3 py-2 border rounded-md" placeholder="例如：400" required />
+              </div>
+            </div>
+            {/* 每堂時長和收費 */}
+            <div className="space-y-4">
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">每堂時長（分鐘）</label>
+                  <input 
+                    type="number" 
+                    value={formData.durationPerLesson} 
+                    onChange={e => setFormData({ ...formData, durationPerLesson: e.target.value })} 
+                    className="w-full px-3 py-2 border rounded-md" 
+                    placeholder="例如：60" 
+                    min="30"
+                    step="30"
+                    required 
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">每堂收費（港幣）</label>
+                  <input 
+                    type="number" 
+                    value={formData.pricePerLesson} 
+                    onChange={e => setFormData({ ...formData, pricePerLesson: e.target.value })} 
+                    className="w-full px-3 py-2 border rounded-md" 
+                    placeholder="例如：400" 
+                    required 
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">每週堂數</label>
+                <input 
+                  type="number" 
+                  value={formData.weeklyLessons} 
+                  onChange={e => setFormData({ ...formData, weeklyLessons: e.target.value })} 
+                  className="w-full px-3 py-2 border rounded-md" 
+                  placeholder="例如：1" 
+                  min="1"
+                  required 
+                />
               </div>
             </div>
             {/* 經驗要求 */}
