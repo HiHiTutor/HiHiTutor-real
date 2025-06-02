@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -13,11 +13,12 @@ import {
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { casesAPI } from '../services/api';
 import { setSelectedCase, setLoading, setError } from '../store/slices/caseSlice';
-import { Case, SingleCaseResponse } from '../types/case';
+import { Case } from '../types/case';
 
 const CaseDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useAppDispatch();
   const { selectedCase, loading, error } = useAppSelector((state) => state.cases);
 
@@ -26,31 +27,13 @@ const CaseDetail: React.FC = () => {
       try {
         dispatch(setLoading(true));
         if (id) {
-          const searchParams = new URLSearchParams(window.location.search);
+          const searchParams = new URLSearchParams(location.search);
           const type = searchParams.get('type');
           const response = await casesAPI.getCaseById(id, type || undefined);
           const { success, data } = response.data;
-          if (success && data) {
-            const caseData: Case = {
-              id: data.id,
-              title: data.title,
-              description: data.description,
-              type: data.type as 'student' | 'tutor',
-              category: data.category,
-              subCategory: data.subCategory,
-              subjects: data.subjects,
-              regions: data.regions,
-              subRegions: data.subRegions,
-              budget: data.budget,
-              mode: data.mode as 'online' | 'offline' | 'hybrid',
-              experience: data.experience,
-              status: data.status,
-              student: data.student,
-              tutor: data.tutor,
-              createdAt: data.createdAt,
-              updatedAt: data.updatedAt,
-            };
-            dispatch(setSelectedCase(caseData));
+          
+          if (success && data.case) {
+            dispatch(setSelectedCase(data.case));
           } else {
             dispatch(setError('Case not found'));
           }
@@ -63,7 +46,7 @@ const CaseDetail: React.FC = () => {
     };
 
     fetchCase();
-  }, [dispatch, id]);
+  }, [dispatch, id, location.search]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -153,7 +136,7 @@ const CaseDetail: React.FC = () => {
               Subjects
             </Typography>
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-              {selectedCase.subjects.map((subject) => (
+              {selectedCase.subjects?.map((subject) => (
                 <Chip key={subject} label={subject} />
               ))}
             </Box>
@@ -164,7 +147,7 @@ const CaseDetail: React.FC = () => {
               Regions
             </Typography>
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-              {selectedCase.regions.map((region) => (
+              {selectedCase.regions?.map((region) => (
                 <Chip key={region} label={region} />
               ))}
             </Box>
@@ -175,7 +158,7 @@ const CaseDetail: React.FC = () => {
               Sub Regions
             </Typography>
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-              {selectedCase.subRegions.map((subRegion) => (
+              {selectedCase.subRegions?.map((subRegion) => (
                 <Chip key={subRegion} label={subRegion} />
               ))}
             </Box>

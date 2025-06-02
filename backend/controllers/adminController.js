@@ -336,12 +336,19 @@ const getCaseById = async (req, res) => {
 
     if (type === 'student') {
       case_ = await StudentCase.findOne(query).lean();
+      if (case_) case_.type = 'student';
     } else if (type === 'tutor') {
       case_ = await TutorCase.findOne(query).lean();
+      if (case_) case_.type = 'tutor';
     } else {
       // Try both collections if type is not specified
-      case_ = await StudentCase.findOne(query).lean() || 
-              await TutorCase.findOne(query).lean();
+      case_ = await StudentCase.findOne(query).lean();
+      if (case_) {
+        case_.type = 'student';
+      } else {
+        case_ = await TutorCase.findOne(query).lean();
+        if (case_) case_.type = 'tutor';
+      }
     }
 
     // 如果找不到，嘗試使用 _id（如果是有效的 ObjectId）
@@ -349,11 +356,18 @@ const getCaseById = async (req, res) => {
       const idQuery = { _id: id };
       if (type === 'student') {
         case_ = await StudentCase.findOne(idQuery).lean();
+        if (case_) case_.type = 'student';
       } else if (type === 'tutor') {
         case_ = await TutorCase.findOne(idQuery).lean();
+        if (case_) case_.type = 'tutor';
       } else {
-        case_ = await StudentCase.findOne(idQuery).lean() || 
-                await TutorCase.findOne(idQuery).lean();
+        case_ = await StudentCase.findOne(idQuery).lean();
+        if (case_) {
+          case_.type = 'student';
+        } else {
+          case_ = await TutorCase.findOne(idQuery).lean();
+          if (case_) case_.type = 'tutor';
+        }
       }
     }
 
@@ -366,7 +380,9 @@ const getCaseById = async (req, res) => {
 
     res.json({
       success: true,
-      data: case_
+      data: {
+        case: case_
+      }
     });
   } catch (error) {
     console.error('Error getting case:', error);

@@ -15,7 +15,8 @@ export async function POST(req: Request) {
     }
 
     // 調用後端 API 進行驗證
-    const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/verify-code`, {
+    const backendUrl = process.env.BACKEND_API_URL || 'https://hi-hi-tutor-real-backend2.vercel.app/api';
+    const backendResponse = await fetch(`${backendUrl}/auth/verify-code`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
