@@ -26,10 +26,10 @@ export default function StudentCasePage() {
 
   // 教學經驗要求選項
   const EXPERIENCE_OPTIONS = [
-    { value: 'fresh', label: '無教學經驗要求' },
-    { value: 'junior', label: '1-3年教學經驗' },
-    { value: 'senior', label: '3-5年教學經驗' },
-    { value: 'expert', label: '5年以上教學經驗' }
+    { value: '無教學經驗要求', label: '無教學經驗要求' },
+    { value: '1-3年教學經驗', label: '1-3年教學經驗' },
+    { value: '3-5年教學經驗', label: '3-5年教學經驗' },
+    { value: '5年以上教學經驗', label: '5年以上教學經驗' }
   ];
 
   // 動態獲取科目選項
@@ -69,42 +69,31 @@ export default function StudentCasePage() {
         router.push('/login');
         return;
       }
-
       const user = JSON.parse(userStr);
-      console.log('👤 Current user:', user);
-
-      if (!user.id) {
-        console.error('❌ User ID not found in user data');
-        alert('用戶資料不完整，請重新登入');
-        router.push('/login');
-        return;
-      }
-
       const submitData = {
-        student: user.id,
-        title: formData.title || `${formData.category}補習個案`,
-        description: formData.description || '尋找合適導師中',
-        subject: formData.subjects && formData.subjects.length > 0 ? formData.subjects[0] : '未指定',
-        subjects: formData.subjects || [],
+        student: user.id,  // 使用 student 而不是 studentId
+        title: formData.title,
+        description: formData.description,
+        subject: formData.subjects[0], // 主要科目
+        subjects: formData.subjects,
         category: formData.category,
         subCategory: formData.subCategory,
         regions: formData.regions ? [formData.regions] : [],
-        subRegions: formData.subRegions,
+        subRegions: formData.subRegions || [],
+        mode: formData.modes[0], // 主要模式
+        modes: formData.modes,
         lessonDetails: {
           duration: Number(formData.durationPerLesson),
           pricePerLesson: Number(formData.pricePerLesson),
-          weeklyLessons: Number(formData.weeklyLessons)
+          lessonsPerWeek: Number(formData.weeklyLessons)
         },
-        mode: formData.modes && formData.modes.length > 0 ? formData.modes[0] : 'not-specified',
-        modes: formData.modes,
-        experience: formData.experience,
+        experience: formData.experience || '無教學經驗要求',
         status: 'open',
         featured: false,
         isApproved: false
       };
 
       console.log('📦 Submitting data:', submitData);
-
       const result = await caseApi.createTutorCase(submitData);
       console.log('✅ Case created successfully:', result);
       

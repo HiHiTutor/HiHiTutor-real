@@ -155,8 +155,28 @@ export const caseApi = {
   getStudentCaseById: (id: string) => fetchApi(`/find-student-cases/${id}`),
   
   // 創建找導師個案
-  createTutorCase: (data: any) => {
-    // 直接使用傳入的數據，因為已經在組件中格式化過了
+  createTutorCase: (data: {
+    student: string;
+    title: string;
+    description: string;
+    subject: string;
+    subjects: string[];
+    category: string;
+    subCategory?: string;
+    regions: string[];
+    subRegions: string[];
+    mode: string;
+    modes: string[];
+    lessonDetails: {
+      duration: number;
+      pricePerLesson: number;
+      lessonsPerWeek: number;
+    };
+    experience: '無教學經驗要求' | '1-3年教學經驗' | '3-5年教學經驗' | '5年以上教學經驗';
+    status: 'open' | 'matched' | 'closed' | 'pending';
+    featured: boolean;
+    isApproved: boolean;
+  }) => {
     return fetchApi('/find-tutor-cases', {
       method: 'POST',
       body: JSON.stringify(data),

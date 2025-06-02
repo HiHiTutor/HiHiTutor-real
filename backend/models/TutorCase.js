@@ -51,21 +51,42 @@ const tutorCaseSchema = new mongoose.Schema({
     type: [String],
     default: []
   },
-  budget: {
-    min: {
+  mode: {
+    type: String,
+    required: true
+  },
+  modes: {
+    type: [String],
+    required: true
+  },
+  lessonDetails: {
+    duration: {
       type: Number,
-      required: true
+      required: true,
+      min: 30,
+      max: 180,
+      validate: {
+        validator: function(v) {
+          return v % 30 === 0;
+        },
+        message: '課堂時長必須是30分鐘的倍數'
+      }
     },
-    max: {
+    pricePerLesson: {
       type: Number,
-      required: true
+      required: true,
+      min: 0
+    },
+    lessonsPerWeek: {
+      type: Number,
+      required: true,
+      min: 1
     }
   },
-  mode: {
-    type: String
-  },
   experience: {
-    type: String
+    type: String,
+    enum: ['無教學經驗要求', '1-3年教學經驗', '3-5年教學經驗', '5年以上教學經驗'],
+    default: '無教學經驗要求'
   },
   featured: {
     type: Boolean,
