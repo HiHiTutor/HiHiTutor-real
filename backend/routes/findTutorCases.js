@@ -265,63 +265,81 @@ router.get('/:id', async (req, res) => {
 // POST 創建導師案例
 router.post('/', verifyToken, async (req, res) => {
   console.log('📥 Received POST request to /api/find-tutor-cases');
-  console.log('[🟢 收到前端傳來的資料]', JSON.stringify(req.body, null, 2));
-  console.log('[🟢 Token 中的用戶資料]', JSON.stringify(req.user, null, 2));
-
   try {
-    // 從 token 中獲取用戶 ID
+    // 驗證用戶身份
     const studentId = req.user.id;
     if (!studentId) {
-      console.error('❌ No studentId found in token');
-      return res.status(401).json({ success: false, message: '未授權的請求' });
+      return res.status(401).json({
+        success: false,
+        message: '未找到用戶ID'
+      });
     }
 
     // 驗證必要欄位
-    const { category, subjects, budget } = req.body;
-    console.log('[🔍 驗證必要欄位]', {
-      studentId,
-      category,
+    const {
+      title,
+      description,
+      subject,
       subjects,
-      budget
-    });
+      category,
+      lessonDetails
+    } = req.body;
 
-    if (!category) {
-      console.error('❌ Missing category');
-      return res.status(400).json({ success: false, message: '請選擇分類' });
-    }
-    if (!subjects || !Array.isArray(subjects) || subjects.length === 0) {
-      console.error('❌ Invalid subjects:', subjects);
-      return res.status(400).json({ success: false, message: '請選擇至少一個科目' });
-    }
-    if (!budget || !budget.min || !budget.max) {
-      console.error('❌ Invalid budget:', budget);
-      return res.status(400).json({ success: false, message: '請填寫預算範圍' });
+    if (!title || !description || !subjects || !category || !lessonDetails) {
+      return res.status(400).json({
+        success: false,
+        message: '請填寫所有必要欄位'
+      });
     }
 
-    // 創建新的案例，不要包含 id 欄位
-    const newCase = {
-      student: studentId,  // 使用 student 而不是 studentId
-      title: req.body.title,
-      description: req.body.description,
-      subject: req.body.subject,
-      subjects: req.body.subjects,
-      category: req.body.category,
+    // 驗證課堂詳情
+    if (!lessonDetails.duration || !lessonDetails.pricePerLesson || !lessonDetails.lessonsPerWeek) {
+      return res.status(400).json({
+        success: false,
+        message: '請填寫完整的課堂詳情'
+      });
+    }
+
+    // 驗證課堂時長
+    if (lessonDetails.duration < 30 || lessonDetails.duration > 180 || lessonDetails.duration % 30 !== 0) {
+      return res.status(400).json({
+        success: false,
+        message: '課堂時長必須在30-180分鐘之間，且必須是30分鐘的倍數'
+      });
+    }
+
+    // 驗證每週堂數
+    if (lessonDetails.lessonsPerWeek < 1) {
+      return res.status(400).json({
+        success: false,
+        message: '每週至少要有1堂課'
+      });
+    }
+
+    // 創建新的案例
+    const newCase = new TutorCase({
+      student: studentId,
+      title,
+      description,
+      subject,
+      subjects,
+      category,
       subCategory: req.body.subCategory,
       regions: req.body.regions || [],
       subRegions: req.body.subRegions || [],
-      lessonDetails: req.body.lessonDetails,
       mode: req.body.mode,
       modes: req.body.modes,
-      experience: req.body.experience,
+      lessonDetails,
+      experience: req.body.experience || '無教學經驗要求',
       status: 'open',
       featured: false,
       isApproved: false
-    };
+    });
 
     console.log('[📦 準備創建的案例]', JSON.stringify(newCase, null, 2));
 
     // 保存到資料庫
-    const savedCase = await TutorCase.create(newCase);
+    const savedCase = await newCase.save();
     console.log('[✅ 成功創建的案例]', JSON.stringify(savedCase, null, 2));
 
     res.status(201).json({
