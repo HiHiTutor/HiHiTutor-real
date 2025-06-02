@@ -79,11 +79,29 @@ const loginUser = async (req, res) => {
 
     // 使用 bcrypt 比對密碼
     console.log("🔑 開始比對密碼...");
+    console.log("📝 密碼信息：", {
+      providedPassword: password,
+      providedPasswordLength: password.length,
+      storedHashedPassword: user.password,
+      storedHashedPasswordLength: user.password.length
+    });
+    
     const match = await bcrypt.compare(password, user.password);
     console.log("🔑 密碼比對結果：", match ? "密碼正確" : "密碼錯誤");
 
     if (!match) {
       console.log("❌ 密碼錯誤");
+      // 嘗試重新加密提供的密碼，看看結果是否匹配
+      const testHash = await bcrypt.hash(password, 10);
+      console.log("🔍 密碼診斷：", {
+        providedPassword: password,
+        testHash: testHash,
+        testHashLength: testHash.length,
+        storedHash: user.password,
+        storedHashLength: user.password.length,
+        doHashesMatch: testHash === user.password
+      });
+      
       return res.status(401).json({
         success: false,
         message: '帳號或密碼錯誤'
@@ -287,32 +305,31 @@ const register = async (req, res) => {
         });
       }
 
-      // 加密密碼
-      console.log("🔐 加密密碼...");
-      const hashedPassword = await bcrypt.hash(password, 10);
-
       // 創建新用戶
-      console.log("📝 準備創建新用戶...");
+      console.log('📝 創建新用戶...');
       const newUser = new User({
         name,
         email,
         phone,
-        password: hashedPassword,
-        role,
+        password, // 密碼會在 User model 的 pre('save') 中間件中被加密
         userType,
-        status: userType === 'organization' ? 'pending' : 'active',
-        organizationDocuments: userType === 'organization' ? {
-          businessRegistration: req.files.businessRegistration[0].path,
-          addressProof: req.files.addressProof[0].path
-        } : undefined
+        role
       });
 
-      // 保存用戶資料到 MongoDB
-      console.log("💾 準備保存用戶資料到 MongoDB...");
-      const savedUser = await newUser.save();
-      console.log("✅ 用戶資料保存成功！", savedUser);
+      console.log('🔐 密碼信息（創建前）：', {
+        originalPassword: password,
+        passwordLength: password.length
+      });
 
-      // 標記 token 為已使用
+      // 保存用戶
+      await newUser.save();
+
+      console.log('🔐 密碼信息（創建後）：', {
+        hashedPassword: newUser.password,
+        hashedPasswordLength: newUser.password.length
+      });
+
+      // 標記註冊令牌為已使用
       tokenData.isUsed = true;
       await tokenData.save();
 
@@ -320,9 +337,9 @@ const register = async (req, res) => {
       console.log("🔑 生成 JWT token...");
       const jwtToken = jwt.sign(
         { 
-          id: savedUser._id, 
-          email: savedUser.email,
-          phone: savedUser.phone 
+          id: newUser._id, 
+          email: newUser.email,
+          phone: newUser.phone 
         },
         process.env.JWT_SECRET || 'your-secret-key',
         { expiresIn: '7d' }
@@ -336,13 +353,13 @@ const register = async (req, res) => {
         message: userType === 'organization' ? '註冊成功，等待管理員審核' : '註冊成功',
         token: jwtToken,
         user: {
-          id: savedUser._id,
-          name: savedUser.name,
-          email: savedUser.email,
-          phone: savedUser.phone,
-          role: savedUser.role,
-          userType: savedUser.userType,
-          status: savedUser.status
+          id: newUser._id,
+          name: newUser.name,
+          email: newUser.email,
+          phone: newUser.phone,
+          role: newUser.role,
+          userType: newUser.userType,
+          status: newUser.status
         }
       });
 
