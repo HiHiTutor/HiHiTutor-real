@@ -19,8 +19,17 @@ export default function StudentCasePage() {
     subRegions: [] as string[],
     modes: [] as string[],
     budgetMin: '',
-    budgetMax: ''
+    budgetMax: '',
+    experience: 'not-specified'
   });
+
+  // 經驗要求選項
+  const EXPERIENCE_OPTIONS = [
+    { value: 'fresh', label: '無經驗要求' },
+    { value: 'junior', label: '1-3年經驗' },
+    { value: 'senior', label: '3-5年經驗' },
+    { value: 'expert', label: '5年以上經驗' }
+  ];
 
   // 動態獲取科目選項
   const getSubjectOptions = () => {
@@ -71,16 +80,25 @@ export default function StudentCasePage() {
       }
 
       const submitData = {
-        studentId: user.id,
+        id: `TC${Date.now()}${Math.floor(Math.random() * 1000)}`,
+        title: formData.title || `${formData.category}補習個案`,
+        description: formData.description || '尋找合適導師中',
+        subject: formData.subjects && formData.subjects.length > 0 ? formData.subjects[0] : '未指定',
+        subjects: formData.subjects || [],
+        student: user.id,
         category: formData.category,
         subCategory: formData.subCategory,
-        subjects: formData.subjects,
         regions: formData.regions ? [formData.regions] : [],
         subRegions: formData.subRegions,
         budget: {
-          min: Number(formData.budgetMin),
-          max: Number(formData.budgetMax)
-        }
+          min: Number(formData.budgetMin) || 0,
+          max: Number(formData.budgetMax) || 0
+        },
+        mode: formData.modes && formData.modes.length > 0 ? formData.modes[0] : 'not-specified',
+        experience: formData.experience,
+        status: 'open',
+        featured: false,
+        isApproved: false
       };
 
       console.log('📦 Submitting data:', submitData);
@@ -196,6 +214,20 @@ export default function StudentCasePage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">預算（最高）</label>
                 <input type="number" value={formData.budgetMax} onChange={e => setFormData({ ...formData, budgetMax: e.target.value })} className="w-full px-3 py-2 border rounded-md" placeholder="例如：400" required />
               </div>
+            </div>
+            {/* 經驗要求 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">經驗要求</label>
+              <select 
+                value={formData.experience} 
+                onChange={e => setFormData({ ...formData, experience: e.target.value })}
+                className="w-full px-3 py-2 border rounded-md"
+                required
+              >
+                {EXPERIENCE_OPTIONS.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
             </div>
             {/* 詳細描述 */}
             <div>

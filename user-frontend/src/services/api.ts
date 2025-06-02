@@ -155,11 +155,13 @@ export const caseApi = {
   getStudentCaseById: (id: string) => fetchApi(`/find-student-cases/${id}`),
   
   // 創建找導師個案
-  createTutorCase: (data: any) => 
-    fetchApi('/find-tutor-cases', {
+  createTutorCase: (data: any) => {
+    // 直接使用傳入的數據，因為已經在組件中格式化過了
+    return fetchApi('/find-tutor-cases', {
       method: 'POST',
       body: JSON.stringify(data),
-    }),
+    });
+  },
   
   // 創建找學生個案
   createStudentCase: (data: any) => 
