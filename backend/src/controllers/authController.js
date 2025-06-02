@@ -8,7 +8,7 @@ const loginUser = async (req, res) => {
   try {
     console.log('📥 登入請求資料：', {
       identifier: req.body.identifier,
-      password: req.body.password
+      password: '[HIDDEN]'  // 不要在日誌中顯示密碼
     });
     console.log('📥 請求標頭：', req.headers);
 
@@ -62,7 +62,10 @@ const loginUser = async (req, res) => {
     // 使用 User 模型的 comparePassword 方法比對密碼
     console.log('🔑 開始比對密碼...');
     const isMatch = await user.comparePassword(password);
-    console.log('🔑 密碼比對結果：', isMatch ? '密碼正確' : '密碼錯誤');
+    console.log('🔑 密碼比對結果：', isMatch ? '密碼正確' : '密碼錯誤', {
+      hashedPassword: user.password,
+      inputPasswordLength: password.length
+    });
 
     if (!isMatch) {
       console.log('❌ 密碼錯誤');
