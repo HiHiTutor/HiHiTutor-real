@@ -10,7 +10,14 @@ interface User {
   name: string;
   email: string;
   phone: string;
-  userType?: 'student' | 'tutor' | 'organization';
+  userType: 'student' | 'tutor' | 'organization';
+}
+
+interface FormData {
+  name: string;
+  email: string;
+  phone: string;
+  userType: 'student' | 'tutor' | 'organization';
 }
 
 export default function EditProfilePage() {
@@ -22,11 +29,11 @@ export default function EditProfilePage() {
   const [verificationCode, setVerificationCode] = useState('');
   const [verificationToken, setVerificationToken] = useState('');
   const [needsPhoneVerification, setNeedsPhoneVerification] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     phone: '',
-    userType: 'student' as const
+    userType: 'student'
   });
   const router = useRouter();
 
@@ -327,7 +334,7 @@ export default function EditProfilePage() {
                 <select
                   id="userType"
                   value={formData.userType}
-                  onChange={(e) => setFormData({ ...formData, userType: e.target.value as 'student' | 'tutor' | 'organization' })}
+                  onChange={(e) => setFormData({ ...formData, userType: e.target.value as FormData['userType'] })}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 >
                   <option value="student">學生</option>
