@@ -7,6 +7,8 @@ import REGION_OPTIONS from '@/constants/regionOptions';
 import TagCheckbox from '@/components/TagCheckbox';
 import { caseApi } from '@/services/api';
 
+type ExperienceLevel = '無教學經驗要求' | '1-3年教學經驗' | '3-5年教學經驗' | '5年以上教學經驗';
+
 export default function StudentCasePage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -18,7 +20,7 @@ export default function StudentCasePage() {
     regions: '',
     subRegions: [] as string[],
     modes: [] as string[],
-    experience: '無教學經驗要求' as '無教學經驗要求' | '1-3年教學經驗' | '3-5年教學經驗' | '5年以上教學經驗',  // 指定具體類型
+    experience: '無教學經驗要求' as ExperienceLevel,
     durationPerLesson: '60',  // 預設60分鐘
     pricePerLesson: '',
     weeklyLessons: '1'  // 預設每週1堂
@@ -71,7 +73,7 @@ export default function StudentCasePage() {
       }
       const user = JSON.parse(userStr);
       const submitData = {
-        student: user.id,  // 使用 student 而不是 studentId
+        student: user.id,
         title: formData.title,
         description: formData.description,
         subject: formData.subjects[0], // 主要科目
@@ -80,15 +82,15 @@ export default function StudentCasePage() {
         subCategory: formData.subCategory,
         regions: formData.regions ? [formData.regions] : [],
         subRegions: formData.subRegions || [],
-        mode: formData.modes[0], // 主要模式
-        modes: formData.modes,
+        mode: formData.modes[0] || 'online',  // 確保有預設值
+        modes: formData.modes.length > 0 ? formData.modes : ['online'],  // 確保有預設值
         lessonDetails: {
           duration: Number(formData.durationPerLesson),
           pricePerLesson: Number(formData.pricePerLesson),
           lessonsPerWeek: Number(formData.weeklyLessons)
         },
-        experience: formData.experience,
-        status: 'open' as 'open' | 'matched' | 'closed' | 'pending',
+        experience: formData.experience,  // 已經是正確的類型
+        status: 'open' as const,
         featured: false,
         isApproved: false
       };
