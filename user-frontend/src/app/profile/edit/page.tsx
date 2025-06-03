@@ -163,12 +163,29 @@ export default function EditProfilePage() {
       return;
     }
 
+    // 檢查用戶類型變更限制
+    if (user?.userType !== formData.userType) {
+      if (user?.userType === 'student' && formData.userType === 'organization') {
+        setError('學生用戶不能直接轉換為教育機構');
+        setSaving(false);
+        return;
+      }
+      if (formData.userType === 'tutor') {
+        setError('如要升級為導師，請使用升級申請功能');
+        setSaving(false);
+        return;
+      }
+      // 重置回原本的用戶類型
+      setFormData(prev => ({ ...prev, userType: user?.userType || 'student' }));
+      return;
+    }
+
     try {
       const updateData: any = {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        userType: formData.userType
+        userType: user?.userType // 保持原有的用戶類型
       };
 
       // 如果電話號碼有變更，添加驗證 token
@@ -182,7 +199,6 @@ export default function EditProfilePage() {
       });
 
       if (response.success) {
-        // 更新成功，返回個人資料頁
         alert('資料更新成功！');
         router.push('/profile');
       } else {
@@ -332,16 +348,27 @@ export default function EditProfilePage() {
                 <label htmlFor="userType" className="block text-sm font-medium text-gray-700">
                   用戶類型
                 </label>
-                <select
-                  id="userType"
-                  value={formData.userType}
-                  onChange={(e) => setFormData({ ...formData, userType: e.target.value as FormData['userType'] })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                >
-                  <option value="student">學生</option>
-                  <option value="tutor">家教</option>
-                  <option value="organization">機構</option>
-                </select>
+                <div className="mt-1">
+                  <input
+                    type="text"
+                    id="userType"
+                    value={
+                      user?.userType === 'student' ? '學生' :
+                      user?.userType === 'tutor' ? '導師' :
+                      user?.userType === 'organization' ? '教育機構' : '未知'
+                    }
+                    disabled
+                    className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  />
+                  {user?.userType === 'student' && (
+                    <p className="mt-2 text-sm text-gray-500">
+                      如要升級為導師，請前往
+                      <Link href="/upgrade" className="text-blue-600 hover:text-blue-800 ml-1">
+                        升級申請
+                      </Link>
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
 
