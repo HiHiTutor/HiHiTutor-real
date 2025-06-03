@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { authApi, fetchApi } from '@/services/api';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
+
 interface User {
   id: string;
   name: string;
@@ -18,6 +20,9 @@ interface FormData {
   email: string;
   phone: string;
   userType: 'student' | 'tutor' | 'organization';
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 export default function EditProfilePage() {
@@ -27,13 +32,16 @@ export default function EditProfilePage() {
   const [saving, setSaving] = useState(false);
   const [sendingCode, setSendingCode] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
-  const [verificationToken, setVerificationToken] = useState('');
+  const [verificationToken, setVerificationToken] = useState<string | null>(null);
   const [needsPhoneVerification, setNeedsPhoneVerification] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     phone: '',
-    userType: 'student'
+    userType: 'student',
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
   });
   const router = useRouter();
 
@@ -65,7 +73,10 @@ export default function EditProfilePage() {
             name: userData.name,
             email: userData.email,
             phone: userData.phone,
-            userType: userData.userType || 'student'
+            userType: userData.userType || 'student',
+            currentPassword: '',
+            newPassword: '',
+            confirmPassword: '',
           });
         } else {
           throw new Error('無效的用戶資料格式');
@@ -163,6 +174,35 @@ export default function EditProfilePage() {
       return;
     }
 
+    // 檢查密碼修改
+    if (formData.newPassword || formData.confirmPassword || formData.currentPassword) {
+      if (!formData.currentPassword) {
+        setError('請輸入目前的密碼');
+        setSaving(false);
+        return;
+      }
+      if (!formData.newPassword) {
+        setError('請輸入新密碼');
+        setSaving(false);
+        return;
+      }
+      if (!formData.confirmPassword) {
+        setError('請再次輸入新密碼');
+        setSaving(false);
+        return;
+      }
+      if (formData.newPassword !== formData.confirmPassword) {
+        setError('兩次輸入的新密碼不一致');
+        setSaving(false);
+        return;
+      }
+      if (formData.newPassword.length < 8) {
+        setError('新密碼長度必須至少8個字符');
+        setSaving(false);
+        return;
+      }
+    }
+
     // 檢查用戶類型變更限制
     if (user?.userType !== formData.userType) {
       if (user?.userType === 'student' && formData.userType === 'organization') {
@@ -175,38 +215,80 @@ export default function EditProfilePage() {
         setSaving(false);
         return;
       }
-      // 重置回原本的用戶類型
+      // 如果嘗試改變用戶類型，自動重置回原本的類型
       setFormData(prev => ({ ...prev, userType: user?.userType || 'student' }));
       return;
     }
 
     try {
+      // 如果有修改密碼，先驗證舊密碼
+      if (formData.newPassword) {
+        const verifyRes = await fetch(`${API_BASE}/api/auth/verify-password`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            currentPassword: formData.currentPassword,
+          }),
+        });
+
+        if (!verifyRes.ok) {
+          setError('目前的密碼不正確');
+          setSaving(false);
+          return;
+        }
+      }
+
+      // 更新用戶資料
       const updateData: any = {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        userType: user?.userType // 保持原有的用戶類型
       };
 
-      // 如果電話號碼有變更，添加驗證 token
-      if (formData.phone !== user?.phone && verificationToken) {
-        updateData.token = verificationToken;
+      // 如果有修改密碼，加入新密碼
+      if (formData.newPassword) {
+        updateData.password = formData.newPassword;
       }
 
-      const response = await fetchApi('/auth/profile', {
+      const res = await fetch(`${API_BASE}/api/users/me`, {
         method: 'PUT',
-        body: JSON.stringify(updateData)
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updateData),
       });
 
-      if (response.success) {
-        alert('資料更新成功！');
-        router.push('/profile');
-      } else {
-        throw new Error(response.message || '更新資料失敗');
+      if (!res.ok) {
+        throw new Error('更新失敗');
+      }
+
+      const data = await res.json();
+      if (data.success) {
+        // 更新本地儲存的用戶資料
+        localStorage.setItem('user', JSON.stringify({
+          ...user,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+        }));
+        
+        // 清空密碼欄位
+        setFormData(prev => ({
+          ...prev,
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: '',
+        }));
+        
+        setError('資料已更新成功！');
       }
     } catch (err) {
-      console.error('更新資料失敗:', err);
-      setError(err instanceof Error ? err.message : '發生錯誤');
+      console.error('更新失敗:', err);
+      setError('更新資料時發生錯誤');
     } finally {
       setSaving(false);
     }
@@ -368,6 +450,52 @@ export default function EditProfilePage() {
                       </Link>
                     </p>
                   )}
+                </div>
+              </div>
+
+              {/* 密碼修改區域 */}
+              <div className="bg-white shadow rounded-lg p-6 mb-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">修改密碼</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700">
+                      目前的密碼
+                    </label>
+                    <input
+                      type="password"
+                      id="currentPassword"
+                      value={formData.currentPassword}
+                      onChange={(e) => setFormData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">
+                      新密碼
+                    </label>
+                    <input
+                      type="password"
+                      id="newPassword"
+                      value={formData.newPassword}
+                      onChange={(e) => setFormData(prev => ({ ...prev, newPassword: e.target.value }))}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                    <p className="mt-1 text-sm text-gray-500">密碼長度必須至少8個字符</p>
+                  </div>
+
+                  <div>
+                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                      確認新密碼
+                    </label>
+                    <input
+                      type="password"
+                      id="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
