@@ -10,11 +10,8 @@ export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
     // 確保 endpoint 以 / 開頭
     const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     
-    // 確保 baseURL 不以斜線結尾
-    const cleanBaseURL = baseURL.replace(/\/$/, '');
-    
-    // 構建完整的 URL，確保包含 /api 前綴
-    const url = `${cleanBaseURL}/api${normalizedEndpoint}`;
+    // 構建完整的 URL
+    const url = `https://hi-hi-tutor-real-backend2.vercel.app/api${normalizedEndpoint}`;
     
     console.log('🚀 發送 API 請求:', url);
     console.log('📦 請求參數:', options);
