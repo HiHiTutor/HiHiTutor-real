@@ -46,6 +46,10 @@ interface Case {
   featured: boolean;
   date: string;
   createdAt?: string;
+  title?: string;
+  regions?: string[];
+  modes?: string[];
+  lessonDetails?: string;
 }
 
 export default function FindTutorCasesPage() {
@@ -338,12 +342,13 @@ function FindTutorCasesPageContent() {
               routeType="tutor"
               caseData={{
                 id: caseItem.id,
-                subject: caseItem.subjects && caseItem.subjects[0] ? { label: caseItem.subjects[0] } : undefined,
-                region: caseItem.region ? { label: caseItem.region } : undefined,
-                mode: caseItem.mode ? { label: caseItem.mode } : undefined,
-                experienceLevel: caseItem.experience ? { label: caseItem.experience } : undefined,
-                budget: typeof caseItem.budget === 'object' ? `${caseItem.budget.min || ''} - ${caseItem.budget.max || ''}` : (caseItem.budget || ''),
-                createdAt: (caseItem.createdAt || caseItem.date || ''),
+                title: caseItem.title,
+                subject: { label: caseItem.subjects?.[0] || 'tertiary-thesis' },
+                region: { label: caseItem.regions?.[0] || '' },
+                modes: caseItem.modes || [caseItem.mode],
+                experienceLevel: { label: caseItem.experience },
+                lessonDetails: caseItem.lessonDetails,
+                createdAt: caseItem.createdAt || caseItem.date,
               }}
             />
           ))}

@@ -12,6 +12,7 @@ interface User {
   email: string;
   phone: string;
   userType: 'student' | 'tutor' | 'organization';
+  role: 'user' | 'admin';
 }
 
 export default function ProfilePage() {
@@ -40,7 +41,8 @@ export default function ProfilePage() {
             name: data.name || '',
             email: data.email || '',
             phone: data.phone || '',
-            userType: data.userType || 'student'
+            userType: data.userType || 'student',
+            role: data.role || 'user'
           });
         } else {
           throw new Error('無效的用戶資料格式');

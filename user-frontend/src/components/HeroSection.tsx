@@ -16,6 +16,7 @@ interface User {
   email: string;
   phone: string;
   userType: string;
+  role: 'user' | 'admin';
 }
 
 const SubjectBar = ({ name, percent }: { name: string; percent: number }) => (

@@ -115,27 +115,31 @@ export default function CaseCard({ caseData, borderColor = 'border-gray-200', ro
     ? getSubjectName(caseData.subject.label)
     : '未命名個案';
 
+  const regionLabel = caseData.region?.label
+    ? getRegionName(caseData.region.label)
+    : '地點待定';
+
+  const modesLabel = Array.isArray(caseData.modes)
+    ? caseData.modes.map(mode => MODES[mode] || mode).join('、')
+    : '教學模式待定';
+
+  const budgetLabel = caseData.lessonDetails
+    ? `每堂${caseData.lessonDetails.duration}分鐘，每堂HKD ${caseData.lessonDetails.pricePerLesson}，每週${caseData.lessonDetails.lessonsPerWeek}堂`
+    : '待議';
+
   return (
     <div
       onClick={handleClick}
       className={`cursor-pointer border rounded-lg p-4 hover:shadow-md transition-all duration-200 bg-gray-50 hover:bg-gray-100 ${borderColor}`}
     >
       <h3 className="text-lg font-semibold text-blue-700 mb-2">
-        {caseData.title || '未命名個案'}
+        {caseData.title || subjectLabel}
       </h3>
       <p className="text-gray-700">科目：{subjectLabel}</p>
-      <p className="text-gray-700">地點：{caseData.region?.label || '地點待定'}</p>
-      <p className="text-gray-700">教學模式：{
-        Array.isArray(caseData.modes) 
-          ? caseData.modes.map(mode => MODES[mode] || mode).join('、')
-          : caseData.mode?.label || '教學模式待定'
-      }</p>
+      <p className="text-gray-700">地點：{regionLabel}</p>
+      <p className="text-gray-700">教學模式：{modesLabel}</p>
       <p className="text-gray-700">經驗要求：{caseData.experienceLevel?.label || '經驗要求待定'}</p>
-      <p className="text-gray-700">收費：{
-        caseData.lessonDetails 
-          ? `每堂${caseData.lessonDetails.duration}分鐘，每堂HKD ${caseData.lessonDetails.pricePerLesson}，每週${caseData.lessonDetails.lessonsPerWeek}堂`
-          : (caseData.budget || '待議')
-      }</p>
+      <p className="text-gray-700">收費：{budgetLabel}</p>
       <p className="text-sm text-gray-500 mt-2">
         發佈於 {caseData.createdAt ? new Date(caseData.createdAt).toLocaleDateString('zh-HK', { year: 'numeric', month: 'long', day: 'numeric' }) : '未知日期'}
       </p>
