@@ -10,7 +10,8 @@ const {
   updateUserProfile,
   requestTutorUpgrade,
   sendVerificationCode,
-  verifyCode
+  verifyCode,
+  verifyPassword
 } = require('../controllers/authController');
 const { verifyToken } = require('../middleware/authMiddleware');
 
@@ -24,5 +25,6 @@ router.get('/profile', verifyToken, getUserProfile);
 router.put('/profile', verifyToken, updateUserProfile);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
+router.post('/verify-password', verifyToken, verifyPassword);
 
 module.exports = router; 

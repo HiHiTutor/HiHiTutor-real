@@ -849,6 +849,53 @@ const requestTutorUpgrade = async (req, res) => {
   }
 };
 
+// 驗證密碼
+const verifyPassword = async (req, res) => {
+  try {
+    console.log('📥 驗證密碼請求');
+    
+    const userId = req.user.id;
+    const { currentPassword } = req.body;
+
+    if (!currentPassword) {
+      return res.status(400).json({
+        success: false,
+        message: '請提供目前的密碼'
+      });
+    }
+
+    // 獲取用戶資料
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: '找不到用戶'
+      });
+    }
+
+    // 驗證密碼
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: '密碼不正確'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: '密碼驗證成功'
+    });
+  } catch (error) {
+    console.error('❌ 驗證密碼時發生錯誤：', error);
+    res.status(500).json({
+      success: false,
+      message: '驗證密碼時發生錯誤',
+      error: error.message
+    });
+  }
+};
+
 // 在文件結尾，確保新增的函數有 export
 module.exports = {
   loginUser,
@@ -862,5 +909,6 @@ module.exports = {
   sendVerificationCode,
   verifyCode,
   updateUserProfile,
-  requestTutorUpgrade
+  requestTutorUpgrade,
+  verifyPassword
 }; 
