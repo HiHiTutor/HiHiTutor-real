@@ -81,28 +81,14 @@ function FindStudentCasesPageContent() {
   const fetchCases = async (page: number) => {
     try {
       setLoading(true);
-      setError(null);
-      
+      console.log('🔍 發送查詢請求，參數：', { page });
+
       // 構建查詢參數
-      const params = new URLSearchParams();
-      params.append('page', page.toString());
-      params.append('limit', '10');
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('page', page.toString());
+      params.set('limit', '8'); // 修改為 8
 
-      // 從 URL 獲取過濾條件
-      const category = searchParams.get('category');
-      const subCategory = searchParams.getAll('subCategory');
-      const region = searchParams.getAll('region');
-      const priceMin = searchParams.get('priceMin');
-      const priceMax = searchParams.get('priceMax');
-
-      if (category) params.append('category', category);
-      subCategory.forEach(sub => params.append('subCategory', sub));
-      region.forEach(r => params.append('region', r));
-      if (priceMin) params.append('priceMin', priceMin);
-      if (priceMax) params.append('priceMax', priceMax);
-
-      console.log('🔍 發送查詢請求，參數：', params.toString());
-
+      // 發送請求
       const response = await fetch(`/api/find-student-cases?${params.toString()}`);
       if (!response.ok) {
         throw new Error('獲取資料失敗');
@@ -111,16 +97,17 @@ function FindStudentCasesPageContent() {
       const data = await response.json();
       console.log('📦 獲取到的資料：', data);
 
-      if (data.success) {
-        if (page === 1) {
-          setCases(data.data.cases);
-        } else {
-          setCases(prev => [...prev, ...data.data.cases]);
-        }
-        setPagination(data.data.pagination);
-      } else {
+      if (!data.success) {
         throw new Error(data.message || '獲取資料失敗');
       }
+
+      // 更新狀態
+      if (page === 1) {
+        setCases(data.data.cases);
+      } else {
+        setCases(prev => [...prev, ...data.data.cases]);
+      }
+      setPagination(data.data.pagination);
     } catch (err) {
       console.error('❌ 獲取資料時發生錯誤：', err);
       setError(err instanceof Error ? err.message : '獲取資料時發生錯誤');

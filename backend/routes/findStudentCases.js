@@ -61,7 +61,19 @@ const getRecommendedCases = async (maxResults = 8) => {
         mode: '線上',
         experience: '1-3年教學經驗',
         featured: true,
-        status: 'open'
+        status: 'open',
+        budget: '300-400',
+        category: '中學',
+        subCategory: ['數學'],
+        regions: ['香港島'],
+        modes: ['online'],
+        lessonDetails: {
+          duration: 60,
+          pricePerLesson: 350,
+          lessonsPerWeek: 2
+        },
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         title: '高中英文補習',
@@ -70,7 +82,19 @@ const getRecommendedCases = async (maxResults = 8) => {
         mode: '面對面',
         experience: '3-5年教學經驗',
         featured: true,
-        status: 'open'
+        status: 'open',
+        budget: '400-500',
+        category: '高中',
+        subCategory: ['英文'],
+        regions: ['九龍'],
+        modes: ['in-person'],
+        lessonDetails: {
+          duration: 90,
+          pricePerLesson: 450,
+          lessonsPerWeek: 1
+        },
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     ];
 
