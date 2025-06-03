@@ -49,7 +49,11 @@ interface Case {
   title?: string;
   regions?: string[];
   modes?: string[];
-  lessonDetails?: string;
+  lessonDetails?: {
+    duration: number;
+    pricePerLesson: number;
+    lessonsPerWeek: number;
+  };
 }
 
 export default function FindTutorCasesPage() {
@@ -338,16 +342,17 @@ function FindTutorCasesPageContent() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {cases.map((caseItem, index) => (
             <CaseCard
-              key={`${caseItem.id}-${currentPage}-${index}`}
-              routeType="tutor"
+              key={caseItem.id}
               caseData={{
                 id: caseItem.id,
                 title: caseItem.title,
-                subject: { label: caseItem.subjects?.[0] || 'tertiary-thesis' },
-                region: { label: caseItem.regions?.[0] || '' },
+                subject: { label: caseItem.subjects?.[0] || '' },
+                region: { label: caseItem.region || caseItem.regions?.[0] || '' },
                 modes: caseItem.modes || [caseItem.mode],
                 experienceLevel: { label: caseItem.experience },
-                lessonDetails: caseItem.lessonDetails,
+                lessonDetails: typeof caseItem.lessonDetails === 'string' 
+                  ? JSON.parse(caseItem.lessonDetails)
+                  : caseItem.lessonDetails,
                 createdAt: caseItem.createdAt || caseItem.date,
               }}
             />
