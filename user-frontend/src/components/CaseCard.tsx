@@ -2,6 +2,8 @@
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { getRegionName, getSubjectName, getSubRegionName } from '@/utils/translate';
+import { CalendarIcon, BookOpenIcon, MapPinIcon, AcademicCapIcon, ComputerDesktopIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
+import { formatDate } from '@/utils/date';
 
 const MODES: Record<string, string> = {
   'in-person': '面授',
@@ -95,54 +97,83 @@ interface CaseData {
 
 interface CaseCardProps {
   caseData?: CaseData
-  borderColor?: string
   routeType?: 'student' | 'tutor'
 }
 
-export default function CaseCard({ caseData, borderColor = 'border-gray-200', routeType = 'student' }: CaseCardProps) {
-  const router = useRouter()
+export default function CaseCard({ caseData, routeType = 'tutor' }: CaseCardProps) {
+  const router = useRouter();
 
-  if (!caseData) return null // 防止 undefined 時 crash
+  if (!caseData) return null;
 
-  console.log('CaseCard received:', caseData);
-
-  const handleClick = () => {
-    const basePath = routeType === 'student' ? '/find-student-cases' : '/find-tutor-cases';
-    router.push(`${basePath}/${caseData.id}`);
-  }
-
-  const subjectLabel = caseData.subject?.label
-    ? getSubjectName(caseData.subject.label)
-    : '未命名個案';
-
-  const regionLabel = caseData.region?.label
-    ? getRegionName(caseData.region.label)
-    : '地點待定';
-
-  const modesLabel = Array.isArray(caseData.modes)
-    ? caseData.modes.map(mode => MODES[mode] || mode).join('、')
-    : '教學模式待定';
-
-  const budgetLabel = caseData.lessonDetails
-    ? `每堂${caseData.lessonDetails.duration}分鐘，每堂HKD ${caseData.lessonDetails.pricePerLesson}，每週${caseData.lessonDetails.lessonsPerWeek}堂`
-    : '待議';
+  // 根據路由類型決定顏色
+  const colorScheme = routeType === 'student' ? {
+    border: 'border-yellow-200',
+    hover: 'hover:border-yellow-300',
+    text: 'text-yellow-600',
+    bg: 'bg-yellow-50',
+    button: 'bg-yellow-500 hover:bg-yellow-600'
+  } : {
+    border: 'border-blue-200',
+    hover: 'hover:border-blue-300',
+    text: 'text-blue-600',
+    bg: 'bg-blue-50',
+    button: 'bg-blue-500 hover:bg-blue-600'
+  };
 
   return (
-    <div
-      onClick={handleClick}
-      className={`cursor-pointer border rounded-lg p-4 hover:shadow-md transition-all duration-200 bg-gray-50 hover:bg-gray-100 ${borderColor}`}
+    <div 
+      className={`rounded-xl border ${colorScheme.border} ${colorScheme.hover} p-4 transition-all cursor-pointer ${colorScheme.bg}`}
+      onClick={() => router.push(`/${routeType}-cases/${caseData.id}`)}
     >
-      <h3 className="text-lg font-semibold text-blue-700 mb-2">
-        {caseData.title || subjectLabel}
-      </h3>
-      <p className="text-gray-700">科目：{subjectLabel}</p>
-      <p className="text-gray-700">地點：{regionLabel}</p>
-      <p className="text-gray-700">教學模式：{modesLabel}</p>
-      <p className="text-gray-700">經驗要求：{caseData.experienceLevel?.label || '經驗要求待定'}</p>
-      <p className="text-gray-700">收費：{budgetLabel}</p>
-      <p className="text-sm text-gray-500 mt-2">
-        發佈於 {caseData.createdAt ? new Date(caseData.createdAt).toLocaleDateString('zh-HK', { year: 'numeric', month: 'long', day: 'numeric' }) : '未知日期'}
-      </p>
+      <div className="space-y-4">
+        {/* 標題 */}
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold line-clamp-2">
+            {caseData.title || '未命名個案'}
+          </h3>
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <CalendarIcon className="h-4 w-4" />
+            <span>{formatDate(caseData.createdAt)}</span>
+          </div>
+        </div>
+
+        {/* 詳細資訊 */}
+        <div className="space-y-2 text-sm">
+          <div className="flex items-start gap-2">
+            <BookOpenIcon className={`h-5 w-5 ${colorScheme.text}`} />
+            <span>{caseData.subject?.label || '未指定科目'}</span>
+          </div>
+          <div className="flex items-start gap-2">
+            <MapPinIcon className={`h-5 w-5 ${colorScheme.text}`} />
+            <span>{caseData.region?.label || '未指定地區'}</span>
+          </div>
+          <div className="flex items-start gap-2">
+            <AcademicCapIcon className={`h-5 w-5 ${colorScheme.text}`} />
+            <span>{caseData.experienceLevel?.label || '未指定經驗要求'}</span>
+          </div>
+          {caseData.modes && (
+            <div className="flex items-start gap-2">
+              <ComputerDesktopIcon className={`h-5 w-5 ${colorScheme.text}`} />
+              <span>{caseData.modes.join(', ')}</span>
+            </div>
+          )}
+          {caseData.lessonDetails && (
+            <div className="flex items-start gap-2">
+              <CurrencyDollarIcon className={`h-5 w-5 ${colorScheme.text}`} />
+              <span>每堂 ${caseData.lessonDetails.pricePerLesson}</span>
+            </div>
+          )}
+        </div>
+
+        {/* 查看詳情按鈕 */}
+        <div className="pt-2">
+          <button
+            className={`w-full ${colorScheme.button} text-white rounded-lg py-2 text-sm transition-colors`}
+          >
+            查看詳情
+          </button>
+        </div>
+      </div>
     </div>
-  )
+  );
 } 

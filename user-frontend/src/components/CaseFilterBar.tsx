@@ -39,105 +39,34 @@ const TARGET_OPTIONS = [
   { value: 'find-student', label: '招學生' }
 ];
 
-const TEACHING_MODE_OPTIONS = [
-  { value: 'online', label: '網課' },
-  { value: 'in-person', label: '面授' }
+export const CATEGORY_OPTIONS = [
+  { value: 'primary', label: '小學' },
+  { value: 'secondary', label: '中學' },
+  { value: 'university', label: '大學' },
+  { value: 'language', label: '語言' },
+  { value: 'music', label: '音樂' },
+  { value: 'art', label: '美術' },
+  { value: 'sports', label: '運動' },
+  { value: 'other', label: '其他' }
 ];
 
-export const CATEGORY_OPTIONS: CategoryOption[] = [
-  { 
-    value: 'early-childhood',
-    label: '幼兒教育',
-    subjects: [
-      { value: 'early-childhood-chinese', label: '幼兒中文' },
-      { value: 'early-childhood-english', label: '幼兒英文' },
-      { value: 'early-childhood-math', label: '幼兒數學' },
-      { value: 'early-childhood-phonics', label: '拼音／注音' },
-      { value: 'early-childhood-logic', label: '邏輯思維訓練' },
-      { value: 'early-childhood-interview', label: '面試技巧訓練' },
-      { value: 'early-childhood-homework', label: '幼稚園功課輔導' }
-    ]
-  },
-  { 
-    value: 'primary-secondary', 
-    label: '中小學教育',
-    subCategories: [
-      {
-        value: 'primary',
-        label: '小學教育',
-        subjects: [
-          { value: 'primary-chinese', label: '中文' },
-          { value: 'primary-english', label: '英文' },
-          { value: 'primary-math', label: '數學' },
-          { value: 'primary-general', label: '常識' },
-          { value: 'primary-mandarin', label: '普通話' },
-          { value: 'primary-stem', label: '常識／STEM' },
-          { value: 'primary-all', label: '其他全科補習' }
-        ]
-      },
-      {
-        value: 'secondary',
-        label: '中學教育',
-        subjects: [
-          { value: 'secondary-chinese', label: '中文' },
-          { value: 'secondary-english', label: '英文' },
-          { value: 'secondary-math', label: '數學' },
-          { value: 'secondary-ls', label: '通識教育' },
-          { value: 'secondary-physics', label: '物理' },
-          { value: 'secondary-chemistry', label: '化學' },
-          { value: 'secondary-biology', label: '生物' },
-          { value: 'secondary-economics', label: '經濟' },
-          { value: 'secondary-geography', label: '地理' },
-          { value: 'secondary-history', label: '歷史' },
-          { value: 'secondary-chinese-history', label: '中國歷史' },
-          { value: 'secondary-bafs', label: 'BAFS' },
-          { value: 'secondary-ict', label: 'ICT' },
-          { value: 'secondary-integrated-science', label: '綜合科學' },
-          { value: 'secondary-dse', label: '其他 DSE 專科補習' },
-          { value: 'secondary-all', label: '全科補習' }
-        ]
-      }
-    ]
-  },
-  { 
-    value: 'interest', 
-    label: '興趣班',
-    subjects: [
-      { value: 'art', label: '繪畫' },
-      { value: 'music', label: '音樂（鋼琴、結他、小提琴等）' },
-      { value: 'dance', label: '跳舞／舞蹈訓練' },
-      { value: 'drama', label: '戲劇／演講' },
-      { value: 'programming', label: '編程／STEM' },
-      { value: 'foreign-language', label: '外語（韓文／日文／法文／德文等）' },
-      { value: 'magic-chess', label: '魔術／棋藝' },
-      { value: 'photography', label: '攝影／影片剪接' }
-    ]
-  },
-  { 
-    value: 'tertiary', 
-    label: '大專補習課程',
-    subjects: [
-      { value: 'uni-liberal', label: '大學通識' },
-      { value: 'uni-math', label: '大學統計與數學' },
-      { value: 'uni-economics', label: '經濟學' },
-      { value: 'uni-it', label: '資訊科技' },
-      { value: 'uni-business', label: '商科（會計、管理、市場學等）' },
-      { value: 'uni-engineering', label: '工程科目' },
-      { value: 'uni-thesis', label: '論文指導／報告協助' }
-    ]
-  },
-  { 
-    value: 'adult', 
-    label: '成人教育',
-    subjects: [
-      { value: 'business-english', label: '商務英文' },
-      { value: 'conversation', label: '生活英語會話' },
-      { value: 'chinese-language', label: '廣東話／普通話' },
-      { value: 'second-language', label: '興趣／第二語言學習' },
-      { value: 'computer-skills', label: '電腦技能（Excel／Photoshop 等）' },
-      { value: 'exam-prep', label: '考試準備（IELTS／TOEFL／JLPT）' }
-    ]
-  }
+export const REGION_OPTIONS = [
+  { value: 'hong-kong', label: '香港島' },
+  { value: 'kowloon', label: '九龍' },
+  { value: 'new-territories', label: '新界' }
+];
+
+export const TEACHING_MODE_OPTIONS = [
+  { value: 'online', label: '線上' },
+  { value: 'in-person', label: '面授' },
+  { value: 'both', label: '兩者皆可' }
+];
+
+export const EXPERIENCE_OPTIONS = [
+  { value: 'none', label: '無經驗要求' },
+  { value: '1-3', label: '1-3年' },
+  { value: '3-5', label: '3-5年' },
+  { value: '5+', label: '5年以上' }
 ];
 
 interface RegionOption {
@@ -146,7 +75,7 @@ interface RegionOption {
   regions: { value: string; label: string; }[];
 }
 
-const REGION_OPTIONS: RegionOption[] = [
+const REGION_OPTIONS_FULL: RegionOption[] = [
   {
     value: 'all-hong-kong',
     label: '全港',
@@ -244,7 +173,18 @@ const REGION_OPTIONS: RegionOption[] = [
   }
 ];
 
-export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: { onFilter: (filters: any) => void, onSearch: (filters: any) => void, fetchUrl: string }) {
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface CaseFilterBarProps {
+  onFilter?: (filters: any) => void;
+  onSearch?: (filters: any) => void;
+  fetchUrl: string;
+}
+
+export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [filters, setFilters] = useState<FilterState>({
@@ -257,6 +197,24 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: { onFilt
     subRegions: [],
     priceRange: [0, 10000]
   });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedRegion, setSelectedRegion] = useState('');
+  const [selectedMode, setSelectedMode] = useState('');
+  const [selectedExperience, setSelectedExperience] = useState('');
+
+  const isStudentCase = fetchUrl.includes('student');
+  const colorScheme = isStudentCase ? {
+    text: 'text-yellow-600',
+    border: 'border-yellow-200',
+    bg: 'bg-yellow-50',
+    button: 'bg-yellow-500 hover:bg-yellow-600'
+  } : {
+    text: 'text-blue-600',
+    border: 'border-blue-200',
+    bg: 'bg-blue-50',
+    button: 'bg-blue-500 hover:bg-blue-600'
+  };
 
   // 從 URL 參數初始化篩選條件
   useEffect(() => {
@@ -355,69 +313,37 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: { onFilt
   };
 
   const handleSearch = () => {
-    // 根據搜尋目標決定跳轉路徑
-    const basePath = filters.target === 'find-tutor' ? '/find-student-cases' : '/find-tutor-cases';
-    const queryParams = new URLSearchParams();
+    onSearch?.({
+      search: searchQuery,
+      category: selectedCategory,
+      region: selectedRegion,
+      mode: selectedMode,
+      experience: selectedExperience
+    });
+  };
 
-    // 添加所有搜尋參數
-    if (filters.category) {
-      queryParams.append('category', filters.category);
-    }
+  const handleApplyFilters = () => {
+    onFilter?.({
+      category: selectedCategory,
+      region: selectedRegion,
+      mode: selectedMode,
+      experience: selectedExperience
+    });
+  };
 
-    // 子分類支援多選
-    if (filters.subCategory) {
-      if (Array.isArray(filters.subCategory)) {
-        filters.subCategory.forEach(subCat => {
-          queryParams.append('subCategory[]', subCat);
-        });
-      } else {
-        queryParams.append('subCategory', filters.subCategory);
-      }
-    }
-
-    // 科目支援多選
-    if (filters.subjects.length > 0) {
-      filters.subjects.forEach(subject => {
-        queryParams.append('subjects[]', subject);
-      });
-    }
-
-    // 授課模式支援多選
-    if (filters.mode.length > 0) {
-      filters.mode.forEach(mode => {
-        queryParams.append('mode[]', mode);
-      });
-    }
-
-    // 地區支援多選
-    if (filters.regions.length > 0) {
-      filters.regions.forEach(region => {
-        queryParams.append('region[]', region);
-      });
-    }
-
-    // 子地區支援多選
-    if (filters.subRegions.length > 0) {
-      filters.subRegions.forEach(subRegion => {
-        queryParams.append('subRegion[]', subRegion);
-      });
-    }
-
-    // 價格範圍
-    if (filters.priceRange[0] !== 0 || filters.priceRange[1] !== 10000) {
-      queryParams.append('priceMin', filters.priceRange[0].toString());
-      queryParams.append('priceMax', filters.priceRange[1].toString());
-    }
-
-    const url = `${basePath}?${queryParams.toString()}`;
-    console.log("🚀 正在搜尋目標：", filters.target === 'find-tutor' ? '尋導師' : '招學生', "API路徑：", url);
-    router.push(url);
+  const handleReset = () => {
+    setSearchQuery('');
+    setSelectedCategory('');
+    setSelectedRegion('');
+    setSelectedMode('');
+    setSelectedExperience('');
+    onFilter?.({});
   };
 
   const getSelectedSubRegions = () => {
     const allSubRegions: { value: string; label: string; parent: string }[] = [];
     filters.regions.forEach(region => {
-      const regionGroup = REGION_OPTIONS.find(r => r.value === region);
+      const regionGroup = REGION_OPTIONS_FULL.find(r => r.value === region);
       if (regionGroup) {
         regionGroup.regions.forEach(subRegion => {
           allSubRegions.push({
@@ -460,575 +386,117 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: { onFilt
   };
 
   return (
-    <div className="max-w-7xl mx-auto">
-      {/* 已選條件條 */}
-      {(filters.category || filters.subjects.length > 0 || filters.mode.length > 0 || filters.regions.length > 0 || filters.subRegions.length > 0 || filters.priceRange[0] !== 0 || filters.priceRange[1] !== 10000) && (
-        <div className="flex flex-wrap gap-2 items-center bg-gray-50/90 border border-gray-200 rounded-xl px-4 py-2 mb-4">
-          <span className="text-sm text-gray-600">已選條件：</span>
-          {filters.category && (
-            <span className="bg-yellow-100 text-sm rounded-full px-3 py-1 flex items-center gap-1">
-              {CATEGORY_OPTIONS.find(c => c.value === filters.category)?.label}
-              <button
-                onClick={() => handleFilterChange('category', '')}
-                className="text-red-500 hover:text-red-700 transition cursor-pointer"
-              >
-                <XMarkIcon className="h-4 w-4" />
-              </button>
-            </span>
-          )}
-          {filters.subjects.map(subject => (
-            <span key={subject} className="bg-yellow-100 text-sm rounded-full px-3 py-1 flex items-center gap-1">
-              {getCategorySubjects().find(s => s.value === subject)?.label}
-              <button
-                onClick={() => handleSubjectChange(subject)}
-                className="text-red-500 hover:text-red-700 transition cursor-pointer"
-              >
-                <XMarkIcon className="h-4 w-4" />
-              </button>
-            </span>
-          ))}
-          {filters.mode.map(mode => (
-            <span key={mode} className="bg-yellow-100 text-sm rounded-full px-3 py-1 flex items-center gap-1">
-              {TEACHING_MODE_OPTIONS.find(m => m.value === mode)?.label}
-              <button
-                onClick={() => handleModeChange(mode)}
-                className="text-red-500 hover:text-red-700 transition cursor-pointer"
-              >
-                <XMarkIcon className="h-4 w-4" />
-              </button>
-            </span>
-          ))}
-          {filters.regions.map(region => (
-            <span key={region} className="bg-yellow-100 text-sm rounded-full px-3 py-1 flex items-center gap-1">
-              {REGION_OPTIONS.find(r => r.value === region)?.label}
-              <button
-                onClick={() => {
-                  handleFilterChange('regions', filters.regions.filter(r => r !== region));
-                  // 清除相關的子地區選擇
-                  const regionData = REGION_OPTIONS.find(r => r.value === region);
-                  if (regionData) {
-                    handleFilterChange('subRegions', filters.subRegions.filter(sr => 
-                      !regionData.regions.some(r => r.value === sr)
-                    ));
-                  }
-                }}
-                className="text-red-500 hover:text-red-700 transition cursor-pointer"
-              >
-                <XMarkIcon className="h-4 w-4" />
-              </button>
-            </span>
-          ))}
-          {filters.subRegions.map(subRegion => {
-            const regionData = REGION_OPTIONS.find(r => 
-              r.regions.some(sr => sr.value === subRegion)
-            );
-            const subRegionData = regionData?.regions.find(sr => sr.value === subRegion);
-            return (
-              <span key={subRegion} className="bg-yellow-100 text-sm rounded-full px-3 py-1 flex items-center gap-1">
-                {subRegionData?.label}
-                <button
-                  onClick={() => {
-                    handleFilterChange('subRegions', filters.subRegions.filter(sr => sr !== subRegion));
-                  }}
-                  className="text-red-500 hover:text-red-700 transition cursor-pointer"
-                >
-                  <XMarkIcon className="h-4 w-4" />
-                </button>
-              </span>
-            );
-          })}
-          {(filters.priceRange[0] !== 0 || filters.priceRange[1] !== 10000) && (
-            <span className="bg-yellow-100 text-sm rounded-full px-3 py-1 flex items-center gap-1">
-              {`HK$${filters.priceRange[0] || '0'} - ${filters.priceRange[1] || '∞'}`}
-              <button
-                onClick={() => handleFilterChange('priceRange', [0, 10000])}
-                className="text-red-500 hover:text-red-700 transition cursor-pointer"
-              >
-                <XMarkIcon className="h-4 w-4" />
-              </button>
-            </span>
-          )}
-          <button
-            onClick={clearFilter}
-            className="ml-auto text-sm text-red-500 hover:text-red-700 transition cursor-pointer"
-          >
-            清除所有條件
-          </button>
-        </div>
-      )}
-
-      {/* 搜尋欄 */}
-      <div className="bg-white rounded-2xl shadow border border-yellow-100 py-6 px-6">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-          {/* 搜尋目標 */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">搜尋目標</label>
-            <Listbox 
-              value={filters.target} 
-              onChange={(value) => {
-                handleFilterChange('target', value);
-                // 自動收起選單
-                const button = document.activeElement as HTMLElement;
-                if (button) button.blur();
-              }}
-            >
-              <div className="relative">
-                <Listbox.Button className="relative w-full h-10 cursor-default rounded-xl bg-white py-2 pl-3 pr-10 text-left border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-300">
-                  <span className="block truncate">
-                    {TARGET_OPTIONS.find(opt => opt.value === filters.target)?.label}
-                  </span>
-                  <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                    <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                  </span>
-                </Listbox.Button>
-                <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                  {TARGET_OPTIONS.map((option) => (
-                    <Listbox.Option
-                      key={option.value}
-                      value={option.value}
-                      className={({ active }) =>
-                        `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                          active ? 'bg-gray-50 text-gray-900' : 'text-gray-900'
-                        }`
-                      }
-                    >
-                      {({ selected }) => (
-                        <>
-                          <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
-                            {option.label}
-                          </span>
-                          {selected ? (
-                            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-yellow-600">
-                              <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                            </span>
-                          ) : null}
-                        </>
-                      )}
-                    </Listbox.Option>
-                  ))}
-                </Listbox.Options>
-              </div>
-            </Listbox>
-          </div>
-
-          {/* 課程分類 */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">課程分類</label>
-            <div className="space-y-2">
-              <Listbox 
-                value={filters.category} 
-                onChange={(value) => {
-                  handleCategoryChange(value);
-                  // 自動收起選單
-                  const button = document.activeElement as HTMLElement;
-                  if (button) button.blur();
-                }}
-              >
-                <div className="relative">
-                  <Listbox.Button className="relative w-full h-10 cursor-default rounded-xl bg-white py-2 pl-3 pr-10 text-left border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-300">
-                    <span className="block truncate">
-                      {filters.category ? CATEGORY_OPTIONS.find(opt => opt.value === filters.category)?.label : '選擇課程分類'}
-                    </span>
-                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                      <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                    </span>
-                  </Listbox.Button>
-                  <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                    {CATEGORY_OPTIONS.map((category) => (
-                      <Listbox.Option
-                        key={category.value}
-                        value={category.value}
-                        className={({ active }) =>
-                          `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                            active ? 'bg-gray-50 text-gray-900' : 'text-gray-900'
-                          }`
-                        }
-                      >
-                        {({ selected }) => (
-                          <>
-                            <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
-                              {category.label}
-                            </span>
-                            {selected ? (
-                              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-yellow-600">
-                                <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                              </span>
-                            ) : null}
-                          </>
-                        )}
-                      </Listbox.Option>
-                    ))}
-                  </Listbox.Options>
-                </div>
-              </Listbox>
-
-              {filters.category === 'primary-secondary' && (
-                <Listbox value={filters.subCategory} onChange={handleSubCategoryChange}>
-                  <div className="relative">
-                    <Listbox.Button className="relative w-full h-10 cursor-default rounded-xl bg-white py-2 pl-3 pr-10 text-left border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-300">
-                      <span className="block truncate">
-                        {filters.subCategory 
-                          ? CATEGORY_OPTIONS.find(c => c.value === 'primary-secondary')?.subCategories?.find(sc => sc.value === filters.subCategory)?.label 
-                          : '選擇教育階段'}
-                      </span>
-                      <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                        <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                      </span>
-                    </Listbox.Button>
-                    <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                      {CATEGORY_OPTIONS.find(c => c.value === 'primary-secondary')?.subCategories?.map((subCategory) => (
-                        <Listbox.Option
-                          key={subCategory.value}
-                          value={subCategory.value}
-                          className={({ active }) =>
-                            `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                              active ? 'bg-gray-50 text-gray-900' : 'text-gray-900'
-                            }`
-                          }
-                        >
-                          {({ selected }) => (
-                            <>
-                              <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
-                                {subCategory.label}
-                              </span>
-                              {selected ? (
-                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-yellow-600">
-                                  <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                                </span>
-                              ) : null}
-                            </>
-                          )}
-                        </Listbox.Option>
-                      ))}
-                    </Listbox.Options>
-                  </div>
-                </Listbox>
-              )}
-
-              {(filters.category === 'primary-secondary' ? filters.subCategory : filters.category) && (
-                <div className="relative">
-                  <Listbox value={filters.subjects} onChange={(value) => handleFilterChange('subjects', value)} multiple>
-                    <div className="relative">
-                      <Listbox.Button className="relative w-full h-10 cursor-default rounded-xl bg-white py-2 pl-3 pr-10 text-left border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-300">
-                        <span className="block truncate">
-                          {filters.subjects.length > 0
-                            ? `${filters.subjects.length} 個科目已選`
-                            : '選擇科目'}
-                        </span>
-                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                          <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                        </span>
-                      </Listbox.Button>
-                      <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-gray-50 p-2 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                        {getCategorySubjects().map((subject) => (
-                          <Listbox.Option
-                            key={subject.value}
-                            value={subject.value}
-                            className={({ active }) =>
-                              `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                                active ? 'bg-white text-gray-900' : 'text-gray-900'
-                              }`
-                            }
-                          >
-                            {({ selected }) => (
-                              <>
-                                <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
-                                  {subject.label}
-                                </span>
-                                {selected ? (
-                                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-yellow-600">
-                                    <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                                  </span>
-                                ) : null}
-                              </>
-                            )}
-                          </Listbox.Option>
-                        ))}
-                      </Listbox.Options>
-                    </div>
-                  </Listbox>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* 授課模式 */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">授課模式</label>
-            <Listbox 
-              value={filters.mode} 
-              onChange={(value) => {
-                handleFilterChange('mode', value);
-                // 自動收起選單
-                const button = document.activeElement as HTMLElement;
-                if (button) button.blur();
-              }}
-              multiple
-            >
-              <div className="relative">
-                <Listbox.Button className="relative w-full h-10 cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-300 shadow-sm">
-                  <span className="block truncate">
-                    {filters.mode.length > 0
-                      ? `${filters.mode.length} 個模式已選`
-                      : '選擇授課模式'}
-                  </span>
-                  <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                    <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                  </span>
-                </Listbox.Button>
-                <Transition
-                  as={Fragment}
-                  leave="transition ease-in duration-100"
-                  leaveFrom="opacity-100"
-                  leaveTo="opacity-0"
-                >
-                  <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                    {TEACHING_MODE_OPTIONS.map((mode) => (
-                      <Listbox.Option
-                        key={mode.value}
-                        value={mode.value}
-                        className={({ active }) =>
-                          `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                            active ? 'bg-yellow-100 text-yellow-900' : 'text-gray-900'
-                          }`
-                        }
-                      >
-                        {({ selected }) => (
-                          <>
-                            <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
-                              {mode.label}
-                            </span>
-                            {selected && (
-                              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-yellow-600">
-                                <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                              </span>
-                            )}
-                          </>
-                        )}
-                      </Listbox.Option>
-                    ))}
-                  </Listbox.Options>
-                </Transition>
-              </div>
-            </Listbox>
-          </div>
-
-          {/* 地區選擇 - 只在選擇面授時顯示 */}
-          {filters.mode.includes('in-person') && (
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">地區（主區）</label>
-              <Listbox 
-                value={filters.regions} 
-                onChange={(value) => {
-                  // 處理全港選項的互斥邏輯
-                  if (value.includes('all-hong-kong')) {
-                    handleFilterChange('regions', ['all-hong-kong']);
-                    handleFilterChange('subRegions', []); // 清除所有子地區選擇
-                  } else {
-                    // 如果選擇了其他選項，移除全港選項
-                    const newRegions = value.filter(r => r !== 'all-hong-kong');
-                    handleFilterChange('regions', newRegions);
-                  }
-                  // 自動收起選單
-                  const button = document.activeElement as HTMLElement;
-                  if (button) button.blur();
-                }}
-                multiple
-              >
-                <div className="relative">
-                  <Listbox.Button className="relative w-full h-10 cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-300 shadow-sm">
-                    <span className="block truncate">
-                      {filters.regions.length > 0
-                        ? filters.regions.includes('all-hong-kong')
-                          ? '全港'
-                          : `${filters.regions.length} 個地區已選`
-                        : '選擇地區'}
-                    </span>
-                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                      <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                    </span>
-                  </Listbox.Button>
-                  <Transition
-                    as={Fragment}
-                    leave="transition ease-in duration-100"
-                    leaveFrom="opacity-100"
-                    leaveTo="opacity-0"
-                  >
-                    <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                      {REGION_OPTIONS.map((region) => (
-                        <Listbox.Option
-                          key={region.value}
-                          value={region.value}
-                          className={({ active }) =>
-                            `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                              active ? 'bg-gray-100 text-gray-900' : 'text-gray-900'
-                            }`
-                          }
-                        >
-                          {({ selected }) => (
-                            <>
-                              <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
-                                {region.label}
-                              </span>
-                              {selected && (
-                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-yellow-600">
-                                  <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                                </span>
-                              )}
-                            </>
-                          )}
-                        </Listbox.Option>
-                      ))}
-                    </Listbox.Options>
-                  </Transition>
-                </div>
-              </Listbox>
-
-              {/* 子地區選擇 - 根據選擇的主區顯示對應的子地區下拉選單 */}
-              {filters.regions.length > 0 && !filters.regions.includes('all-hong-kong') && (
-                <div className="mt-2 space-y-4">
-                  {filters.regions.map(region => {
-                    const regionData = REGION_OPTIONS.find(r => r.value === region);
-                    if (!regionData || !regionData.regions.length) return null;
-
-                    const currentSubRegions = filters.subRegions.filter(sr => 
-                      regionData.regions.some(r => r.value === sr)
-                    );
-
-                    return (
-                      <div key={region} className="space-y-2">
-                        <label className="block text-sm font-medium text-gray-700">
-                          {regionData.label} 分區
-                        </label>
-                        <Listbox
-                          value={currentSubRegions}
-                          onChange={(value) => {
-                            // 保留其他主區的子地區選擇
-                            const otherSubRegions = filters.subRegions.filter(sr => 
-                              !regionData.regions.some(r => r.value === sr)
-                            );
-                            handleFilterChange('subRegions', [...otherSubRegions, ...value]);
-                            // 自動收起選單
-                            const button = document.activeElement as HTMLElement;
-                            if (button) button.blur();
-                          }}
-                          multiple
-                        >
-                          <div className="relative">
-                            <Listbox.Button className="relative w-full h-10 cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-300 shadow-sm">
-                              <span className="block truncate">
-                                {currentSubRegions.length > 0
-                                  ? `${currentSubRegions.length} 個分區已選`
-                                  : '選擇分區'}
-                              </span>
-                              <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                              </span>
-                            </Listbox.Button>
-                            <Transition
-                              as={Fragment}
-                              leave="transition ease-in duration-100"
-                              leaveFrom="opacity-100"
-                              leaveTo="opacity-0"
-                            >
-                              <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                                {/* 全選選項 */}
-                                <Listbox.Option
-                                  value="all"
-                                  className={({ active }) =>
-                                    `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                                      active ? 'bg-gray-100 text-gray-900' : 'text-gray-900'
-                                    }`
-                                  }
-                                >
-                                  {({ selected }) => (
-                                    <>
-                                      <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
-                                        全選
-                                      </span>
-                                      {selected && (
-                                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-yellow-600">
-                                          <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                                        </span>
-                                      )}
-                                    </>
-                                  )}
-                                </Listbox.Option>
-                                {/* 分隔線 */}
-                                <div className="border-t border-gray-200 my-1" />
-                                {/* 子地區選項 */}
-                                {regionData.regions.map((subRegion) => (
-                                  <Listbox.Option
-                                    key={subRegion.value}
-                                    value={subRegion.value}
-                                    className={({ active }) =>
-                                      `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                                        active ? 'bg-gray-100 text-gray-900' : 'text-gray-900'
-                                      }`
-                                    }
-                                  >
-                                    {({ selected }) => (
-                                      <>
-                                        <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
-                                          {subRegion.label}
-                                        </span>
-                                        {selected && (
-                                          <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-yellow-600">
-                                            <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                                          </span>
-                                        )}
-                                      </>
-                                    )}
-                                  </Listbox.Option>
-                                ))}
-                              </Listbox.Options>
-                            </Transition>
-                          </div>
-                        </Listbox>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* 學費範圍 */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">每堂學費 (HK$)</label>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">價格範圍：</span>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  min="0"
-                  value={filters.priceRange[0] || ''}
-                  onChange={(e) => handlePriceChange('min', e.target.value)}
-                  placeholder="最低"
-                  className="w-24 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
-                <span>-</span>
-                <input
-                  type="number"
-                  min="0"
-                  value={filters.priceRange[1] || ''}
-                  onChange={(e) => handlePriceChange('max', e.target.value)}
-                  placeholder="最高"
-                  className="w-24 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                />
-                <span className="text-gray-600">每堂學費</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 搜尋按鈕 */}
-        <div className="flex justify-end mt-4">
+    <div className={`rounded-xl border ${colorScheme.border} ${colorScheme.bg} p-6`}>
+      <div className="space-y-4">
+        {/* 搜索欄 */}
+        <div className="flex gap-4">
+          <input
+            type="text"
+            placeholder="搜索個案..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+          />
           <button
             onClick={handleSearch}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-xl shadow transition"
+            className={`${colorScheme.button} text-white rounded-lg px-6 py-2`}
           >
-            搜尋
+            搜索
+          </button>
+        </div>
+
+        {/* 過濾器 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* 類別選擇 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              類別
+            </label>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            >
+              <option value="">全部類別</option>
+              {CATEGORY_OPTIONS.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 地區選擇 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              地區
+            </label>
+            <select
+              value={selectedRegion}
+              onChange={(e) => setSelectedRegion(e.target.value)}
+              className="w-full rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            >
+              <option value="">全部地區</option>
+              {REGION_OPTIONS_FULL.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 教學模式選擇 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              教學模式
+            </label>
+            <select
+              value={selectedMode}
+              onChange={(e) => setSelectedMode(e.target.value)}
+              className="w-full rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            >
+              <option value="">全部模式</option>
+              {TEACHING_MODE_OPTIONS.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 經驗要求選擇 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              經驗要求
+            </label>
+            <select
+              value={selectedExperience}
+              onChange={(e) => setSelectedExperience(e.target.value)}
+              className="w-full rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            >
+              <option value="">全部經驗</option>
+              {EXPERIENCE_OPTIONS.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* 重置和應用按鈕 */}
+        <div className="flex justify-end gap-4">
+          <button
+            onClick={handleReset}
+            className="px-6 py-2 border border-gray-200 rounded-lg hover:bg-gray-50"
+          >
+            重置
+          </button>
+          <button
+            onClick={handleApplyFilters}
+            className={`${colorScheme.button} text-white rounded-lg px-6 py-2`}
+          >
+            應用過濾
           </button>
         </div>
       </div>
