@@ -175,84 +175,95 @@ router.get('/test', async (req, res) => {
   }
 });
 
+// Helper function to transform case data
+const transformCaseData = (caseData) => {
+  // Parse budget string into min/max object
+  let budgetObj = { min: 0, max: 0 };
+  if (caseData.budget) {
+    const budgetParts = caseData.budget.split('-').map(num => parseInt(num.trim()));
+    budgetObj = {
+      min: budgetParts[0] || 0,
+      max: budgetParts[1] || budgetParts[0] || 0
+    };
+  }
+
+  // Transform the data to match frontend expectations
+  return {
+    id: caseData.id || caseData._id.toString(),
+    title: caseData.title || '',
+    category: caseData.category || '',
+    subCategory: caseData.subCategory || '',
+    subjects: caseData.subjects || [caseData.subject].filter(Boolean),
+    region: Array.isArray(caseData.region) ? caseData.region[0] : (caseData.region || ''),
+    subRegion: Array.isArray(caseData.subRegions) ? caseData.subRegions[0] : '',
+    mode: caseData.mode || '',
+    modes: caseData.modes || [caseData.mode].filter(Boolean),
+    budget: budgetObj,
+    experience: caseData.experience || '',
+    featured: caseData.featured || false,
+    date: caseData.createdAt,
+    createdAt: caseData.createdAt
+  };
+};
+
 // GET /api/find-student-cases
 router.get('/', async (req, res) => {
   console.log('📥 Received request to /api/find-student-cases');
   
   try {
+    const { featured, limit, search, category, subCategory, region } = req.query;
+    
     // 構建查詢條件
     const query = {};
     
     // 如果有搜索條件，添加到查詢中
-    if (req.query.search) {
+    if (search) {
       query.$or = [
-        { title: { $regex: req.query.search, $options: 'i' } },
-        { description: { $regex: req.query.search, $options: 'i' } }
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
       ];
     }
 
     // 如果有類別篩選
-    if (req.query.category) {
-      query.category = req.query.category;
+    if (category) {
+      query.category = category;
     }
 
     // 如果有子類別篩選
-    if (req.query.subCategory) {
-      query.subCategory = req.query.subCategory;
+    if (subCategory) {
+      query.subCategory = subCategory;
     }
 
     // 如果有地區篩選
-    if (req.query.region) {
-      query.regions = req.query.region;
+    if (region) {
+      query.$or = [
+        { region: region },
+        { regions: region }
+      ];
     }
 
-    // 如果有子地區篩選
-    if (req.query.subRegion) {
-      query.subRegions = req.query.subRegion;
-    }
-
-    // 如果有授課模式篩選
-    if (req.query.mode) {
-      query.mode = req.query.mode;
-    }
-
-    // 如果有經驗要求篩選
-    if (req.query.experience) {
-      query.experience = req.query.experience;
-    }
-
-    // 獲取總數量（用於分頁）
-    const count = await StudentCase.countDocuments();
-    
-    // 如果是獲取推薦案例，只顯示已審批的
-    if (req.query.featured === 'true') {
-      query.isApproved = true;
+    // 如果是特色案例
+    if (featured === 'true') {
       query.featured = true;
-    } else {
-      // 如果有 tutorId 參數，顯示所有已審批的案例，以及當前用戶發布的未審批案例
-      if (req.query.tutorId) {
-        query.$or = [
-          { isApproved: true },
-          { tutorId: req.query.tutorId } // 如果是當前用戶發布的案例，即使未審批也顯示
-        ];
-      } else {
-        // 如果沒有 tutorId（如首頁），只顯示已審批的案例
-        query.isApproved = true;
-      }
     }
 
-    console.log('🔍 Running MongoDB query:', query);
+    // 獲取總數
+    const count = await StudentCase.countDocuments(query);
 
+    // 獲取案例列表
     const cases = await StudentCase.find(query)
       .sort({ createdAt: -1 })
       .limit(parseInt(req.query.limit) || 20);
 
-    console.log('✅ Query returned', cases.length, 'results');
+    // 轉換數據格式
+    const transformedCases = cases.map(transformCaseData);
+
+    console.log('✅ Query returned', transformedCases.length, 'results');
     res.json({
       success: true,
       data: {
-        cases: cases,
-        totalCount: cases.length,
+        cases: transformedCases,
+        totalCount: transformedCases.length,
         allDocumentsCount: count
       }
     });
