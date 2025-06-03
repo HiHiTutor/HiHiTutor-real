@@ -190,7 +190,10 @@ router.get('/', async (req, res) => {
     } = req.query;
 
     // 構建查詢條件
-    const query = { status: 'active' };
+    const query = { 
+      status: 'active',
+      isApproved: true  // 只顯示已審批嘅個案
+    };
 
     // 分類過濾
     if (category) {
