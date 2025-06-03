@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const { getAllStudentCases, createStudentCase, getStudentCaseById } = require('../controllers/studentCaseController');
 
 const studentCasesData = fs.readFileSync(path.resolve(__dirname, '../data/studentCases.json'));
 const tutorCasesData = fs.readFileSync(path.resolve(__dirname, '../data/tutorCases.json'));
@@ -45,6 +46,12 @@ const VALID_SUB_CATEGORIES = [
 ];
 
 const router = express.Router();
+
+// GET all student cases
+router.get('/', getAllStudentCases);
+
+// GET single student case
+router.get('/:id', getStudentCaseById);
 
 // 學生出Post搵導師
 router.get('/find-tutor-cases', (req, res) => {

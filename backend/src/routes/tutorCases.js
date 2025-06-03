@@ -1,20 +1,15 @@
 const express = require('express');
 const router = express.Router();
+const { getAllTutorCases, createTutorCase, getTutorCaseById } = require('../controllers/tutorCaseController');
 const { loadTutorCases } = require('../utils/tutorCaseStorage');
 const fs = require('fs').promises;
 const path = require('path');
 
-// 1. 首先定義固定路徑路由
 // GET all tutor cases
-router.get('/', (req, res) => {
-  try {
-    const tutorCases = loadTutorCases();
-    res.json(tutorCases);
-  } catch (error) {
-    console.error('取得導師個案失敗:', error);
-    res.status(500).json({ message: '取得導師個案失敗' });
-  }
-});
+router.get('/', getAllTutorCases);
+
+// GET single tutor case
+router.get('/:id', getTutorCaseById);
 
 // POST new tutor case
 const postTutorCaseHandler = async (req, res) => {
@@ -55,7 +50,6 @@ const postTutorCaseHandler = async (req, res) => {
   }
 };
 router.post('/', postTutorCaseHandler);
-router.post('/find-student-cases', postTutorCaseHandler);
 
 // 2. 然後定義具體路徑路由
 // GET recommended tutor cases
@@ -71,25 +65,6 @@ router.get('/recommended', async (req, res) => {
   } catch (error) {
     console.error('獲取推薦導師個案錯誤:', error);
     res.status(500).json({ message: '伺服器錯誤，請稍後再試' });
-  }
-});
-
-// 3. 最後定義參數路由
-// GET single tutor case by ID
-router.get('/:id', (req, res) => {
-  try {
-    const tutorCases = loadTutorCases();
-    const id = req.params.id;
-    const tutorCase = tutorCases.find(c => c.id === id);
-    
-    if (tutorCase) {
-      res.json(tutorCase);
-    } else {
-      res.status(404).json({ message: '找不到此導師個案' });
-    }
-  } catch (error) {
-    console.error('取得導師個案失敗:', error);
-    res.status(500).json({ message: '取得導師個案失敗' });
   }
 });
 

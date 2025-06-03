@@ -177,91 +177,92 @@ router.get('/test', async (req, res) => {
 
 // GET /api/find-student-cases
 router.get('/', async (req, res) => {
+  console.log('📥 Received request to /api/find-student-cases');
+  
   try {
-    console.log('📥 收到查詢請求，參數：', req.query);
-    const { 
-      category,
-      subCategory,
-      region,
-      priceMin,
-      priceMax,
-      page = 1,
-      limit = 10
-    } = req.query;
-
     // 構建查詢條件
-    const query = { 
-      status: 'active',
-      isApproved: true  // 只顯示已審批嘅個案
-    };
+    const query = {};
+    
+    // 如果有搜索條件，添加到查詢中
+    if (req.query.search) {
+      query.$or = [
+        { title: { $regex: req.query.search, $options: 'i' } },
+        { description: { $regex: req.query.search, $options: 'i' } }
+      ];
+    }
 
-    // 分類過濾
-    if (category) {
-      const backendCategories = Object.entries(categoryMap)
-        .filter(([_, frontendValue]) => frontendValue === category)
-        .map(([key]) => key);
-      
-      if (backendCategories.length > 0) {
-        query.category = { $in: backendCategories };
+    // 如果有類別篩選
+    if (req.query.category) {
+      query.category = req.query.category;
+    }
+
+    // 如果有子類別篩選
+    if (req.query.subCategory) {
+      query.subCategory = req.query.subCategory;
+    }
+
+    // 如果有地區篩選
+    if (req.query.region) {
+      query.regions = req.query.region;
+    }
+
+    // 如果有子地區篩選
+    if (req.query.subRegion) {
+      query.subRegions = req.query.subRegion;
+    }
+
+    // 如果有授課模式篩選
+    if (req.query.mode) {
+      query.mode = req.query.mode;
+    }
+
+    // 如果有經驗要求篩選
+    if (req.query.experience) {
+      query.experience = req.query.experience;
+    }
+
+    // 獲取總數量（用於分頁）
+    const count = await StudentCase.countDocuments();
+    
+    // 如果是獲取推薦案例，只顯示已審批的
+    if (req.query.featured === 'true') {
+      query.isApproved = true;
+      query.featured = true;
+    } else {
+      // 如果有 tutorId 參數，顯示所有已審批的案例，以及當前用戶發布的未審批案例
+      if (req.query.tutorId) {
+        query.$or = [
+          { isApproved: true },
+          { tutorId: req.query.tutorId } // 如果是當前用戶發布的案例，即使未審批也顯示
+        ];
+      } else {
+        // 如果沒有 tutorId（如首頁），只顯示已審批的案例
+        query.isApproved = true;
       }
     }
 
-    // 子分類過濾
-    if (subCategory) {
-      const subCategories = Array.isArray(subCategory) ? subCategory : [subCategory];
-      query.subCategory = { $in: subCategories };
-    }
+    console.log('🔍 Running MongoDB query:', query);
 
-    // 地區過濾
-    if (region) {
-      const regions = Array.isArray(region) ? region : [region];
-      query.region = { $in: regions };
-    }
-
-    // 價格範圍過濾
-    if (priceMin || priceMax) {
-      query.budget = {};
-      if (priceMin) query.budget.$gte = Number(priceMin);
-      if (priceMax) query.budget.$lte = Number(priceMax);
-    }
-
-    console.log('🔍 查詢條件：', query);
-
-    // 執行查詢
-    const total = await StudentCase.countDocuments(query);
     const cases = await StudentCase.find(query)
-      .sort({ featured: -1, createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .lean();
+      .sort({ createdAt: -1 })
+      .limit(parseInt(req.query.limit) || 20);
 
-    console.log(`✅ 查詢完成，找到 ${cases.length} 個結果，共 ${total} 個符合條件的個案`);
-
-    // 轉換分類值為前端使用的英文值
-    const transformedCases = cases.map(case_ => ({
-      ...case_,
-      category: mapCategoryToEnglishValue(case_.category),
-      id: case_._id // 確保返回 id 欄位
-    }));
-
+    console.log('✅ Query returned', cases.length, 'results');
     res.json({
       success: true,
       data: {
-        cases: transformedCases,
-        pagination: {
-          total,
-          page: Number(page),
-          limit: Number(limit),
-          totalPages: Math.ceil(total / limit)
-        }
+        cases: cases,
+        totalCount: cases.length,
+        allDocumentsCount: count
       }
     });
-  } catch (error) {
-    console.error('❌ 查詢失敗：', error);
-    res.status(500).json({
+  } catch (err) {
+    console.error('❌ Error in /api/find-student-cases:', err.stack);
+    res.status(500).json({ 
       success: false,
-      message: '查詢失敗',
-      error: error.message
+      message: 'Server error', 
+      error: err.message,
+      mongoState: mongoose.connection.readyState
     });
   }
 });
