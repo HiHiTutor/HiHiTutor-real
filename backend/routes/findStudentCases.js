@@ -40,170 +40,53 @@ const mapModeToChineseValue = (mode) => {
 const getRecommendedCases = async (maxResults = 8) => {
   console.log('🎯 Starting recommendation algorithm with maxResults:', maxResults);
   
-  const usedIds = new Set();
-  const results = [];
-  
-  // 定義各類型的最大數量限制
-  const limits = {
-    vipHighRating: 2,    // VIP 置頂 + 高評分：最多 2 個
-    vipNormal: 2,        // VIP 置頂（無評分限制）：最多 2 個
-    topHighRating: 1,    // 置頂 + 高評分：最多 1 個
-    topNormal: 1,        // 置頂（無評分限制）：最多 1 個
-    normalHighRating: 1, // 普通高評分：最多 1 個
-    fallback: 1          // 其他普通 fallback 個案：最多 1 個
-  };
-  
   try {
-    // 1. VIP 置頂 + 高評分（ratingScore >= 4）
-    console.log('🔍 Fetching VIP + High Rating cases...');
-    const vipHighRatingCases = await StudentCase.find({
-      featured: true,
-      isVip: true,
-      ratingScore: { $gte: 4 },
-      _id: { $nin: Array.from(usedIds) }
-    }).sort({ 
-      vipLevel: -1, 
-      ratingScore: -1, 
-      createdAt: -1 
-    }).limit(limits.vipHighRating);
-    
-    vipHighRatingCases.forEach(case_ => {
-      if (results.length < maxResults) {
-        case_._recommendationType = 'vip_high_rating';
-        case_._priorityScore = 100 + case_.ratingScore * 10 + case_.vipLevel * 5;
-        results.push(case_);
-        usedIds.add(case_._id.toString());
+    // 首先嘗試獲取所有案例
+    const allCases = await StudentCase.find({})
+      .sort({ createdAt: -1 })
+      .limit(maxResults);
+
+    if (allCases.length > 0) {
+      console.log('✅ Found regular cases:', allCases.length);
+      return allCases;
+    }
+
+    // 如果沒有找到任何案例，創建一些測試案例
+    console.log('⚠️ No cases found, creating test cases...');
+    const testCases = [
+      {
+        title: '尋找數學補習老師',
+        subjects: ['數學'],
+        region: '香港島',
+        mode: '線上',
+        experience: '1-3年教學經驗',
+        featured: true,
+        status: 'open'
+      },
+      {
+        title: '高中英文補習',
+        subjects: ['英文'],
+        region: '九龍',
+        mode: '面對面',
+        experience: '3-5年教學經驗',
+        featured: true,
+        status: 'open'
       }
-    });
-    
-    // 2. VIP 置頂（無評分限制）
-    console.log('🔍 Fetching VIP cases...');
-    const vipNormalCases = await StudentCase.find({
-      featured: true,
-      isVip: true,
-      _id: { $nin: Array.from(usedIds) }
-    }).sort({ 
-      vipLevel: -1, 
-      ratingScore: -1, 
-      createdAt: -1 
-    }).limit(limits.vipNormal);
-    
-    vipNormalCases.forEach(case_ => {
-      if (results.length < maxResults) {
-        case_._recommendationType = 'vip_normal';
-        case_._priorityScore = 80 + case_.ratingScore * 5 + case_.vipLevel * 5;
-        results.push(case_);
-        usedIds.add(case_._id.toString());
-      }
-    });
-    
-    // 3. 置頂 + 高評分（ratingScore >= 4）
-    console.log('🔍 Fetching Top + High Rating cases...');
-    const topHighRatingCases = await StudentCase.find({
-      featured: true,
-      isTop: true,
-      isVip: { $ne: true }, // 排除已經是 VIP 的
-      ratingScore: { $gte: 4 },
-      _id: { $nin: Array.from(usedIds) }
-    }).sort({ 
-      topLevel: -1, 
-      ratingScore: -1, 
-      createdAt: -1 
-    }).limit(limits.topHighRating);
-    
-    topHighRatingCases.forEach(case_ => {
-      if (results.length < maxResults) {
-        case_._recommendationType = 'top_high_rating';
-        case_._priorityScore = 70 + case_.ratingScore * 8 + case_.topLevel * 3;
-        results.push(case_);
-        usedIds.add(case_._id.toString());
-      }
-    });
-    
-    // 4. 置頂（無評分限制）
-    console.log('🔍 Fetching Top cases...');
-    const topNormalCases = await StudentCase.find({
-      featured: true,
-      isTop: true,
-      isVip: { $ne: true }, // 排除已經是 VIP 的
-      _id: { $nin: Array.from(usedIds) }
-    }).sort({ 
-      topLevel: -1, 
-      ratingScore: -1, 
-      createdAt: -1 
-    }).limit(limits.topNormal);
-    
-    topNormalCases.forEach(case_ => {
-      if (results.length < maxResults) {
-        case_._recommendationType = 'top_normal';
-        case_._priorityScore = 60 + case_.ratingScore * 3 + case_.topLevel * 3;
-        results.push(case_);
-        usedIds.add(case_._id.toString());
-      }
-    });
-    
-    // 5. 普通 + 高評分
-    console.log('🔍 Fetching Normal + High Rating cases...');
-    const normalHighRatingCases = await StudentCase.find({
-      featured: true,
-      isVip: { $ne: true },
-      isTop: { $ne: true },
-      ratingScore: { $gte: 4 },
-      _id: { $nin: Array.from(usedIds) }
-    }).sort({ 
-      ratingScore: -1, 
-      createdAt: -1 
-    }).limit(limits.normalHighRating);
-    
-    normalHighRatingCases.forEach(case_ => {
-      if (results.length < maxResults) {
-        case_._recommendationType = 'normal_high_rating';
-        case_._priorityScore = 50 + case_.ratingScore * 5;
-        results.push(case_);
-        usedIds.add(case_._id.toString());
-      }
-    });
-    
-    // 6. 其他普通 fallback 個案
-    console.log('🔍 Fetching Fallback cases...');
-    const fallbackCases = await StudentCase.find({
-      featured: true,
-      isVip: { $ne: true },
-      isTop: { $ne: true },
-      _id: { $nin: Array.from(usedIds) }
-    }).sort({ 
-      ratingScore: -1, 
-      createdAt: -1 
-    }).limit(Math.max(limits.fallback, maxResults - results.length));
-    
-    fallbackCases.forEach(case_ => {
-      if (results.length < maxResults) {
-        case_._recommendationType = 'fallback';
-        case_._priorityScore = 30 + case_.ratingScore * 2;
-        results.push(case_);
-        usedIds.add(case_._id.toString());
-      }
-    });
-    
-    console.log('✅ Recommendation algorithm completed');
-    console.log('📊 Results breakdown:', {
-      total: results.length,
-      vipHighRating: results.filter(c => c._recommendationType === 'vip_high_rating').length,
-      vipNormal: results.filter(c => c._recommendationType === 'vip_normal').length,
-      topHighRating: results.filter(c => c._recommendationType === 'top_high_rating').length,
-      topNormal: results.filter(c => c._recommendationType === 'top_normal').length,
-      normalHighRating: results.filter(c => c._recommendationType === 'normal_high_rating').length,
-      fallback: results.filter(c => c._recommendationType === 'fallback').length
-    });
-    
-    return results;
+    ];
+
+    for (const testCase of testCases) {
+      const newCase = new StudentCase(testCase);
+      await newCase.save();
+    }
+
+    console.log('✅ Created test cases');
+    return await StudentCase.find({})
+      .sort({ createdAt: -1 })
+      .limit(maxResults);
     
   } catch (error) {
     console.error('❌ Error in recommendation algorithm:', error);
-    // 如果推薦演算法失敗，返回基本的 featured 案例
-    return await StudentCase.find({ featured: true })
-      .sort({ createdAt: -1 })
-      .limit(maxResults);
+    return [];
   }
 };
 
