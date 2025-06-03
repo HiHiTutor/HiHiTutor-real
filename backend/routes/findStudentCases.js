@@ -268,240 +268,90 @@ router.get('/test', async (req, res) => {
   }
 });
 
-// GET 查詢學生案例
+// GET /api/find-student-cases
 router.get('/', async (req, res) => {
-  console.log('📥 Received request to /api/find-student-cases');
-  console.log('👉 Query:', req.query);
-  console.log('👉 Headers:', req.headers);
-  console.log('👉 Environment check:', {
-    NODE_ENV: process.env.NODE_ENV,
-    hasMongoUri: !!process.env.MONGODB_URI,
-    mongoUriLength: process.env.MONGODB_URI ? process.env.MONGODB_URI.length : 0
-  });
-
   try {
-    // 檢查數據庫連接狀態
-    console.log('📊 MongoDB connection state:', mongoose.connection.readyState);
-    console.log('📊 MongoDB connection states: 0=disconnected, 1=connected, 2=connecting, 3=disconnecting');
-    
-    // 如果數據庫未連接，嘗試重新連接
-    if (mongoose.connection.readyState !== 1) {
-      console.log('⚠️ MongoDB not connected, current state:', mongoose.connection.readyState);
+    console.log('📥 收到查詢請求，參數：', req.query);
+    const { 
+      category,
+      subCategory,
+      region,
+      priceMin,
+      priceMax,
+      page = 1,
+      limit = 10
+    } = req.query;
+
+    // 構建查詢條件
+    const query = { status: 'active' };
+
+    // 分類過濾
+    if (category) {
+      const backendCategories = Object.entries(categoryMap)
+        .filter(([_, frontendValue]) => frontendValue === category)
+        .map(([key]) => key);
       
-      // 嘗試重新連接
-      if (process.env.MONGODB_URI) {
-        console.log('🔄 Attempting to reconnect to MongoDB...');
-        try {
-          await mongoose.connect(process.env.MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            serverSelectionTimeoutMS: 5000,
-            socketTimeoutMS: 45000,
-          });
-          console.log('✅ Reconnected to MongoDB');
-        } catch (reconnectError) {
-          console.error('❌ Failed to reconnect to MongoDB:', reconnectError);
-          return res.status(500).json({
-            success: false,
-            message: 'Database connection failed',
-            error: reconnectError.message,
-            mongoState: mongoose.connection.readyState,
-            hasMongoUri: !!process.env.MONGODB_URI
-          });
-        }
-      } else {
-        console.error('❌ No MongoDB URI found in environment variables');
-        return res.status(500).json({
-          success: false,
-          message: 'Database configuration error',
-          error: 'MONGODB_URI not found',
-          mongoState: mongoose.connection.readyState,
-          hasMongoUri: false
-        });
+      if (backendCategories.length > 0) {
+        query.category = { $in: backendCategories };
       }
     }
 
-    // 測試數據庫連接
-    console.log('🔍 Testing database connection...');
-    let count;
-    try {
-      count = await StudentCase.countDocuments();
-      console.log('📊 Total documents in collection:', count);
-    } catch (countError) {
-      console.error('❌ Error counting documents:', countError);
-      return res.status(500).json({
-        success: false,
-        message: 'Database query failed',
-        error: countError.message,
-        mongoState: mongoose.connection.readyState
-      });
+    // 子分類過濾
+    if (subCategory) {
+      const subCategories = Array.isArray(subCategory) ? subCategory : [subCategory];
+      query.subCategory = { $in: subCategories };
     }
 
-    const { featured, limit, sort } = req.query;
-    const query = {};
-    
-    // 如果是獲取推薦案例，使用複雜的混合演算法
-    if (featured === 'true') {
-      query.featured = true;
-      
-      // 實現混合推薦演算法
-      const recommendedCases = await getRecommendedCases(limit ? parseInt(limit) : 8);
-      
-      // 返回推薦結果
-      res.json({
-        success: true,
-        data: {
-          cases: recommendedCases.map(case_ => {
-            try {
-              const caseObj = case_.toObject();
-              return {
-                ...caseObj,
-                id: case_.id || case_._id.toString(),
-                date: case_.createdAt,
-                // 確保必要欄位存在
-                title: caseObj.title || '',
-                category: caseObj.category || '',
-                budget: caseObj.budget || '',
-                mode: caseObj.mode || (Array.isArray(caseObj.modes) && caseObj.modes.length > 0 ? caseObj.modes[0] : '線上'),
-                modes: Array.isArray(caseObj.modes) ? caseObj.modes : (caseObj.mode ? [caseObj.mode] : ['線上']),
-                subjects: Array.isArray(caseObj.subjects) ? caseObj.subjects : [],
-                regions: Array.isArray(caseObj.regions) ? caseObj.regions : [],
-                // 處理舊格式的兼容性
-                subject: caseObj.subject || (Array.isArray(caseObj.subjects) && caseObj.subjects.length > 0 ? caseObj.subjects[0] : ''),
-                location: caseObj.location || (Array.isArray(caseObj.regions) && caseObj.regions.length > 0 ? caseObj.regions[0] : ''),
-                requirement: caseObj.requirement || caseObj.requirements || '',
-                priceRange: caseObj.priceRange || caseObj.budget || '',
-                // 添加推薦相關信息
-                recommendationType: caseObj._recommendationType || 'normal',
-                priorityScore: caseObj._priorityScore || 0
-              };
-            } catch (err) {
-              console.error('❌ Error processing case:', case_._id, err);
-              return {
-                id: case_._id.toString(),
-                title: '數據錯誤',
-                category: '',
-                budget: '',
-                mode: '線上',
-                subjects: [],
-                regions: [],
-                date: case_.createdAt || new Date()
-              };
-            }
-          }),
-          totalCount: recommendedCases.length,
-          allDocumentsCount: count,
-          recommendationInfo: {
-            algorithm: 'mixed_priority',
-            maxResults: limit ? parseInt(limit) : 8,
-            appliedAt: new Date().toISOString()
-          }
-        }
-      });
-      return;
+    // 地區過濾
+    if (region) {
+      const regions = Array.isArray(region) ? region : [region];
+      query.region = { $in: regions };
     }
 
-    console.log('🔍 Running MongoDB query:', query);
-
-    // 計算符合查詢條件的文檔總數
-    let filteredCount;
-    try {
-      filteredCount = await StudentCase.countDocuments(query);
-      console.log('📊 Documents matching query:', filteredCount);
-    } catch (countError) {
-      console.error('❌ Error counting filtered documents:', countError);
-      return res.status(500).json({
-        success: false,
-        message: 'Database query failed',
-        error: countError.message,
-        mongoState: mongoose.connection.readyState
-      });
+    // 價格範圍過濾
+    if (priceMin || priceMax) {
+      query.budget = {};
+      if (priceMin) query.budget.$gte = Number(priceMin);
+      if (priceMax) query.budget.$lte = Number(priceMax);
     }
 
-    // 構建查詢
-    let findQuery = StudentCase.find(query);
+    console.log('🔍 查詢條件：', query);
 
-    // 根據 sort 參數決定排序方式
-    let sortCriteria;
-    if (sort === 'latest') {
-      sortCriteria = { createdAt: -1 }; // 倒序排序，最新的在前
-      findQuery = findQuery.sort(sortCriteria);
-    } else if (sort === 'oldest') {
-      sortCriteria = { createdAt: 1 }; // 正序排序，最舊的在前
-      findQuery = findQuery.sort(sortCriteria);
-    } else if (sort === 'featured') {
-      sortCriteria = { featured: -1, createdAt: -1 }; // featured 優先，然後按時間倒序
-      findQuery = findQuery.sort(sortCriteria);
-    } else {
-      // 默認排序：featured 案例優先，然後按創建時間倒序
-      sortCriteria = { 
-        featured: -1,    // featured 案例優先 (true > false)
-        createdAt: -1    // 然後按創建時間倒序 (最新的在前)
-      };
-      findQuery = findQuery.sort(sortCriteria);
-    }
+    // 執行查詢
+    const total = await StudentCase.countDocuments(query);
+    const cases = await StudentCase.find(query)
+      .sort({ featured: -1, createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean();
 
-    console.log('🔍 Sort criteria:', sortCriteria);
+    console.log(`✅ 查詢完成，找到 ${cases.length} 個結果，共 ${total} 個符合條件的個案`);
 
-    // 限制返回數量
-    if (limit) {
-      findQuery = findQuery.limit(parseInt(limit));
-    }
-
-    console.log('🔍 Executing query...');
-    let cases;
-    try {
-      cases = await findQuery;
-      console.log('✅ Query returned', cases.length, 'results');
-    } catch (queryError) {
-      console.error('❌ Error executing query:', queryError);
-      return res.status(500).json({
-        success: false,
-        message: 'Database query execution failed',
-        error: queryError.message,
-        mongoState: mongoose.connection.readyState
-      });
-    }
-    
-    if (cases.length > 0) {
-      console.log('📄 Sample case structure:', JSON.stringify(cases[0], null, 2));
-    }
-
-    // 轉換分類值
+    // 轉換分類值為前端使用的英文值
     const transformedCases = cases.map(case_ => ({
-      ...case_._doc,
-      category: mapCategoryToEnglishValue(case_.category)
+      ...case_,
+      category: mapCategoryToEnglishValue(case_.category),
+      id: case_._id // 確保返回 id 欄位
     }));
 
-    // 返回與前端期望一致的格式
     res.json({
       success: true,
       data: {
         cases: transformedCases,
-        totalCount: filteredCount, // 使用符合查詢條件的總數
-        allDocumentsCount: count // 可選：提供所有文檔的總數用於調試
-      },
-      message: '成功獲取學生案例列表'
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: Math.ceil(total / limit)
+        }
+      }
     });
-  } catch (err) {
-    console.error('❌ Error in /api/find-student-cases:', err.stack);
-    console.error('❌ Error details:', {
-      name: err.name,
-      message: err.message,
-      code: err.code,
-      stack: err.stack
-    });
-    
-    // 返回更詳細的錯誤信息用於調試
-    res.status(500).json({ 
+  } catch (error) {
+    console.error('❌ 查詢失敗：', error);
+    res.status(500).json({
       success: false,
-      message: '獲取學生案例時發生錯誤', 
-      error: err.message,
-      errorName: err.name,
-      errorCode: err.code,
-      mongoState: mongoose.connection.readyState,
-      hasMongoUri: !!process.env.MONGODB_URI,
-      timestamp: new Date().toISOString()
+      message: '查詢失敗',
+      error: error.message
     });
   }
 });
