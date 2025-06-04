@@ -31,13 +31,6 @@ export const TEACHING_MODE_OPTIONS = [
   { value: 'both', label: '兩者皆可' }
 ];
 
-export const EXPERIENCE_OPTIONS = [
-  { value: 'none', label: '無經驗要求' },
-  { value: '1-3', label: '1-3年' },
-  { value: '3-5', label: '3-5年' },
-  { value: '5+', label: '5年以上' }
-];
-
 interface RegionOption {
   value: string;
   label: string;
@@ -57,7 +50,7 @@ interface CaseFilterBarProps {
 
 const REGION_OPTIONS_FULL = REGION_OPTIONS;
 
-export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) {
+const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [filters, setFilters] = useState<FilterState>({
@@ -74,7 +67,6 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('');
   const [selectedMode, setSelectedMode] = useState('');
-  const [selectedExperience, setSelectedExperience] = useState('');
 
   const isStudentCase = fetchUrl.includes('student');
   const colorScheme = isStudentCase ? {
@@ -190,18 +182,16 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
       search: searchQuery,
       category: selectedCategory,
       region: selectedRegion,
-      mode: selectedMode,
-      experience: selectedExperience
-      });
+      mode: selectedMode
+    });
   };
 
   const handleApplyFilters = () => {
     onFilter?.({
       category: selectedCategory,
       region: selectedRegion,
-      mode: selectedMode,
-      experience: selectedExperience
-      });
+      mode: selectedMode
+    });
   };
 
   const handleReset = () => {
@@ -209,7 +199,6 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
     setSelectedCategory('');
     setSelectedRegion('');
     setSelectedMode('');
-    setSelectedExperience('');
     onFilter?.({});
   };
 
@@ -241,15 +230,6 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
     return category.subjects || [];
   };
 
-  const handleCategoryChange = (value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      category: value,
-      subCategory: '',
-      subjects: [] // 重置科目選擇
-    }));
-  };
-
   const handleSubCategoryChange = (value: string) => {
     setFilters(prev => ({
       ...prev,
@@ -270,7 +250,7 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
             onChange={(e) => setSearchQuery(e.target.value)}
             className="flex-1 rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
           />
-              <button
+          <button
             onClick={handleSearch}
             className={`${colorScheme.button} text-white rounded-lg px-6 py-2`}
           >
@@ -287,7 +267,15 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
             </label>
             <select
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
+              onChange={(e) => {
+                setSelectedCategory(e.target.value);
+                // 當主類別改變時，重置子類別
+                setFilters(prev => ({
+                  ...prev,
+                  subCategory: '',
+                  subjects: []
+                }));
+              }}
               className="w-full rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
             >
               <option value="">全部類別</option>
@@ -378,25 +366,6 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
               ))}
             </select>
           </div>
-
-          {/* 經驗要求選擇 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              經驗要求
-            </label>
-            <select
-              value={selectedExperience}
-              onChange={(e) => setSelectedExperience(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-            >
-              <option value="">全部經驗</option>
-              {EXPERIENCE_OPTIONS.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
         </div>
 
         {/* 重置和應用按鈕 */}
@@ -417,4 +386,6 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
       </div>
     </div>
   );
-} 
+};
+
+export default CaseFilterBar; 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import CaseFilterBar from '@/components/CaseFilterBar';
 import LoadMoreButton from '@/components/LoadMoreButton';
 import CaseCard from '@/components/CaseCard';
@@ -62,6 +62,7 @@ export default function FindStudentCasesPage() {
 
 function FindStudentCasesPageContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [allCases, setAllCases] = useState<Case[]>([]); // 保存所有個案
   const [cases, setCases] = useState<Case[]>([]); // 顯示的個案
   const [loading, setLoading] = useState(true);
@@ -101,17 +102,15 @@ function FindStudentCasesPageContent() {
     console.log("🔍 URL 參數改變，開始過濾資料");
     // 從 URL 獲取搜尋參數
     const category = searchParams.get('category');
-    const subCategory = searchParams.getAll('subCategory');
-    const region = searchParams.getAll('region');
-    const priceMin = searchParams.get('priceMin');
-    const priceMax = searchParams.get('priceMax');
+    const subCategory = searchParams.get('subCategory');
+    const region = searchParams.get('region');
+    const mode = searchParams.get('mode');
 
     console.log("🔍 搜尋參數：", {
       category,
       subCategory,
       region,
-      priceMin,
-      priceMax
+      mode
     });
 
     // 從 allCases 過濾
@@ -124,6 +123,11 @@ function FindStudentCasesPageContent() {
         // 檢查主分類
         if (itemCategory === category) {
           console.log("✅ 主分類匹配：", { itemCategory, category });
+          
+          // 如果有子分類，檢查子分類
+          if (subCategory && item.subCategory) {
+            return item.subCategory.toLowerCase() === subCategory.toLowerCase();
+          }
           return true;
         }
         
@@ -147,46 +151,29 @@ function FindStudentCasesPageContent() {
       }
       
       // 子分類篩選
-      if (subCategory.length > 0) {
-        const hasMatchingSubCategory = subCategory.some((sub: string) => 
-          item.subCategory?.includes(sub)
-        );
-        if (!hasMatchingSubCategory) {
-          console.log("❌ 子分類不匹配：", { caseSubCategory: item.subCategory, filterSubCategory: subCategory });
-          return false;
-        }
+      if (subCategory) {
+        if (!item.subCategory) return false;
+        const itemSubCategory = item.subCategory.toLowerCase();
+        const filterSubCategory = subCategory.toLowerCase();
+        return itemSubCategory === filterSubCategory;
       }
       
       // 地區篩選
-      if (region.length > 0) {
-        const hasMatchingRegion = region.some((r: string) => 
-          item.region?.includes(r) || item.regions?.includes(r)
-        );
-        if (!hasMatchingRegion) {
-          console.log("❌ 地區不匹配：", { caseRegion: item.region, caseRegions: item.regions, filterRegion: region });
-          return false;
-        }
+      if (region) {
+        const itemRegion = item.region?.toLowerCase() || '';
+        const itemRegions = item.regions?.map(r => r.toLowerCase()) || [];
+        const filterRegion = region.toLowerCase();
+        
+        return itemRegion === filterRegion || itemRegions.includes(filterRegion);
       }
       
-      // 價格範圍篩選
-      if (priceMin || priceMax) {
-        // 確保 budget 存在且格式正確
-        if (!item.budget || typeof item.budget !== 'object') {
-          console.log("❌ 無效的預算格式：", { caseBudget: item.budget });
-          return false;
-        }
-
-        const budgetMin = Number(item.budget.min) || 0;
-        const budgetMax = Number(item.budget.max) || 0;
-
-        if (priceMin && budgetMin < Number(priceMin)) {
-          console.log("❌ 價格低於最小值：", { casePrice: budgetMin, filterMin: priceMin });
-          return false;
-        }
-        if (priceMax && budgetMax > Number(priceMax)) {
-          console.log("❌ 價格高於最大值：", { casePrice: budgetMax, filterMax: priceMax });
-          return false;
-        }
+      // 教學模式篩選
+      if (mode) {
+        const itemMode = item.mode?.toLowerCase() || '';
+        const itemModes = item.modes?.map(m => m.toLowerCase()) || [];
+        const filterMode = mode.toLowerCase();
+        
+        return itemMode === filterMode || itemModes.includes(filterMode);
       }
       
       return true;
@@ -206,96 +193,17 @@ function FindStudentCasesPageContent() {
 
   const handleFilter = (filters: any) => {
     console.log("🔍 篩選條件：", filters);
-    console.log("🎯 重新搜尋 based on allCases，當前 allCases 數量：", allCases.length);
     
-    // 從 allCases 過濾
-    const filtered = allCases.filter(item => {
-      // 分類篩選
-      if (filters.category) {
-        const itemCategory = item.category?.toLowerCase().trim();
-        const itemSubjects = item.subjects || [];
-        
-        // 檢查主分類
-        if (itemCategory === filters.category) {
-          console.log("✅ 主分類匹配：", { itemCategory, filterCategory: filters.category });
-          return true;
-        }
-        
-        // 檢查科目是否屬於該分類
-        const hasMatchingSubject = itemSubjects.some(subject => {
-          const subjectStr = String(subject).toLowerCase();
-          return subjectStr.startsWith(filters.category) || subjectStr.includes(filters.category);
-        });
-        
-        if (hasMatchingSubject) {
-          console.log("✅ 科目分類匹配：", { itemSubjects, filterCategory: filters.category });
-          return true;
-        }
-
-        console.log("❌ 分類不匹配：", { 
-          itemCategory,
-          itemSubjects,
-          filterCategory: filters.category 
-        });
-        return false;
-      }
-      
-      // 子分類篩選
-      if (filters.subCategory?.length > 0) {
-        const hasMatchingSubCategory = filters.subCategory.some((sub: string) => 
-          item.subCategory?.includes(sub)
-        );
-        if (!hasMatchingSubCategory) {
-          console.log("❌ 子分類不匹配：", { caseSubCategory: item.subCategory, filterSubCategory: filters.subCategory });
-          return false;
-        }
-      }
-      
-      // 地區篩選
-      if (filters.region?.length > 0) {
-        const hasMatchingRegion = filters.region.some((region: string) => 
-          item.region?.includes(region) || item.regions?.includes(region)
-        );
-        if (!hasMatchingRegion) {
-          console.log("❌ 地區不匹配：", { caseRegion: item.region, caseRegions: item.regions, filterRegion: filters.region });
-          return false;
-        }
-      }
-      
-      // 價格範圍篩選
-      if (filters.priceMin || filters.priceMax) {
-        // 確保 budget 存在且格式正確
-        if (!item.budget || typeof item.budget !== 'object') {
-          console.log("❌ 無效的預算格式：", { caseBudget: item.budget });
-          return false;
-        }
-
-        const budgetMin = Number(item.budget.min) || 0;
-        const budgetMax = Number(item.budget.max) || 0;
-
-        if (filters.priceMin && budgetMin < Number(filters.priceMin)) {
-          console.log("❌ 價格低於最小值：", { casePrice: budgetMin, filterMin: filters.priceMin });
-          return false;
-        }
-        if (filters.priceMax && budgetMax > Number(filters.priceMax)) {
-          console.log("❌ 價格高於最大值：", { casePrice: budgetMax, filterMax: filters.priceMax });
-          return false;
-        }
-      }
-      
-      return true;
-    });
-
-    console.log("🔍 過濾後結果：", {
-      totalCases: allCases.length,
-      filteredCount: filtered.length,
-      filteredCases: filtered
-    });
-
-    // 更新顯示的個案
-    setCases(filtered.slice(0, CASES_PER_PAGE));
-    setCurrentPage(1);
-    setHasMore(filtered.length > CASES_PER_PAGE);
+    // 構建查詢參數
+    const params = new URLSearchParams();
+    if (filters.category) params.set('category', filters.category);
+    if (filters.subCategory) params.set('subCategory', filters.subCategory);
+    if (filters.region) params.set('region', filters.region);
+    if (filters.mode) params.set('mode', filters.mode);
+    
+    // 更新 URL
+    const newUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+    router.push(newUrl);
   };
 
   const loadMoreCases = async () => {
