@@ -357,14 +357,16 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
   };
 
   const getCategorySubjects = () => {
-    const category = CATEGORY_OPTIONS.find(c => c.value === filters.category);
+    const category = CATEGORY_OPTIONS.find(c => c.value === filters.category) as CategoryOption;
     if (!category) return [];
 
-    if (category.subCategories) {
+    // If category has subCategories and a subCategory is selected
+    if (category.subCategories && filters.subCategory) {
       const subCategory = category.subCategories.find(sc => sc.value === filters.subCategory);
       return subCategory?.subjects || [];
     }
 
+    // If category has direct subjects
     return category.subjects || [];
   };
 
