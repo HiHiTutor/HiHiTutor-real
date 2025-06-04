@@ -168,13 +168,24 @@ function FindTutorCasesPageContent() {
       }
       
       // 價格範圍篩選
-      if (priceMin && item.budget.min < Number(priceMin)) {
-        console.log("❌ 價格低於最小值：", { casePrice: item.budget.min, filterMin: priceMin });
-        return false;
-      }
-      if (priceMax && item.budget.max > Number(priceMax)) {
-        console.log("❌ 價格高於最大值：", { casePrice: item.budget.max, filterMax: priceMax });
-        return false;
+      if (priceMin || priceMax) {
+        // 確保 budget 存在且格式正確
+        if (!item.budget || typeof item.budget !== 'object') {
+          console.log("❌ 無效的預算格式：", { caseBudget: item.budget });
+          return false;
+        }
+
+        const budgetMin = Number(item.budget.min) || 0;
+        const budgetMax = Number(item.budget.max) || 0;
+
+        if (priceMin && budgetMin < Number(priceMin)) {
+          console.log("❌ 價格低於最小值：", { casePrice: budgetMin, filterMin: priceMin });
+          return false;
+        }
+        if (priceMax && budgetMax > Number(priceMax)) {
+          console.log("❌ 價格高於最大值：", { casePrice: budgetMax, filterMax: priceMax });
+          return false;
+        }
       }
       
       console.log("✅ 個案符合所有條件：", item);
@@ -235,9 +246,20 @@ function FindTutorCasesPageContent() {
       }
       
       // 價格範圍篩選
-      if (item.budget.min < filters.priceMin || item.budget.max > filters.priceMax) {
-        console.log("❌ 價格不匹配：", { casePrice: item.budget, filterMin: filters.priceMin, filterMax: filters.priceMax });
-        return false;
+      if (filters.priceMin || filters.priceMax) {
+        // 確保 budget 存在且格式正確
+        if (!item.budget || typeof item.budget !== 'object') {
+          console.log("❌ 無效的預算格式：", { caseBudget: item.budget });
+          return false;
+        }
+
+        const budgetMin = Number(item.budget.min) || 0;
+        const budgetMax = Number(item.budget.max) || 0;
+
+        if (budgetMin < filters.priceMin || budgetMax > filters.priceMax) {
+          console.log("❌ 價格不匹配：", { caseBudget: { min: budgetMin, max: budgetMax }, filterMin: filters.priceMin, filterMax: filters.priceMax });
+          return false;
+        }
       }
       
       console.log("✅ 個案符合所有條件：", item);
