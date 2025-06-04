@@ -73,7 +73,15 @@ const categories = [
 
 // 獲取所有分類
 router.get('/', (req, res) => {
-  res.json(CATEGORY_OPTIONS);
+  // 將 CATEGORY_OPTIONS 對象轉換為數組格式
+  const categoriesArray = Object.entries(CATEGORY_OPTIONS).map(([value, category]) => ({
+    value,
+    label: category.label,
+    subjects: category.subjects,
+    subCategories: category.subCategories
+  }));
+  
+  res.json(categoriesArray);
 });
 
 module.exports = router; 
