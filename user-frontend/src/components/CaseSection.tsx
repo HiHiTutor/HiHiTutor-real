@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { fetchApi } from '@/services/api';
 import CaseCard from '@/components/CaseCard';
-import { SUBJECT_MAP } from '@/utils/translate';
+import SUBJECT_MAP from '@/constants/subjectOptions';
 
 // 科目映射表
 const subjectMap: { [key: string]: string } = {
