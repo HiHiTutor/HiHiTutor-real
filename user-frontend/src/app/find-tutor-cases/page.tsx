@@ -9,17 +9,17 @@ import { caseApi } from '@/services/api';
 
 // 分類映射
 const CATEGORY_MAP: Record<string, string[]> = {
-  'primary-secondary': ['小學', '中學', '高中', '國中'],
-  'early-childhood': ['幼兒', '幼稚園'],
+  'primary-secondary': ['小學', '中學', '高中', '國中', 'primary', 'secondary'],
+  'early-childhood': ['幼兒', '幼稚園', 'early-childhood'],
   'interest': ['興趣', 'interest'],
-  'tertiary': ['大學', '大專'],
-  'adult': ['成人', '職業']
+  'tertiary': ['大學', '大專', 'tertiary'],
+  'adult': ['成人', '職業', 'adult']
 };
 
 // 反向分類映射：從後端分類映射到前端分類
 const mapBackendToFrontend = (backendCategory: string) => {
   for (const [frontend, backends] of Object.entries(CATEGORY_MAP)) {
-    if (backends.some(cat => backendCategory.includes(cat))) {
+    if (backends.some(cat => backendCategory.toLowerCase().includes(cat.toLowerCase()))) {
       return frontend;
     }
   }
