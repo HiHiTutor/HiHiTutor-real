@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Listbox, Transition } from '@headlessui/react';
 import { ChevronUpDownIcon, CheckIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { Select } from '@headlessui/react';
+import { CategoryOption, CATEGORY_OPTIONS } from '@/types/category';
 
 interface FilterState {
   target: string;
@@ -17,37 +18,9 @@ interface FilterState {
   priceRange: [number, number];
 }
 
-export interface CategoryOption {
-  value: string;
-  label: string;
-  subjects?: {
-    value: string;
-    label: string;
-  }[];
-  subCategories?: {
-    value: string;
-    label: string;
-    subjects: {
-      value: string;
-      label: string;
-    }[];
-  }[];
-}
-
 const TARGET_OPTIONS = [
   { value: 'find-tutor', label: '尋導師' },
   { value: 'find-student', label: '招學生' }
-];
-
-export const CATEGORY_OPTIONS = [
-  { value: 'primary', label: '小學' },
-  { value: 'secondary', label: '中學' },
-  { value: 'university', label: '大學' },
-  { value: 'language', label: '語言' },
-  { value: 'music', label: '音樂' },
-  { value: 'art', label: '美術' },
-  { value: 'sports', label: '運動' },
-  { value: 'other', label: '其他' }
 ];
 
 export const REGION_OPTIONS = [

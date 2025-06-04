@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Listbox } from '@headlessui/react';
 import { ChevronUpDownIcon, CheckIcon } from '@heroicons/react/20/solid';
-import { CATEGORY_OPTIONS, CategoryOption } from './CaseFilterBar';
+import { CategoryOption, Subject, CATEGORY_OPTIONS } from '@/types/category';
 
 interface PostStudentCaseProps {
   onSubmit: (data: any) => void;
@@ -11,6 +11,7 @@ interface PostStudentCaseProps {
 
 interface FormData {
   category: string;
+  subCategory: string;
   subjects: string[];
   title: string;
   description: string;
@@ -22,6 +23,7 @@ interface FormData {
 export default function PostStudentCase({ onSubmit }: PostStudentCaseProps) {
   const [formData, setFormData] = useState<FormData>({
     category: '',
+    subCategory: '',
     subjects: [],
     title: '',
     description: '',
@@ -34,7 +36,16 @@ export default function PostStudentCase({ onSubmit }: PostStudentCaseProps) {
     setFormData(prev => ({
       ...prev,
       category: value,
-      subjects: [] // 重置科目選擇
+      subCategory: '',
+      subjects: []
+    }));
+  };
+
+  const handleSubCategoryChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      subCategory: value,
+      subjects: []
     }));
   };
 
@@ -53,8 +64,18 @@ export default function PostStudentCase({ onSubmit }: PostStudentCaseProps) {
   };
 
   const getCategorySubjects = () => {
-    const category = CATEGORY_OPTIONS.find((c: CategoryOption) => c.value === formData.category);
-    return category?.subjects || [];
+    const category = CATEGORY_OPTIONS.find(c => c.value === formData.category);
+    if (!category) return [];
+
+    // 如果類別有子類別
+    if (category.subCategories) {
+      // 如果選擇了子類別，返回子類別的科目
+      const subCategory = category.subCategories.find(sc => sc.value === formData.subCategory);
+      return subCategory?.subjects || [];
+    }
+
+    // 如果類別直接有科目
+    return category.subjects || [];
   };
 
   return (
