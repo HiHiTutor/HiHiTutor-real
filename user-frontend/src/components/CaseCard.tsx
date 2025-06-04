@@ -106,19 +106,13 @@ export default function CaseCard({ caseData, routeType = 'tutor', borderColor }:
 
   if (!caseData) return null;
 
-  // 根據路由類型決定顏色
-  const colorScheme = routeType === 'student' ? {
+  // 統一使用黃色主題
+  const colorScheme = {
     border: 'border-yellow-200',
     hover: 'hover:border-yellow-300',
     text: 'text-yellow-600',
     bg: 'bg-yellow-50',
     button: 'bg-yellow-500 hover:bg-yellow-600'
-  } : {
-    border: 'border-blue-200',
-    hover: 'hover:border-blue-300',
-    text: 'text-blue-600',
-    bg: 'bg-blue-50',
-    button: 'bg-blue-500 hover:bg-blue-600'
   };
 
   return (
@@ -126,54 +120,52 @@ export default function CaseCard({ caseData, routeType = 'tutor', borderColor }:
       className={`rounded-xl border ${borderColor || colorScheme.border} ${colorScheme.hover} p-4 transition-all cursor-pointer ${colorScheme.bg}`}
       onClick={() => router.push(`/${routeType}-cases/${caseData.id}`)}
     >
-      <div className="space-y-4">
-        {/* 標題 */}
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold line-clamp-2">
-            {caseData.title || '未命名個案'}
-          </h3>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <CalendarIcon className="h-4 w-4" />
-            <span>{formatDate(caseData.createdAt)}</span>
-          </div>
+      {/* 標題 */}
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold line-clamp-2">
+          {caseData.title || '未命名個案'}
+        </h3>
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+          <CalendarIcon className="h-4 w-4" />
+          <span>{formatDate(caseData.createdAt)}</span>
         </div>
+      </div>
 
-        {/* 詳細資訊 */}
-        <div className="space-y-2 text-sm">
-          <div className="flex items-start gap-2">
-            <BookOpenIcon className={`h-5 w-5 ${colorScheme.text}`} />
-            <span>{caseData.subject?.label || '未指定科目'}</span>
-          </div>
-          <div className="flex items-start gap-2">
-            <MapPinIcon className={`h-5 w-5 ${colorScheme.text}`} />
-            <span>{caseData.region?.label || '未指定地區'}</span>
-          </div>
-          <div className="flex items-start gap-2">
-            <AcademicCapIcon className={`h-5 w-5 ${colorScheme.text}`} />
-            <span>{caseData.experienceLevel?.label || '未指定經驗要求'}</span>
-          </div>
-          {caseData.modes && (
-            <div className="flex items-start gap-2">
-              <ComputerDesktopIcon className={`h-5 w-5 ${colorScheme.text}`} />
-              <span>{caseData.modes.join(', ')}</span>
-            </div>
-          )}
-          {caseData.lessonDetails && (
-            <div className="flex items-start gap-2">
-              <CurrencyDollarIcon className={`h-5 w-5 ${colorScheme.text}`} />
-              <span>每堂 ${caseData.lessonDetails.pricePerLesson}</span>
-            </div>
-          )}
+      {/* 詳細資訊 */}
+      <div className="space-y-2 text-sm">
+        <div className="flex items-start gap-2">
+          <BookOpenIcon className={`h-5 w-5 ${colorScheme.text}`} />
+          <span>{caseData.subject?.label || '未指定科目'}</span>
         </div>
+        <div className="flex items-start gap-2">
+          <MapPinIcon className={`h-5 w-5 ${colorScheme.text}`} />
+          <span>{caseData.region?.label || '未指定地區'}</span>
+        </div>
+        <div className="flex items-start gap-2">
+          <AcademicCapIcon className={`h-5 w-5 ${colorScheme.text}`} />
+          <span>{caseData.experienceLevel?.label || '未指定經驗要求'}</span>
+        </div>
+        {caseData.modes && (
+          <div className="flex items-start gap-2">
+            <ComputerDesktopIcon className={`h-5 w-5 ${colorScheme.text}`} />
+            <span>{caseData.modes.join(', ')}</span>
+          </div>
+        )}
+        {caseData.lessonDetails && (
+          <div className="flex items-start gap-2">
+            <CurrencyDollarIcon className={`h-5 w-5 ${colorScheme.text}`} />
+            <span>每堂 ${caseData.lessonDetails.pricePerLesson}</span>
+          </div>
+        )}
+      </div>
 
-        {/* 查看詳情按鈕 */}
-        <div className="pt-2">
-          <button
-            className={`w-full ${colorScheme.button} text-white rounded-lg py-2 text-sm transition-colors`}
-          >
-            查看詳情
-          </button>
-        </div>
+      {/* 查看詳情按鈕 */}
+      <div className="mt-4">
+        <button
+          className={`w-full ${colorScheme.button} text-white rounded-lg py-2 text-sm transition-colors`}
+        >
+          查看詳情
+        </button>
       </div>
     </div>
   );
