@@ -164,16 +164,12 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
     }));
   };
 
-  const clearFilter = () => {
-    setFilters({
-      target: 'find-tutor',
-      category: '',
-      subCategory: '',
-      subjects: [],
-      mode: [],
-      regions: [],
-      subRegions: [],
-      priceRange: [0, 10000]
+  const handleFilter = () => {
+    onFilter?.({
+      category: selectedCategory,
+      subCategory: filters.subCategory || '',
+      region: selectedRegion,
+      mode: selectedMode
     });
   };
 
@@ -181,16 +177,7 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
     onSearch?.({
       search: searchQuery,
       category: selectedCategory,
-      subCategory: filters.subCategory,
-      region: selectedRegion,
-      mode: selectedMode
-    });
-  };
-
-  const handleApplyFilters = () => {
-    onFilter?.({
-      category: selectedCategory,
-      subCategory: filters.subCategory,
+      subCategory: filters.subCategory || '',
       region: selectedRegion,
       mode: selectedMode
     });
@@ -201,6 +188,16 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
     setSelectedCategory('');
     setSelectedRegion('');
     setSelectedMode('');
+    setFilters({
+      target: '',
+      category: '',
+      subCategory: '',
+      subjects: [],
+      mode: [],
+      regions: [],
+      subRegions: [],
+      priceRange: [0, 0]
+    });
     onFilter?.({});
   };
 
@@ -252,10 +249,7 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
     
     // 如果沒有子分類但有科目，將科目作為子分類返回
     if (category.subjects) {
-      return category.subjects.map(subject => ({
-        value: subject.value,
-        label: subject.label
-      }));
+      return category.subjects;
     }
 
     return [];
@@ -307,9 +301,9 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
               value={selectedCategory}
               onChange={(e) => {
                 setSelectedCategory(e.target.value);
-                // 當主類別改變時，重置子類別和科目
                 setFilters(prev => ({
                   ...prev,
+                  category: e.target.value,
                   subCategory: '',
                   subjects: []
                 }));
@@ -447,7 +441,7 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
             重置
           </button>
           <button
-            onClick={handleApplyFilters}
+            onClick={handleFilter}
             className={`${colorScheme.button} text-white rounded-lg px-6 py-2`}
           >
             應用過濾

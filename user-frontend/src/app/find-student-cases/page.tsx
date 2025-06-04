@@ -209,7 +209,7 @@ function FindStudentCasesPageContent() {
           }
 
           // 如果指定了子分類（實際上是科目）
-          if (subCategory) {
+          if (subCategory && subCategory !== '') {
             const matchesSubject = itemSubjects.some(s => 
               s === subCategory || // 完全匹配
               s.includes(subCategory) || // 部分匹配
