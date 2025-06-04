@@ -5,7 +5,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Listbox, Transition } from '@headlessui/react';
 import { ChevronUpDownIcon, CheckIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { Select } from '@headlessui/react';
-import { CategoryOption, CATEGORY_OPTIONS } from '@/types/category';
+import CATEGORY_OPTIONS from '@/constants/categoryOptions';
+import { REGION_OPTIONS } from '@/constants/regionOptions';
+import { SUBJECT_MAP } from '@/constants/subjectOptions';
 
 interface FilterState {
   target: string;
@@ -21,12 +23,6 @@ interface FilterState {
 const TARGET_OPTIONS = [
   { value: 'find-tutor', label: '尋導師' },
   { value: 'find-student', label: '招學生' }
-];
-
-export const REGION_OPTIONS = [
-  { value: 'hong-kong', label: '香港島' },
-  { value: 'kowloon', label: '九龍' },
-  { value: 'new-territories', label: '新界' }
 ];
 
 export const TEACHING_MODE_OPTIONS = [
@@ -48,104 +44,6 @@ interface RegionOption {
   regions: { value: string; label: string; }[];
 }
 
-const REGION_OPTIONS_FULL: RegionOption[] = [
-  {
-    value: 'all-hong-kong',
-    label: '全港',
-    regions: []
-  },
-  {
-    value: 'hong-kong-island',
-    label: '香港島',
-    regions: [
-      { value: 'central', label: '中環' },
-      { value: 'sheung-wan', label: '上環' },
-      { value: 'sai-wan', label: '西環' },
-      { value: 'sai-ying-pun', label: '西營盤' },
-      { value: 'shek-tong-tsui', label: '石塘咀' },
-      { value: 'wan-chai', label: '灣仔' },
-      { value: 'causeway-bay', label: '銅鑼灣' },
-      { value: 'admiralty', label: '金鐘' },
-      { value: 'happy-valley', label: '跑馬地' },
-      { value: 'tin-hau', label: '天后' },
-      { value: 'tai-hang', label: '大坑' },
-      { value: 'north-point', label: '北角' },
-      { value: 'quarry-bay', label: '鰂魚涌' },
-      { value: 'taikoo', label: '太古' },
-      { value: 'sai-wan-ho', label: '西灣河' },
-      { value: 'shau-kei-wan', label: '筲箕灣' },
-      { value: 'chai-wan', label: '柴灣' },
-      { value: 'heng-fa-chuen', label: '杏花邨' }
-    ]
-  },
-  {
-    value: 'kowloon',
-    label: '九龍',
-    regions: [
-      { value: 'tsim-sha-tsui', label: '尖沙咀' },
-      { value: 'jordan', label: '佐敦' },
-      { value: 'yau-ma-tei', label: '油麻地' },
-      { value: 'mong-kok', label: '旺角' },
-      { value: 'prince-edward', label: '太子' },
-      { value: 'sham-shui-po', label: '深水埗' },
-      { value: 'cheung-sha-wan', label: '長沙灣' },
-      { value: 'hung-hom', label: '紅磡' },
-      { value: 'to-kwa-wan', label: '土瓜灣' },
-      { value: 'ho-man-tin', label: '何文田' },
-      { value: 'kowloon-tong', label: '九龍塘' },
-      { value: 'san-po-kong', label: '新蒲崗' },
-      { value: 'diamond-hill', label: '鑽石山' },
-      { value: 'lok-fu', label: '樂富' },
-      { value: 'tsz-wan-shan', label: '慈雲山' },
-      { value: 'ngau-tau-kok', label: '牛頭角' },
-      { value: 'lam-tin', label: '藍田' },
-      { value: 'kwun-tong', label: '觀塘' },
-      { value: 'yau-tong', label: '油塘' }
-    ]
-  },
-  {
-    value: 'new-territories',
-    label: '新界',
-    regions: [
-      { value: 'sha-tin', label: '沙田' },
-      { value: 'ma-on-shan', label: '馬鞍山' },
-      { value: 'tai-wai', label: '大圍' },
-      { value: 'fo-tan', label: '火炭' },
-      { value: 'tai-po', label: '大埔' },
-      { value: 'tai-wo', label: '太和' },
-      { value: 'fan-ling', label: '粉嶺' },
-      { value: 'sheung-shui', label: '上水' },
-      { value: 'tseung-kwan-o', label: '將軍澳' },
-      { value: 'hang-hau', label: '坑口' },
-      { value: 'po-lam', label: '寶琳' },
-      { value: 'lohas-park', label: '康城' },
-      { value: 'tuen-mun', label: '屯門' },
-      { value: 'siu-hong', label: '兆康' },
-      { value: 'yuen-long', label: '元朗' },
-      { value: 'long-ping', label: '朗屏' },
-      { value: 'tin-shui-wai', label: '天水圍' },
-      { value: 'tsuen-wan', label: '荃灣' },
-      { value: 'kwai-fong', label: '葵芳' },
-      { value: 'kwai-chung', label: '葵涌' },
-      { value: 'tsing-yi', label: '青衣' }
-    ]
-  },
-  {
-    value: 'islands',
-    label: '離島',
-    regions: [
-      { value: 'tung-chung', label: '東涌' },
-      { value: 'mui-wo', label: '梅窩' },
-      { value: 'tai-o', label: '大澳' },
-      { value: 'ping-chau', label: '坪洲' },
-      { value: 'cheung-chau', label: '長洲' },
-      { value: 'lamma-island', label: '南丫島' },
-      { value: 'discovery-bay', label: '愉景灣' },
-      { value: 'pui-o', label: '貝澳' }
-    ]
-  }
-];
-
 interface Option {
   value: string;
   label: string;
@@ -156,6 +54,8 @@ interface CaseFilterBarProps {
   onSearch?: (filters: any) => void;
   fetchUrl: string;
 }
+
+const REGION_OPTIONS_FULL = REGION_OPTIONS;
 
 export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) {
   const router = useRouter();
@@ -292,7 +192,7 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
       region: selectedRegion,
       mode: selectedMode,
       experience: selectedExperience
-    });
+      });
   };
 
   const handleApplyFilters = () => {
@@ -301,7 +201,7 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
       region: selectedRegion,
       mode: selectedMode,
       experience: selectedExperience
-    });
+      });
   };
 
   const handleReset = () => {
@@ -316,7 +216,7 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
   const getSelectedSubRegions = () => {
     const allSubRegions: { value: string; label: string; parent: string }[] = [];
     filters.regions.forEach(region => {
-      const regionGroup = REGION_OPTIONS_FULL.find(r => r.value === region);
+      const regionGroup = REGION_OPTIONS.find(r => r.value === region);
       if (regionGroup) {
         regionGroup.regions.forEach(subRegion => {
           allSubRegions.push({
@@ -330,16 +230,14 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
   };
 
   const getCategorySubjects = () => {
-    const category = CATEGORY_OPTIONS.find(c => c.value === filters.category) as CategoryOption;
+    const category = CATEGORY_OPTIONS.find(c => c.value === filters.category);
     if (!category) return [];
 
-    // If category has subCategories and a subCategory is selected
     if (category.subCategories && filters.subCategory) {
       const subCategory = category.subCategories.find(sc => sc.value === filters.subCategory);
       return subCategory?.subjects || [];
     }
 
-    // If category has direct subjects
     return category.subjects || [];
   };
 
@@ -372,7 +270,7 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
             onChange={(e) => setSearchQuery(e.target.value)}
             className="flex-1 rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
           />
-          <button
+              <button
             onClick={handleSearch}
             className={`${colorScheme.button} text-white rounded-lg px-6 py-2`}
           >
@@ -395,9 +293,9 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
               <option value="">全部類別</option>
               {CATEGORY_OPTIONS.map(option => (
                 <option key={option.value} value={option.value}>
-                  {option.label}
+                            {option.label}
                 </option>
-              ))}
+                  ))}
             </select>
           </div>
 
@@ -412,11 +310,11 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
               className="w-full rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
             >
               <option value="">全部地區</option>
-              {REGION_OPTIONS_FULL.map(option => (
+              {REGION_OPTIONS.map(option => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
-              ))}
+                        ))}
             </select>
           </div>
 
@@ -435,7 +333,7 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
-              ))}
+                    ))}
             </select>
           </div>
 
@@ -443,7 +341,7 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               經驗要求
-            </label>
+                        </label>
             <select
               value={selectedExperience}
               onChange={(e) => setSelectedExperience(e.target.value)}
@@ -454,7 +352,7 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
-              ))}
+                                ))}
             </select>
           </div>
         </div>

@@ -4,7 +4,7 @@ export interface RegionOption {
   regions: { value: string; label: string }[];
 }
 
-const REGION_OPTIONS: RegionOption[] = [
+export const REGION_OPTIONS = [
   {
     value: 'all-hong-kong',
     label: '全港',
