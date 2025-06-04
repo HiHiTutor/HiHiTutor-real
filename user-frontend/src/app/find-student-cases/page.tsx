@@ -178,17 +178,19 @@ function FindStudentCasesPageContent() {
 
           // 如果指定了子分類（primary 或 secondary）
           if (subCategory) {
+            const subCategoryStr = typeof subCategory === 'string' ? subCategory : 
+                                 Array.isArray(subCategory) ? subCategory[0] : '';
             const matchesSubCategory = 
-              itemCategory.includes(subCategory) || 
-              itemSubCategory.includes(subCategory) ||
-              itemSubjects.some(s => s.startsWith(`${subCategory}-`));
+              itemCategory.includes(subCategoryStr) || 
+              itemSubCategory.includes(subCategoryStr) ||
+              itemSubjects.some(s => s.startsWith(`${subCategoryStr}-`));
 
             if (!matchesSubCategory) {
               console.log("❌ 子分類不匹配：", { 
                 itemCategory,
                 itemSubCategory,
                 itemSubjects,
-                subCategory 
+                subCategory: subCategoryStr
               });
               return false;
             }
@@ -199,8 +201,8 @@ function FindStudentCasesPageContent() {
           
           if (!matchesCategory) {
             console.log("❌ 分類不匹配：", { 
-              itemCategory,
-              itemSubjects,
+              caseCategory: itemCategory,
+              caseFrontendCategory: item.category,
               filterCategory: category 
             });
             return false;
@@ -210,31 +212,30 @@ function FindStudentCasesPageContent() {
               category
             });
           }
-        }
-      }
 
-      // 科目篩選（獨立於分類篩選）
-      if (subCategory) {
-        const itemSubjects = Array.isArray(item.subjects) ? item.subjects.map(s => String(s).toLowerCase()) : [];
-        const filterSubject = Array.isArray(subCategory) ? subCategory[0].toLowerCase() : subCategory.toLowerCase();
+          // 如果指定了子分類（科目）
+          if (subCategory) {
+            const subCategoryStr = typeof subCategory === 'string' ? subCategory : 
+                                 Array.isArray(subCategory) ? subCategory[0] : '';
+            const matchesSubject = itemSubjects.some(s => 
+              s === subCategoryStr || // 完全匹配
+              s.includes(subCategoryStr) || // 部分匹配
+              s.split('-').slice(-1)[0] === subCategoryStr // 匹配最後一部分
+            );
 
-        const matchesSubject = itemSubjects.some(s => 
-          s === filterSubject || // 完全匹配
-          s.includes(filterSubject) || // 部分匹配
-          s.split('-').slice(-1)[0] === filterSubject // 匹配最後一部分
-        );
-
-        if (!matchesSubject) {
-          console.log("❌ 科目不匹配：", { 
-            subjects: itemSubjects,
-            subCategory: filterSubject
-          });
-          return false;
-        } else {
-          console.log("✅ 科目匹配：", {
-            subjects: itemSubjects,
-            subCategory: filterSubject
-          });
+            if (!matchesSubject) {
+              console.log("❌ 科目不匹配：", { 
+                subjects: itemSubjects,
+                subCategory: subCategoryStr
+              });
+              return false;
+            } else {
+              console.log("✅ 科目匹配：", {
+                subjects: itemSubjects,
+                subCategory: subCategoryStr
+              });
+            }
+          }
         }
       }
       
