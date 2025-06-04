@@ -6,28 +6,55 @@ import CaseFilterBar from '@/components/CaseFilterBar';
 import LoadMoreButton from '@/components/LoadMoreButton';
 import CaseCard from '@/components/CaseCard';
 import { caseApi } from '@/services/api';
+import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 
-// 分類映射
-const CATEGORY_MAP: Record<string, string[]> = {
-  'primary-secondary': ['小學', '中學', '高中', '國中', 'primary', 'secondary'],
-  'early-childhood': ['幼兒', '幼稚園', 'early-childhood'],
-  'interest': ['興趣', 'interest'],
-  'tertiary': ['大學', '大專', 'tertiary'],
-  'adult': ['成人', '職業', 'adult']
-};
+// 定義分類選項的類型
+interface CategoryOption {
+  label: string;
+  subjects: Array<{
+    value: string;
+    label: string;
+  }>;
+}
 
-// 反向分類映射：從後端分類映射到前端分類
+interface CategoryOptions {
+  'early-childhood': CategoryOption;
+  'primary-secondary': CategoryOption;
+  'interest': CategoryOption;
+  'tertiary': CategoryOption;
+  'adult': CategoryOption;
+  [key: string]: CategoryOption;
+}
+
+// 分類映射：從後端分類映射到前端分類
 const mapBackendToFrontend = (backendCategory: string) => {
-  for (const [frontend, backends] of Object.entries(CATEGORY_MAP)) {
-    if (backends.some(cat => backendCategory.toLowerCase().includes(cat.toLowerCase()))) {
-      return frontend;
+  // 直接使用 category key 比對
+  const normalizedCategory = backendCategory.toLowerCase().trim();
+  const options = CATEGORY_OPTIONS as unknown as CategoryOptions;
+  
+  // 檢查是否直接匹配任何主分類
+  if (options[normalizedCategory]) {
+    return normalizedCategory;
+  }
+  
+  // 檢查是否包含在任何分類的科目中
+  for (const [category, data] of Object.entries(options)) {
+    const subjects = data.subjects || [];
+    if (subjects.some(subject => 
+      subject.value.toLowerCase().startsWith(normalizedCategory) ||
+      normalizedCategory.includes(category.toLowerCase())
+    )) {
+      return category;
     }
   }
+  
   return backendCategory;
 };
 
 const mapCategoryToBackend = (frontendCategory: string) => {
-  return CATEGORY_MAP[frontendCategory] || [frontendCategory];
+  const options = CATEGORY_OPTIONS as unknown as CategoryOptions;
+  const categoryData = options[frontendCategory];
+  return categoryData?.subjects.map((s: { value: string }) => s.value) || [frontendCategory];
 };
 
 interface Case {
