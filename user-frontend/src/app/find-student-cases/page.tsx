@@ -146,57 +146,43 @@ function FindStudentCasesPageContent() {
           return false;
         }
 
-        // 如果分類有子分類（如中小學教育）
-        if (categoryOption.subCategories) {
-          // 檢查主分類
-          const itemCategory = String(item.category || '').toLowerCase();
-          if (!itemCategory.includes(category.toLowerCase())) {
-            console.log("❌ 主分類不匹配：", { itemCategory, category });
-            return false;
-          }
-          
-          // 如果指定了子分類
-          if (subCategory) {
-            const itemSubCategory = String(item.subCategory || '').toLowerCase();
-            if (!itemSubCategory.includes(subCategory.toLowerCase())) {
-              console.log("❌ 子分類不匹配：", { itemSubCategory, subCategory });
+        // 檢查主分類
+        const itemCategory = String(item.category || '').toLowerCase();
+        if (!itemCategory.includes(category.toLowerCase())) {
+          console.log("❌ 主分類不匹配：", { itemCategory, category });
+          return false;
+        }
+
+        // 如果指定了子分類或科目
+        if (subCategory) {
+          // 檢查是否為有子分類的類別（如中小學教育）
+          if (categoryOption.subCategories) {
+            const subCategoryMatch = categoryOption.subCategories.find(
+              sub => sub.value === subCategory
+            );
+            if (!subCategoryMatch) {
+              console.log("❌ 子分類不匹配：", { subCategory });
               return false;
             }
-
-            // 如果還指定了具體科目
-            if (subject) {
-              const hasMatchingSubject = Array.isArray(item.subjects) && 
-                item.subjects.some(s => 
-                  String(s).toLowerCase() === subject.toLowerCase()
-                );
+            
+            // 如果有指定科目
+            if (subject && subCategoryMatch.subjects) {
+              const hasMatchingSubject = subCategoryMatch.subjects.some(
+                s => s.value === subject
+              );
               if (!hasMatchingSubject) {
-                console.log("❌ 科目不匹配：", { subjects: item.subjects, subject });
+                console.log("❌ 科目不匹配：", { subject });
                 return false;
               }
             }
-          }
-        } 
-        // 如果分類直接有科目（如幼兒教育、興趣班等）
-        else if (categoryOption.subjects) {
-          // 如果選擇了具體科目
-          if (subCategory) {
-            const hasMatchingSubject = Array.isArray(item.subjects) && 
-              item.subjects.some(s => 
-                String(s).toLowerCase() === subCategory.toLowerCase()
-              );
+          } 
+          // 檢查是否為直接有科目的類別（如幼兒教育）
+          else if (categoryOption.subjects) {
+            const hasMatchingSubject = categoryOption.subjects.some(
+              s => s.value === subCategory
+            );
             if (!hasMatchingSubject) {
-              console.log("❌ 科目不匹配：", { subjects: item.subjects, subCategory });
-              return false;
-            }
-          }
-          // 如果只選擇了分類
-          else {
-            const hasMatchingSubject = Array.isArray(item.subjects) && 
-              item.subjects.some(s => 
-                String(s).toLowerCase().startsWith(category.toLowerCase())
-              );
-            if (!hasMatchingSubject) {
-              console.log("❌ 分類科目不匹配：", { subjects: item.subjects, category });
+              console.log("❌ 科目不匹配：", { subCategory });
               return false;
             }
           }
