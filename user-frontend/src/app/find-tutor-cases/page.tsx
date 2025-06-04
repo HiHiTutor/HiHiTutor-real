@@ -157,15 +157,32 @@ function FindTutorCasesPageContent() {
     const filtered = allCases.filter(item => {
       // 分類篩選
       if (category) {
-        const itemFrontendCategory = mapBackendToFrontend(item.category);
-        if (itemFrontendCategory !== category) {
-          console.log("❌ 分類不匹配：", { 
-            caseCategory: item.category, 
-            caseFrontendCategory: itemFrontendCategory,
-            filterCategory: category 
-          });
-          return false;
+        const itemCategory = item.category?.toLowerCase().trim();
+        const itemSubjects = item.subjects || [];
+        
+        // 檢查主分類
+        if (itemCategory === category) {
+          console.log("✅ 主分類匹配：", { itemCategory, category });
+          return true;
         }
+        
+        // 檢查科目是否屬於該分類
+        const hasMatchingSubject = itemSubjects.some(subject => {
+          const subjectStr = String(subject).toLowerCase();
+          return subjectStr.startsWith(category) || subjectStr.includes(category);
+        });
+        
+        if (hasMatchingSubject) {
+          console.log("✅ 科目分類匹配：", { itemSubjects, category });
+          return true;
+        }
+
+        console.log("❌ 分類不匹配：", { 
+          itemCategory,
+          itemSubjects,
+          filterCategory: category 
+        });
+        return false;
       }
       
       // 子分類篩選
@@ -211,7 +228,6 @@ function FindTutorCasesPageContent() {
         }
       }
       
-      console.log("✅ 個案符合所有條件：", item);
       return true;
     });
 
