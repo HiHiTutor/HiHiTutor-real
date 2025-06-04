@@ -293,11 +293,32 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
               <option value="">全部類別</option>
               {CATEGORY_OPTIONS.map(option => (
                 <option key={option.value} value={option.value}>
-                            {option.label}
+                  {option.label}
                 </option>
-                  ))}
+              ))}
             </select>
           </div>
+
+          {/* 子類別選擇 */}
+          {selectedCategory && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                子類別
+              </label>
+              <select
+                value={filters.subCategory}
+                onChange={(e) => handleSubCategoryChange(e.target.value)}
+                className="w-full rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              >
+                <option value="">全部子類別</option>
+                {CATEGORY_OPTIONS.find(c => c.value === selectedCategory)?.subCategories?.map(subCategory => (
+                  <option key={subCategory.value} value={subCategory.value}>
+                    {subCategory.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* 地區選擇 */}
           <div>
@@ -314,9 +335,30 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
-                        ))}
+              ))}
             </select>
           </div>
+
+          {/* 子地區選擇 */}
+          {selectedRegion && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                區域
+              </label>
+              <select
+                value={filters.subRegions[0] || ''}
+                onChange={(e) => handleSubRegionChange(e.target.value)}
+                className="w-full rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              >
+                <option value="">全部區域</option>
+                {REGION_OPTIONS.find(r => r.value === selectedRegion)?.regions.map(subRegion => (
+                  <option key={subRegion.value} value={subRegion.value}>
+                    {subRegion.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* 教學模式選擇 */}
           <div>
@@ -333,7 +375,7 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
-                    ))}
+              ))}
             </select>
           </div>
 
@@ -341,7 +383,7 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               經驗要求
-                        </label>
+            </label>
             <select
               value={selectedExperience}
               onChange={(e) => setSelectedExperience(e.target.value)}
@@ -352,7 +394,7 @@ export default function CaseFilterBar({ onFilter, onSearch, fetchUrl }: CaseFilt
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
-                                ))}
+              ))}
             </select>
           </div>
         </div>
