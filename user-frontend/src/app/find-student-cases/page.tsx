@@ -214,9 +214,9 @@ function FindStudentCasesPageContent() {
       }
 
       // 科目篩選（獨立於分類篩選）
-      if (subCategory && typeof subCategory === 'string' && subCategory !== '') {
+      if (subCategory) {
         const itemSubjects = Array.isArray(item.subjects) ? item.subjects.map(s => String(s).toLowerCase()) : [];
-        const filterSubject = subCategory.toLowerCase();
+        const filterSubject = Array.isArray(subCategory) ? subCategory[0].toLowerCase() : subCategory.toLowerCase();
 
         const matchesSubject = itemSubjects.some(s => 
           s === filterSubject || // 完全匹配
