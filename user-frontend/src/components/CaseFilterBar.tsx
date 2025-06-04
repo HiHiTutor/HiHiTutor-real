@@ -240,6 +240,27 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
     }));
   };
 
+  // 獲取當前分類的子分類或科目
+  const getSubOptions = () => {
+    const category = CATEGORY_OPTIONS.find(c => c.value === selectedCategory);
+    if (!category) return [];
+
+    // 如果有子分類，返回子分類
+    if (category.subCategories) {
+      return category.subCategories;
+    }
+    
+    // 如果沒有子分類但有科目，將科目作為子分類返回
+    if (category.subjects) {
+      return category.subjects.map(subject => ({
+        value: subject.value,
+        label: subject.label
+      }));
+    }
+
+    return [];
+  };
+
   return (
     <div className={`rounded-xl border ${colorScheme.border} ${colorScheme.bg} p-6`}>
       <div className="space-y-4">
@@ -271,7 +292,7 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
               value={selectedCategory}
               onChange={(e) => {
                 setSelectedCategory(e.target.value);
-                // 當主類別改變時，重置子類別
+                // 當主類別改變時，重置子類別和科目
                 setFilters(prev => ({
                   ...prev,
                   subCategory: '',
@@ -289,21 +310,27 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
             </select>
           </div>
 
-          {/* 子類別選擇 */}
+          {/* 子類別/科目選擇 */}
           {selectedCategory && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                子類別
+                {CATEGORY_OPTIONS.find(c => c.value === selectedCategory)?.subCategories 
+                  ? '子類別'
+                  : '科目'}
               </label>
               <select
                 value={filters.subCategory}
                 onChange={(e) => handleSubCategoryChange(e.target.value)}
                 className="w-full rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
               >
-                <option value="">全部子類別</option>
-                {CATEGORY_OPTIONS.find(c => c.value === selectedCategory)?.subCategories?.map(subCategory => (
-                  <option key={subCategory.value} value={subCategory.value}>
-                    {subCategory.label}
+                <option value="">
+                  {CATEGORY_OPTIONS.find(c => c.value === selectedCategory)?.subCategories 
+                    ? '全部子類別'
+                    : '全部科目'}
+                </option>
+                {getSubOptions().map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
                   </option>
                 ))}
               </select>

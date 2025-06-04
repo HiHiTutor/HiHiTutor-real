@@ -129,36 +129,37 @@ function FindStudentCasesPageContent() {
         if (!matchesSearch) return false;
       }
 
-      // 分類篩選
+      // 分類和科目篩選
       if (category) {
-        const itemCategory = item.category?.toLowerCase().trim();
-        const itemSubjects = item.subjects || [];
-        
-        // 檢查主分類
-        if (itemCategory === category.toLowerCase()) {
-          // 如果有子分類，檢查子分類
+        const categoryOption = CATEGORY_OPTIONS.find(c => c.value === category);
+        if (!categoryOption) return false;
+
+        // 如果分類有子分類
+        if (categoryOption.subCategories) {
+          // 檢查主分類
+          if (item.category?.toLowerCase() !== category.toLowerCase()) {
+            return false;
+          }
+          
+          // 如果指定了子分類，檢查子分類
           if (subCategory) {
             return item.subCategory?.toLowerCase() === subCategory.toLowerCase();
           }
           return true;
+        } 
+        // 如果分類直接有科目
+        else if (categoryOption.subjects) {
+          // 如果選擇了具體科目
+          if (subCategory) {
+            return item.subjects?.some(s => 
+              s.toLowerCase() === subCategory.toLowerCase()
+            );
+          }
+          // 如果只選擇了分類
+          return item.subjects?.some(s => 
+            s.toLowerCase().startsWith(category.toLowerCase())
+          );
         }
-        
-        // 檢查科目是否屬於該分類
-        const hasMatchingSubject = itemSubjects.some(subject => {
-          const subjectStr = String(subject).toLowerCase();
-          return subjectStr.startsWith(category.toLowerCase()) || 
-                 subjectStr.includes(category.toLowerCase());
-        });
-        
-        if (!hasMatchingSubject) return false;
-      }
-      
-      // 子分類篩選
-      if (subCategory && !category) {
-        if (!item.subCategory) return false;
-        const itemSubCategory = item.subCategory.toLowerCase();
-        const filterSubCategory = subCategory.toLowerCase();
-        return itemSubCategory === filterSubCategory;
       }
       
       // 地區篩選
