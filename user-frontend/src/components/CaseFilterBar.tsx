@@ -261,6 +261,21 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
     return [];
   };
 
+  // 獲取選定子分類的科目
+  const getSubjectOptions = () => {
+    const category = CATEGORY_OPTIONS.find(c => c.value === selectedCategory);
+    if (!category || !category.subCategories) return [];
+
+    const subCategory = category.subCategories.find(sub => sub.value === filters.subCategory);
+    return subCategory?.subjects || [];
+  };
+
+  // 判斷是否應該顯示科目選擇
+  const shouldShowSubjects = () => {
+    const category = CATEGORY_OPTIONS.find(c => c.value === selectedCategory);
+    return category?.subCategories && filters.subCategory;
+  };
+
   return (
     <div className={`rounded-xl border ${colorScheme.border} ${colorScheme.bg} p-6`}>
       <div className="space-y-4">
@@ -331,6 +346,32 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
                 {getSubOptions().map(option => (
                   <option key={option.value} value={option.value}>
                     {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* 科目選擇（當選擇了中學/小學時顯示） */}
+          {shouldShowSubjects() && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                科目
+              </label>
+              <select
+                value={filters.subjects[0] || ''}
+                onChange={(e) => {
+                  setFilters(prev => ({
+                    ...prev,
+                    subjects: e.target.value ? [e.target.value] : []
+                  }));
+                }}
+                className="w-full rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              >
+                <option value="">全部科目</option>
+                {getSubjectOptions().map(subject => (
+                  <option key={subject.value} value={subject.value}>
+                    {subject.label}
                   </option>
                 ))}
               </select>

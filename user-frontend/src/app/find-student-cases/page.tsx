@@ -97,13 +97,14 @@ function FindStudentCasesPageContent() {
 
   // 當 URL 參數改變時，從 allCases 中過濾
   useEffect(() => {
-    if (allCases.length === 0) return; // 如果還沒有資料，不進行過濾
+    if (allCases.length === 0) return;
 
     console.log("🔍 URL 參數改變，開始過濾資料");
     // 從 URL 獲取搜尋參數
     const search = searchParams.get('search');
     const category = searchParams.get('category');
     const subCategory = searchParams.get('subCategory');
+    const subject = searchParams.get('subject');
     const region = searchParams.get('region');
     const mode = searchParams.get('mode');
 
@@ -111,6 +112,7 @@ function FindStudentCasesPageContent() {
       search,
       category,
       subCategory,
+      subject,
       region,
       mode
     });
@@ -141,9 +143,19 @@ function FindStudentCasesPageContent() {
             return false;
           }
           
-          // 如果指定了子分類，檢查子分類
+          // 如果指定了子分類
           if (subCategory) {
-            return item.subCategory?.toLowerCase() === subCategory.toLowerCase();
+            if (item.subCategory?.toLowerCase() !== subCategory.toLowerCase()) {
+              return false;
+            }
+
+            // 如果還指定了具體科目
+            if (subject) {
+              return item.subjects?.some(s => 
+                s.toLowerCase() === subject.toLowerCase()
+              );
+            }
+            return true;
           }
           return true;
         } 
@@ -207,6 +219,7 @@ function FindStudentCasesPageContent() {
     if (filters.search) params.set('search', filters.search);
     if (filters.category) params.set('category', filters.category);
     if (filters.subCategory) params.set('subCategory', filters.subCategory);
+    if (filters.subjects?.[0]) params.set('subject', filters.subjects[0]);
     if (filters.region) params.set('region', filters.region);
     if (filters.mode) params.set('mode', filters.mode);
     
