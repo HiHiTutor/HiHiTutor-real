@@ -98,9 +98,10 @@ interface CaseData {
 interface CaseCardProps {
   caseData?: CaseData
   routeType?: 'student' | 'tutor'
+  borderColor?: string
 }
 
-export default function CaseCard({ caseData, routeType = 'tutor' }: CaseCardProps) {
+export default function CaseCard({ caseData, routeType = 'tutor', borderColor }: CaseCardProps) {
   const router = useRouter();
 
   if (!caseData) return null;
@@ -122,7 +123,7 @@ export default function CaseCard({ caseData, routeType = 'tutor' }: CaseCardProp
 
   return (
     <div 
-      className={`rounded-xl border ${colorScheme.border} ${colorScheme.hover} p-4 transition-all cursor-pointer ${colorScheme.bg}`}
+      className={`rounded-xl border ${borderColor || colorScheme.border} ${colorScheme.hover} p-4 transition-all cursor-pointer ${colorScheme.bg}`}
       onClick={() => router.push(`/${routeType}-cases/${caseData.id}`)}
     >
       <div className="space-y-4">
