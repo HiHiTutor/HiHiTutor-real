@@ -210,30 +210,31 @@ function FindStudentCasesPageContent() {
               category
             });
           }
+        }
+      }
 
-          // 如果指定了子分類（科目）
-          if (subCategory && Array.isArray(subCategory) && subCategory.length > 0) {
-            const matchesSubject = itemSubjects.some(s => 
-              subCategory.some(sub => 
-                s === sub || // 完全匹配
-                s.includes(sub) || // 部分匹配
-                s.split('-').slice(-1)[0] === sub // 匹配最後一部分
-              )
-            );
+      // 科目篩選（獨立於分類篩選）
+      if (subCategory && typeof subCategory === 'string' && subCategory !== '') {
+        const itemSubjects = Array.isArray(item.subjects) ? item.subjects.map(s => String(s).toLowerCase()) : [];
+        const filterSubject = subCategory.toLowerCase();
 
-            if (!matchesSubject) {
-              console.log("❌ 科目不匹配：", { 
-                subjects: itemSubjects,
-                subCategory 
-              });
-              return false;
-            } else {
-              console.log("✅ 科目匹配：", {
-                subjects: itemSubjects,
-                subCategory
-              });
-            }
-          }
+        const matchesSubject = itemSubjects.some(s => 
+          s === filterSubject || // 完全匹配
+          s.includes(filterSubject) || // 部分匹配
+          s.split('-').slice(-1)[0] === filterSubject // 匹配最後一部分
+        );
+
+        if (!matchesSubject) {
+          console.log("❌ 科目不匹配：", { 
+            subjects: itemSubjects,
+            subCategory: filterSubject
+          });
+          return false;
+        } else {
+          console.log("✅ 科目匹配：", {
+            subjects: itemSubjects,
+            subCategory: filterSubject
+          });
         }
       }
       
