@@ -195,25 +195,30 @@ function FindStudentCasesPageContent() {
           }
         } else {
           // 其他分類的一般處理
-          const matchesCategory = 
-            itemCategory.includes(category) || 
-            itemSubjects.some(s => s.startsWith(`${category}-`));
-
+          const matchesCategory = itemCategory === category;
+          
           if (!matchesCategory) {
             console.log("❌ 分類不匹配：", { 
-              caseCategory: itemCategory,
-              caseFrontendCategory: item.category,
+              itemCategory,
+              itemSubjects,
               filterCategory: category 
             });
             return false;
+          } else {
+            console.log("✅ 主分類匹配：", {
+              itemCategory,
+              category
+            });
           }
 
-          // 如果指定了子分類（實際上是科目）
-          if (subCategory && subCategory !== '') {
+          // 如果指定了子分類（科目）
+          if (subCategory && Array.isArray(subCategory) && subCategory.length > 0) {
             const matchesSubject = itemSubjects.some(s => 
-              s === subCategory || // 完全匹配
-              s.includes(subCategory) || // 部分匹配
-              s.split('-').slice(-1)[0] === subCategory // 匹配最後一部分
+              subCategory.some(sub => 
+                s === sub || // 完全匹配
+                s.includes(sub) || // 部分匹配
+                s.split('-').slice(-1)[0] === sub // 匹配最後一部分
+              )
             );
 
             if (!matchesSubject) {
@@ -222,6 +227,11 @@ function FindStudentCasesPageContent() {
                 subCategory 
               });
               return false;
+            } else {
+              console.log("✅ 科目匹配：", {
+                subjects: itemSubjects,
+                subCategory
+              });
             }
           }
         }
