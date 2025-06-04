@@ -217,11 +217,7 @@ function FindStudentCasesPageContent() {
           if (subCategory) {
             const subCategoryStr = typeof subCategory === 'string' ? subCategory : 
                                  Array.isArray(subCategory) ? subCategory[0] : '';
-            const matchesSubject = itemSubjects.some(s => 
-              s === subCategoryStr || // 完全匹配
-              s.includes(subCategoryStr) || // 部分匹配
-              s.split('-').slice(-1)[0] === subCategoryStr // 匹配最後一部分
-            );
+            const matchesSubject = itemSubjects.some(s => s === subCategoryStr);
 
             if (!matchesSubject) {
               console.log("❌ 科目不匹配：", { 
