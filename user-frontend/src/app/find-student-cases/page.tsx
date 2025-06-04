@@ -169,8 +169,8 @@ function FindStudentCasesPageContent() {
 
           if (!matchesMainCategory) {
             console.log("❌ 分類不匹配：", { 
-              itemCategory,
-              itemSubjects,
+              caseCategory: itemCategory,
+              caseFrontendCategory: item.category,
               filterCategory: category 
             });
             return false;
@@ -201,8 +201,8 @@ function FindStudentCasesPageContent() {
 
           if (!matchesCategory) {
             console.log("❌ 分類不匹配：", { 
-              itemCategory,
-              itemSubjects,
+              caseCategory: itemCategory,
+              caseFrontendCategory: item.category,
               filterCategory: category 
             });
             return false;
