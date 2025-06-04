@@ -181,6 +181,7 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
     onSearch?.({
       search: searchQuery,
       category: selectedCategory,
+      subCategory: filters.subCategory,
       region: selectedRegion,
       mode: selectedMode
     });
@@ -189,6 +190,7 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
   const handleApplyFilters = () => {
     onFilter?.({
       category: selectedCategory,
+      subCategory: filters.subCategory,
       region: selectedRegion,
       mode: selectedMode
     });

@@ -101,12 +101,14 @@ function FindStudentCasesPageContent() {
 
     console.log("🔍 URL 參數改變，開始過濾資料");
     // 從 URL 獲取搜尋參數
+    const search = searchParams.get('search');
     const category = searchParams.get('category');
     const subCategory = searchParams.get('subCategory');
     const region = searchParams.get('region');
     const mode = searchParams.get('mode');
 
     console.log("🔍 搜尋參數：", {
+      search,
       category,
       subCategory,
       region,
@@ -115,18 +117,28 @@ function FindStudentCasesPageContent() {
 
     // 從 allCases 過濾
     const filtered = allCases.filter(item => {
+      // 搜尋過濾
+      if (search) {
+        const searchLower = search.toLowerCase();
+        const matchesSearch = 
+          item.title?.toLowerCase().includes(searchLower) ||
+          item.subjects?.some(s => s.toLowerCase().includes(searchLower)) ||
+          item.region?.toLowerCase().includes(searchLower) ||
+          item.subRegion?.toLowerCase().includes(searchLower);
+        
+        if (!matchesSearch) return false;
+      }
+
       // 分類篩選
       if (category) {
         const itemCategory = item.category?.toLowerCase().trim();
         const itemSubjects = item.subjects || [];
         
         // 檢查主分類
-        if (itemCategory === category) {
-          console.log("✅ 主分類匹配：", { itemCategory, category });
-          
+        if (itemCategory === category.toLowerCase()) {
           // 如果有子分類，檢查子分類
-          if (subCategory && item.subCategory) {
-            return item.subCategory.toLowerCase() === subCategory.toLowerCase();
+          if (subCategory) {
+            return item.subCategory?.toLowerCase() === subCategory.toLowerCase();
           }
           return true;
         }
@@ -134,24 +146,15 @@ function FindStudentCasesPageContent() {
         // 檢查科目是否屬於該分類
         const hasMatchingSubject = itemSubjects.some(subject => {
           const subjectStr = String(subject).toLowerCase();
-          return subjectStr.startsWith(category) || subjectStr.includes(category);
+          return subjectStr.startsWith(category.toLowerCase()) || 
+                 subjectStr.includes(category.toLowerCase());
         });
         
-        if (hasMatchingSubject) {
-          console.log("✅ 科目分類匹配：", { itemSubjects, category });
-          return true;
-        }
-
-        console.log("❌ 分類不匹配：", { 
-          itemCategory,
-          itemSubjects,
-          filterCategory: category 
-        });
-        return false;
+        if (!hasMatchingSubject) return false;
       }
       
       // 子分類篩選
-      if (subCategory) {
+      if (subCategory && !category) {
         if (!item.subCategory) return false;
         const itemSubCategory = item.subCategory.toLowerCase();
         const filterSubCategory = subCategory.toLowerCase();
@@ -164,7 +167,9 @@ function FindStudentCasesPageContent() {
         const itemRegions = item.regions?.map(r => r.toLowerCase()) || [];
         const filterRegion = region.toLowerCase();
         
-        return itemRegion === filterRegion || itemRegions.includes(filterRegion);
+        if (itemRegion !== filterRegion && !itemRegions.includes(filterRegion)) {
+          return false;
+        }
       }
       
       // 教學模式篩選
@@ -173,7 +178,9 @@ function FindStudentCasesPageContent() {
         const itemModes = item.modes?.map(m => m.toLowerCase()) || [];
         const filterMode = mode.toLowerCase();
         
-        return itemMode === filterMode || itemModes.includes(filterMode);
+        if (itemMode !== filterMode && !itemModes.includes(filterMode)) {
+          return false;
+        }
       }
       
       return true;
@@ -196,6 +203,7 @@ function FindStudentCasesPageContent() {
     
     // 構建查詢參數
     const params = new URLSearchParams();
+    if (filters.search) params.set('search', filters.search);
     if (filters.category) params.set('category', filters.category);
     if (filters.subCategory) params.set('subCategory', filters.subCategory);
     if (filters.region) params.set('region', filters.region);
