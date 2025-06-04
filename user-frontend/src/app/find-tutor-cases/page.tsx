@@ -30,25 +30,21 @@ interface CategoryOptions {
 const mapBackendToFrontend = (backendCategory: string) => {
   // 直接使用 category key 比對
   const normalizedCategory = backendCategory.toLowerCase().trim();
-  const options = CATEGORY_OPTIONS as unknown as CategoryOptions;
   
   // 檢查是否直接匹配任何主分類
-  if (options[normalizedCategory]) {
+  const mainCategories = ['early-childhood', 'primary-secondary', 'interest', 'tertiary', 'adult'];
+  if (mainCategories.includes(normalizedCategory)) {
     return normalizedCategory;
   }
   
   // 檢查是否包含在任何分類的科目中
-  for (const [category, data] of Object.entries(options)) {
-    const subjects = data.subjects || [];
-    if (subjects.some(subject => 
-      subject.value.toLowerCase().startsWith(normalizedCategory) ||
-      normalizedCategory.includes(category.toLowerCase())
-    )) {
+  for (const category of mainCategories) {
+    if (normalizedCategory.startsWith(category) || normalizedCategory.includes(category)) {
       return category;
     }
   }
   
-  return backendCategory;
+  return normalizedCategory;
 };
 
 const mapCategoryToBackend = (frontendCategory: string) => {
