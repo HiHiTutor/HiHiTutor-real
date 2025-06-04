@@ -119,83 +119,119 @@ function FindStudentCasesPageContent() {
 
     // 從 allCases 過濾
     const filtered = allCases.filter(item => {
+      console.log("檢查案例：", item);
+
       // 搜尋過濾
       if (search) {
         const searchLower = search.toLowerCase();
         const matchesSearch = 
           item.title?.toLowerCase().includes(searchLower) ||
-          item.subjects?.some(s => s.toLowerCase().includes(searchLower)) ||
-          item.region?.toLowerCase().includes(searchLower) ||
-          item.subRegion?.toLowerCase().includes(searchLower);
+          (Array.isArray(item.subjects) && item.subjects.some(s => 
+            String(s).toLowerCase().includes(searchLower)
+          )) ||
+          String(item.region || '').toLowerCase().includes(searchLower) ||
+          String(item.subRegion || '').toLowerCase().includes(searchLower);
         
-        if (!matchesSearch) return false;
+        if (!matchesSearch) {
+          console.log("❌ 不符合搜尋條件：", { search, item });
+          return false;
+        }
       }
 
       // 分類和科目篩選
       if (category) {
         const categoryOption = CATEGORY_OPTIONS.find(c => c.value === category);
-        if (!categoryOption) return false;
+        if (!categoryOption) {
+          console.log("❌ 找不到對應分類：", { category });
+          return false;
+        }
 
-        // 如果分類有子分類
+        // 如果分類有子分類（如中小學教育）
         if (categoryOption.subCategories) {
           // 檢查主分類
-          if (item.category?.toLowerCase() !== category.toLowerCase()) {
+          const itemCategory = String(item.category || '').toLowerCase();
+          if (!itemCategory.includes(category.toLowerCase())) {
+            console.log("❌ 主分類不匹配：", { itemCategory, category });
             return false;
           }
           
           // 如果指定了子分類
           if (subCategory) {
-            if (item.subCategory?.toLowerCase() !== subCategory.toLowerCase()) {
+            const itemSubCategory = String(item.subCategory || '').toLowerCase();
+            if (!itemSubCategory.includes(subCategory.toLowerCase())) {
+              console.log("❌ 子分類不匹配：", { itemSubCategory, subCategory });
               return false;
             }
 
             // 如果還指定了具體科目
             if (subject) {
-              return item.subjects?.some(s => 
-                s.toLowerCase() === subject.toLowerCase()
-              );
+              const hasMatchingSubject = Array.isArray(item.subjects) && 
+                item.subjects.some(s => 
+                  String(s).toLowerCase() === subject.toLowerCase()
+                );
+              if (!hasMatchingSubject) {
+                console.log("❌ 科目不匹配：", { subjects: item.subjects, subject });
+                return false;
+              }
             }
-            return true;
           }
-          return true;
         } 
-        // 如果分類直接有科目
+        // 如果分類直接有科目（如幼兒教育、興趣班等）
         else if (categoryOption.subjects) {
           // 如果選擇了具體科目
           if (subCategory) {
-            return item.subjects?.some(s => 
-              s.toLowerCase() === subCategory.toLowerCase()
-            );
+            const hasMatchingSubject = Array.isArray(item.subjects) && 
+              item.subjects.some(s => 
+                String(s).toLowerCase() === subCategory.toLowerCase()
+              );
+            if (!hasMatchingSubject) {
+              console.log("❌ 科目不匹配：", { subjects: item.subjects, subCategory });
+              return false;
+            }
           }
           // 如果只選擇了分類
-          return item.subjects?.some(s => 
-            s.toLowerCase().startsWith(category.toLowerCase())
-          );
+          else {
+            const hasMatchingSubject = Array.isArray(item.subjects) && 
+              item.subjects.some(s => 
+                String(s).toLowerCase().startsWith(category.toLowerCase())
+              );
+            if (!hasMatchingSubject) {
+              console.log("❌ 分類科目不匹配：", { subjects: item.subjects, category });
+              return false;
+            }
+          }
         }
       }
       
       // 地區篩選
       if (region) {
-        const itemRegion = item.region?.toLowerCase() || '';
-        const itemRegions = item.regions?.map(r => r.toLowerCase()) || [];
+        const itemRegion = String(item.region || '').toLowerCase();
+        const itemRegions = Array.isArray(item.regions) 
+          ? item.regions.map(r => String(r).toLowerCase())
+          : [];
         const filterRegion = region.toLowerCase();
         
-        if (itemRegion !== filterRegion && !itemRegions.includes(filterRegion)) {
+        if (!itemRegion.includes(filterRegion) && !itemRegions.some(r => r.includes(filterRegion))) {
+          console.log("❌ 地區不匹配：", { itemRegion, itemRegions, filterRegion });
           return false;
         }
       }
       
       // 教學模式篩選
       if (mode) {
-        const itemMode = item.mode?.toLowerCase() || '';
-        const itemModes = item.modes?.map(m => m.toLowerCase()) || [];
+        const itemMode = String(item.mode || '').toLowerCase();
+        const itemModes = Array.isArray(item.modes)
+          ? item.modes.map(m => String(m).toLowerCase())
+          : [];
         const filterMode = mode.toLowerCase();
         
-        if (itemMode !== filterMode && !itemModes.includes(filterMode)) {
+        if (!itemMode.includes(filterMode) && !itemModes.some(m => m.includes(filterMode))) {
+          console.log("❌ 教學模式不匹配：", { itemMode, itemModes, filterMode });
           return false;
         }
       }
-      
+
+      console.log("✅ 案例符合所有條件");
       return true;
     });
 
