@@ -1,4 +1,4 @@
-import { SUBJECT_MAP as SUBJECT_MAPPING } from '@/constants/subjectOptions';
+import { SUBJECT_MAP } from '@/constants/subjectOptions';
 
 // 地區映射
 export const REGION_MAP: { [key: string]: string } = {
@@ -124,80 +124,12 @@ export const MODE_MAP: { [key: string]: string } = {
   'in-person': '面授'
 };
 
-// 科目映射
-const SUBJECT_MAP: Record<string, string> = {
-  // 幼兒教育
-  "early-childhood-chinese": "幼兒中文",
-  "early-childhood-english": "幼兒英文",
-  "early-childhood-math": "幼兒數學",
-  "early-childhood-phonics": "拼音／注音",
-  "early-childhood-logic": "邏輯思維訓練",
-  "early-childhood-interview": "面試技巧訓練",
-  "early-childhood-homework": "幼稚園功課輔導",
-
-  // 小學教育
-  "primary-chinese": "小學中文",
-  "primary-english": "小學英文",
-  "primary-math": "小學數學",
-  "primary-general": "常識／常識科",
-  "primary-mandarin": "普通話",
-  "primary-stem": "常識／STEM",
-  "primary-all": "小學全科",
-
-  // 中學教育
-  "secondary-chinese": "中學中文",
-  "secondary-english": "中學英文",
-  "secondary-math": "中學數學",
-  "secondary-ls": "通識教育",
-  "secondary-physics": "物理",
-  "secondary-chemistry": "化學",
-  "secondary-biology": "生物",
-  "secondary-economics": "經濟",
-  "secondary-geography": "地理",
-  "secondary-history": "歷史",
-  "secondary-chinese-history": "中國歷史",
-  "secondary-bafs": "企會財",
-  "secondary-ict": "資訊與通訊科技",
-  "secondary-integrated-science": "綜合科學",
-  "secondary-dse": "DSE總溫習",
-  "secondary-all": "中學全科",
-
-  // 興趣班
-  "interest-art": "繪畫",
-  "interest-music": "音樂",
-  "interest-dance": "舞蹈",
-  "interest-drama": "戲劇",
-  "interest-programming": "編程／STEM",
-  "interest-foreign-language": "外語",
-  "interest-magic-chess": "魔術／棋藝",
-  "interest-photography": "攝影",
-
-  // 大專教育
-  "tertiary-liberal": "大學通識",
-  "tertiary-math": "大學統計與數學",
-  "tertiary-economics": "經濟學",
-  "tertiary-it": "資訊科技",
-  "tertiary-business": "商科",
-  "tertiary-engineering": "工程科目",
-  "tertiary-thesis": "論文指導",
-
-  // 成人教育
-  "adult-business-english": "商務英文",
-  "adult-conversation": "生活英語會話",
-  "adult-chinese": "廣東話／普通話",
-  "adult-second-language": "第二語言學習",
-  "adult-computer": "電腦技能",
-  "adult-exam-prep": "考試準備"
-};
-
-export { SUBJECT_MAP };
-
 // 獲取地區完整名稱
 export const getRegionName = (region: string): string => REGION_MAP[region] || '';
 
 // 獲取科目中文名稱
 export function getSubjectName(subject: string): string {
-  return SUBJECT_MAPPING[subject] || subject;
+  return SUBJECT_MAP[subject] || subject;
 }
 
 export function getSubjectNames(subjects: string[]): string {
