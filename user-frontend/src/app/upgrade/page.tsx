@@ -11,10 +11,14 @@ interface FormData {
   files: File[];
 }
 
-const SUBJECT_OPTIONS = [
-  "數學", "英文", "中文", "物理", "化學", "生物",
-  "經濟", "歷史", "地理", "通識", "音樂", "美術"
-];
+const SUBJECT_CATEGORIES = {
+  "核心科目": ["中文", "英文", "數學"],
+  "理科": ["物理", "化學", "生物"],
+  "文科": ["經濟", "歷史", "地理", "通識"],
+  "藝術": ["音樂", "美術"],
+  "語言": ["日文", "韓文", "法文", "德文", "西班牙文"],
+  "其他": ["電腦", "會計", "商業", "心理學"]
+};
 
 export default function UpgradePage() {
   const [formData, setFormData] = useState<FormData>({
@@ -191,17 +195,24 @@ export default function UpgradePage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   可教授科目（可多選）
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {SUBJECT_OPTIONS.map((subject) => (
-                    <label key={subject} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={formData.subjects.includes(subject)}
-                        onChange={() => handleSubjectChange(subject)}
-                        className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                      />
-                      <span className="text-sm text-gray-700">{subject}</span>
-                    </label>
+                <div className="space-y-4">
+                  {Object.entries(SUBJECT_CATEGORIES).map(([category, subjects]) => (
+                    <div key={category} className="border rounded-lg p-4">
+                      <h3 className="font-medium text-gray-900 mb-3">{category}</h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {subjects.map((subject) => (
+                          <label key={subject} className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              checked={formData.subjects.includes(subject)}
+                              onChange={() => handleSubjectChange(subject)}
+                              className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                            />
+                            <span className="text-sm text-gray-700">{subject}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
