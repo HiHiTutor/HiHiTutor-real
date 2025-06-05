@@ -25,6 +25,7 @@ const caseApplicationRouter = require('./routes/caseApplications');
 const regionsRouter = require('./routes/regions');
 const adminRoutes = require('./routes/admin');
 const adminAuthRoutes = require('./routes/adminAuth');
+const tutorApplicationsRouter = require('./routes/tutorApplications');
 
 const app = express();
 
@@ -155,6 +156,7 @@ app.use('/api/contact', contactRoutes);
 app.use('/api/faq', faqRoutes);
 app.use('/api/articles', articlesRoutes);
 app.use('/api/regions', regionsRouter);
+app.use('/api/tutor-applications', tutorApplicationsRouter);
 
 // Test route
 app.get('/api/test', (req, res) => {
