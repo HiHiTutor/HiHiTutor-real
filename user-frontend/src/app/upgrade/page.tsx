@@ -30,10 +30,10 @@ export default function UpgradePage() {
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 
   useEffect(() => {
-    // 檢查用戶權限
-    const currentUser = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || '{}') : {};
-    if (!currentUser.userType || currentUser.userType !== 'student') {
-      router.replace('/');
+    // 檢查用戶是否已登入
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.replace('/login');
       return;
     }
   }, [router]);
