@@ -76,23 +76,35 @@ export default function UpgradePage() {
 
     setLoading(true);
     try {
-      const currentUser = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || '{}') : {};
-      
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('請先登入');
+      }
+
       // 1. 上傳文件
       const uploadedUrls: string[] = [];
       for (const file of formData.files) {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("userId", currentUser.id || 'unknown');
+        const formDataObj = new FormData();
+        formDataObj.append("files", file);
+        
         const res = await fetch(`${API_BASE}/api/upload`, {
           method: "POST",
-          body: formData,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formDataObj,
         });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.message || "檔案上傳失敗");
+        }
+
         const data = await res.json();
-        if (data.success && data.url) {
-          uploadedUrls.push(data.url);
+        if (data.success && data.files && data.files.length > 0) {
+          uploadedUrls.push(data.files[0].url);
         } else {
-          throw new Error(data.message || "檔案上傳失敗");
+          throw new Error("檔案上傳失敗");
         }
       }
 
@@ -101,7 +113,7 @@ export default function UpgradePage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           education: formData.education,
@@ -112,25 +124,16 @@ export default function UpgradePage() {
       });
 
       if (!applyRes.ok) {
-        const text = await applyRes.text();
-        throw new Error(`申請失敗：${applyRes.status} - ${text}`);
+        const errorData = await applyRes.json();
+        throw new Error(errorData.message || "申請失敗");
       }
 
-      const applyData = await applyRes.json();
-      if (applyData.success) {
-        setMessage("申請已提交成功！請等待管理員審核。");
-        // 清空表單
-        setFormData({
-          education: "",
-          experience: "",
-          subjects: [],
-          files: []
-        });
-      } else {
-        throw new Error(applyData.message || "申請失敗");
-      }
-    } catch (err: any) {
-      setError(err.message || "提交時發生錯誤");
+      setMessage("申請已成功提交！");
+      setTimeout(() => {
+        router.push("/profile");
+      }, 2000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "提交失敗，請稍後再試");
     } finally {
       setLoading(false);
     }
