@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import CATEGORY_OPTIONS from "@/constants/categoryOptions";
 
 interface FormData {
   education: string;
@@ -10,15 +11,6 @@ interface FormData {
   subjects: string[];
   files: File[];
 }
-
-const SUBJECT_CATEGORIES = {
-  "核心科目": ["中文", "英文", "數學"],
-  "理科": ["物理", "化學", "生物"],
-  "文科": ["經濟", "歷史", "地理", "通識"],
-  "藝術": ["音樂", "美術"],
-  "語言": ["日文", "韓文", "法文", "德文", "西班牙文"],
-  "其他": ["電腦", "會計", "商業", "心理學"]
-};
 
 export default function UpgradePage() {
   const [formData, setFormData] = useState<FormData>({
@@ -196,22 +188,45 @@ export default function UpgradePage() {
                   可教授科目（可多選）
                 </label>
                 <div className="space-y-4">
-                  {Object.entries(SUBJECT_CATEGORIES).map(([category, subjects]) => (
-                    <div key={category} className="border rounded-lg p-4">
-                      <h3 className="font-medium text-gray-900 mb-3">{category}</h3>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                        {subjects.map((subject) => (
-                          <label key={subject} className="flex items-center space-x-2">
-                            <input
-                              type="checkbox"
-                              checked={formData.subjects.includes(subject)}
-                              onChange={() => handleSubjectChange(subject)}
-                              className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                            />
-                            <span className="text-sm text-gray-700">{subject}</span>
-                          </label>
-                        ))}
-                      </div>
+                  {CATEGORY_OPTIONS.map((category) => (
+                    <div key={category.value} className="border rounded-lg p-4">
+                      <h3 className="font-medium text-gray-900 mb-3">{category.label}</h3>
+                      {category.subCategories ? (
+                        // 如果有子類別，顯示子類別
+                        category.subCategories.map((subCategory) => (
+                          <div key={subCategory.value} className="mb-4 last:mb-0">
+                            <h4 className="text-sm font-medium text-gray-700 mb-2">{subCategory.label}</h4>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                              {subCategory.subjects.map((subject) => (
+                                <label key={subject.value} className="flex items-center space-x-2">
+                                  <input
+                                    type="checkbox"
+                                    checked={formData.subjects.includes(subject.value)}
+                                    onChange={() => handleSubjectChange(subject.value)}
+                                    className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                  />
+                                  <span className="text-sm text-gray-700">{subject.label}</span>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        // 如果沒有子類別，直接顯示科目
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          {category.subjects?.map((subject) => (
+                            <label key={subject.value} className="flex items-center space-x-2">
+                              <input
+                                type="checkbox"
+                                checked={formData.subjects.includes(subject.value)}
+                                onChange={() => handleSubjectChange(subject.value)}
+                                className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                              />
+                              <span className="text-sm text-gray-700">{subject.label}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
