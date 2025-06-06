@@ -85,37 +85,53 @@ export default function TutorCaseDetailPage() {
     );
   }
 
+  // 確保所有需要的數據都存在
+  const {
+    title = '',
+    description = '',
+    category = '',
+    subCategory = '',
+    subjects = [],
+    region = '',
+    subRegion = '',
+    mode = '',
+    modes = [],
+    budget = { min: 0, max: 0 },
+    experience = '',
+    createdAt = new Date().toISOString()
+  } = caseData;
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="bg-white rounded-lg shadow-lg p-6">
-        <h1 className="text-3xl font-bold mb-4">{caseData.title}</h1>
+        <h1 className="text-3xl font-bold mb-4">{title}</h1>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <h2 className="text-xl font-semibold mb-2">基本資訊</h2>
             <div className="space-y-2">
-              <p><span className="font-medium">類別：</span>{caseData.category}</p>
-              <p><span className="font-medium">子類別：</span>{caseData.subCategory}</p>
-              <p><span className="font-medium">科目：</span>{caseData.subjects.join(', ')}</p>
-              <p><span className="font-medium">地區：</span>{caseData.region}</p>
-              <p><span className="font-medium">子地區：</span>{caseData.subRegion}</p>
+              <p><span className="font-medium">類別：</span>{category}</p>
+              <p><span className="font-medium">子類別：</span>{subCategory}</p>
+              <p><span className="font-medium">科目：</span>{Array.isArray(subjects) ? subjects.join(', ') : ''}</p>
+              <p><span className="font-medium">地區：</span>{region}</p>
+              <p><span className="font-medium">子地區：</span>{subRegion}</p>
             </div>
           </div>
           
           <div>
             <h2 className="text-xl font-semibold mb-2">教學詳情</h2>
             <div className="space-y-2">
-              <p><span className="font-medium">教學模式：</span>{caseData.modes?.join(', ') || caseData.mode}</p>
-              <p><span className="font-medium">預算：</span>${caseData.budget.min} - ${caseData.budget.max}</p>
-              <p><span className="font-medium">經驗要求：</span>{caseData.experience}</p>
-              <p><span className="font-medium">發布日期：</span>{new Date(caseData.createdAt).toLocaleDateString()}</p>
+              <p><span className="font-medium">教學模式：</span>{Array.isArray(modes) && modes.length > 0 ? modes.join(', ') : mode}</p>
+              <p><span className="font-medium">預算：</span>${budget.min} - ${budget.max}</p>
+              <p><span className="font-medium">經驗要求：</span>{experience}</p>
+              <p><span className="font-medium">發布日期：</span>{new Date(createdAt).toLocaleDateString()}</p>
             </div>
           </div>
         </div>
 
         <div className="mt-6">
           <h2 className="text-xl font-semibold mb-2">詳細描述</h2>
-          <p className="text-gray-700 whitespace-pre-wrap">{caseData.description}</p>
+          <p className="text-gray-700 whitespace-pre-wrap">{description}</p>
         </div>
       </div>
     </div>
