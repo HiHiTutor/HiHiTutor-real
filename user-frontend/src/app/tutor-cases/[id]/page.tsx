@@ -34,12 +34,12 @@ export default function TutorCaseDetailPage() {
   useEffect(() => {
     const fetchCaseData = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/tutor-cases/${id}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/find-tutor-cases/${id}`);
         if (!response.ok) {
           throw new Error('Failed to fetch case data');
         }
         const data = await response.json();
-        setCaseData(data.data);
+        setCaseData(data);
       } catch (error) {
         console.error('Error fetching case data:', error);
         setError('Failed to fetch case data');
