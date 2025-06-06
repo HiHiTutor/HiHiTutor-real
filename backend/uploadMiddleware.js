@@ -1,6 +1,5 @@
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 
 // 處理檔案名稱，移除特殊字元
 const sanitizeFileName = (fileName) => {
@@ -14,42 +13,8 @@ const sanitizeFileName = (fileName) => {
   return `${safeName}${ext}`;
 };
 
-// 確保上傳目錄存在
-const ensureUploadDir = (userId) => {
-  const uploadPath = path.join(__dirname, 'public/uploads', userId);
-  if (!fs.existsSync(uploadPath)) {
-    fs.mkdirSync(uploadPath, { recursive: true });
-  }
-  return uploadPath;
-};
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    try {
-      // 優先使用 JWT 中的用戶 ID
-      const userId = req.user?.id || 'unknown';
-      console.log('[📁] 上傳檔案 - 用戶ID:', userId);
-      
-      const uploadPath = ensureUploadDir(userId);
-      cb(null, uploadPath);
-    } catch (error) {
-      console.error('[❌] 創建上傳目錄失敗:', error);
-      cb(error);
-    }
-  },
-  filename: function (req, file, cb) {
-    try {
-      // 處理檔案名稱
-      const safeFileName = sanitizeFileName(file.originalname);
-      const uniqueName = `${Date.now()}-${safeFileName}`;
-      console.log('[📁] 上傳檔案 - 新檔名:', uniqueName);
-      cb(null, uniqueName);
-    } catch (error) {
-      console.error('[❌] 處理檔案名稱失敗:', error);
-      cb(error);
-    }
-  }
-});
+// 使用 memoryStorage 而不是 diskStorage
+const storage = multer.memoryStorage();
 
 // 檔案過濾器
 const fileFilter = (req, file, cb) => {

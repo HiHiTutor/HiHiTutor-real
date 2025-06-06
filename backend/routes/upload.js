@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const upload = require('../uploadMiddleware');
 const { verifyToken } = require('../middleware/authMiddleware');
-const multer = require('multer');
 
 // POST /api/upload
 router.post('/', verifyToken, upload.array('files'), (req, res) => {
@@ -21,8 +20,10 @@ router.post('/', verifyToken, upload.array('files'), (req, res) => {
     res.json({
       success: true,
       files: uploadedFiles.map(f => ({
-        filename: f.filename,
-        url: `/uploads/${userId}/${f.filename}`
+        filename: f.originalname,
+        mimetype: f.mimetype,
+        size: f.size,
+        buffer: f.buffer.toString('base64')
       }))
     });
   } catch (err) {
