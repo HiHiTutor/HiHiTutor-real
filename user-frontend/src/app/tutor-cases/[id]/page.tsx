@@ -39,7 +39,10 @@ export default function TutorCaseDetailPage() {
           throw new Error('Failed to fetch case data');
         }
         const data = await response.json();
-        setCaseData(data);
+        if (!data.success) {
+          throw new Error(data.message || 'Failed to fetch case data');
+        }
+        setCaseData(data.data);
       } catch (error) {
         console.error('Error fetching case data:', error);
         setError('Failed to fetch case data');
