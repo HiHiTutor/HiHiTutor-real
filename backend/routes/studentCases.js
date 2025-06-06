@@ -8,7 +8,7 @@ router.get('/', getAllStudentCases);
 // GET single student case
 router.get('/:id', getStudentCaseById);
 
-// 學生發布個案（找導師）相關路由
+// POST new student case
 router.post('/', createStudentCase);
 
 module.exports = router; 
