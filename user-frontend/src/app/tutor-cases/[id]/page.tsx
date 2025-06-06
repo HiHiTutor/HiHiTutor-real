@@ -102,37 +102,49 @@ export default function TutorCaseDetailPage() {
     createdAt = new Date().toISOString()
   } = caseData;
 
+  // 格式化日期
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+  };
+
+  // 格式化預算顯示
+  const formatBudget = (min: number, max: number) => {
+    if (min === 0 && max === 0) return '面議';
+    return `$${min} - $${max}`;
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="bg-white rounded-lg shadow-lg p-6">
-        <h1 className="text-3xl font-bold mb-4">{title}</h1>
+        <h1 className="text-3xl font-bold mb-4">{title || '未命名案例'}</h1>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <h2 className="text-xl font-semibold mb-2">基本資訊</h2>
             <div className="space-y-2">
-              <p><span className="font-medium">類別：</span>{category}</p>
-              <p><span className="font-medium">子類別：</span>{subCategory}</p>
-              <p><span className="font-medium">科目：</span>{Array.isArray(subjects) ? subjects.join(', ') : ''}</p>
-              <p><span className="font-medium">地區：</span>{region}</p>
-              <p><span className="font-medium">子地區：</span>{subRegion}</p>
+              <p><span className="font-medium">類別：</span>{category || '未指定'}</p>
+              <p><span className="font-medium">子類別：</span>{subCategory || '未指定'}</p>
+              <p><span className="font-medium">科目：</span>{Array.isArray(subjects) && subjects.length > 0 ? subjects.join(', ') : '未指定'}</p>
+              <p><span className="font-medium">地區：</span>{region || '未指定'}</p>
+              <p><span className="font-medium">子地區：</span>{subRegion || '未指定'}</p>
             </div>
           </div>
           
           <div>
             <h2 className="text-xl font-semibold mb-2">教學詳情</h2>
             <div className="space-y-2">
-              <p><span className="font-medium">教學模式：</span>{Array.isArray(modes) && modes.length > 0 ? modes.join(', ') : mode}</p>
-              <p><span className="font-medium">預算：</span>${budget.min} - ${budget.max}</p>
-              <p><span className="font-medium">經驗要求：</span>{experience}</p>
-              <p><span className="font-medium">發布日期：</span>{new Date(createdAt).toLocaleDateString()}</p>
+              <p><span className="font-medium">教學模式：</span>{Array.isArray(modes) && modes.length > 0 ? modes.join(', ') : mode || '未指定'}</p>
+              <p><span className="font-medium">預算：</span>{formatBudget(budget.min, budget.max)}</p>
+              <p><span className="font-medium">經驗要求：</span>{experience || '未指定'}</p>
+              <p><span className="font-medium">發布日期：</span>{formatDate(createdAt)}</p>
             </div>
           </div>
         </div>
 
         <div className="mt-6">
           <h2 className="text-xl font-semibold mb-2">詳細描述</h2>
-          <p className="text-gray-700 whitespace-pre-wrap">{description}</p>
+          <p className="whitespace-pre-wrap">{description || '無描述'}</p>
         </div>
       </div>
     </div>
