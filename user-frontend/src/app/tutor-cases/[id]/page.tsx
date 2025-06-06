@@ -25,8 +25,9 @@ interface TutorCase {
   createdAt: string;
 }
 
-export default function TutorCaseDetailPage() {
-  const { id } = useParams();
+export default function TutorCaseDetail() {
+  const params = useParams();
+  const id = params.id as string;
   const [caseData, setCaseData] = useState<TutorCase | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,98 +57,57 @@ export default function TutorCaseDetailPage() {
     }
   }, [id]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-gray-600">載入中...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">錯誤</h2>
-          <p className="text-gray-600">{error}</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!caseData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-600 mb-4">找不到案例</h2>
-          <p className="text-gray-500">該案例可能已被移除或不存在</p>
-        </div>
-      </div>
-    );
-  }
-
-  // 確保所有需要的數據都存在
-  const {
-    title = '',
-    description = '',
-    category = '',
-    subCategory = '',
-    subjects = [],
-    region = '',
-    subRegion = '',
-    mode = '',
-    modes = [],
-    budget = { min: 0, max: 0 },
-    experience = '',
-    createdAt = new Date().toISOString()
-  } = caseData;
-
-  // 格式化日期
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
+  const handleApply = () => {
+    // TODO: Implement application logic
+    console.log('Applying for case:', id);
   };
 
-  // 格式化預算顯示
-  const formatBudget = (min: number, max: number) => {
-    if (min === 0 && max === 0) return '面議';
-    return `$${min} - $${max}`;
-  };
+  if (loading) return <div className="flex justify-center items-center min-h-screen">載入中...</div>;
+  if (error) return <div className="flex justify-center items-center min-h-screen text-red-500">{error}</div>;
+  if (!caseData) return <div className="flex justify-center items-center min-h-screen">找不到個案</div>;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <h1 className="text-3xl font-bold mb-4">{title || '未命名案例'}</h1>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div>
-            <h2 className="text-xl font-semibold mb-2">基本資訊</h2>
-            <div className="space-y-2">
-              <p><span className="font-medium">類別：</span>{category || '未指定'}</p>
-              <p><span className="font-medium">子類別：</span>{subCategory || '未指定'}</p>
-              <p><span className="font-medium">科目：</span>{Array.isArray(subjects) && subjects.length > 0 ? subjects.join(', ') : '未指定'}</p>
-              <p><span className="font-medium">地區：</span>{region || '未指定'}</p>
-              <p><span className="font-medium">子地區：</span>{subRegion || '未指定'}</p>
-            </div>
-          </div>
-          
-          <div>
-            <h2 className="text-xl font-semibold mb-2">教學詳情</h2>
-            <div className="space-y-2">
-              <p><span className="font-medium">教學模式：</span>{Array.isArray(modes) && modes.length > 0 ? modes.join(', ') : mode || '未指定'}</p>
-              <p><span className="font-medium">預算：</span>{formatBudget(budget.min, budget.max)}</p>
-              <p><span className="font-medium">經驗要求：</span>{experience || '未指定'}</p>
-              <p><span className="font-medium">發布日期：</span>{formatDate(createdAt)}</p>
-            </div>
-          </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+        <div className="flex justify-between items-start mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">{caseData.title || '未命名案例'}</h1>
+          <button
+            onClick={handleApply}
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            申請此個案
+          </button>
         </div>
 
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold mb-2">詳細描述</h2>
-          <p className="whitespace-pre-wrap">{description || '無描述'}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-xl font-semibold mb-2">基本資料</h2>
+              <div className="space-y-2">
+                <p><span className="font-medium">類別：</span>{caseData.category || '未指定'}</p>
+                <p><span className="font-medium">科目：</span>{caseData.subjects?.join(', ') || '未指定'}</p>
+                <p><span className="font-medium">地區：</span>{caseData.region || '未指定'}</p>
+                <p><span className="font-medium">教學模式：</span>{caseData.mode || '未指定'}</p>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-xl font-semibold mb-2">教學詳情</h2>
+              <div className="space-y-2">
+                <p><span className="font-medium">預算：</span>
+                  {caseData.budget?.min === 0 && caseData.budget?.max === 0 
+                    ? '面議' 
+                    : `${caseData.budget?.min || 0} - ${caseData.budget?.max || 0} 元/小時`}
+                </p>
+                <p><span className="font-medium">經驗要求：</span>{caseData.experience || '無要求'}</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-semibold mb-2">詳細描述</h2>
+            <p className="text-gray-700 whitespace-pre-wrap">{caseData.description || '無描述'}</p>
+          </div>
         </div>
       </div>
     </div>
