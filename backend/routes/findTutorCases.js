@@ -182,59 +182,24 @@ router.get('/', async (req, res) => {
 
 // GET 單一導師案例詳情
 router.get('/:id', async (req, res) => {
-  console.log('📥 Received request to /api/find-tutor-cases/:id');
-  console.log('👉 Case ID:', req.params.id);
-
   try {
-    // 檢查數據庫連接狀態
-    console.log('📊 MongoDB connection state:', mongoose.connection.readyState);
-    
-    // 如果數據庫未連接，嘗試重新連接
-    if (mongoose.connection.readyState !== 1) {
-      console.log('⚠️ MongoDB not connected, current state:', mongoose.connection.readyState);
-      
-      if (process.env.MONGODB_URI) {
-        console.log('🔄 Attempting to reconnect to MongoDB...');
-        try {
-          await mongoose.connect(process.env.MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            serverSelectionTimeoutMS: 5000,
-            socketTimeoutMS: 45000,
-          });
-          console.log('✅ Reconnected to MongoDB');
-        } catch (reconnectError) {
-          console.error('❌ Failed to reconnect to MongoDB:', reconnectError);
-          return res.status(500).json({
-            success: false,
-            message: 'Database connection failed',
-            error: reconnectError.message
-          });
-        }
-      } else {
-        console.error('❌ No MongoDB URI found in environment variables');
-        return res.status(500).json({
-          success: false,
-          message: 'Database configuration error',
-          error: 'MONGODB_URI not found'
-        });
-      }
-    }
+    const { id } = req.params;
+    console.log('🔍 開始查找個案 ID:', id);
 
-    const id = req.params.id;
     let caseItem = null;
 
-    // 檢查是否為有效的 MongoDB ObjectId 格式
-    if (mongoose.Types.ObjectId.isValid(id) && id.length === 24) {
-      // 如果是有效的 ObjectId，使用 findById
+    // 首先嘗試使用 ObjectId 查找
+    if (/^[0-9a-fA-F]{24}$/.test(id)) {
+      console.log('🔍 嘗試使用 ObjectId 查找');
       caseItem = await TutorCase.findById(id);
-      console.log('🔍 使用 findById 查詢結果:', caseItem ? '找到' : '未找到');
+      console.log('🔍 ObjectId 查找結果:', caseItem ? '找到' : '未找到');
     }
 
     if (!caseItem) {
       // 如果通過 _id 找不到，或者不是有效的 ObjectId，嘗試通過 id 字段查找
+      console.log('🔍 嘗試使用自定義 ID 查找');
       caseItem = await TutorCase.findOne({ id: id });
-      console.log('🔍 使用 findOne({id}) 查詢結果:', caseItem ? '找到' : '未找到');
+      console.log('🔍 自定義 ID 查找結果:', caseItem ? '找到' : '未找到');
     }
 
     if (!caseItem) {
@@ -247,6 +212,8 @@ router.get('/:id', async (req, res) => {
     }
 
     console.log('✅ 成功找到個案:', id);
+    console.log('📦 個案數據:', JSON.stringify(caseItem, null, 2));
+    
     res.json({
       success: true,
       data: caseItem,
