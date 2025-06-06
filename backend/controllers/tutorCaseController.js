@@ -106,9 +106,17 @@ const createTutorCase = async (req, res) => {
 const getTutorCaseById = async (req, res) => {
   try {
     const { id } = req.params;
-    const tutorCase = await TutorCase.findById(id)
-      .populate('student', 'name')
-      .populate('tutor', 'name');
+    let tutorCase = null;
+
+    // 首先嘗試使用 ObjectId 查找
+    if (/^[0-9a-fA-F]{24}$/.test(id)) {
+      tutorCase = await TutorCase.findById(id);
+    }
+
+    // 如果找不到，嘗試使用自定義 ID 查找
+    if (!tutorCase) {
+      tutorCase = await TutorCase.findOne({ id: id });
+    }
 
     if (!tutorCase) {
       return res.status(404).json({
