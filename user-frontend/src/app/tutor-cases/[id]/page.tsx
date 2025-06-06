@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { caseApi } from '@/services/api';
 
 interface TutorCase {
   id: string;
@@ -11,17 +10,17 @@ interface TutorCase {
   category: string;
   subCategory: string;
   subjects: string[];
-  region: string;
-  subRegion: string;
+  regions: string[];
+  subRegions: string[];
   mode: string;
   modes: string[];
-  budget: {
-    min: number;
-    max: number;
+  lessonDetails: {
+    duration: number;
+    pricePerLesson: number;
+    lessonsPerWeek: number;
   };
   experience: string;
   featured: boolean;
-  date: string;
   createdAt: string;
 }
 
@@ -85,8 +84,9 @@ export default function TutorCaseDetail() {
               <h2 className="text-xl font-semibold mb-2">基本資料</h2>
               <div className="space-y-2">
                 <p><span className="font-medium">類別：</span>{caseData.category || '未指定'}</p>
+                <p><span className="font-medium">子類別：</span>{caseData.subCategory || '未指定'}</p>
                 <p><span className="font-medium">科目：</span>{caseData.subjects?.join(', ') || '未指定'}</p>
-                <p><span className="font-medium">地區：</span>{caseData.region || '未指定'}</p>
+                <p><span className="font-medium">地區：</span>{caseData.regions?.join(', ') || '未指定'}</p>
                 <p><span className="font-medium">教學模式：</span>{caseData.mode || '未指定'}</p>
               </div>
             </div>
@@ -94,11 +94,9 @@ export default function TutorCaseDetail() {
             <div>
               <h2 className="text-xl font-semibold mb-2">教學詳情</h2>
               <div className="space-y-2">
-                <p><span className="font-medium">預算：</span>
-                  {caseData.budget?.min === 0 && caseData.budget?.max === 0 
-                    ? '面議' 
-                    : `${caseData.budget?.min || 0} - ${caseData.budget?.max || 0} 元/小時`}
-                </p>
+                <p><span className="font-medium">課堂時長：</span>{caseData.lessonDetails?.duration || 0} 分鐘</p>
+                <p><span className="font-medium">每堂收費：</span>${caseData.lessonDetails?.pricePerLesson || 0}</p>
+                <p><span className="font-medium">每週堂數：</span>{caseData.lessonDetails?.lessonsPerWeek || 0} 堂</p>
                 <p><span className="font-medium">經驗要求：</span>{caseData.experience || '無要求'}</p>
               </div>
             </div>
