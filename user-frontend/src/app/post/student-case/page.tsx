@@ -99,8 +99,8 @@ export default function StudentCasePage() {
       const result = await caseApi.createStudentCase(submitData);
       console.log('✅ Case created successfully:', result);
       
-      alert('個案發布成功！請等待管理員審批，審批通過後個案將會顯示在網站上。');
-      router.push('/find-student-cases');
+      alert('個案已成功提交，等待審核中');
+      router.push('/find-tutor-cases');
 
     } catch (error) {
       console.error('❌ Error creating case:', error);

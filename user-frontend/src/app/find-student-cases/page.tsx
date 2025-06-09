@@ -336,7 +336,7 @@ function FindStudentCasesPageContent() {
     <div className="max-w-screen-xl mx-auto px-4 md:px-12 py-8">
       <div className="flex items-center gap-2 mb-6">
         <span className="text-2xl">📄</span>
-        <h1 className="text-2xl font-bold border-l-4 border-yellow-400 pl-3">導師列表</h1>
+        <h1 className="text-2xl font-bold border-l-4 border-yellow-400 pl-3">最新導師招學生個案</h1>
       </div>
 
       <div className="bg-yellow-50 rounded-xl p-6 mb-8">

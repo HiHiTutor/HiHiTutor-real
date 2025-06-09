@@ -244,10 +244,10 @@ const register = async (req, res) => {
     }
 
     // 驗證電話格式（香港手機號碼）
-    if (!/^([69]\d{7})$/.test(phone)) {
+    if (!/^[456789]\d{7}$/.test(phone)) {
       return res.status(400).json({
         success: false,
-        message: '請提供有效的香港電話號碼（8碼，9或6開頭）'
+        message: '請提供有效的香港電話號碼（8碼，4、5、6、7、8或9開頭）'
       });
     }
 
@@ -582,10 +582,10 @@ const sendVerificationCode = async (req, res) => {
     }
 
     // 驗證電話格式（香港手機號碼）
-    if (!/^[5689]\d{7}$/.test(phone)) {
+    if (!/^[456789]\d{7}$/.test(phone)) {
       return res.status(400).json({
         success: false,
-        message: '請提供有效的香港電話號碼（8碼，5、6、8或9開頭）'
+        message: '請提供有效的香港電話號碼（8碼，4、5、6、7、8或9開頭）'
       });
     }
 

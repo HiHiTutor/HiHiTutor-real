@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const upload = require('../uploadMiddleware');
+const { upload, uploadToS3 } = require('../uploadMiddleware');
 const { verifyToken } = require('../middleware/authMiddleware');
 
 // POST /api/upload
-router.post('/', verifyToken, upload.array('files'), (req, res) => {
+router.post('/', verifyToken, upload.array('files'), async (req, res) => {
   try {
     const uploadedFiles = req.files;
     const userId = req.user.id;
@@ -16,14 +16,18 @@ router.post('/', verifyToken, upload.array('files'), (req, res) => {
       });
     }
 
+    // 上傳所有文件到 S3
+    const uploadPromises = uploadedFiles.map(file => uploadToS3(file, userId));
+    const keys = await Promise.all(uploadPromises);
+
     // 回傳所有檔案的資訊
     res.json({
       success: true,
-      files: uploadedFiles.map(f => ({
+      files: uploadedFiles.map((f, index) => ({
         filename: f.originalname,
         mimetype: f.mimetype,
         size: f.size,
-        buffer: f.buffer.toString('base64')
+        key: keys[index]
       }))
     });
   } catch (err) {

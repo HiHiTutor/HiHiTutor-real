@@ -1,5 +1,7 @@
 const multer = require('multer');
 const path = require('path');
+const { PutObjectCommand } = require('@aws-sdk/client-s3');
+const { s3Client, BUCKET_NAME } = require('./config/s3');
 
 // 處理檔案名稱，移除特殊字元
 const sanitizeFileName = (fileName) => {
@@ -13,7 +15,7 @@ const sanitizeFileName = (fileName) => {
   return `${safeName}${ext}`;
 };
 
-// 使用 memoryStorage 而不是 diskStorage
+// 使用 memoryStorage
 const storage = multer.memoryStorage();
 
 // 檔案過濾器
@@ -42,4 +44,23 @@ const upload = multer({
   }
 });
 
-module.exports = upload; 
+// 上傳到 S3 的函數
+const uploadToS3 = async (file, userId) => {
+  const safeFileName = sanitizeFileName(file.originalname);
+  const key = `${userId}/${Date.now()}-${safeFileName}`;
+
+  const command = new PutObjectCommand({
+    Bucket: BUCKET_NAME,
+    Key: key,
+    Body: file.buffer,
+    ContentType: file.mimetype
+  });
+
+  await s3Client.send(command);
+  return key;
+};
+
+module.exports = {
+  upload,
+  uploadToS3
+}; 

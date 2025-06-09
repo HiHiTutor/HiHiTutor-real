@@ -379,7 +379,7 @@ function FindTutorCasesPageContent() {
     <div className="max-w-screen-xl mx-auto px-4 md:px-12 py-8">
       <div className="flex items-center gap-2 mb-6">
         <span className="text-2xl">📄</span>
-        <h1 className="text-2xl font-bold border-l-4 border-blue-400 pl-3">補習個案</h1>
+        <h1 className="text-2xl font-bold border-l-4 border-blue-400 pl-3">最新學生搵導師個案</h1>
       </div>
 
       <div className="bg-blue-50 rounded-xl p-6 mb-8">
