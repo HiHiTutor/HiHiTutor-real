@@ -59,22 +59,24 @@ function HomeContent() {
       </div>
       
       {/* 精選導師個案 */}
-      <section className="bg-yellow-50 py-12 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-32 h-32 bg-yellow-500 rounded-full mix-blend-multiply filter blur-xl transform -translate-x-1/2 -translate-y-1/2"></div>
-          <div className="absolute bottom-0 right-0 w-32 h-32 bg-yellow-600 rounded-full mix-blend-multiply filter blur-xl transform translate-x-1/2 translate-y-1/2"></div>
+      <div className="bg-yellow-50 py-12 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-32 h-32 bg-yellow-500 rounded-full mix-blend-multiply filter blur-xl transform -translate-x-1/2 -translate-y-1/2"></div>
+            <div className="absolute bottom-0 right-0 w-32 h-32 bg-yellow-600 rounded-full mix-blend-multiply filter blur-xl transform translate-x-1/2 translate-y-1/2"></div>
+          </div>
+          <div className="relative px-4 sm:px-6 lg:px-8">
+            <CaseSection 
+              title="精選導師個案"
+              fetchUrl="/find-student-cases?featured=true&limit=8"
+              linkUrl="/find-student-cases"
+              borderColor="border-yellow-200"
+              bgColor="bg-yellow-50"
+              icon="👩‍🏫"
+            />
+          </div>
         </div>
-        <div className="relative">
-          <CaseSection 
-            title="精選導師個案"
-            fetchUrl="/find-student-cases?featured=true&limit=8"
-            linkUrl="/find-student-cases"
-            borderColor="border-yellow-200"
-            bgColor="bg-yellow-50"
-            icon="👩‍🏫"
-          />
-        </div>
-      </section>
+      </div>
 
       {/* 成為導師 */}
       <section className="bg-white relative overflow-hidden">
@@ -90,23 +92,24 @@ function HomeContent() {
       </section>
 
       {/* 最新學生搵導師個案 */}
-      <section className="bg-blue-50 py-12 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-32 h-32 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl transform -translate-x-1/2 -translate-y-1/2"></div>
-          <div className="absolute bottom-0 right-0 w-32 h-32 bg-blue-600 rounded-full mix-blend-multiply filter blur-xl transform translate-x-1/2 translate-y-1/2"></div>
+      <div className="bg-white py-12 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-32 h-32 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl transform -translate-x-1/2 -translate-y-1/2"></div>
+            <div className="absolute bottom-0 right-0 w-32 h-32 bg-blue-600 rounded-full mix-blend-multiply filter blur-xl transform translate-x-1/2 translate-y-1/2"></div>
+          </div>
+          <div className="relative px-4 sm:px-6 lg:px-8">
+            <CaseSection 
+              title="最新學生搵導師個案"
+              fetchUrl="/find-tutor-cases?limit=8"
+              linkUrl="/find-tutor-cases"
+              borderColor="border-blue-200"
+              bgColor="bg-blue-50"
+              icon="📄"
+            />
+          </div>
         </div>
-        <div className="relative">
-          <CaseSection 
-            title="最新學生搵導師個案"
-            fetchUrl="/find-tutor-cases"
-            linkUrl="/find-tutor-cases"
-            borderColor="border-[#2563eb]"
-            bgColor="bg-blue-50"
-            icon="📄"
-            routeType="tutor"
-          />
-        </div>
-      </section>
+      </div>
 
       <Advertisement />
     </main>
