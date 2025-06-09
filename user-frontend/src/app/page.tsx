@@ -72,6 +72,7 @@ function HomeContent() {
               borderColor="border-yellow-200"
               bgColor="bg-yellow-50"
               icon="👩‍🏫"
+              routeType="tutor"
             />
           </div>
         </div>
@@ -105,6 +106,7 @@ function HomeContent() {
               borderColor="border-blue-200"
               bgColor="bg-blue-50"
               icon="📄"
+              routeType="student"
             />
           </div>
         </div>
