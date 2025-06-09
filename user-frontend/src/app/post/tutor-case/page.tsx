@@ -148,8 +148,20 @@ export default function TutorCasePage() {
 
   const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setFormData(prev => ({ ...prev, lessonDuration: value }));
-    setErrors(prev => ({ ...prev, duration: '' }));
+    // 小時模式下允許輸入小數點
+    if (formData.durationUnit === 'hours') {
+      // 允許輸入數字、一個小數點，以及小數點後的數字
+      if (value === '' || /^\d*\.?\d*$/.test(value)) {
+        setFormData(prev => ({ ...prev, duration: value }));
+        setErrors(prev => ({ ...prev, duration: '' }));
+      }
+    } else {
+      // 分鐘模式只允許輸入整數
+      if (value === '' || /^\d*$/.test(value)) {
+        setFormData(prev => ({ ...prev, duration: value }));
+        setErrors(prev => ({ ...prev, duration: '' }));
+      }
+    }
   };
 
   const handleDurationBlur = (e: React.FocusEvent<HTMLInputElement>) => {
