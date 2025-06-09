@@ -88,30 +88,39 @@ export default function PostPage() {
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold mb-4">選擇發布類型</h2>
           
-          <div className="text-center mb-8">
-            <p className="text-gray-600">
-              {userRole === 'student' 
-                ? '作為學生，您可以直接發帖「尋導師」。'
-                : '作為導師，您可以直接發帖「尋導師」和「招學生」。'}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            {/* 學生個案選項 */}
             <button
-              onClick={() => router.push('/post/student')}
-              className="flex flex-col items-center justify-center p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
+              onClick={() => handlePostTypeSelect('student')}
+              className="w-full p-4 border rounded-lg hover:bg-gray-50 transition flex items-center justify-between"
             >
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">尋導師</h3>
+              <div>
+                <h3 className="font-medium">尋導師</h3>
+              </div>
+              <span className="text-blue-600">→</span>
             </button>
 
+            {/* 導師個案選項 - 只有 tutor 角色才能看到 */}
             {userRole === 'tutor' && (
               <button
-                onClick={() => router.push('/post/tutor')}
-                className="flex flex-col items-center justify-center p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
+                onClick={() => handlePostTypeSelect('tutor')}
+                className="w-full p-4 border rounded-lg hover:bg-gray-50 transition flex items-center justify-between"
               >
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">招學生</h3>
+                <div>
+                  <h3 className="font-medium">招學生</h3>
+                </div>
+                <span className="text-blue-600">→</span>
               </button>
             )}
+          </div>
+
+          {/* 提示信息 */}
+          <div className="mt-6 p-4 bg-yellow-50 rounded-lg">
+            <p className="text-sm text-yellow-800">
+              {userRole === 'tutor'
+                ? '作為導師，您可以直接發帖「尋導師」和「招學生」。'
+                : '作為學生，您可以直接發帖「尋導師」。'}
+            </p>
           </div>
         </div>
       </div>
