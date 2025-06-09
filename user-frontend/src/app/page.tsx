@@ -49,8 +49,7 @@ function HomeContent() {
         </div>
         <div className="relative">
           <HeroSection />
-          <CaseFilterBar 
-            onSearch={handleSearch}
+          <CaseFilterBar
             onFilter={handleSearch}
             fetchUrl="/find-tutor-cases"
           />
