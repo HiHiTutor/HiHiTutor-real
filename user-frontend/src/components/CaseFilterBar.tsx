@@ -18,6 +18,13 @@ interface FilterState {
   regions: string[];
   subRegions: string[];
   priceRange: [number, number];
+  lessonDetails: {
+    duration: number;
+    lessonsPerWeek: number;
+    pricePerLesson: number;
+  };
+  status: string;
+  featured: boolean;
 }
 
 const TARGET_OPTIONS = [
@@ -61,7 +68,14 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
     mode: [],
     regions: [],
     subRegions: [],
-    priceRange: [0, 10000]
+    priceRange: [0, 10000],
+    lessonDetails: {
+      duration: 0,
+      lessonsPerWeek: 0,
+      pricePerLesson: 0
+    },
+    status: 'open',
+    featured: false
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -101,7 +115,14 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
       mode,
       regions,
       subRegions,
-      priceRange: [Number(priceMin) || 0, Number(priceMax) || 10000]
+      priceRange: [Number(priceMin) || 0, Number(priceMax) || 10000],
+      lessonDetails: {
+        duration: 0,
+        lessonsPerWeek: 0,
+        pricePerLesson: 0
+      },
+      status: 'open',
+      featured: false
     });
   }, [searchParams]);
 
@@ -196,7 +217,14 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
       mode: [],
       regions: [],
       subRegions: [],
-      priceRange: [0, 0]
+      priceRange: [0, 0],
+      lessonDetails: {
+        duration: 0,
+        lessonsPerWeek: 0,
+        pricePerLesson: 0
+      },
+      status: 'open',
+      featured: false
     });
     onFilter?.({});
   };
@@ -429,6 +457,115 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Budget Range Filter */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">預算範圍</label>
+            <div className="flex items-center space-x-2">
+              <input
+                type="number"
+                value={filters.priceRange[0]}
+                onChange={(e) => setFilters(prev => ({
+                  ...prev,
+                  priceRange: [Number(e.target.value), prev.priceRange[1]]
+                }))}
+                className="w-24 px-3 py-2 border rounded-md"
+                placeholder="最低"
+              />
+              <span>-</span>
+              <input
+                type="number"
+                value={filters.priceRange[1]}
+                onChange={(e) => setFilters(prev => ({
+                  ...prev,
+                  priceRange: [prev.priceRange[0], Number(e.target.value)]
+                }))}
+                className="w-24 px-3 py-2 border rounded-md"
+                placeholder="最高"
+              />
+            </div>
+          </div>
+
+          {/* Lesson Details Filter */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">課程詳情</label>
+            <div className="space-y-2">
+              <input
+                type="number"
+                value={filters.lessonDetails.duration}
+                onChange={(e) => setFilters(prev => ({
+                  ...prev,
+                  lessonDetails: {
+                    ...prev.lessonDetails,
+                    duration: Number(e.target.value)
+                  }
+                }))}
+                className="w-full px-3 py-2 border rounded-md"
+                placeholder="課程時長（分鐘）"
+              />
+              <input
+                type="number"
+                value={filters.lessonDetails.lessonsPerWeek}
+                onChange={(e) => setFilters(prev => ({
+                  ...prev,
+                  lessonDetails: {
+                    ...prev.lessonDetails,
+                    lessonsPerWeek: Number(e.target.value)
+                  }
+                }))}
+                className="w-full px-3 py-2 border rounded-md"
+                placeholder="每週課程數"
+              />
+              <input
+                type="number"
+                value={filters.lessonDetails.pricePerLesson}
+                onChange={(e) => setFilters(prev => ({
+                  ...prev,
+                  lessonDetails: {
+                    ...prev.lessonDetails,
+                    pricePerLesson: Number(e.target.value)
+                  }
+                }))}
+                className="w-full px-3 py-2 border rounded-md"
+                placeholder="每堂課價格"
+              />
+            </div>
+          </div>
+
+          {/* Status Filter */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">個案狀態</label>
+            <select
+              value={filters.status}
+              onChange={(e) => setFilters(prev => ({
+                ...prev,
+                status: e.target.value
+              }))}
+              className="w-full px-3 py-2 border rounded-md"
+            >
+              <option value="open">開放中</option>
+              <option value="matched">已配對</option>
+              <option value="closed">已關閉</option>
+              <option value="pending">待處理</option>
+            </select>
+          </div>
+
+          {/* Featured Filter */}
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="featured"
+              checked={filters.featured}
+              onChange={(e) => setFilters(prev => ({
+                ...prev,
+                featured: e.target.checked
+              }))}
+              className="h-4 w-4 text-blue-600"
+            />
+            <label htmlFor="featured" className="text-sm font-medium text-gray-700">
+              只顯示精選個案
+            </label>
           </div>
         </div>
 
