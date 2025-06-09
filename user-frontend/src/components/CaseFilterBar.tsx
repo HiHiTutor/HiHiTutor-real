@@ -45,13 +45,12 @@ interface Option {
 
 interface CaseFilterBarProps {
   onFilter?: (filters: any) => void;
-  onSearch?: (filters: any) => void;
   fetchUrl: string;
 }
 
 const REGION_OPTIONS_FULL = REGION_OPTIONS;
 
-const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, onSearch, fetchUrl }) => {
+const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [filters, setFilters] = useState<FilterState>({
@@ -65,10 +64,6 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, onSearch, fetch
     priceRange: [0, 1000],
     featured: false
   });
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedRegion, setSelectedRegion] = useState('');
-  const [selectedMode, setSelectedMode] = useState('');
 
   const isStudentCase = fetchUrl.includes('student');
   const colorScheme = isStudentCase ? {
@@ -169,28 +164,14 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, onSearch, fetch
 
   const handleFilter = () => {
     onFilter?.({
-      category: selectedCategory,
+      category: filters.category,
       subCategory: filters.subCategory || '',
-      region: selectedRegion,
-      mode: selectedMode
-    });
-  };
-
-  const handleSearch = () => {
-    onSearch?.({
-      search: searchQuery,
-      category: selectedCategory,
-      subCategory: filters.subCategory || '',
-      region: selectedRegion,
-      mode: selectedMode
+      region: filters.regions[0] || '',
+      mode: filters.mode
     });
   };
 
   const handleReset = () => {
-    setSearchQuery('');
-    setSelectedCategory('');
-    setSelectedRegion('');
-    setSelectedMode('');
     setFilters({
       target: '',
       category: '',
@@ -243,7 +224,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, onSearch, fetch
 
   // 獲取當前分類的子分類或科目
   const getSubOptions = () => {
-    const category = CATEGORY_OPTIONS.find(c => c.value === selectedCategory);
+    const category = CATEGORY_OPTIONS.find(c => c.value === filters.category);
     if (!category) return [];
 
     // 如果有子分類，返回子分類
@@ -261,7 +242,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, onSearch, fetch
 
   // 獲取選定子分類的科目
   const getSubjectOptions = () => {
-    const category = CATEGORY_OPTIONS.find(c => c.value === selectedCategory);
+    const category = CATEGORY_OPTIONS.find(c => c.value === filters.category);
     if (!category || !category.subCategories) return [];
 
     const subCategory = category.subCategories.find(sub => sub.value === filters.subCategory);
@@ -270,30 +251,13 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, onSearch, fetch
 
   // 判斷是否應該顯示科目選擇
   const shouldShowSubjects = () => {
-    const category = CATEGORY_OPTIONS.find(c => c.value === selectedCategory);
+    const category = CATEGORY_OPTIONS.find(c => c.value === filters.category);
     return category?.subCategories && filters.subCategory;
   };
 
   return (
     <div className={`rounded-xl border ${colorScheme.border} ${colorScheme.bg} p-6`}>
       <div className="space-y-4">
-        {/* 搜索欄 */}
-        <div className="flex gap-4">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="搜索..."
-            className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            onClick={handleSearch}
-            className={`px-6 py-2 text-white rounded-lg ${colorScheme.button}`}
-          >
-            搜索
-          </button>
-        </div>
-
         {/* 篩選選項 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {/* 目標選擇 */}
