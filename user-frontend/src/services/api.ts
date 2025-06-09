@@ -182,7 +182,7 @@ export const caseApi = {
   
   // 創建找學生個案
   createStudentCase: (data: any) => 
-    fetchApi('/find-student-cases', {
+    fetchApi('/find-tutor-cases', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
