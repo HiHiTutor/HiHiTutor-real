@@ -58,7 +58,7 @@ function HomeContent() {
       </div>
       
       {/* 精選導師個案 */}
-      <div className="bg-yellow-50 py-12 relative overflow-hidden">
+      <div className="bg-yellow-50 relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 left-0 w-32 h-32 bg-yellow-500 rounded-full mix-blend-multiply filter blur-xl transform -translate-x-1/2 -translate-y-1/2"></div>
