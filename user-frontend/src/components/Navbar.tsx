@@ -32,11 +32,9 @@ const Navbar = () => {
         </div>
         {/* 主選單絕對置中並稍微偏左 */}
         <nav className="absolute left-[47%] top-1/2 -translate-x-1/2 -translate-y-1/2 flex space-x-6 text-sm text-gray-700">
-          <Link href="/" className="hover:text-primary">主頁</Link>
-          <Link href="/find-student-cases" className="hover:text-primary">尋導師</Link>
-          <Link href="/find-tutor-cases" className="hover:text-primary">招學生</Link>
+          <Link href="/faq" className="hover:text-primary">配對流程</Link>
           <Link href="/articles" className="hover:text-primary">教育專欄</Link>
-          <Link href="/faq" className="hover:text-primary">常見問題</Link>
+          <Link href="/about" className="hover:text-primary">平台簡介</Link>
         </nav>
         {/* 右側行動按鈕 */}
         <div className="flex items-center gap-2 ml-auto z-10">
