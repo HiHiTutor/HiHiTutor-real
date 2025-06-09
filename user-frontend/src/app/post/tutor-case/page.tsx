@@ -20,7 +20,7 @@ export default function TutorCasePage() {
     subRegions: [] as string[],
     price: '',
     location: '',
-    lessonDuration: '',
+    duration: '',
     durationUnit: 'minutes',
     weeklyLessons: ''
   });
@@ -174,7 +174,7 @@ export default function TutorCasePage() {
     setFormData(prev => ({ 
       ...prev, 
       durationUnit: newUnit,
-      lessonDuration: '' // 切換單位時清空時長
+      duration: '' // 切換單位時清空時長
     }));
     setErrors(prev => ({ ...prev, duration: '' }));
   };
@@ -201,7 +201,7 @@ export default function TutorCasePage() {
         subRegions: formData.subRegions,
         price: Number(formData.price),
         location: formData.location,
-        lessonDuration: Number(formData.lessonDuration),
+        duration: Number(formData.duration),
         durationUnit: formData.durationUnit,
         weeklyLessons: Number(formData.weeklyLessons)
       };
@@ -351,7 +351,7 @@ export default function TutorCasePage() {
                   type="text"
                   id="duration"
                   name="duration"
-                  value={formData.lessonDuration}
+                  value={formData.duration}
                   onChange={handleDurationChange}
                   onBlur={handleDurationBlur}
                   className={`block w-full px-3 py-2 border ${errors.duration ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-yellow-400 focus:border-yellow-400`}
