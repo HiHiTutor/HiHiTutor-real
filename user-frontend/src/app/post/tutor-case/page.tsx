@@ -100,6 +100,40 @@ export default function TutorCasePage() {
     });
   };
 
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // 只允許輸入數字，且最小值為100
+    if (value === '' || (/^\d+$/.test(value) && parseInt(value) >= 100)) {
+      setFormData(prev => ({ ...prev, price: value }));
+    }
+  };
+
+  const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (formData.durationUnit === 'minutes') {
+      // 分鐘模式：只允許整數，最小值30
+      if (value === '' || (/^\d+$/.test(value) && parseInt(value) >= 30)) {
+        setFormData(prev => ({ ...prev, lessonDuration: value }));
+      }
+    } else {
+      // 小時模式：允許整數或.5的小數，最小值1
+      if (value === '' || 
+          (/^\d+$/.test(value) && parseInt(value) >= 1) || 
+          (/^\d+\.5$/.test(value) && parseFloat(value) >= 1)) {
+        setFormData(prev => ({ ...prev, lessonDuration: value }));
+      }
+    }
+  };
+
+  const handleDurationUnitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newUnit = e.target.value;
+    setFormData(prev => ({ 
+      ...prev, 
+      durationUnit: newUnit,
+      lessonDuration: '' // 切換單位時清空時長
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
@@ -243,40 +277,55 @@ export default function TutorCasePage() {
 
             {/* 價錢 */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">價錢（港幣/堂）</label>
+              <label htmlFor="price" className="block text-sm font-medium text-gray-700">
+                價錢（港幣/堂）
+              </label>
               <input
                 type="number"
+                id="price"
+                name="price"
                 value={formData.price}
-                onChange={e => setFormData({ ...formData, price: e.target.value })}
-                className="w-full px-3 py-2 border rounded-md"
-                placeholder="例如：300"
-                min={0}
+                onChange={handlePriceChange}
+                min="100"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-400 focus:border-yellow-400"
+                placeholder="請輸入每堂收費"
                 required
               />
+              <p className="mt-1 text-sm text-gray-500">最低收費為100港幣/堂</p>
             </div>
 
             {/* 每堂時長 */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">每堂時長</label>
-              <div className="flex gap-2">
+              <label htmlFor="duration" className="block text-sm font-medium text-gray-700">
+                每堂時長
+              </label>
+              <div className="mt-1 flex space-x-2">
                 <input
-                  type="number"
+                  type="text"
+                  id="duration"
+                  name="duration"
                   value={formData.lessonDuration}
-                  onChange={e => setFormData({ ...formData, lessonDuration: e.target.value })}
-                  className="flex-1 px-3 py-2 border rounded-md"
-                  placeholder="例如：60"
-                  min={1}
+                  onChange={handleDurationChange}
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-400 focus:border-yellow-400"
+                  placeholder={formData.durationUnit === 'minutes' ? "最少30分鐘" : "最少1小時"}
                   required
                 />
                 <select
+                  id="durationUnit"
+                  name="durationUnit"
                   value={formData.durationUnit}
-                  onChange={e => setFormData({ ...formData, durationUnit: e.target.value })}
-                  className="w-32 px-3 py-2 border rounded-md"
+                  onChange={handleDurationUnitChange}
+                  className="block w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-400 focus:border-yellow-400"
                 >
                   <option value="minutes">分鐘</option>
                   <option value="hours">小時</option>
                 </select>
               </div>
+              <p className="mt-1 text-sm text-gray-500">
+                {formData.durationUnit === 'minutes' 
+                  ? "最少30分鐘，請輸入整數" 
+                  : "最少1小時，可輸入整數或.5的小數（如1.5）"}
+              </p>
             </div>
 
             {/* 每星期堂數 */}
