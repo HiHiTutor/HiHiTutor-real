@@ -190,23 +190,29 @@ export default function TutorCasePage() {
       }
       const user = JSON.parse(userStr);
       const submitData = {
-        tutorId: user.id,
+        student: user.id,  // 使用 student 而不是 tutorId
         title: formData.title,
         description: formData.description,
+        subject: formData.subjects[0],  // 主要科目
+        subjects: formData.subjects,
         category: formData.category,
         subCategory: formData.subCategory,
-        subjects: formData.subjects,
-        modes: formData.modes,
         regions: formData.regions ? [formData.regions] : [],
         subRegions: formData.subRegions,
-        price: Number(formData.price),
-        location: formData.location,
-        duration: Number(formData.duration),
-        durationUnit: formData.durationUnit,
-        weeklyLessons: Number(formData.weeklyLessons)
+        mode: formData.modes[0] || 'online',  // 確保有預設值
+        modes: formData.modes.length > 0 ? formData.modes : ['online'],  // 確保有預設值
+        lessonDetails: {
+          duration: Number(formData.duration),
+          pricePerLesson: Number(formData.price),
+          lessonsPerWeek: Number(formData.weeklyLessons)
+        },
+        experience: "無教學經驗要求" as const,  // 使用字串字面量類型
+        status: "open" as const,  // 使用字串字面量類型
+        featured: false,
+        isApproved: false
       };
 
-      const result = await caseApi.createStudentCase(submitData);
+      const result = await caseApi.createTutorCase(submitData);
       alert('個案發布成功！');
       router.push('/find-student-cases');
 
