@@ -190,8 +190,9 @@ export default function TutorCasePage() {
       }
       const user = JSON.parse(userStr);
       const submitData = {
-        student: user.id,  // 使用 student 而不是 tutorId
-        title: formData.title,
+        student: user.id,  // 使用 student 字段
+        type: 'tutor',  // 添加 type 字段來標識這是導師發布的個案
+        title: formData.title || `${formData.subjects.join('、')}補習`,  // 如果沒有填寫標題，使用科目作為標題
         description: formData.description,
         subject: formData.subjects[0],  // 主要科目
         subjects: formData.subjects,
@@ -211,6 +212,11 @@ export default function TutorCasePage() {
         featured: false,
         isApproved: false
       };
+
+      // 驗證必要欄位
+      if (!submitData.title || !submitData.description || !submitData.subjects.length || !submitData.category) {
+        throw new Error('請填寫所有必要欄位');
+      }
 
       const result = await caseApi.createTutorCase(submitData);
       alert('個案發布成功！');
