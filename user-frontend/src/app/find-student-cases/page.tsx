@@ -77,33 +77,19 @@ function FindStudentCasesPageContent() {
     const fetchAllCases = async () => {
       try {
         setLoading(true);
-        console.log("🔍 正在獲取所有個案資料...");
+        console.log("🔍 正在獲取導師個案資料...");
         
-        // 獲取導師個案
+        // 只獲取導師個案
         const tutorResult = await caseApi.getAllTutorCases();
         console.log("📦 成功獲取導師個案：", tutorResult);
-        const tutorCases = (tutorResult.data?.cases || []).map((case_: any) => ({
-          ...case_,
-          type: 'tutor'
-        }));
-
-        // 獲取學生個案
-        const studentResult = await caseApi.getAllStudentCases();
-        console.log("📦 成功獲取學生個案：", studentResult);
-        const studentCases = (studentResult.data?.cases || []).map((case_: any) => ({
-          ...case_,
-          type: 'student'
-        }));
-
-        // 合併並排序所有個案
-        const allCases = [...tutorCases, ...studentCases].sort((a: any, b: any) => 
+        const allCases = (tutorResult.data?.cases || []).sort((a: any, b: any) => 
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         
         setAllCases(allCases);
-        console.log("✅ 已保存全量資料到 allCases");
+        console.log("✅ 已保存導師個案資料到 allCases");
       } catch (error) {
-        console.error('❌ 獲取個案時發生錯誤：', error);
+        console.error('❌ 獲取導師個案時發生錯誤：', error);
         setAllCases([]);
       } finally {
         setLoading(false);

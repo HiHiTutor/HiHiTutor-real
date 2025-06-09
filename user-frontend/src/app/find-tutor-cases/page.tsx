@@ -103,7 +103,7 @@ function FindTutorCasesPageContent() {
     const fetchAllCases = async () => {
       try {
         setLoading(true);
-        console.log("🔍 正在獲取所有導師個案資料...");
+        console.log("🔍 正在獲取學生個案資料...");
         
         // 從 localStorage 獲取當前用戶 ID
         const token = localStorage.getItem('token');
@@ -117,13 +117,13 @@ function FindTutorCasesPageContent() {
           }
         }
 
-        const result = await caseApi.getAllTutorCases();
-        console.log("📦 成功獲取所有導師個案：", result);
+        const result = await caseApi.getAllStudentCases();
+        console.log("📦 成功獲取學生個案：", result);
         const sorted = (result.data?.cases || []).sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         setAllCases(sorted);
-        console.log("✅ 已保存全量資料到 allCases");
+        console.log("✅ 已保存學生個案資料到 allCases");
       } catch (error) {
-        console.error('❌ 獲取所有導師個案時發生錯誤：', error);
+        console.error('❌ 獲取學生個案時發生錯誤：', error);
         setAllCases([]);
       } finally {
         setLoading(false);
@@ -131,7 +131,7 @@ function FindTutorCasesPageContent() {
     };
 
     fetchAllCases();
-  }, []); // 只在首次載入時執行
+  }, []);
 
   // 當 URL 參數改變時，從 allCases 中過濾
   useEffect(() => {
