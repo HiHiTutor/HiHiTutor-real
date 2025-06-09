@@ -28,6 +28,11 @@ export default function TutorCasePage() {
   const [categories, setCategories] = useState([]);
   const [regions, setRegions] = useState([]);
 
+  const [errors, setErrors] = useState({
+    price: '',
+    duration: ''
+  });
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     fetch('/api/categories', {
@@ -100,29 +105,56 @@ export default function TutorCasePage() {
     });
   };
 
+  const validatePrice = (value: string) => {
+    if (value === '') return '';
+    const num = parseInt(value);
+    if (isNaN(num) || num < 100) {
+      return '最低收費為100港幣/堂';
+    }
+    return '';
+  };
+
+  const validateDuration = (value: string, unit: string) => {
+    if (value === '') return '';
+    
+    if (unit === 'minutes') {
+      const num = parseInt(value);
+      if (isNaN(num) || num < 30) {
+        return '最少30分鐘，請輸入整數';
+      }
+    } else {
+      // 小時模式：允許整數或.5的小數
+      if (!/^\d+(\.5)?$/.test(value)) {
+        return '請輸入整數或.5的小數（如1.5）';
+      }
+      const num = parseFloat(value);
+      if (num < 1) {
+        return '最少1小時';
+      }
+    }
+    return '';
+  };
+
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // 只允許輸入數字，且最小值為100
-    if (value === '' || (/^\d+$/.test(value) && parseInt(value) >= 100)) {
-      setFormData(prev => ({ ...prev, price: value }));
-    }
+    setFormData(prev => ({ ...prev, price: value }));
+    setErrors(prev => ({ ...prev, price: '' }));
+  };
+
+  const handlePriceBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setErrors(prev => ({ ...prev, price: validatePrice(value) }));
   };
 
   const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    if (formData.durationUnit === 'minutes') {
-      // 分鐘模式：只允許整數，最小值30
-      if (value === '' || (/^\d+$/.test(value) && parseInt(value) >= 30)) {
-        setFormData(prev => ({ ...prev, lessonDuration: value }));
-      }
-    } else {
-      // 小時模式：允許整數或.5的小數，最小值1
-      if (value === '' || 
-          (/^\d+$/.test(value) && parseInt(value) >= 1) || 
-          (/^\d+\.5$/.test(value) && parseFloat(value) >= 1)) {
-        setFormData(prev => ({ ...prev, lessonDuration: value }));
-      }
-    }
+    setFormData(prev => ({ ...prev, lessonDuration: value }));
+    setErrors(prev => ({ ...prev, duration: '' }));
+  };
+
+  const handleDurationBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setErrors(prev => ({ ...prev, duration: validateDuration(value, formData.durationUnit) }));
   };
 
   const handleDurationUnitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -132,6 +164,7 @@ export default function TutorCasePage() {
       durationUnit: newUnit,
       lessonDuration: '' // 切換單位時清空時長
     }));
+    setErrors(prev => ({ ...prev, duration: '' }));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -281,17 +314,19 @@ export default function TutorCasePage() {
                 價錢（港幣/堂）
               </label>
               <input
-                type="number"
+                type="text"
                 id="price"
                 name="price"
                 value={formData.price}
                 onChange={handlePriceChange}
-                min="100"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-400 focus:border-yellow-400"
+                onBlur={handlePriceBlur}
+                className={`mt-1 block w-full px-3 py-2 border ${errors.price ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-yellow-400 focus:border-yellow-400`}
                 placeholder="請輸入每堂收費"
                 required
               />
-              <p className="mt-1 text-sm text-gray-500">最低收費為100港幣/堂</p>
+              {errors.price && (
+                <p className="mt-1 text-sm text-red-500">{errors.price}</p>
+              )}
             </div>
 
             {/* 每堂時長 */}
@@ -306,7 +341,8 @@ export default function TutorCasePage() {
                   name="duration"
                   value={formData.lessonDuration}
                   onChange={handleDurationChange}
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-400 focus:border-yellow-400"
+                  onBlur={handleDurationBlur}
+                  className={`block w-full px-3 py-2 border ${errors.duration ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm focus:outline-none focus:ring-yellow-400 focus:border-yellow-400`}
                   placeholder={formData.durationUnit === 'minutes' ? "最少30分鐘" : "最少1小時"}
                   required
                 />
@@ -321,11 +357,9 @@ export default function TutorCasePage() {
                   <option value="hours">小時</option>
                 </select>
               </div>
-              <p className="mt-1 text-sm text-gray-500">
-                {formData.durationUnit === 'minutes' 
-                  ? "最少30分鐘，請輸入整數" 
-                  : "最少1小時，可輸入整數或.5的小數（如1.5）"}
-              </p>
+              {errors.duration && (
+                <p className="mt-1 text-sm text-red-500">{errors.duration}</p>
+              )}
             </div>
 
             {/* 每星期堂數 */}
