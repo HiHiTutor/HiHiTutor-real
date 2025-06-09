@@ -203,7 +203,9 @@ export default function TutorCasePage() {
         mode: formData.modes[0] || 'online',  // 確保有預設值
         modes: formData.modes.length > 0 ? formData.modes : ['online'],  // 確保有預設值
         lessonDetails: {
-          duration: Number(formData.duration),
+          duration: formData.durationUnit === 'hours' 
+            ? Number(formData.duration) * 60  // 將小時轉換為分鐘
+            : Number(formData.duration),
           pricePerLesson: Number(formData.price),
           lessonsPerWeek: Number(formData.weeklyLessons)
         },
@@ -216,6 +218,12 @@ export default function TutorCasePage() {
       // 驗證必要欄位
       if (!submitData.title || !submitData.description || !submitData.subjects.length || !submitData.category) {
         throw new Error('請填寫所有必要欄位');
+      }
+
+      // 驗證課堂時長
+      const duration = submitData.lessonDetails.duration;
+      if (duration < 30 || duration > 180 || duration % 30 !== 0) {
+        throw new Error('課堂時長必須在30-180分鐘之間，且必須是30分鐘的倍數');
       }
 
       const result = await caseApi.createTutorCase(submitData);
