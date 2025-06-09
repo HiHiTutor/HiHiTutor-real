@@ -18,12 +18,6 @@ interface FilterState {
   regions: string[];
   subRegions: string[];
   priceRange: [number, number];
-  lessonDetails: {
-    duration: number;
-    lessonsPerWeek: number;
-    pricePerLesson: number;
-  };
-  status: string;
   featured: boolean;
 }
 
@@ -57,24 +51,18 @@ interface CaseFilterBarProps {
 
 const REGION_OPTIONS_FULL = REGION_OPTIONS;
 
-const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => {
+const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, onSearch, fetchUrl }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [filters, setFilters] = useState<FilterState>({
-    target: 'find-tutor',
+    target: '',
     category: '',
     subCategory: '',
     subjects: [],
     mode: [],
     regions: [],
     subRegions: [],
-    priceRange: [0, 10000],
-    lessonDetails: {
-      duration: 0,
-      lessonsPerWeek: 0,
-      pricePerLesson: 0
-    },
-    status: 'open',
+    priceRange: [0, 1000],
     featured: false
   });
   const [searchQuery, setSearchQuery] = useState('');
@@ -115,13 +103,7 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
       mode,
       regions,
       subRegions,
-      priceRange: [Number(priceMin) || 0, Number(priceMax) || 10000],
-      lessonDetails: {
-        duration: 0,
-        lessonsPerWeek: 0,
-        pricePerLesson: 0
-      },
-      status: 'open',
+      priceRange: [Number(priceMin) || 0, Number(priceMax) || 1000],
       featured: false
     });
   }, [searchParams]);
@@ -218,12 +200,6 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
       regions: [],
       subRegions: [],
       priceRange: [0, 0],
-      lessonDetails: {
-        duration: 0,
-        lessonsPerWeek: 0,
-        pricePerLesson: 0
-      },
-      status: 'open',
       featured: false
     });
     onFilter?.({});
@@ -305,40 +281,47 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
         <div className="flex gap-4">
           <input
             type="text"
-            placeholder="搜索個案..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            placeholder="搜索..."
+            className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
             onClick={handleSearch}
-            className={`${colorScheme.button} text-white rounded-lg px-6 py-2`}
+            className={`px-6 py-2 text-white rounded-lg ${colorScheme.button}`}
           >
             搜索
           </button>
         </div>
 
-        {/* 過濾器 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* 類別選擇 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              類別
-            </label>
+        {/* 篩選選項 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {/* 目標選擇 */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">目標</label>
             <select
-              value={selectedCategory}
-              onChange={(e) => {
-                setSelectedCategory(e.target.value);
-                setFilters(prev => ({
-                  ...prev,
-                  category: e.target.value,
-                  subCategory: '',
-                  subjects: []
-                }));
-              }}
-              className="w-full rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              value={filters.target}
+              onChange={(e) => handleFilterChange('target', e.target.value)}
+              className="w-full px-3 py-2 border rounded-md"
             >
-              <option value="">全部類別</option>
+              <option value="">全部</option>
+              {TARGET_OPTIONS.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 分類選擇 */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">分類</label>
+            <select
+              value={filters.category}
+              onChange={(e) => handleFilterChange('category', e.target.value)}
+              className="w-full px-3 py-2 border rounded-md"
+            >
+              <option value="">全部</option>
               {CATEGORY_OPTIONS.map(option => (
                 <option key={option.value} value={option.value}>
                   {option.label}
@@ -347,25 +330,17 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
             </select>
           </div>
 
-          {/* 子類別/科目選擇 */}
-          {selectedCategory && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {CATEGORY_OPTIONS.find(c => c.value === selectedCategory)?.subCategories 
-                  ? '子類別'
-                  : '科目'}
-              </label>
+          {/* 子分類選擇 */}
+          {filters.category && (
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">子分類</label>
               <select
                 value={filters.subCategory}
                 onChange={(e) => handleSubCategoryChange(e.target.value)}
-                className="w-full rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                className="w-full px-3 py-2 border rounded-md"
               >
-                <option value="">
-                  {CATEGORY_OPTIONS.find(c => c.value === selectedCategory)?.subCategories 
-                    ? '全部子類別'
-                    : '全部科目'}
-                </option>
-                {getSubOptions().map(option => (
+                <option value="">全部</option>
+                {CATEGORY_OPTIONS.find(c => c.value === filters.category)?.subCategories?.map(option => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
@@ -374,43 +349,37 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
             </div>
           )}
 
-          {/* 科目選擇（當選擇了中學/小學時顯示） */}
+          {/* 科目選擇 */}
           {shouldShowSubjects() && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                科目
-              </label>
-              <select
-                value={filters.subjects[0] || ''}
-                onChange={(e) => {
-                  setFilters(prev => ({
-                    ...prev,
-                    subjects: e.target.value ? [e.target.value] : []
-                  }));
-                }}
-                className="w-full rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              >
-                <option value="">全部科目</option>
-                {getSubjectOptions().map(subject => (
-                  <option key={subject.value} value={subject.value}>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">科目</label>
+              <div className="flex flex-wrap gap-2">
+                {getCategorySubjects().map(subject => (
+                  <button
+                    key={subject.value}
+                    onClick={() => handleSubjectChange(subject.value)}
+                    className={`px-3 py-1 rounded-full text-sm ${
+                      filters.subjects.includes(subject.value)
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-100 text-gray-700'
+                    }`}
+                  >
                     {subject.label}
-                  </option>
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
           )}
 
           {/* 地區選擇 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              地區
-            </label>
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">地區</label>
             <select
-              value={selectedRegion}
-              onChange={(e) => setSelectedRegion(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              value={filters.regions[0] || ''}
+              onChange={(e) => handleRegionChange(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md"
             >
-              <option value="">全部地區</option>
+              <option value="">全部</option>
               {REGION_OPTIONS.map(option => (
                 <option key={option.value} value={option.value}>
                   {option.label}
@@ -420,20 +389,18 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
           </div>
 
           {/* 子地區選擇 */}
-          {selectedRegion && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                區域
-              </label>
+          {filters.regions.length > 0 && (
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">子地區</label>
               <select
                 value={filters.subRegions[0] || ''}
                 onChange={(e) => handleSubRegionChange(e.target.value)}
-                className="w-full rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                className="w-full px-3 py-2 border rounded-md"
               >
-                <option value="">全部區域</option>
-                {REGION_OPTIONS.find(r => r.value === selectedRegion)?.regions.map(subRegion => (
-                  <option key={subRegion.value} value={subRegion.value}>
-                    {subRegion.label}
+                <option value="">全部</option>
+                {REGION_OPTIONS.find(r => r.value === filters.regions[0])?.regions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
                   </option>
                 ))}
               </select>
@@ -441,35 +408,33 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
           )}
 
           {/* 教學模式選擇 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              教學模式
-            </label>
-            <select
-              value={selectedMode}
-              onChange={(e) => setSelectedMode(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
-            >
-              <option value="">全部模式</option>
-              {TEACHING_MODE_OPTIONS.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">教學模式</label>
+            <div className="flex flex-wrap gap-2">
+              {TEACHING_MODE_OPTIONS.map(mode => (
+                <button
+                  key={mode.value}
+                  onClick={() => handleModeChange(mode.value)}
+                  className={`px-3 py-1 rounded-full text-sm ${
+                    filters.mode.includes(mode.value)
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-100 text-gray-700'
+                  }`}
+                >
+                  {mode.label}
+                </button>
               ))}
-            </select>
+            </div>
           </div>
 
-          {/* Budget Range Filter */}
+          {/* 預算範圍 */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">預算範圍</label>
             <div className="flex items-center space-x-2">
               <input
                 type="number"
                 value={filters.priceRange[0]}
-                onChange={(e) => setFilters(prev => ({
-                  ...prev,
-                  priceRange: [Number(e.target.value), prev.priceRange[1]]
-                }))}
+                onChange={(e) => handlePriceChange('min', e.target.value)}
                 className="w-24 px-3 py-2 border rounded-md"
                 placeholder="最低"
               />
@@ -477,90 +442,20 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
               <input
                 type="number"
                 value={filters.priceRange[1]}
-                onChange={(e) => setFilters(prev => ({
-                  ...prev,
-                  priceRange: [prev.priceRange[0], Number(e.target.value)]
-                }))}
+                onChange={(e) => handlePriceChange('max', e.target.value)}
                 className="w-24 px-3 py-2 border rounded-md"
                 placeholder="最高"
               />
             </div>
           </div>
 
-          {/* Lesson Details Filter */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">課程詳情</label>
-            <div className="space-y-2">
-              <input
-                type="number"
-                value={filters.lessonDetails.duration}
-                onChange={(e) => setFilters(prev => ({
-                  ...prev,
-                  lessonDetails: {
-                    ...prev.lessonDetails,
-                    duration: Number(e.target.value)
-                  }
-                }))}
-                className="w-full px-3 py-2 border rounded-md"
-                placeholder="課程時長（分鐘）"
-              />
-              <input
-                type="number"
-                value={filters.lessonDetails.lessonsPerWeek}
-                onChange={(e) => setFilters(prev => ({
-                  ...prev,
-                  lessonDetails: {
-                    ...prev.lessonDetails,
-                    lessonsPerWeek: Number(e.target.value)
-                  }
-                }))}
-                className="w-full px-3 py-2 border rounded-md"
-                placeholder="每週課程數"
-              />
-              <input
-                type="number"
-                value={filters.lessonDetails.pricePerLesson}
-                onChange={(e) => setFilters(prev => ({
-                  ...prev,
-                  lessonDetails: {
-                    ...prev.lessonDetails,
-                    pricePerLesson: Number(e.target.value)
-                  }
-                }))}
-                className="w-full px-3 py-2 border rounded-md"
-                placeholder="每堂課價格"
-              />
-            </div>
-          </div>
-
-          {/* Status Filter */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">個案狀態</label>
-            <select
-              value={filters.status}
-              onChange={(e) => setFilters(prev => ({
-                ...prev,
-                status: e.target.value
-              }))}
-              className="w-full px-3 py-2 border rounded-md"
-            >
-              <option value="open">開放中</option>
-              <option value="matched">已配對</option>
-              <option value="closed">已關閉</option>
-              <option value="pending">待處理</option>
-            </select>
-          </div>
-
-          {/* Featured Filter */}
+          {/* 精選個案 */}
           <div className="flex items-center space-x-2">
             <input
               type="checkbox"
               id="featured"
               checked={filters.featured}
-              onChange={(e) => setFilters(prev => ({
-                ...prev,
-                featured: e.target.checked
-              }))}
+              onChange={(e) => handleFilterChange('featured', e.target.checked)}
               className="h-4 w-4 text-blue-600"
             />
             <label htmlFor="featured" className="text-sm font-medium text-gray-700">
@@ -569,19 +464,19 @@ const CaseFilterBar = ({ onFilter, onSearch, fetchUrl }: CaseFilterBarProps) => 
           </div>
         </div>
 
-        {/* 重置和應用按鈕 */}
-        <div className="flex justify-end gap-4">
+        {/* 按鈕組 */}
+        <div className="flex justify-end space-x-4">
           <button
             onClick={handleReset}
-            className="px-6 py-2 border border-gray-200 rounded-lg hover:bg-gray-50"
+            className="px-6 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200"
           >
             重置
           </button>
           <button
             onClick={handleFilter}
-            className={`${colorScheme.button} text-white rounded-lg px-6 py-2`}
+            className={`px-6 py-2 text-white rounded-lg ${colorScheme.button}`}
           >
-            應用過濾
+            篩選
           </button>
         </div>
       </div>
