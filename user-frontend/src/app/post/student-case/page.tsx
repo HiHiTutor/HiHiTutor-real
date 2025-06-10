@@ -400,11 +400,11 @@ export default function PostStudentCase() {
                     {watch('startDate') ? format(watch('startDate')!, "PPP") : "選擇日期"}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
+                <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={watch('startDate')}
-                    onSelect={(date) => setValue('startDate', date)}
+                    selected={watch('startDate') || undefined}
+                    onSelect={(date) => date && setValue('startDate', date)}
                     initialFocus
                   />
                 </PopoverContent>
