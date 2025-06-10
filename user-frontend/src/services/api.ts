@@ -198,3 +198,21 @@ export const searchApi = {
   searchCases: (query: string) => 
     fetchApi(`/search/cases?q=${encodeURIComponent(query)}`),
 };
+
+// 學生個案相關 API
+export const studentCaseApi = {
+  // 創建學生個案
+  createStudentCase: (data: any) => 
+    fetchApi('/find-tutor-cases', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
+  
+  // 獲取學生個案詳情
+  getStudentCaseById: (id: string) => 
+    fetchApi(`/find-tutor-cases/${id}`),
+  
+  // 獲取所有學生個案
+  getAllStudentCases: () => 
+    fetchApi('/find-tutor-cases'),
+};
