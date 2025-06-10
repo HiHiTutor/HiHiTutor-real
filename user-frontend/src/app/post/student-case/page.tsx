@@ -23,17 +23,17 @@ import { Label } from '@/components/ui/label';
 
 const formSchema = z.object({
   title: z.string().min(1, '請輸入標題'),
-  description: z.string().min(1, '請輸入描述'),
+  description: z.string().optional(),
   category: z.string().min(1, '請選擇類別'),
   subCategory: z.string().optional(),
   subjects: z.array(z.string()).min(1, '請選擇科目'),
   modes: z.array(z.string()).min(1, '請選擇教學模式'),
   regions: z.array(z.string()).optional(),
   subRegions: z.array(z.string()).optional(),
-  price: z.number().min(0, '請輸入價格'),
+  price: z.coerce.number().min(0, '請輸入價格'),
   lessonDuration: z.object({
-    hours: z.number().min(0, '小時不能為負數'),
-    minutes: z.number().refine((val) => [0, 15, 30, 45].includes(val), {
+    hours: z.coerce.number().min(0, '小時不能為負數'),
+    minutes: z.coerce.number().refine((val) => [0, 15, 30, 45].includes(val), {
       message: '分鐘必須是 0、15、30 或 45'
     })
   }).refine((data) => {
@@ -42,7 +42,7 @@ const formSchema = z.object({
   }, {
     message: '總時長不能少於 30 分鐘'
   }),
-  weeklyLessons: z.number().min(1, '請輸入每週堂數'),
+  weeklyLessons: z.coerce.number().min(1, '請輸入每週堂數'),
   startDate: z.date({
     required_error: '請選擇開始日期'
   })
@@ -368,18 +368,16 @@ export default function PostStudentCase() {
               )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                每週堂數
-              </label>
+            <div className="space-y-2">
+              <Label>每週堂數</Label>
               <Input
                 type="number"
-                {...register('weeklyLessons', { required: '請輸入每週課程數' })}
-                className="w-full"
-                placeholder="請輸入每週課程數"
+                min="1"
+                placeholder="請輸入每週堂數"
+                {...register('weeklyLessons', { valueAsNumber: true })}
               />
               {errors.weeklyLessons && (
-                <p className="mt-1 text-sm text-red-600">{errors.weeklyLessons.message as string}</p>
+                <p className="text-sm text-red-500">{errors.weeklyLessons.message}</p>
               )}
             </div>
 
@@ -411,33 +409,27 @@ export default function PostStudentCase() {
               </Popover>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                詳細描述
-              </label>
+            <div className="space-y-2">
+              <Label>詳細描述</Label>
               <Textarea
-                {...register('description', { required: '請輸入描述' })}
-                className="w-full"
                 placeholder="請描述您的需求（選填）"
-                rows={4}
+                {...register('description')}
               />
               {errors.description && (
-                <p className="mt-1 text-sm text-red-600">{errors.description.message as string}</p>
+                <p className="text-sm text-red-500">{errors.description.message}</p>
               )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                每堂收費（港幣）
-              </label>
+            <div className="space-y-2">
+              <Label>每堂收費（港幣）</Label>
               <Input
                 type="number"
-                {...register('price', { required: '請輸入每堂收費' })}
-                className="w-full"
-                placeholder="請輸入每堂收費"
+                min="0"
+                placeholder="請輸入價格"
+                {...register('price', { valueAsNumber: true })}
               />
               {errors.price && (
-                <p className="mt-1 text-sm text-red-600">{errors.price.message as string}</p>
+                <p className="text-sm text-red-500">{errors.price.message}</p>
               )}
             </div>
 
