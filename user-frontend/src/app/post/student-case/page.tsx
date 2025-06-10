@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { toast } from 'react-hot-toast';
 import { studentCaseApi } from '@/services/api';
 import { Button } from '@/components/ui/button';
@@ -14,109 +16,56 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { CalendarIcon } from '@heroicons/react/24/outline';
+import { cn } from '@/lib/utils';
+import { CATEGORY_OPTIONS } from '@/constants/categoryOptions';
+import { REGION_OPTIONS } from '@/constants/regionOptions';
 
-const categories = [
-  { id: 'preschool', name: '幼兒教育' },
-  { id: 'primary', name: '小學教育' },
-  { id: 'secondary', name: '中學教育' },
-  { id: 'interest', name: '興趣班' },
-  { id: 'tertiary', name: '大專補習課程' },
-  { id: 'adult', name: '成人教育' }
-];
+const formSchema = z.object({
+  title: z.string().min(1, '請輸入標題'),
+  description: z.string().min(1, '請輸入描述'),
+  category: z.string().min(1, '請選擇分類'),
+  subCategory: z.string().optional(),
+  subjects: z.array(z.string()).min(1, '請選擇科目'),
+  modes: z.array(z.string()).min(1, '請選擇教學模式'),
+  regions: z.array(z.string()).optional(),
+  subRegions: z.array(z.string()).optional(),
+  price: z.string().min(1, '請輸入價格'),
+  lessonDuration: z.string().min(1, '請輸入課程時長'),
+  durationUnit: z.string().min(1, '請選擇時長單位'),
+  weeklyLessons: z.string().min(1, '請輸入每週課程數'),
+  startDate: z.date().optional()
+});
 
-const subjects = {
-  preschool: [
-    { id: 'preschool_general', name: '幼兒教育' }
-  ],
-  primary: [
-    { id: 'primary_chinese', name: '中文' },
-    { id: 'primary_english', name: '英文' },
-    { id: 'primary_math', name: '數學' },
-    { id: 'primary_general', name: '常識' }
-  ],
-  secondary: [
-    { id: 'secondary_chinese', name: '中文' },
-    { id: 'secondary_english', name: '英文' },
-    { id: 'secondary_math', name: '數學' },
-    { id: 'secondary_physics', name: '物理' },
-    { id: 'secondary_chemistry', name: '化學' },
-    { id: 'secondary_biology', name: '生物' },
-    { id: 'secondary_economics', name: '經濟' },
-    { id: 'secondary_accounting', name: '會計' }
-  ],
-  interest: [
-    { id: 'interest_music', name: '音樂' },
-    { id: 'interest_sports', name: '體育' },
-    { id: 'interest_art', name: '美術' },
-    { id: 'interest_dance', name: '舞蹈' }
-  ],
-  tertiary: [
-    { id: 'tertiary_business', name: '商科' },
-    { id: 'tertiary_science', name: '理科' },
-    { id: 'tertiary_engineering', name: '工科' },
-    { id: 'tertiary_language', name: '語言' }
-  ],
-  adult: [
-    { id: 'adult_language', name: '語言' },
-    { id: 'adult_music', name: '音樂' },
-    { id: 'adult_art', name: '美術' },
-    { id: 'adult_sports', name: '體育' }
-  ]
-};
-
-const teachingModes = [
-  { id: 'in_person', name: '面授' },
-  { id: 'online', name: '網課' }
-];
-
-const minutesOptions = [15, 30, 45];
+type FormData = z.infer<typeof formSchema>;
 
 export default function PostStudentCase() {
   const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string>('');
   const [selectedModes, setSelectedModes] = useState<string[]>([]);
-  const [hours, setHours] = useState('0');
-  const [minutes, setMinutes] = useState('30');
-  const [startDate, setStartDate] = useState<Date>();
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
+  const [selectedSubRegions, setSelectedSubRegions] = useState<string[]>([]);
 
-  const onSubmit = async (data: any) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch
+  } = useForm<FormData>({
+    resolver: zodResolver(formSchema)
+  });
+
+  const watchModes = watch('modes');
+
+  const onSubmit = async (data: FormData) => {
     try {
-      if (selectedSubjects.length === 0) {
-        toast.error('請選擇至少一個科目');
-        return;
-      }
-
-      if (selectedModes.length === 0) {
-        toast.error('請選擇至少一種教學模式');
-        return;
-      }
-
-      if (!startDate) {
-        toast.error('請選擇開始上堂日子');
-        return;
-      }
-
-      const totalMinutes = parseInt(hours) * 60 + parseInt(minutes);
-      if (totalMinutes < 30) {
-        toast.error('每堂時長不能少於30分鐘');
-        return;
-      }
-
       const caseData = {
         ...data,
-        category: selectedCategory,
-        subjects: selectedSubjects,
-        teachingModes: selectedModes,
-        duration: {
-          hours: parseInt(hours),
-          minutes: parseInt(minutes)
-        },
-        startDate: startDate.toISOString(),
-        status: 'open'
+        modes: selectedModes,
+        regions: selectedRegions,
+        subRegions: selectedSubRegions
       };
-
       await studentCaseApi.createStudentCase(caseData);
       toast.success('個案發布成功！');
       router.push('/find-tutor-cases');
@@ -126,40 +75,58 @@ export default function PostStudentCase() {
     }
   };
 
-  const handleCategoryChange = (categoryId: string) => {
-    setSelectedCategory(categoryId);
-    setSelectedSubjects([]);
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value);
+    setSelectedSubCategory('');
+    setValue('category', value);
+    setValue('subCategory', '');
+    setValue('subjects', []);
   };
 
-  const handleSubjectChange = (subjectId: string) => {
-    if (selectedCategory === 'primary' || selectedCategory === 'secondary') {
-      setSelectedSubjects(prev => 
-        prev.includes(subjectId) 
-          ? prev.filter(id => id !== subjectId)
-          : [...prev, subjectId]
-      );
-    } else {
-      setSelectedSubjects([subjectId]);
+  const handleSubCategoryChange = (value: string) => {
+    setSelectedSubCategory(value);
+    setValue('subCategory', value);
+    setValue('subjects', []);
+  };
+
+  const handleModeChange = (mode: string) => {
+    const newModes = selectedModes.includes(mode)
+      ? selectedModes.filter(m => m !== mode)
+      : [...selectedModes, mode];
+    setSelectedModes(newModes);
+    setValue('modes', newModes);
+    
+    // 如果取消選擇面授，清空地區選擇
+    if (mode === 'in-person' && !newModes.includes('in-person')) {
+      setSelectedRegions([]);
+      setSelectedSubRegions([]);
+      setValue('regions', []);
+      setValue('subRegions', []);
     }
   };
 
-  const handleModeChange = (modeId: string) => {
-    setSelectedModes(prev =>
-      prev.includes(modeId)
-        ? prev.filter(id => id !== modeId)
-        : [...prev, modeId]
-    );
+  const handleRegionChange = (region: string) => {
+    const newRegions = selectedRegions.includes(region)
+      ? selectedRegions.filter(r => r !== region)
+      : [...selectedRegions, region];
+    setSelectedRegions(newRegions);
+    setValue('regions', newRegions);
+    setSelectedSubRegions([]);
+    setValue('subRegions', []);
   };
 
-  const formatDuration = (hours: number, minutes: number) => {
-    if (hours === 0) {
-      return `${minutes}分鐘`;
-    }
-    if (minutes === 0) {
-      return `${hours}小時`;
-    }
-    return `${hours}小時${minutes}分鐘`;
+  const handleSubRegionChange = (subRegion: string) => {
+    const newSubRegions = selectedSubRegions.includes(subRegion)
+      ? selectedSubRegions.filter(r => r !== subRegion)
+      : [...selectedSubRegions, subRegion];
+    setSelectedSubRegions(newSubRegions);
+    setValue('subRegions', newSubRegions);
   };
+
+  const selectedCategoryData = CATEGORY_OPTIONS.find(cat => cat.value === selectedCategory);
+  const selectedSubCategoryData = selectedCategoryData?.subCategories?.find(
+    sub => sub.value === selectedSubCategory
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -191,62 +158,158 @@ export default function PostStudentCase() {
                   <SelectValue placeholder="請選擇" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map(category => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
+                  {CATEGORY_OPTIONS.map(category => (
+                    <SelectItem key={category.value} value={category.value}>
+                      {category.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
-            {selectedCategory && (
+            {selectedCategoryData?.subCategories && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  科目
+                  子分類
                 </label>
-                <div className="grid grid-cols-2 gap-4">
-                  {subjects[selectedCategory as keyof typeof subjects]?.map(subject => (
-                    <div key={subject.id} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={subject.id}
-                        checked={selectedSubjects.includes(subject.id)}
-                        onCheckedChange={() => handleSubjectChange(subject.id)}
-                      />
-                      <label
-                        htmlFor={subject.id}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        {subject.name}
-                      </label>
-                    </div>
-                  ))}
-                </div>
+                <Select onValueChange={handleSubCategoryChange} value={selectedSubCategory}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="請選擇" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {selectedCategoryData.subCategories.map(subCategory => (
+                      <SelectItem key={subCategory.value} value={subCategory.value}>
+                        {subCategory.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             )}
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                科目
+              </label>
+              <div className="grid grid-cols-2 gap-4">
+                {(selectedSubCategoryData?.subjects || selectedCategoryData?.subjects || []).map(subject => (
+                  <div key={subject.value} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={subject.value}
+                      checked={watch('subjects').includes(subject.value)}
+                      onCheckedChange={(checked) => {
+                        const currentSubjects = watch('subjects') || [];
+                        const newSubjects = checked
+                          ? [...currentSubjects, subject.value]
+                          : currentSubjects.filter(s => s !== subject.value);
+                        setValue('subjects', newSubjects);
+                      }}
+                    />
+                    <label
+                      htmlFor={subject.value}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      {subject.label}
+                    </label>
+                  </div>
+                ))}
+              </div>
+              {errors.subjects && (
+                <p className="mt-1 text-sm text-red-600">{errors.subjects.message as string}</p>
+              )}
+            </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 教學模式
               </label>
               <div className="grid grid-cols-2 gap-4">
-                {teachingModes.map(mode => (
-                  <div key={mode.id} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={mode.id}
-                      checked={selectedModes.includes(mode.id)}
-                      onCheckedChange={() => handleModeChange(mode.id)}
-                    />
-                    <label
-                      htmlFor={mode.id}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      {mode.name}
-                    </label>
-                  </div>
-                ))}
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="online"
+                    checked={selectedModes.includes('online')}
+                    onCheckedChange={() => handleModeChange('online')}
+                  />
+                  <label
+                    htmlFor="online"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Online
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="in-person"
+                    checked={selectedModes.includes('in-person')}
+                    onCheckedChange={() => handleModeChange('in-person')}
+                  />
+                  <label
+                    htmlFor="in-person"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    In-Person
+                  </label>
+                </div>
               </div>
+              {errors.modes && (
+                <p className="mt-1 text-sm text-red-600">{errors.modes.message as string}</p>
+              )}
             </div>
+
+            {selectedModes.includes('in-person') && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    地區
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    {REGION_OPTIONS.map(region => (
+                      <div key={region.value} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={region.value}
+                          checked={selectedRegions.includes(region.value)}
+                          onCheckedChange={() => handleRegionChange(region.value)}
+                        />
+                        <label
+                          htmlFor={region.value}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          {region.label}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {selectedRegions.length > 0 && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      分區
+                    </label>
+                    <div className="grid grid-cols-2 gap-4">
+                      {selectedRegions.map(regionValue => {
+                        const region = REGION_OPTIONS.find(r => r.value === regionValue);
+                        return region?.regions.map(subRegion => (
+                          <div key={subRegion.value} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={subRegion.value}
+                              checked={selectedSubRegions.includes(subRegion.value)}
+                              onCheckedChange={() => handleSubRegionChange(subRegion.value)}
+                            />
+                            <label
+                              htmlFor={subRegion.value}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                              {subRegion.label}
+                            </label>
+                          </div>
+                        ));
+                      })}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -256,25 +319,80 @@ export default function PostStudentCase() {
                 <Input
                   type="number"
                   min="0"
-                  value={hours}
-                  onChange={(e) => setHours(e.target.value)}
+                  {...register('lessonDuration', { required: '請輸入課程時長' })}
                   className="w-20"
                 />
-                <span>小時</span>
-                <Select value={minutes} onValueChange={setMinutes}>
+                <Select onValueChange={(value) => setValue('durationUnit', value)}>
                   <SelectTrigger className="w-20">
-                    <SelectValue placeholder="分鐘" />
+                    <SelectValue placeholder="單位" />
                   </SelectTrigger>
                   <SelectContent>
-                    {minutesOptions.map(min => (
-                      <SelectItem key={min} value={min.toString()}>
-                        {min}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="minutes">分鐘</SelectItem>
+                    <SelectItem value="hours">小時</SelectItem>
                   </SelectContent>
                 </Select>
-                <span>分鐘</span>
               </div>
+              {errors.lessonDuration && (
+                <p className="mt-1 text-sm text-red-600">{errors.lessonDuration.message as string}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                每週堂數
+              </label>
+              <Input
+                type="number"
+                {...register('weeklyLessons', { required: '請輸入每週課程數' })}
+                className="w-full"
+                placeholder="請輸入每週課程數"
+              />
+              {errors.weeklyLessons && (
+                <p className="mt-1 text-sm text-red-600">{errors.weeklyLessons.message as string}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                開始上堂日子
+              </label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !watch('startDate') && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {watch('startDate') ? format(watch('startDate')!, "PPP") : "選擇日期"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={watch('startDate')}
+                    onSelect={(date) => setValue('startDate', date)}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                詳細描述
+              </label>
+              <Textarea
+                {...register('description', { required: '請輸入描述' })}
+                className="w-full"
+                placeholder="請描述您的需求（選填）"
+                rows={4}
+              />
+              {errors.description && (
+                <p className="mt-1 text-sm text-red-600">{errors.description.message as string}</p>
+              )}
             </div>
 
             <div>
@@ -290,58 +408,6 @@ export default function PostStudentCase() {
               {errors.price && (
                 <p className="mt-1 text-sm text-red-600">{errors.price.message as string}</p>
               )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                每週堂數
-              </label>
-              <Input
-                type="number"
-                {...register('sessionsPerWeek', { required: '請輸入每週堂數' })}
-                className="w-full"
-                placeholder="請輸入每週堂數"
-              />
-              {errors.sessionsPerWeek && (
-                <p className="mt-1 text-sm text-red-600">{errors.sessionsPerWeek.message as string}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                開始上堂日子
-              </label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {startDate ? format(startDate, 'PPP') : '選擇日期'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={startDate}
-                    onSelect={setStartDate}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                詳細描述
-              </label>
-              <Textarea
-                {...register('description')}
-                className="w-full"
-                placeholder="請描述您的需求（選填）"
-                rows={4}
-              />
             </div>
 
             <div className="flex justify-end space-x-4">
