@@ -38,15 +38,17 @@ const Navbar = () => {
             <img src="/Logo(Rev).png" alt="HiHiTutor" width={120} height={40} className="h-10 w-auto" />
           </Link>
         </div>
-        {/* 主選單置中，統一間距與字體大小，並加上 icon */}
+        {/* 主選單置中，統一間距與字體大小 */}
         <nav className="flex-1 flex justify-center space-x-6 text-sm text-gray-700">
-          <Link href="/find-student-cases" className="hover:text-primary flex items-center">
-            <UserGroupIcon className="h-5 w-5 mr-1" />
-            導師列表
+          <Link href="/find-student-cases">
+            <button className="bg-yellow-400 text-white px-4 py-2 rounded-md hover:bg-yellow-500 transition">
+              導師列表
+            </button>
           </Link>
-          <Link href="/find-tutor-cases" className="hover:text-primary flex items-center">
-            <UserGroupIcon className="h-5 w-5 mr-1" />
-            補習個案
+          <Link href="/find-tutor-cases">
+            <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">
+              補習個案
+            </button>
           </Link>
           <Link href="/faq" className="hover:text-primary flex items-center">
             <UserGroupIcon className="h-5 w-5 mr-1" />
