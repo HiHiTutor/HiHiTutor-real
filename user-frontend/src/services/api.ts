@@ -63,8 +63,10 @@ export const authApi = {
     }
 
     console.log('✅ 登入成功:', res.user);
-    localStorage.setItem("token", res.token);
-    return res.user;
+    return {
+      ...res.user,
+      token: res.token
+    };
   },
   
   // 註冊新用戶
