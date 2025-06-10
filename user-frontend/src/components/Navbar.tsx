@@ -2,9 +2,12 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { useUser } from '@/hooks/useUser';
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { user } = useUser();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     const checkLogin = () => {
@@ -30,14 +33,8 @@ const Navbar = () => {
             <img src="/Logo(Rev).png" alt="HiHiTutor" width={120} height={40} className="h-10 w-auto" />
           </Link>
         </div>
-        {/* 主選單絕對置中並稍微偏左 */}
-        <nav className="absolute left-[47%] top-1/2 -translate-x-1/2 -translate-y-1/2 flex space-x-6 text-sm text-gray-700">
-          <Link href="/faq" className="hover:text-primary">配對流程</Link>
-          <Link href="/articles" className="hover:text-primary">教育專欄</Link>
-          <Link href="/about" className="hover:text-primary">平台簡介</Link>
-        </nav>
-        {/* 右側行動按鈕 */}
-        <div className="flex items-center gap-2 ml-auto z-10">
+        {/* 新增：Logo 右邊的主動作按鈕 */}
+        <div className="flex items-center gap-2 ml-4">
           <Link href="/find-student-cases">
             <button className="bg-yellow-400 text-white px-4 py-2 rounded-md hover:bg-yellow-500 transition">
               導師列表
@@ -48,12 +45,47 @@ const Navbar = () => {
               補習個案
             </button>
           </Link>
+        </div>
+        {/* 主選單絕對置中並稍微偏左 */}
+        <nav className="absolute left-[47%] top-1/2 -translate-x-1/2 -translate-y-1/2 flex space-x-6 text-sm text-gray-700">
+          <Link href="/faq" className="hover:text-primary">配對流程</Link>
+          <Link href="/articles" className="hover:text-primary">教育專欄</Link>
+          <Link href="/about" className="hover:text-primary">平台簡介</Link>
+        </nav>
+        {/* 右側行動按鈕 */}
+        <div className="flex items-center gap-2 ml-auto z-10 relative">
           {isLoggedIn && (
             <Link href="/post">
               <button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">
-                尋導師 / 招學生
+                招學生
               </button>
             </Link>
+          )}
+          {/* 用戶名稱下拉選單 */}
+          {isLoggedIn && user && (
+            <div className="relative">
+              <button
+                className="bg-gray-100 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-200 transition flex items-center"
+                onClick={() => setDropdownOpen((v) => !v)}
+              >
+                {user.name}
+                <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+              </button>
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-44 bg-white border rounded-md shadow-lg z-50">
+                  <Link href="/tutor/dashboard" className="block px-4 py-2 hover:bg-gray-100">我的導師介面</Link>
+                  <Link href="/profile" className="block px-4 py-2 hover:bg-gray-100">編列個人資料</Link>
+                  <button
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500"
+                    onClick={() => {
+                      localStorage.removeItem('token');
+                      window.dispatchEvent(new Event('logout'));
+                      window.location.href = '/login';
+                    }}
+                  >登出</button>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>
