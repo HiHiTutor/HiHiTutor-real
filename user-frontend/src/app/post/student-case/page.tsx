@@ -19,21 +19,33 @@ import { CalendarIcon } from '@heroicons/react/24/outline';
 import { cn } from '@/lib/utils';
 import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 import { REGION_OPTIONS } from '@/constants/regionOptions';
+import { Label } from '@/components/ui/label';
 
 const formSchema = z.object({
   title: z.string().min(1, '請輸入標題'),
   description: z.string().min(1, '請輸入描述'),
-  category: z.string().min(1, '請選擇分類'),
+  category: z.string().min(1, '請選擇類別'),
   subCategory: z.string().optional(),
   subjects: z.array(z.string()).min(1, '請選擇科目'),
   modes: z.array(z.string()).min(1, '請選擇教學模式'),
   regions: z.array(z.string()).optional(),
   subRegions: z.array(z.string()).optional(),
-  price: z.string().min(1, '請輸入價格'),
-  lessonDuration: z.string().min(1, '請輸入課程時長'),
-  durationUnit: z.string().min(1, '請選擇時長單位'),
-  weeklyLessons: z.string().min(1, '請輸入每週課程數'),
-  startDate: z.date().optional()
+  price: z.number().min(0, '請輸入價格'),
+  lessonDuration: z.object({
+    hours: z.number().min(0, '小時不能為負數'),
+    minutes: z.number().refine((val) => [0, 15, 30, 45].includes(val), {
+      message: '分鐘必須是 0、15、30 或 45'
+    })
+  }).refine((data) => {
+    const totalMinutes = data.hours * 60 + data.minutes;
+    return totalMinutes >= 30;
+  }, {
+    message: '總時長不能少於 30 分鐘'
+  }),
+  weeklyLessons: z.number().min(1, '請輸入每週堂數'),
+  startDate: z.date({
+    required_error: '請選擇開始日期'
+  })
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -51,7 +63,8 @@ export default function PostStudentCase() {
     handleSubmit,
     formState: { errors },
     setValue,
-    watch
+    watch,
+    getValues
   } = useForm<FormData>({
     resolver: zodResolver(formSchema)
   });
@@ -121,6 +134,23 @@ export default function PostStudentCase() {
       : [...selectedSubRegions, subRegion];
     setSelectedSubRegions(newSubRegions);
     setValue('subRegions', newSubRegions);
+  };
+
+  const handleSubjectChange = (subject: string) => {
+    const category = getValues('category');
+    const subCategory = getValues('subCategory');
+    
+    // 只有中學和小學分科可以多選
+    if (category === 'primary-secondary' && (subCategory === 'primary' || subCategory === 'secondary')) {
+      const currentSubjects = getValues('subjects') || [];
+      const newSubjects = currentSubjects.includes(subject)
+        ? currentSubjects.filter(s => s !== subject)
+        : [...currentSubjects, subject];
+      setValue('subjects', newSubjects);
+    } else {
+      // 其他類別只能單選
+      setValue('subjects', [subject]);
+    }
   };
 
   const selectedCategoryData = CATEGORY_OPTIONS.find(cat => cat.value === selectedCategory);
@@ -198,11 +228,7 @@ export default function PostStudentCase() {
                       id={subject.value}
                       checked={watch('subjects').includes(subject.value)}
                       onCheckedChange={(checked) => {
-                        const currentSubjects = watch('subjects') || [];
-                        const newSubjects = checked
-                          ? [...currentSubjects, subject.value]
-                          : currentSubjects.filter(s => s !== subject.value);
-                        setValue('subjects', newSubjects);
+                        handleSubjectChange(subject.value);
                       }}
                     />
                     <label
@@ -219,11 +245,9 @@ export default function PostStudentCase() {
               )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                教學模式
-              </label>
-              <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>教學模式</Label>
+              <div className="flex gap-4">
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="online"
@@ -234,7 +258,7 @@ export default function PostStudentCase() {
                     htmlFor="online"
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    Online
+                    網課
                   </label>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -247,12 +271,12 @@ export default function PostStudentCase() {
                     htmlFor="in-person"
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    In-Person
+                    面授
                   </label>
                 </div>
               </div>
               {errors.modes && (
-                <p className="mt-1 text-sm text-red-600">{errors.modes.message as string}</p>
+                <p className="text-sm text-red-500">{errors.modes.message}</p>
               )}
             </div>
 
@@ -311,29 +335,36 @@ export default function PostStudentCase() {
               </>
             )}
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                每堂時長
-              </label>
-              <div className="flex items-center space-x-2">
-                <Input
-                  type="number"
-                  min="0"
-                  {...register('lessonDuration', { required: '請輸入課程時長' })}
-                  className="w-20"
-                />
-                <Select onValueChange={(value) => setValue('durationUnit', value)}>
-                  <SelectTrigger className="w-20">
-                    <SelectValue placeholder="單位" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="minutes">分鐘</SelectItem>
-                    <SelectItem value="hours">小時</SelectItem>
-                  </SelectContent>
-                </Select>
+            <div className="space-y-2">
+              <Label>每堂時長</Label>
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <Input
+                    type="number"
+                    min="0"
+                    placeholder="小時"
+                    {...register('lessonDuration.hours', { valueAsNumber: true })}
+                  />
+                </div>
+                <div className="flex-1">
+                  <Select
+                    value={watch('lessonDuration.minutes')?.toString()}
+                    onValueChange={(value) => setValue('lessonDuration.minutes', parseInt(value))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="分鐘" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">0</SelectItem>
+                      <SelectItem value="15">15</SelectItem>
+                      <SelectItem value="30">30</SelectItem>
+                      <SelectItem value="45">45</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               {errors.lessonDuration && (
-                <p className="mt-1 text-sm text-red-600">{errors.lessonDuration.message as string}</p>
+                <p className="text-sm text-red-500">{errors.lessonDuration.message}</p>
               )}
             </div>
 
