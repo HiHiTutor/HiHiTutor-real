@@ -19,9 +19,13 @@ export default function LoginPage() {
 
     try {
       const user = await authApi.login(identifier, password);
-      localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('token', user.token);
-      localStorage.setItem('userType', user.userType);
+      
+      const profileData = await authApi.getProfile();
+      console.log('獲取到的用戶資料:', profileData);
+      
+      localStorage.setItem('user', JSON.stringify(profileData));
+      localStorage.setItem('userType', profileData.userType);
       
       const loginEvent = new Event('login');
       window.dispatchEvent(loginEvent);
