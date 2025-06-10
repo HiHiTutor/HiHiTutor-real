@@ -38,7 +38,7 @@ export default function StudentCasesPage() {
     <section className="px-4 py-8 max-w-screen-xl mx-auto">
       <div className="flex items-center gap-2 mb-6">
         <span className="text-2xl">📄</span>
-        <h2 className="text-2xl font-bold border-l-4 border-blue-400 pl-3">最新學生搵導師個案</h2>
+        <h2 className="text-2xl font-bold border-l-4 border-blue-400 pl-3">招學生</h2>
       </div>
       <div className="space-y-6">
         {studentCases.map((caseItem) => (

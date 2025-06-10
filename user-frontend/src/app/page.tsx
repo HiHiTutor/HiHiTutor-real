@@ -68,7 +68,7 @@ function HomeContent() {
           </div>
           <div className="relative px-4 sm:px-6 lg:px-8">
             <CaseSection 
-              title="精選導師個案"
+              title="尋導師"
               fetchUrl="/find-student-cases?featured=true&limit=8"
               linkUrl="/find-student-cases"
               borderColor="border-yellow-200"
