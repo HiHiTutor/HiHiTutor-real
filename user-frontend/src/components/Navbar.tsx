@@ -40,18 +40,18 @@ const Navbar = () => {
         <div className="flex items-center gap-2 ml-auto z-10">
           <Link href="/find-student-cases">
             <button className="bg-yellow-400 text-white px-4 py-2 rounded-md hover:bg-yellow-500 transition">
-              尋導師
+              導師列表
             </button>
           </Link>
           <Link href="/find-tutor-cases">
             <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">
-              招學生
+              補習個案
             </button>
           </Link>
           {isLoggedIn && (
             <Link href="/post">
               <button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">
-                我要出post
+                尋導師 / 招學生
               </button>
             </Link>
           )}
