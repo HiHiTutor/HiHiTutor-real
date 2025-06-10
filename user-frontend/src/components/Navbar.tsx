@@ -79,10 +79,10 @@ const Navbar = () => {
         </nav>
         {/* 右側行動按鈕 */}
         <div className="flex items-center gap-2 ml-auto z-10 relative">
-          {isLoggedIn && (user?.userType === 'tutor' || user?.userType === 'organization') && (
-            <Link href="/post">
+          {isLoggedIn && (
+            <Link href="/find-tutor-cases">
               <button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">
-                招學生
+                尋導師
               </button>
             </Link>
           )}
