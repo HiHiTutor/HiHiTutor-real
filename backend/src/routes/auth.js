@@ -11,6 +11,7 @@ const {
   verifyCode,
   updatePassword
 } = require('../controllers/authController');
+const { updateUserProfile } = require('../controllers/userController');
 
 // 公開路由（不需要驗證）
 router.post('/login', loginUser);
@@ -22,5 +23,6 @@ router.post('/verify-code', verifyCode);
 router.get('/me', verifyToken, getCurrentUser);
 router.get('/profile', verifyToken, getUserProfile);
 router.put('/me', verifyToken, updatePassword);
+router.put('/profile', verifyToken, updateUserProfile);
 
 module.exports = router; 
