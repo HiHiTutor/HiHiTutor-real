@@ -85,8 +85,6 @@ export default function HeroSection() {
             <SubjectBar name="物理" percent={80} />
             <SubjectBar name="化學" percent={75} />
             <SubjectBar name="生物" percent={70} />
-            <SubjectBar name="經濟" percent={65} />
-            <SubjectBar name="會計" percent={60} />
           </div>
         </div>
       </div>
