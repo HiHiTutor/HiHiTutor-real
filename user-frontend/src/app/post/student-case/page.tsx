@@ -117,7 +117,7 @@ export default function PostStudentCase() {
         status: 'open'
       };
 
-      await studentCaseApi.create(caseData);
+      await studentCaseApi.createStudentCase(caseData);
       toast.success('個案發布成功！');
       router.push('/find-tutor-cases');
     } catch (error) {
