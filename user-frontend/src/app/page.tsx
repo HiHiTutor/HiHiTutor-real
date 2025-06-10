@@ -102,7 +102,7 @@ function HomeContent() {
           </div>
           <div className="relative px-4 sm:px-6 lg:px-8">
             <CaseSection 
-              title="最新學生搵導師個案"
+              title="招學生"
               fetchUrl="/find-tutor-cases?limit=8"
               linkUrl="/find-tutor-cases"
               borderColor="border-blue-200"
