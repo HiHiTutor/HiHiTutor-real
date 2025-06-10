@@ -379,7 +379,7 @@ function FindTutorCasesPageContent() {
     <div className="max-w-7xl mx-auto px-4 md:px-12 py-8">
       <div className="flex items-center gap-2 mb-6">
         <span className="text-2xl">📄</span>
-        <h1 className="text-2xl font-bold border-l-4 border-blue-400 pl-3">最新學生搵導師個案</h1>
+        <h1 className="text-2xl font-bold border-l-4 border-blue-400 pl-3">招學生</h1>
       </div>
 
       <div className="bg-blue-50 rounded-xl p-6 mb-8">
@@ -397,7 +397,7 @@ function FindTutorCasesPageContent() {
         </div>
       ) : cases.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
-          <p>目前沒有最新學生搵導師個案</p>
+          <p>目前沒有招學生</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
