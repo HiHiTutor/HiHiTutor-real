@@ -714,6 +714,59 @@ const verifyCode = async (req, res) => {
   }
 };
 
+const updatePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user.id;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: '請提供目前密碼和新密碼'
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: '新密碼長度必須至少為6個字符'
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: '找不到用戶'
+      });
+    }
+
+    // 驗證目前密碼
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: '目前密碼不正確'
+      });
+    }
+
+    // 更新密碼
+    user.password = newPassword;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: '密碼更新成功'
+    });
+  } catch (error) {
+    console.error('更新密碼失敗:', error);
+    res.status(500).json({
+      success: false,
+      message: '更新密碼時發生錯誤'
+    });
+  }
+};
+
 module.exports = {
   loginUser,
   register,
@@ -721,5 +774,6 @@ module.exports = {
   getCurrentUser,
   forgotPassword,
   sendVerificationCode,
-  verifyCode
+  verifyCode,
+  updatePassword
 }; 
