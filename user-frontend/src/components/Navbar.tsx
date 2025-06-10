@@ -38,21 +38,16 @@ const Navbar = () => {
             <img src="/Logo(Rev).png" alt="HiHiTutor" width={120} height={40} className="h-10 w-auto" />
           </Link>
         </div>
-        {/* 新增：Logo 右邊的主動作按鈕 */}
-        <div className="flex items-center gap-2 ml-4">
-          <Link href="/find-student-cases">
-            <button className="bg-yellow-400 text-white px-4 py-2 rounded-md hover:bg-yellow-500 transition">
-              導師列表
-            </button>
+        {/* 主選單置中，統一間距與字體大小，並加上 icon */}
+        <nav className="flex-1 flex justify-center space-x-6 text-sm text-gray-700">
+          <Link href="/find-student-cases" className="hover:text-primary flex items-center">
+            <UserGroupIcon className="h-5 w-5 mr-1" />
+            導師列表
           </Link>
-          <Link href="/find-tutor-cases">
-            <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">
-              補習個案
-            </button>
+          <Link href="/find-tutor-cases" className="hover:text-primary flex items-center">
+            <UserGroupIcon className="h-5 w-5 mr-1" />
+            補習個案
           </Link>
-        </div>
-        {/* 主選單絕對置中並稍微偏左，統一間距與字體大小，並加上 icon */}
-        <nav className="absolute left-[47%] top-1/2 -translate-x-1/2 -translate-y-1/2 flex space-x-6 text-sm text-gray-700">
           <Link href="/faq" className="hover:text-primary flex items-center">
             <UserGroupIcon className="h-5 w-5 mr-1" />
             配對流程
@@ -68,7 +63,7 @@ const Navbar = () => {
         </nav>
         {/* 右側行動按鈕 */}
         <div className="flex items-center gap-2 ml-auto z-10 relative">
-          {isLoggedIn && (
+          {isLoggedIn && (user?.userType === 'tutor' || user?.userType === 'organization') && (
             <Link href="/post">
               <button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">
                 招學生
@@ -99,6 +94,20 @@ const Navbar = () => {
                   >登出</button>
                 </div>
               )}
+            </div>
+          )}
+          {!isLoggedIn && (
+            <div className="flex items-center gap-2">
+              <Link href="/login">
+                <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">
+                  用戶登入
+                </button>
+              </Link>
+              <Link href="/register">
+                <button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">
+                  註冊用戶
+                </button>
+              </Link>
             </div>
           )}
         </div>
