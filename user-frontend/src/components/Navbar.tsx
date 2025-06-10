@@ -17,15 +17,29 @@ const Navbar = () => {
   useEffect(() => {
     const checkLogin = () => {
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-      setIsLoggedIn(!!token);
+      const userStr = localStorage.getItem('user');
+      setIsLoggedIn(!!token && !!userStr);
     };
 
+    // 初始檢查
     checkLogin();
-    window.addEventListener('login', checkLogin);
-    window.addEventListener('logout', checkLogin);
+
+    // 監聽登入事件
+    const handleLogin = () => {
+      checkLogin();
+    };
+
+    // 監聽登出事件
+    const handleLogout = () => {
+      setIsLoggedIn(false);
+    };
+
+    window.addEventListener('login', handleLogin);
+    window.addEventListener('logout', handleLogout);
+
     return () => {
-      window.removeEventListener('login', checkLogin);
-      window.removeEventListener('logout', checkLogin);
+      window.removeEventListener('login', handleLogin);
+      window.removeEventListener('logout', handleLogout);
     };
   }, []);
 
@@ -92,6 +106,7 @@ const Navbar = () => {
                     className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500"
                     onClick={() => {
                       localStorage.removeItem('token');
+                      localStorage.removeItem('user');
                       window.dispatchEvent(new Event('logout'));
                       window.location.href = '/login';
                     }}
