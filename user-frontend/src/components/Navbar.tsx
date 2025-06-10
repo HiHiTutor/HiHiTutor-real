@@ -3,6 +3,11 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useUser } from '@/hooks/useUser';
+import { 
+  UserGroupIcon, 
+  BookOpenIcon, 
+  InformationCircleIcon 
+} from '@heroicons/react/24/outline';
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -46,11 +51,20 @@ const Navbar = () => {
             </button>
           </Link>
         </div>
-        {/* 主選單絕對置中並稍微偏左 */}
+        {/* 主選單絕對置中並稍微偏左，統一間距與字體大小，並加上 icon */}
         <nav className="absolute left-[47%] top-1/2 -translate-x-1/2 -translate-y-1/2 flex space-x-6 text-sm text-gray-700">
-          <Link href="/faq" className="hover:text-primary">配對流程</Link>
-          <Link href="/articles" className="hover:text-primary">教育專欄</Link>
-          <Link href="/about" className="hover:text-primary">平台簡介</Link>
+          <Link href="/faq" className="hover:text-primary flex items-center">
+            <UserGroupIcon className="h-5 w-5 mr-1" />
+            配對流程
+          </Link>
+          <Link href="/articles" className="hover:text-primary flex items-center">
+            <BookOpenIcon className="h-5 w-5 mr-1" />
+            教育專欄
+          </Link>
+          <Link href="/about" className="hover:text-primary flex items-center">
+            <InformationCircleIcon className="h-5 w-5 mr-1" />
+            平台簡介
+          </Link>
         </nav>
         {/* 右側行動按鈕 */}
         <div className="flex items-center gap-2 ml-auto z-10 relative">
