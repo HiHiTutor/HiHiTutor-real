@@ -84,7 +84,9 @@ const Navbar = () => {
               </button>
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-44 bg-white border rounded-md shadow-lg z-50">
-                  <Link href="/tutor/dashboard" className="block px-4 py-2 hover:bg-gray-100">我的導師介面</Link>
+                  {(user?.userType === 'tutor' || user?.userType === 'organization') && (
+                    <Link href="/tutor/dashboard" className="block px-4 py-2 hover:bg-gray-100">我的導師介面</Link>
+                  )}
                   <Link href="/profile" className="block px-4 py-2 hover:bg-gray-100">編列個人資料</Link>
                   <button
                     className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500"
