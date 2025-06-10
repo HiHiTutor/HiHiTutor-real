@@ -74,17 +74,31 @@ export default function PostStudentCase() {
   const onSubmit = async (data: FormData) => {
     try {
       const caseData = {
-        ...data,
-        modes: selectedModes,
-        regions: selectedRegions,
-        subRegions: selectedSubRegions
+        id: `S${Date.now()}`,
+        title: data.title,
+        description: data.description || '',
+        category: data.category,
+        subCategory: data.subCategory,
+        subjects: data.subjects,
+        modes: data.modes,
+        regions: data.regions,
+        subRegions: data.subRegions,
+        price: data.price,
+        lessonDuration: {
+          hours: data.lessonDuration.hours,
+          minutes: data.lessonDuration.minutes
+        },
+        weeklyLessons: data.weeklyLessons,
+        startDate: data.startDate,
+        status: 'open'
       };
+
       await studentCaseApi.createStudentCase(caseData);
-      toast.success('個案發布成功！');
+      toast.success('發布成功！');
       router.push('/find-tutor-cases');
     } catch (error) {
       console.error('發布個案失敗:', error);
-      toast.error('發布個案失敗，請稍後再試');
+      toast.error('發布失敗，請稍後再試');
     }
   };
 
