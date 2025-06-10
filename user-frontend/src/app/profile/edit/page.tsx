@@ -253,7 +253,7 @@ export default function EditProfilePage() {
         updateData.password = formData.newPassword;
       }
 
-      const res = await fetch(`${API_BASE}/api/auth/me`, {
+      const res = await fetch(`${API_BASE}/api/auth/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
