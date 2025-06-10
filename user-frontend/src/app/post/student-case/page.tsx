@@ -25,27 +25,18 @@ const formSchema = z.object({
   title: z.string().min(1, '請輸入標題'),
   description: z.string().optional(),
   category: z.string().min(1, '請選擇類別'),
-  subCategory: z.string().optional(),
+  subCategory: z.string().min(1, '請選擇子類別'),
   subjects: z.array(z.string()).min(1, '請選擇科目'),
   modes: z.array(z.string()).min(1, '請選擇教學模式'),
   regions: z.array(z.string()).optional(),
   subRegions: z.array(z.string()).optional(),
-  price: z.coerce.number().min(0, '請輸入價格'),
+  price: z.coerce.number().min(1, '請輸入每堂收費'),
   lessonDuration: z.object({
-    hours: z.coerce.number().min(0, '小時不能為負數'),
-    minutes: z.coerce.number().refine((val) => [0, 15, 30, 45].includes(val), {
-      message: '分鐘必須是 0、15、30 或 45'
-    })
-  }).refine((data) => {
-    const totalMinutes = data.hours * 60 + data.minutes;
-    return totalMinutes >= 30;
-  }, {
-    message: '總時長不能少於 30 分鐘'
+    hours: z.number().min(0),
+    minutes: z.number().min(0).max(59)
   }),
   weeklyLessons: z.coerce.number().min(1, '請輸入每週堂數'),
-  startDate: z.date({
-    required_error: '請選擇開始日期'
-  })
+  startDate: z.date()
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -71,7 +62,7 @@ export default function PostStudentCase() {
 
   const watchModes = watch('modes');
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
       const caseData = {
         id: `S${Date.now()}`,
@@ -81,24 +72,21 @@ export default function PostStudentCase() {
         subCategory: data.subCategory,
         subjects: data.subjects,
         modes: data.modes,
-        regions: data.regions,
-        subRegions: data.subRegions,
+        regions: data.regions || [],
+        subRegions: data.subRegions || [],
         price: data.price,
-        lessonDuration: {
-          hours: data.lessonDuration.hours,
-          minutes: data.lessonDuration.minutes
-        },
+        lessonDuration: data.lessonDuration,
         weeklyLessons: data.weeklyLessons,
         startDate: data.startDate,
         status: 'open'
       };
 
       await studentCaseApi.createStudentCase(caseData);
-      toast.success('發布成功！');
+      toast.success('成功發布個案！');
       router.push('/find-tutor-cases');
     } catch (error) {
       console.error('發布個案失敗:', error);
-      toast.error('發布失敗，請稍後再試');
+      toast.error('發布個案失敗，請稍後再試');
     }
   };
 
@@ -357,24 +345,17 @@ export default function PostStudentCase() {
                     type="number"
                     min="0"
                     placeholder="小時"
-                    {...register('lessonDuration.hours', { valueAsNumber: true })}
+                    {...register('lessonDuration.hours')}
                   />
                 </div>
                 <div className="flex-1">
-                  <Select
-                    value={watch('lessonDuration.minutes')?.toString()}
-                    onValueChange={(value) => setValue('lessonDuration.minutes', parseInt(value))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="分鐘" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="0">0</SelectItem>
-                      <SelectItem value="15">15</SelectItem>
-                      <SelectItem value="30">30</SelectItem>
-                      <SelectItem value="45">45</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="59"
+                    placeholder="分鐘"
+                    {...register('lessonDuration.minutes')}
+                  />
                 </div>
               </div>
               {errors.lessonDuration && (
@@ -438,8 +419,8 @@ export default function PostStudentCase() {
               <Label>每堂收費（港幣）</Label>
               <Input
                 type="number"
-                min="0"
-                placeholder="請輸入價格"
+                min="1"
+                placeholder="請輸入每堂收費"
                 {...register('price', { valueAsNumber: true })}
               />
               {errors.price && (
