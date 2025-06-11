@@ -20,8 +20,34 @@ import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import SUBJECT_MAP from '@/constants/subjectOptions';
 import REGION_OPTIONS from '@/constants/regionOptions';
+import { Plus, X } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+
+type Subject = {
+  value: string;
+  label: string;
+};
+
+type District = {
+  value: string;
+  label: string;
+};
+
+type RegionOption = {
+  value: string;
+  label: string;
+  regions: District[];
+};
 
 type FormValues = z.infer<typeof formSchema>;
+
+type SubjectMap = {
+  [key: string]: Subject[]
+}
+
+type RegionMap = {
+  [key: string]: RegionOption
+}
 
 const currentYear = new Date().getFullYear()
 const years = Array.from({ length: 100 }, (_, i) => currentYear - i)
@@ -38,25 +64,23 @@ const isLeapYear = (year: number) => {
 }
 
 const formSchema = z.object({
-  avatar: z.string().optional(),
-  nickname: z.string().min(1, '請輸入暱稱'),
-  gender: z.enum(['male', 'female'], { required_error: '請選擇性別' }),
-  phone: z.string().min(8, '請輸入有效的聯絡電話'),
-  birthYear: z.string().min(1, "請選擇出生年份"),
-  birthMonth: z.string().min(1, "請選擇出生月份"),
-  birthDay: z.string().min(1, "請選擇出生日期"),
-  education: z.string().min(1, '請輸入學歷'),
-  teachingExperience: z.coerce.number().min(0, '請輸入授課年資'),
-  subjects: z.array(z.string()).min(1, '請選擇至少一個科目'),
-  examResults: z.string().min(1, '請輸入公開試成績'),
+  nickname: z.string().min(2, '暱稱至少需要2個字符'),
+  gender: z.string().min(1, '請選擇性別'),
+  birthDay: z.string().min(1, '請選擇出生日期'),
+  introduction: z.string().min(10, '個人簡介至少需要10個字符'),
+  education: z.string().min(1, '請選擇學歷'),
+  teachingYears: z.string().min(1, '請選擇授課年資'),
+  subjects: z.array(z.string()).min(1, '請選擇至少一個教授科目'),
+  examResults: z.string().min(1, '請選擇公開試成績'),
   teachingAreas: z.array(z.string()).min(1, '請選擇至少一個教學區域'),
-  teachingSchedule: z.string().min(1, '請輸入可授課時間'),
-  teachingModes: z.array(z.string()).min(1, '請選擇至少一種授課方式'),
-  teachingPrice: z.coerce.number().min(0, '請輸入每堂收費'),
-  idCard: z.string().min(1, '請上傳身份證'),
-  certifications: z.array(z.string()).min(1, '請上傳至少一份證書'),
-  introduction: z.string().min(1, '請輸入個人簡介'),
-  teachingStyle: z.string().min(1, '請輸入課程特點'),
+  teachingMethods: z.array(z.string()).min(1, '請選擇至少一個授課方式'),
+  hourlyRate: z.string().min(1, '請輸入每堂收費'),
+  teachingStyle: z.string().min(10, '課程特點至少需要10個字符'),
+  teachingSchedule: z.object({
+    weekdays: z.array(z.string()),
+    weekends: z.array(z.string()),
+    timeSlots: z.array(z.string()),
+  }),
 });
 
 const teachingModes = [
@@ -145,25 +169,23 @@ export default function TutorProfilePage() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      avatar: '',
       nickname: '',
       gender: 'male',
-      phone: '',
-      birthYear: '',
-      birthMonth: '',
       birthDay: '',
+      introduction: '',
       education: '',
-      teachingExperience: 0,
+      teachingYears: '',
       subjects: [],
       examResults: '',
       teachingAreas: [],
-      teachingSchedule: '',
-      teachingModes: [],
-      teachingPrice: 0,
-      idCard: '',
-      certifications: [],
-      introduction: '',
+      teachingMethods: [],
+      hourlyRate: '',
       teachingStyle: '',
+      teachingSchedule: {
+        weekdays: [],
+        weekends: [],
+        timeSlots: [],
+      },
     },
   });
 
@@ -210,119 +232,44 @@ export default function TutorProfilePage() {
                   </div>
                 </div>
 
-                <FormField
-                  control={form.control}
-                  name="nickname"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>暱稱</FormLabel>
-                      <FormControl>
-                        <Input placeholder="請輸入暱稱" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="gender"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>性別</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="nickname"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>暱稱</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="請選擇性別" />
-                          </SelectTrigger>
+                          <Input placeholder="請輸入暱稱" {...field} />
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="male">男</SelectItem>
-                          <SelectItem value="female">女</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>電話</FormLabel>
-                      <FormControl>
-                        <Input {...field} readOnly />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="gender"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>性別</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="請選擇性別" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="male">男</SelectItem>
+                            <SelectItem value="female">女</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <div className="grid grid-cols-3 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="birthYear"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>出生年份</FormLabel>
-                        <Select 
-                          onValueChange={(value) => {
-                            field.onChange(value)
-                            handleYearChange(value)
-                          }} 
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="選擇年份" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {years.map(year => (
-                              <SelectItem key={year} value={year.toString()}>
-                                {year}年
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="birthMonth"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>出生月份</FormLabel>
-                        <Select 
-                          onValueChange={(value) => {
-                            field.onChange(value)
-                            handleMonthChange(value)
-                          }} 
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="選擇月份" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {months.map(month => (
-                              <SelectItem key={month} value={month.toString()}>
-                                {month}月
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
                   <FormField
                     control={form.control}
                     name="birthDay"
@@ -401,9 +348,20 @@ export default function TutorProfilePage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>學歷</FormLabel>
-                      <FormControl>
-                        <Input placeholder="請輸入學歷" {...field} />
-                      </FormControl>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="請選擇學歷" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="high-school">中學</SelectItem>
+                          <SelectItem value="associate">副學士</SelectItem>
+                          <SelectItem value="bachelor">學士</SelectItem>
+                          <SelectItem value="master">碩士</SelectItem>
+                          <SelectItem value="phd">博士</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -414,46 +372,56 @@ export default function TutorProfilePage() {
                   <div className="grid grid-cols-2 gap-4">
                     {certificateImages.map((image, index) => (
                       <div key={index} className="relative">
-                        <img src={image} alt={`證書 ${index + 1}`} className="h-32 w-auto" />
-                        <Button
+                        <img
+                          src={image}
+                          alt={`證書 ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-lg"
+                        />
+                        <button
                           type="button"
-                          variant="destructive"
-                          size="sm"
-                          className="absolute -top-2 -right-2"
                           onClick={() => removeCertificate(index)}
+                          className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
                         >
-                          刪除
-                        </Button>
+                          <X className="h-4 w-4" />
+                        </button>
                       </div>
                     ))}
+                    <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-gray-400">
+                      <div className="flex flex-col items-center">
+                        <Plus className="h-8 w-8 text-gray-400" />
+                        <span className="mt-2 text-sm text-gray-500">上傳證書</span>
+                      </div>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        multiple
+                        onChange={handleCertificateChange}
+                      />
+                    </label>
                   </div>
-                  <div>
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleCertificateChange}
-                      className="w-full"
-                    />
-                    <p className="text-sm text-gray-500">上傳學歷證書（可多選）</p>
-                  </div>
-                  <FormMessage />
                 </div>
 
                 <FormField
                   control={form.control}
-                  name="teachingExperience"
+                  name="teachingYears"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>授課年資</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="請輸入授課年資"
-                          {...field}
-                          onChange={(e) => field.onChange(Number(e.target.value))}
-                        />
-                      </FormControl>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="請選擇授課年資" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="0-1">1年以下</SelectItem>
+                          <SelectItem value="1-3">1-3年</SelectItem>
+                          <SelectItem value="3-5">3-5年</SelectItem>
+                          <SelectItem value="5-10">5-10年</SelectItem>
+                          <SelectItem value="10+">10年以上</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -465,41 +433,25 @@ export default function TutorProfilePage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>教授科目</FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={(value) => field.onChange([...field.value, value])}
-                          value={field.value[field.value.length - 1]}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="請選擇科目" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {subjects.map((subject) => (
-                              <SelectItem key={subject.value} value={subject.value}>
-                                {subject.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {field.value.map((subject) => (
-                          <div
-                            key={subject}
-                            className="bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm"
-                          >
-                            {subject}
-                            <button
-                              type="button"
-                              className="ml-2 text-xs"
-                              onClick={() =>
-                                field.onChange(field.value.filter((s) => s !== subject))
-                              }
+                      <div className="space-y-4">
+                        {Object.entries(SUBJECT_MAP).map(([category, subjectName]) => (
+                          <div key={category} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={category}
+                              checked={field.value.includes(category)}
+                              onCheckedChange={(checked) => {
+                                const newValue = checked
+                                  ? [...field.value, category]
+                                  : field.value.filter((v) => v !== category)
+                                field.onChange(newValue)
+                              }}
+                            />
+                            <label
+                              htmlFor={category}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             >
-                              ×
-                            </button>
+                              {subjectName}
+                            </label>
                           </div>
                         ))}
                       </div>
@@ -528,41 +480,32 @@ export default function TutorProfilePage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>教學區域</FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={(value) => field.onChange([...field.value, value])}
-                          value={field.value[field.value.length - 1]}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="請選擇教學區域" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {regions.map((region) => (
-                              <SelectItem key={region.value} value={region.value}>
-                                {region.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {field.value.map((area) => (
-                          <div
-                            key={area}
-                            className="bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm"
-                          >
-                            {area}
-                            <button
-                              type="button"
-                              className="ml-2 text-xs"
-                              onClick={() =>
-                                field.onChange(field.value.filter((a) => a !== area))
-                              }
-                            >
-                              ×
-                            </button>
+                      <div className="space-y-4">
+                        {REGION_OPTIONS.map((region) => (
+                          <div key={region.value} className="space-y-2">
+                            <h4 className="font-medium">{region.label}</h4>
+                            <div className="grid grid-cols-2 gap-2">
+                              {region.regions.map((district) => (
+                                <div key={district.value} className="flex items-center space-x-2">
+                                  <Checkbox
+                                    id={district.value}
+                                    checked={field.value.includes(district.value)}
+                                    onCheckedChange={(checked) => {
+                                      const newValue = checked
+                                        ? [...field.value, district.value]
+                                        : field.value.filter((v) => v !== district.value)
+                                      field.onChange(newValue)
+                                    }}
+                                  />
+                                  <label
+                                    htmlFor={district.value}
+                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                  >
+                                    {district.label}
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -573,21 +516,7 @@ export default function TutorProfilePage() {
 
                 <FormField
                   control={form.control}
-                  name="teachingSchedule"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>可授課時間</FormLabel>
-                      <FormControl>
-                        <Input placeholder="請輸入可授課時間" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="teachingModes"
+                  name="teachingMethods"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>授課方式</FormLabel>
@@ -636,7 +565,7 @@ export default function TutorProfilePage() {
 
                 <FormField
                   control={form.control}
-                  name="teachingPrice"
+                  name="hourlyRate"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>每堂收費</FormLabel>
@@ -645,7 +574,10 @@ export default function TutorProfilePage() {
                           type="number"
                           placeholder="請輸入每堂收費"
                           {...field}
-                          onChange={(e) => field.onChange(Number(e.target.value))}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/^0+/, '') || '0'
+                            field.onChange(value)
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -666,6 +598,100 @@ export default function TutorProfilePage() {
                           {...field}
                         />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="teachingSchedule"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>可授課時間</FormLabel>
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <h4 className="font-medium">平日</h4>
+                          <div className="grid grid-cols-2 gap-2">
+                            {['星期一', '星期二', '星期三', '星期四', '星期五'].map((day) => (
+                              <div key={day} className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`weekday-${day}`}
+                                  checked={field.value.weekdays.includes(day)}
+                                  onCheckedChange={(checked) => {
+                                    const newValue = checked
+                                      ? [...field.value.weekdays, day]
+                                      : field.value.weekdays.filter((d) => d !== day)
+                                    field.onChange({ ...field.value, weekdays: newValue })
+                                  }}
+                                />
+                                <label
+                                  htmlFor={`weekday-${day}`}
+                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                  {day}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <h4 className="font-medium">假日</h4>
+                          <div className="grid grid-cols-2 gap-2">
+                            {['星期六', '星期日'].map((day) => (
+                              <div key={day} className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`weekend-${day}`}
+                                  checked={field.value.weekends.includes(day)}
+                                  onCheckedChange={(checked) => {
+                                    const newValue = checked
+                                      ? [...field.value.weekends, day]
+                                      : field.value.weekends.filter((d) => d !== day)
+                                    field.onChange({ ...field.value, weekends: newValue })
+                                  }}
+                                />
+                                <label
+                                  htmlFor={`weekend-${day}`}
+                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                  {day}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <h4 className="font-medium">時段</h4>
+                          <div className="grid grid-cols-2 gap-2">
+                            {[
+                              '上午 (9:00-12:00)',
+                              '下午 (13:00-17:00)',
+                              '晚上 (18:00-21:00)',
+                            ].map((slot) => (
+                              <div key={slot} className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`slot-${slot}`}
+                                  checked={field.value.timeSlots.includes(slot)}
+                                  onCheckedChange={(checked) => {
+                                    const newValue = checked
+                                      ? [...field.value.timeSlots, slot]
+                                      : field.value.timeSlots.filter((s) => s !== slot)
+                                    field.onChange({ ...field.value, timeSlots: newValue })
+                                  }}
+                                />
+                                <label
+                                  htmlFor={`slot-${slot}`}
+                                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                  {slot}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
