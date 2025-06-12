@@ -276,24 +276,34 @@ export default function TutorProfilePage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>出生日期</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
-                          defaultValue={field.value}
-                          disabled={!selectedYear || !selectedMonth}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="選擇日期" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {getAvailableDays().map(day => (
-                              <SelectItem key={day} value={day.toString()}>
-                                {day}日
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                className={cn(
+                                  "w-full justify-start text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {field.value ? format(new Date(field.value), "PPP") : "選擇日期"}
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value ? new Date(field.value) : undefined}
+                              onSelect={(date) => date && field.onChange(date.toISOString())}
+                              disabled={(date) => {
+                                const today = new Date();
+                                return date > today;
+                              }}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
                         <FormMessage />
                       </FormItem>
                     )}
