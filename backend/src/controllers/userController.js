@@ -1,7 +1,7 @@
 const User = require('../../../models/User');
 
 // 更新用戶資料
-exports.updateUserProfile = async (req, res) => {
+const updateUserProfile = async (req, res) => {
   try {
     const userId = req.user.id;
     const { name, email, phone } = req.body;
@@ -31,4 +31,8 @@ exports.updateUserProfile = async (req, res) => {
     console.error('更新用戶資料失敗:', error);
     res.status(500).json({ success: false, message: '更新用戶資料時發生錯誤' });
   }
+};
+
+module.exports = {
+  updateUserProfile
 }; 

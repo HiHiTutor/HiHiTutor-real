@@ -1,7 +1,7 @@
 const FAQ = require('../models/FAQ');
 
 // 獲取所有常見問題
-exports.getAllFAQs = async (req, res) => {
+const getAllFAQs = async (req, res) => {
   // 假資料
   const faqsByCategory = {
     '一般問題': [
@@ -25,7 +25,7 @@ exports.getAllFAQs = async (req, res) => {
 };
 
 // 獲取特定分類的常見問題
-exports.getFAQsByCategory = async (req, res) => {
+const getFAQsByCategory = async (req, res) => {
   try {
     const { category } = req.params;
     
@@ -47,4 +47,9 @@ exports.getFAQsByCategory = async (req, res) => {
       message: '獲取分類常見問題失敗，請稍後再試'
     });
   }
+};
+
+module.exports = {
+  getAllFAQs,
+  getFAQsByCategory
 }; 

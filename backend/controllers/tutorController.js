@@ -111,7 +111,7 @@ const getTutors = async (req, res) => {
 };
 
 // 獲取導師詳情
-exports.getTutorDetail = async (req, res) => {
+const getTutorDetail = async (req, res) => {
   try {
     const { tutorId } = req.params;
 
