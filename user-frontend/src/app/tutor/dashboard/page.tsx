@@ -473,16 +473,22 @@ export default function TutorProfilePage() {
                               ))}
                             </SelectContent>
                           </Select>
-                          <Select multiple value={field.value} onValueChange={field.onChange} disabled={!selectedCategory}>
-                            <FormControl>
-                              <SelectTrigger className="w-64"><SelectValue placeholder="子科目 (可多選)" /></SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {subSubjects.map(s => (
-                                <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <div className="flex flex-col gap-1 border rounded p-2 min-w-[200px] max-h-40 overflow-y-auto bg-white" style={{ minWidth: 200 }}>
+                            {subSubjects.map(s => (
+                              <label key={s.value} className="flex items-center gap-2">
+                                <Checkbox
+                                  checked={field.value.includes(s.value)}
+                                  onCheckedChange={checked => {
+                                    const newValue = checked
+                                      ? [...field.value, s.value]
+                                      : field.value.filter(v => v !== s.value);
+                                    field.onChange(newValue);
+                                  }}
+                                />
+                                {s.label}
+                              </label>
+                            ))}
+                          </div>
                         </div>
                         <FormMessage />
                       </FormItem>
@@ -691,16 +697,22 @@ export default function TutorProfilePage() {
                               ))}
                             </SelectContent>
                           </Select>
-                          <Select multiple value={field.value} onValueChange={field.onChange} disabled={!selectedRegion}>
-                            <FormControl>
-                              <SelectTrigger className="w-64"><SelectValue placeholder="子地區 (可多選)" /></SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {region && region.regions.map(d => (
-                                <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <div className="flex flex-col gap-1 border rounded p-2 min-w-[200px] max-h-40 overflow-y-auto bg-white" style={{ minWidth: 200 }}>
+                            {region && region.regions.map(d => (
+                              <label key={d.value} className="flex items-center gap-2">
+                                <Checkbox
+                                  checked={field.value.includes(d.value)}
+                                  onCheckedChange={checked => {
+                                    const newValue = checked
+                                      ? [...field.value, d.value]
+                                      : field.value.filter(v => v !== d.value);
+                                    field.onChange(newValue);
+                                  }}
+                                />
+                                {d.label}
+                              </label>
+                            ))}
+                          </div>
                         </div>
                         <FormMessage />
                       </FormItem>
