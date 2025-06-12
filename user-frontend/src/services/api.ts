@@ -116,11 +116,11 @@ export const tutorApi = {
   // 獲取所有導師
   getAllTutors: () => fetchApi('/tutors'),
   
-  // 獲取推薦導師
-  getRecommendedTutors: () => fetchApi('/tutors/recommended'),
+  // 獲取單個導師詳情
+  getTutorById: (id: string) => fetchApi(`/tutors/${id}`),
   
-  // 獲取單一導師詳情
-  getTutorById: (id: number) => fetchApi(`/tutors/${id}`),
+  // 獲取推薦導師
+  getRecommendedTutors: () => fetchApi('/tutors?featured=true&limit=8'),
 
   // 申請配對導師
   applyTutor: (tutorId: number, studentId: number) => 

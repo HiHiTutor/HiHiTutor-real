@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import CaseFilterBar from '@/components/CaseFilterBar';
 import LoadMoreButton from '@/components/LoadMoreButton';
 import CaseCard from '@/components/CaseCard';
-import { caseApi } from '@/services/api';
+import { tutorApi } from '@/services/api';
 import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 
 // 定義分類選項的類型
@@ -77,19 +77,19 @@ function FindStudentCasesPageContent() {
     const fetchAllCases = async () => {
       try {
         setLoading(true);
-        console.log("🔍 正在獲取導師個案資料...");
+        console.log("🔍 正在獲取導師資料...");
         
-        // 只獲取導師個案
-        const tutorResult = await caseApi.getAllTutorCases();
-        console.log("📦 成功獲取導師個案：", tutorResult);
-        const allCases = (tutorResult.data?.cases || []).sort((a: any, b: any) => 
+        // 獲取導師資料
+        const result = await tutorApi.getAllTutors();
+        console.log("📦 成功獲取導師資料：", result);
+        const allCases = (result.data?.tutors || []).sort((a: any, b: any) => 
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         
         setAllCases(allCases);
-        console.log("✅ 已保存導師個案資料到 allCases");
+        console.log("✅ 已保存導師資料到 allCases");
       } catch (error) {
-        console.error('❌ 獲取導師個案時發生錯誤：', error);
+        console.error('❌ 獲取導師資料時發生錯誤：', error);
         setAllCases([]);
       } finally {
         setLoading(false);
@@ -340,7 +340,7 @@ function FindStudentCasesPageContent() {
       </div>
 
       <div className="bg-yellow-50 rounded-xl p-6 mb-8">
-        <CaseFilterBar onFilter={handleFilter} fetchUrl="/find-student-cases" />
+        <CaseFilterBar onFilter={handleFilter} fetchUrl="/tutors" />
       </div>
 
       {loading ? (
