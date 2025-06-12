@@ -459,6 +459,16 @@ export default function TutorProfilePage() {
                         subSubjects = category.subCategories.flatMap(sc => sc.subjects.map(s => ({ ...s, label: `${sc.label}-${s.label}` })));
                       }
                     }
+                    // 取得所有已選科目的 label
+                    const allSubjectMap = CATEGORY_OPTIONS.flatMap(c => {
+                      if (c.subjects) return c.subjects;
+                      if (c.subCategories) return c.subCategories.flatMap(sc => sc.subjects);
+                      return [];
+                    });
+                    const selectedLabels = field.value.map(v => {
+                      const found = allSubjectMap.find(s => s.value === v);
+                      return found ? found.label : v;
+                    });
                     return (
                       <FormItem>
                         <FormLabel>教授科目</FormLabel>
@@ -489,6 +499,12 @@ export default function TutorProfilePage() {
                               </label>
                             ))}
                           </div>
+                        </div>
+                        {/* 顯示已選科目 tag */}
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {selectedLabels.map(label => (
+                            <span key={label} className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">{label}</span>
+                          ))}
                         </div>
                         <FormMessage />
                       </FormItem>
