@@ -30,6 +30,37 @@ const isValidPhone = (phone) => {
   return /^[5689]\d{7}$/.test(cleanPhone);
 };
 
+// 生成唯一 7 位 userId
+async function generateUserId() {
+  const lastUser = await User.findOne({ userId: { $exists: true } }).sort({ userId: -1 });
+  let newId = lastUser ? parseInt(lastUser.userId, 10) + 1 : 1000001;
+  return newId.toString().padStart(7, '0');
+}
+
+// 生成唯一 2字母+4數字 tutorId
+async function generateTutorId() {
+  const lastTutor = await User.findOne({ tutorId: { $exists: true } }).sort({ tutorId: -1 });
+  let prefix = 'AA';
+  let number = 1;
+  if (lastTutor && lastTutor.tutorId) {
+    prefix = lastTutor.tutorId.slice(0, 2);
+    number = parseInt(lastTutor.tutorId.slice(2), 10) + 1;
+    if (number > 9999) {
+      const firstChar = prefix.charCodeAt(0);
+      const secondChar = prefix.charCodeAt(1);
+      if (secondChar < 90) { // 'Z'
+        prefix = String.fromCharCode(firstChar, secondChar + 1);
+      } else if (firstChar < 90) {
+        prefix = String.fromCharCode(firstChar + 1, 65); // 65 = 'A'
+      } else {
+        throw new Error('tutorId 已達上限');
+      }
+      number = 1;
+    }
+  }
+  return `${prefix}${number.toString().padStart(4, '0')}`;
+}
+
 // 用戶登入
 const loginUser = async (req, res) => {
   try {
@@ -307,13 +338,15 @@ const register = async (req, res) => {
 
       // 創建新用戶
       console.log('📝 創建新用戶...');
+      const userId = await generateUserId();
       const newUser = new User({
         name,
         email,
         phone,
         password, // 密碼會在 User model 的 pre('save') 中間件中被加密
         userType,
-        role
+        role,
+        userId
       });
 
       console.log('🔐 密碼信息（創建前）：', {
@@ -828,17 +861,20 @@ const requestTutorUpgrade = async (req, res) => {
       });
     }
 
+    // 自動生成 tutorId
+    if (!user.tutorId) {
+      user.tutorId = await generateTutorId();
+    }
     // 設置升級申請狀態
     user.tutorProfile = {
       ...user.tutorProfile,
       applicationStatus: 'pending'
     };
-
     await user.save();
-
     return res.json({
       success: true,
-      message: '升級申請已提交'
+      message: '升級申請已提交',
+      tutorId: user.tutorId
     });
   } catch (error) {
     console.error('申請升級導師失敗:', error);

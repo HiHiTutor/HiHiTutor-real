@@ -57,6 +57,16 @@ const userSchema = new mongoose.Schema({
   updatedAt: {
     type: Date,
     default: Date.now
+  },
+  userId: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
+  tutorId: {
+    type: String,
+    unique: true,
+    sparse: true
   }
 });
 
