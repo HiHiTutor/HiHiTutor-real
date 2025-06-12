@@ -516,18 +516,22 @@ export default function TutorProfilePage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>授課方式</FormLabel>
-                      <Select multiple value={field.value} onValueChange={field.onChange}>
-                        <FormControl>
-                          <SelectTrigger className="w-64">
-                            <SelectValue placeholder="請選擇授課方式" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {teachingModes.map((m) => (
-                            <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <div className="flex gap-4">
+                        {teachingModes.map((m) => (
+                          <label key={m.value} className="flex items-center gap-2">
+                            <Checkbox
+                              checked={field.value.includes(m.value)}
+                              onCheckedChange={checked => {
+                                const newValue = checked
+                                  ? [...field.value, m.value]
+                                  : field.value.filter(v => v !== m.value);
+                                field.onChange(newValue);
+                              }}
+                            />
+                            {m.label}
+                          </label>
+                        ))}
+                      </div>
                       <div className="flex gap-2 mt-2">
                         {field.value.map((v: string) => {
                           const mode = teachingModes.find(m => m.value === v);
