@@ -228,12 +228,12 @@ function HomeContent({ tutors, loading }: { tutors: Tutor[], loading: boolean })
                           <div>
                             <span className="text-sm text-gray-500">教授科目：</span>
                             <div className="flex flex-wrap gap-1 mt-1">
-                              {tutor.subjects.slice(0, 3).map((subject: string) => (
+                              {tutor.subjects?.slice(0, 3).map((subject: string) => (
                                 <Badge key={subject} variant="outline">
                                   {subject}
                                 </Badge>
                               ))}
-                              {tutor.subjects.length > 3 && (
+                              {tutor.subjects && tutor.subjects.length > 3 && (
                                 <Badge variant="outline">+{tutor.subjects.length - 3}</Badge>
                               )}
                             </div>
@@ -241,7 +241,7 @@ function HomeContent({ tutors, loading }: { tutors: Tutor[], loading: boolean })
                           <div>
                             <span className="text-sm text-gray-500">授課方式：</span>
                             <div className="flex flex-wrap gap-1 mt-1">
-                              {tutor.teachingMethods.map((method: string) => (
+                              {tutor.teachingMethods?.map((method: string) => (
                                 <Badge key={method} variant="outline">
                                   {method === 'face-to-face' ? '面授' : 
                                    method === 'online' ? '網上' : '混合'}
