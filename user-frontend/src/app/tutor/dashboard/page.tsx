@@ -22,6 +22,7 @@ import SUBJECT_MAP from '@/constants/subjectOptions';
 import REGION_OPTIONS from '@/constants/regionOptions';
 import { Plus, X } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
+import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 
 type Subject = {
   value: string;
@@ -276,34 +277,42 @@ export default function TutorProfilePage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>出生日期</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
+                        <div className="flex gap-2">
+                          <Select value={selectedYear} onValueChange={(v) => { setSelectedYear(v); form.setValue('birthDay', ''); }}>
                             <FormControl>
-                              <Button
-                                variant="outline"
-                                className={cn(
-                                  "w-full justify-start text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {field.value ? format(new Date(field.value), "PPP") : "選擇日期"}
-                              </Button>
+                              <SelectTrigger className="w-24"><SelectValue placeholder="年" /></SelectTrigger>
                             </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value ? new Date(field.value) : undefined}
-                              onSelect={(date) => date && field.onChange(date.toISOString())}
-                              disabled={(date) => {
-                                const today = new Date();
-                                return date > today;
-                              }}
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
+                            <SelectContent>
+                              {years.map((y) => (
+                                <SelectItem key={y} value={y.toString()}>{y}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Select value={selectedMonth} onValueChange={(v) => { setSelectedMonth(v); form.setValue('birthDay', ''); }} disabled={!selectedYear}>
+                            <FormControl>
+                              <SelectTrigger className="w-16"><SelectValue placeholder="月" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {months.map((m) => (
+                                <SelectItem key={m} value={m.toString().padStart(2, '0')}>{m.toString().padStart(2, '0')}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Select value={field.value ? field.value.split('-')[2] : ''} onValueChange={(v) => {
+                            if (selectedYear && selectedMonth) {
+                              field.onChange(`${selectedYear}-${selectedMonth.padStart(2, '0')}-${v.padStart(2, '0')}`)
+                            }
+                          }} disabled={!selectedYear || !selectedMonth}>
+                            <FormControl>
+                              <SelectTrigger className="w-16"><SelectValue placeholder="日" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {getAvailableDays().map((d) => (
+                                <SelectItem key={d} value={d.toString().padStart(2, '0')}>{d.toString().padStart(2, '0')}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -440,34 +449,45 @@ export default function TutorProfilePage() {
                 <FormField
                   control={form.control}
                   name="subjects"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>教授科目</FormLabel>
-                      <div className="space-y-4">
-                        {Object.entries(SUBJECT_MAP).map(([category, subjectName]) => (
-                          <div key={category} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={category}
-                              checked={field.value.includes(category)}
-                              onCheckedChange={(checked) => {
-                                const newValue = checked
-                                  ? [...field.value, category]
-                                  : field.value.filter((v) => v !== category)
-                                field.onChange(newValue)
-                              }}
-                            />
-                            <label
-                              htmlFor={category}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                              {subjectName}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    const [selectedCategory, setSelectedCategory] = useState('');
+                    const category = CATEGORY_OPTIONS.find(c => c.value === selectedCategory);
+                    let subSubjects: { value: string; label: string }[] = [];
+                    if (category) {
+                      if (category.subjects) subSubjects = category.subjects;
+                      if (category.subCategories) {
+                        subSubjects = category.subCategories.flatMap(sc => sc.subjects.map(s => ({ ...s, label: `${sc.label}-${s.label}` })));
+                      }
+                    }
+                    return (
+                      <FormItem>
+                        <FormLabel>教授科目</FormLabel>
+                        <div className="flex gap-2">
+                          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                            <FormControl>
+                              <SelectTrigger className="w-40"><SelectValue placeholder="課程分類" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {CATEGORY_OPTIONS.map(c => (
+                                <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Select multiple value={field.value} onValueChange={field.onChange} disabled={!selectedCategory}>
+                            <FormControl>
+                              <SelectTrigger className="w-64"><SelectValue placeholder="子科目 (可多選)" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {subSubjects.map(s => (
+                                <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
 
                 <FormField
@@ -486,87 +506,29 @@ export default function TutorProfilePage() {
 
                 <FormField
                   control={form.control}
-                  name="teachingAreas"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>教學區域</FormLabel>
-                      <div className="space-y-4">
-                        {REGION_OPTIONS.map((region) => (
-                          <div key={region.value} className="space-y-2">
-                            <h4 className="font-medium">{region.label}</h4>
-                            <div className="grid grid-cols-2 gap-2">
-                              {region.regions.map((district) => (
-                                <div key={district.value} className="flex items-center space-x-2">
-                                  <Checkbox
-                                    id={district.value}
-                                    checked={field.value.includes(district.value)}
-                                    onCheckedChange={(checked) => {
-                                      const newValue = checked
-                                        ? [...field.value, district.value]
-                                        : field.value.filter((v) => v !== district.value)
-                                      field.onChange(newValue)
-                                    }}
-                                  />
-                                  <label
-                                    htmlFor={district.value}
-                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                  >
-                                    {district.label}
-                                  </label>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
                   name="teachingMethods"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>授課方式</FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={(value) => field.onChange([...field.value, value])}
-                          value={field.value[field.value.length - 1]}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="請選擇授課方式" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {teachingModes.map((mode) => (
-                              <SelectItem key={mode.value} value={mode.value}>
-                                {mode.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {field.value.map((mode) => (
-                          <div
-                            key={mode}
-                            className="bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm"
-                          >
-                            {mode}
-                            <button
-                              type="button"
-                              className="ml-2 text-xs"
-                              onClick={() =>
-                                field.onChange(field.value.filter((m) => m !== mode))
-                              }
-                            >
-                              ×
-                            </button>
-                          </div>
-                        ))}
+                      <Select multiple value={field.value} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger className="w-64">
+                            <SelectValue placeholder="請選擇授課方式" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {teachingModes.map((m) => (
+                            <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <div className="flex gap-2 mt-2">
+                        {field.value.map((v: string) => {
+                          const mode = teachingModes.find(m => m.value === v);
+                          return mode ? (
+                            <span key={v} className="inline-flex items-center px-2 py-1 bg-gray-200 rounded text-sm">{mode.label}×</span>
+                          ) : null;
+                        })}
                       </div>
                       <FormMessage />
                     </FormItem>
@@ -707,6 +669,45 @@ export default function TutorProfilePage() {
                   )}
                 />
               </div>
+
+              {form.watch('teachingMethods').includes('in-person') && (
+                <FormField
+                  control={form.control}
+                  name="teachingAreas"
+                  render={({ field }) => {
+                    const [selectedRegion, setSelectedRegion] = useState('');
+                    const region = REGION_OPTIONS.find(r => r.value === selectedRegion);
+                    return (
+                      <FormItem>
+                        <FormLabel>教學區域</FormLabel>
+                        <div className="flex gap-2">
+                          <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+                            <FormControl>
+                              <SelectTrigger className="w-40"><SelectValue placeholder="地區" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {REGION_OPTIONS.map(r => (
+                                <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Select multiple value={field.value} onValueChange={field.onChange} disabled={!selectedRegion}>
+                            <FormControl>
+                              <SelectTrigger className="w-64"><SelectValue placeholder="子地區 (可多選)" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {region && region.regions.map(d => (
+                                <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
+                />
+              )}
 
               <div className="flex justify-end space-x-4">
                 <Button type="button" variant="outline">
