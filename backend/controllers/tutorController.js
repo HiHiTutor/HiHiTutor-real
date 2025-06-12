@@ -42,7 +42,7 @@ const getTutorByTutorId = async (req, res) => {
 };
 
 // 獲取導師列表
-exports.getTutors = async (req, res) => {
+const getTutors = async (req, res) => {
   try {
     const {
       page = 1,
