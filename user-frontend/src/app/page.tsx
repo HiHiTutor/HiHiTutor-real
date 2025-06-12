@@ -84,12 +84,12 @@ export default function Home() {
 
   return (
     <Suspense>
-      <HomeContent />
+      <HomeContent tutors={tutors} loading={loading} />
     </Suspense>
   );
 }
 
-function HomeContent() {
+function HomeContent({ tutors, loading }: { tutors: Tutor[], loading: boolean }) {
   const router = useRouter();
 
   const handleSearch = (query: any) => {
@@ -199,67 +199,71 @@ function HomeContent() {
                 查看全部 →
               </Link>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {tutors.map((tutor: Tutor) => (
-                <Link key={tutor.tutorId} href={`/tutors/${tutor.tutorId}`}>
-                  <Card className="h-full hover:shadow-lg transition-shadow">
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <CardTitle className="text-lg">{tutor.name}</CardTitle>
-                        <div className="flex items-center space-x-1">
-                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          <span className="text-sm">{tutor.rating.toFixed(1)}</span>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {tutor.isVip && (
-                          <Badge variant="default" className="bg-yellow-500">VIP</Badge>
-                        )}
-                        {tutor.isTop && (
-                          <Badge variant="secondary">置頂</Badge>
-                        )}
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        <div>
-                          <span className="text-sm text-gray-500">教授科目：</span>
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {tutor.subjects.slice(0, 3).map((subject: string) => (
-                              <Badge key={subject} variant="outline">
-                                {subject}
-                              </Badge>
-                            ))}
-                            {tutor.subjects.length > 3 && (
-                              <Badge variant="outline">+{tutor.subjects.length - 3}</Badge>
-                            )}
+            {loading ? (
+              <div className="text-center py-8">載入中...</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {tutors.map((tutor: Tutor) => (
+                  <Link key={tutor.tutorId} href={`/tutors/${tutor.tutorId}`}>
+                    <Card className="h-full hover:shadow-lg transition-shadow">
+                      <CardHeader>
+                        <div className="flex justify-between items-start">
+                          <CardTitle className="text-lg">{tutor.name}</CardTitle>
+                          <div className="flex items-center space-x-1">
+                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                            <span className="text-sm">{tutor.rating.toFixed(1)}</span>
                           </div>
                         </div>
-                        <div>
-                          <span className="text-sm text-gray-500">授課方式：</span>
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {tutor.teachingMethods.map((method: string) => (
-                              <Badge key={method} variant="outline">
-                                {method === 'face-to-face' ? '面授' : 
-                                 method === 'online' ? '網上' : '混合'}
-                              </Badge>
-                            ))}
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {tutor.isVip && (
+                            <Badge variant="default" className="bg-yellow-500">VIP</Badge>
+                          )}
+                          {tutor.isTop && (
+                            <Badge variant="secondary">置頂</Badge>
+                          )}
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          <div>
+                            <span className="text-sm text-gray-500">教授科目：</span>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {tutor.subjects.slice(0, 3).map((subject: string) => (
+                                <Badge key={subject} variant="outline">
+                                  {subject}
+                                </Badge>
+                              ))}
+                              {tutor.subjects.length > 3 && (
+                                <Badge variant="outline">+{tutor.subjects.length - 3}</Badge>
+                              )}
+                            </div>
+                          </div>
+                          <div>
+                            <span className="text-sm text-gray-500">授課方式：</span>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {tutor.teachingMethods.map((method: string) => (
+                                <Badge key={method} variant="outline">
+                                  {method === 'face-to-face' ? '面授' : 
+                                   method === 'online' ? '網上' : '混合'}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <span className="text-sm text-gray-500">教學經驗：</span>
+                            <span className="text-sm">{tutor.experience} 年</span>
+                          </div>
+                          <div>
+                            <span className="text-sm text-gray-500">時薪：</span>
+                            <span className="text-sm">${tutor.hourlyRate}/小時</span>
                           </div>
                         </div>
-                        <div>
-                          <span className="text-sm text-gray-500">教學經驗：</span>
-                          <span className="text-sm">{tutor.experience} 年</span>
-                        </div>
-                        <div>
-                          <span className="text-sm text-gray-500">時薪：</span>
-                          <span className="text-sm">${tutor.hourlyRate}/小時</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
