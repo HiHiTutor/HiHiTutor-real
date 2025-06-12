@@ -1,7 +1,22 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
+  userId: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
+  tutorId: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
+  orgId: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
   name: {
     type: String,
     required: true
@@ -22,14 +37,23 @@ const userSchema = new mongoose.Schema({
   },
   userType: {
     type: String,
-    enum: ['student', 'tutor', 'admin'],
-    default: 'student'
+    enum: ['student', 'tutor', 'admin', 'organization'],
+    required: true
   },
   role: {
     type: String,
     enum: ['user', 'admin'],
     default: 'user'
   },
+  avatar: {
+    type: String,
+    default: '/avatars/default.png'
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  refreshToken: String,
   status: {
     type: String,
     enum: ['active', 'inactive', 'pending', 'banned'],
@@ -50,6 +74,36 @@ const userSchema = new mongoose.Schema({
       default: 'pending'
     }
   },
+  // 導師特有欄位
+  subjects: [{
+    type: String
+  }],
+  teachingAreas: [{
+    type: String
+  }],
+  teachingMethods: [{
+    type: String
+  }],
+  experience: {
+    type: Number,
+    default: 0
+  },
+  rating: {
+    type: Number,
+    default: 0
+  },
+  introduction: {
+    type: String
+  },
+  qualifications: [{
+    type: String
+  }],
+  hourlyRate: {
+    type: Number
+  },
+  availableTime: [{
+    type: String
+  }],
   createdAt: {
     type: Date,
     default: Date.now
@@ -57,74 +111,29 @@ const userSchema = new mongoose.Schema({
   updatedAt: {
     type: Date,
     default: Date.now
-  },
-  userId: {
-    type: String,
-    unique: true,
-    sparse: true
-  },
-  tutorId: {
-    type: String,
-    unique: true,
-    sparse: true
   }
+}, {
+  timestamps: true
 });
 
-// Hash password before saving
+// 密碼加密
 userSchema.pre('save', async function(next) {
-  // 如果密碼被修改或是新文檔，則進行加密
-  if (this.isModified('password') || this.isNew) {
-    try {
-      console.log('🔐 正在加密密碼...', {
-        isNew: this.isNew,
-        isModified: this.isModified('password'),
-        originalPassword: this.password
-      });
-      const salt = await bcrypt.genSalt(10);
-      this.password = await bcrypt.hash(this.password, salt);
-      console.log('✅ 密碼加密完成', {
-        hashedPassword: this.password
-      });
-      next();
-    } catch (error) {
-      console.error('❌ 密碼加密失敗:', error);
-      next(error);
-    }
-  } else {
+  if (!this.isModified('password')) return next();
+  
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
     next();
+  } catch (error) {
+    next(error);
   }
 });
 
-// Compare password method
+// 驗證密碼
 userSchema.methods.comparePassword = async function(candidatePassword) {
   try {
-    console.log('🔍 開始密碼比對...', {
-      candidatePassword,
-      candidatePasswordLength: candidatePassword.length,
-      hashedPassword: this.password,
-      hashedPasswordLength: this.password.length
-    });
-
-    // 直接比對原始密碼（用於調試）
-    const directMatch = candidatePassword === this.password;
-    console.log('🔍 直接比對結果:', directMatch);
-
-    // 使用 bcrypt 比對
-    const bcryptMatch = await bcrypt.compare(candidatePassword, this.password);
-    console.log('🔍 bcrypt 比對結果:', bcryptMatch);
-
-    // 生成測試哈希（用於調試）
-    const testHash = await bcrypt.hash(candidatePassword, 10);
-    console.log('🔍 測試哈希:', {
-      testHash,
-      testHashLength: testHash.length,
-      originalHash: this.password,
-      originalHashLength: this.password.length
-    });
-
-    return bcryptMatch;
+    return await bcrypt.compare(candidatePassword, this.password);
   } catch (error) {
-    console.error('❌ 密碼比對過程中發生錯誤:', error);
     throw error;
   }
 };
