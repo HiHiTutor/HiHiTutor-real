@@ -85,8 +85,15 @@ app.use(cors({
   maxAge: 86400 // 24 hours
 }));
 
-// Handle OPTIONS preflight requests
-app.options('*', cors());
+// Handle OPTIONS preflight requests for all routes
+app.options('*', (req, res) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin);
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept, X-Requested-With');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Max-Age', '86400');
+  res.sendStatus(204);
+});
 
 // Body parsing middleware - BEFORE routes
 app.use(express.json());
