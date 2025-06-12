@@ -561,6 +561,63 @@ export default function TutorProfilePage() {
                   )}
                 />
 
+                {form.watch('teachingMethods').includes('in-person') && (
+                  <FormField
+                    control={form.control}
+                    name="teachingAreas"
+                    render={({ field }) => {
+                      const [selectedRegion, setSelectedRegion] = useState('');
+                      const region = REGION_OPTIONS.find(r => r.value === selectedRegion);
+                      // 取得所有已選地區的 label
+                      const allDistricts = REGION_OPTIONS.flatMap(r => r.regions);
+                      const selectedDistrictLabels = field.value.map((v: string) => {
+                        const found = allDistricts.find(d => d.value === v);
+                        return found ? found.label : v;
+                      });
+                      return (
+                        <FormItem>
+                          <FormLabel>教學區域</FormLabel>
+                          <div className="flex gap-2">
+                            <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+                              <FormControl>
+                                <SelectTrigger className="w-40"><SelectValue placeholder="地區" /></SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {REGION_OPTIONS.map(r => (
+                                  <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <div className="flex flex-col gap-1 border rounded p-2 min-w-[200px] max-h-40 overflow-y-auto bg-white" style={{ minWidth: 200 }}>
+                              {region && region.regions.map(d => (
+                                <label key={d.value} className="flex items-center gap-2">
+                                  <Checkbox
+                                    checked={field.value.includes(d.value)}
+                                    onCheckedChange={checked => {
+                                      const newValue = checked
+                                        ? [...field.value, d.value]
+                                        : field.value.filter(v => v !== d.value);
+                                      field.onChange(newValue);
+                                    }}
+                                  />
+                                  {d.label}
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                          {/* 顯示已選地區 tag */}
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {selectedDistrictLabels.map(label => (
+                              <span key={label} className="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 rounded text-sm">{label}</span>
+                            ))}
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
+                  />
+                )}
+
                 <FormField
                   control={form.control}
                   name="hourlyRate"
@@ -695,51 +752,6 @@ export default function TutorProfilePage() {
                   )}
                 />
               </div>
-
-              {form.watch('teachingMethods').includes('in-person') && (
-                <FormField
-                  control={form.control}
-                  name="teachingAreas"
-                  render={({ field }) => {
-                    const [selectedRegion, setSelectedRegion] = useState('');
-                    const region = REGION_OPTIONS.find(r => r.value === selectedRegion);
-                    return (
-                      <FormItem>
-                        <FormLabel>教學區域</FormLabel>
-                        <div className="flex gap-2">
-                          <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-                            <FormControl>
-                              <SelectTrigger className="w-40"><SelectValue placeholder="地區" /></SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {REGION_OPTIONS.map(r => (
-                                <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <div className="flex flex-col gap-1 border rounded p-2 min-w-[200px] max-h-40 overflow-y-auto bg-white" style={{ minWidth: 200 }}>
-                            {region && region.regions.map(d => (
-                              <label key={d.value} className="flex items-center gap-2">
-                                <Checkbox
-                                  checked={field.value.includes(d.value)}
-                                  onCheckedChange={checked => {
-                                    const newValue = checked
-                                      ? [...field.value, d.value]
-                                      : field.value.filter(v => v !== d.value);
-                                    field.onChange(newValue);
-                                  }}
-                                />
-                                {d.label}
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    );
-                  }}
-                />
-              )}
 
               <div className="flex justify-end space-x-4">
                 <Button type="button" variant="outline">
