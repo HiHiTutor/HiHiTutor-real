@@ -69,7 +69,6 @@ interface TutorProfile {
   tutorId: string;
   name: string;
   gender: 'male' | 'female';
-  phone: string;
   birthDate: Date | undefined;
   subjects: string[];
   teachingAreas: string[];
@@ -95,7 +94,6 @@ export default function TutorDashboardPage() {
     tutorId: '',
     name: '',
     gender: 'male',
-    phone: '',
     birthDate: undefined,
     subjects: [],
     teachingAreas: [],
@@ -305,18 +303,6 @@ export default function TutorDashboardPage() {
                   <Label htmlFor="female">女</Label>
                 </div>
               </div>
-            </div>
-
-            {/* 聯絡電話 */}
-            <div className="space-y-2">
-              <Label htmlFor="phone">聯絡電話</Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                required
-              />
             </div>
 
             {/* 出生日期 */}
