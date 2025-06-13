@@ -120,7 +120,7 @@ export const tutorApi = {
   getTutorById: (id: string) => fetchApi(`/tutors/${id}`),
   
   // 獲取推薦導師
-  getRecommendedTutors: () => fetchApi('/tutors?featured=true&limit=8'),
+  getRecommendedTutors: () => fetchApi('https://hi-hi-tutor-real-backend2.vercel.app/api/tutors?featured=true&limit=8'),
 
   // 申請配對導師
   applyTutor: (tutorId: number, studentId: number) => 
