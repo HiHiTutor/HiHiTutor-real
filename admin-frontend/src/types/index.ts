@@ -8,7 +8,7 @@ export interface User {
   name: string;
   email: string;
   phone: string;
-  role: string;
+  role: 'user' | 'admin';
   userType: 'student' | 'tutor' | 'admin' | 'organization';
   status: 'active' | 'pending' | 'blocked';
   createdAt: string;

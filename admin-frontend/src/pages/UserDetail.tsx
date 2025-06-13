@@ -140,16 +140,24 @@ const UserDetail: React.FC = () => {
     fetchUserData();
   }, [dispatch, id]);
 
-  const handleEdit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!id) return;
+
     try {
-      if (id) {
-        await usersAPI.updateUser(id, editForm);
-        const response = await usersAPI.getUserById(id);
-        dispatch(setSelectedUser(response.data));
+      setLoading(true);
+      await usersAPI.updateUser(id, editForm);
+      const response = await usersAPI.getUserById(id);
+      if (response.data.success && response.data.user) {
+        dispatch(setSelectedUser(response.data.user));
         setIsEditDialogOpen(false);
+      } else {
+        setError('更新用戶資料失敗');
       }
     } catch (error) {
-      console.error('Error updating user:', error);
+      setError('更新用戶資料時發生錯誤');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -158,10 +166,14 @@ const UserDetail: React.FC = () => {
       if (id) {
         await usersAPI.approveUserUpgrade(id, type);
         const response = await usersAPI.getUserById(id);
-        dispatch(setSelectedUser(response.data));
+        if (response.data.success && response.data.user) {
+          dispatch(setSelectedUser(response.data.user));
+        } else {
+          setError('更新用戶資料失敗');
+        }
       }
     } catch (error) {
-      console.error('Error approving upgrade:', error);
+      setError('更新用戶資料時發生錯誤');
     }
   };
 
@@ -347,7 +359,7 @@ const UserDetail: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleEdit} variant="contained">
+          <Button onClick={handleSubmit} variant="contained">
             Save
           </Button>
         </DialogActions>
