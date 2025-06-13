@@ -118,43 +118,49 @@ const TutorDetail: React.FC = () => {
     });
   };
 
-  const handleAddItem = (type: 'subjects' | 'qualifications' | 'teachingAreas' | 'teachingMethods') => {
-    if (!tutor) return;
-
-    let newItem = '';
+  const getTypeLabel = (type: 'subjects' | 'teachingAreas' | 'teachingMethods' | 'qualifications' | 'availableTime'): string => {
     switch (type) {
       case 'subjects':
-        newItem = newSubject;
-        setNewSubject('');
-        break;
-      case 'qualifications':
-        newItem = newQualification;
-        setNewQualification('');
-        break;
+        return '科目';
       case 'teachingAreas':
-        newItem = newTeachingArea;
-        setNewTeachingArea('');
-        break;
+        return '教學領域';
       case 'teachingMethods':
-        newItem = newTeachingMethod;
-        setNewTeachingMethod('');
-        break;
-    }
-
-    if (newItem && !tutor[type].includes(newItem)) {
-      setTutor(prev => prev ? {
-        ...prev,
-        [type]: [...prev[type], newItem]
-      } : null);
+        return '教學方法';
+      case 'qualifications':
+        return '資格';
+      case 'availableTime':
+        return '可用時間';
+      default:
+        return '';
     }
   };
 
-  const handleRemoveItem = (type: 'subjects' | 'qualifications' | 'teachingAreas' | 'teachingMethods', item: string) => {
-    if (!tutor) return;
-    setTutor(prev => prev ? {
-      ...prev,
-      [type]: prev[type].filter(i => i !== item)
-    } : null);
+  const handleAddItem = (type: 'subjects' | 'teachingAreas' | 'teachingMethods' | 'qualifications' | 'availableTime') => {
+    const newItem = prompt(`請輸入新的${getTypeLabel(type)}`);
+    if (newItem) {
+      setTutor(prev => {
+        if (!prev) return prev;
+        const currentArray = prev[type] || [];
+        if (!currentArray.includes(newItem)) {
+          return {
+            ...prev,
+            [type]: [...currentArray, newItem]
+          };
+        }
+        return prev;
+      });
+    }
+  };
+
+  const handleRemoveItem = (type: 'subjects' | 'teachingAreas' | 'teachingMethods' | 'qualifications' | 'availableTime', index: number) => {
+    setTutor(prev => {
+      if (!prev) return prev;
+      const currentArray = prev[type] || [];
+      return {
+        ...prev,
+        [type]: currentArray.filter((_, i) => i !== index)
+      };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
