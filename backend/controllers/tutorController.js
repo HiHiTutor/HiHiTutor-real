@@ -2,8 +2,45 @@ const tutors = require('../data/tutors');
 const User = require('../models/User');
 
 // 回傳所有導師
-const getAllTutors = (req, res) => {
-  res.json(tutors);
+const getAllTutors = async (req, res) => {
+  try {
+    const { featured, limit } = req.query;
+    console.log('📝 查詢參數:', { featured, limit });
+    
+    let query = { userType: 'tutor' };
+    if (featured === 'true') {
+      query.isTop = true;
+    }
+    
+    console.log('🔍 MongoDB 查詢條件:', query);
+    
+    const limitNum = parseInt(limit) || 15;
+    console.log('📊 查詢限制:', limitNum);
+
+    const tutors = await User.find(query)
+      .limit(limitNum)
+      .select('name subject education experience rating avatar isVip isTop');
+    
+    console.log(`✅ 從 MongoDB 找到 ${tutors.length} 個導師`);
+
+    const formattedTutors = tutors.map(tutor => ({
+      id: tutor._id,
+      name: tutor.name,
+      subject: tutor.subjects?.[0] || '未指定',
+      education: tutor.tutorProfile?.education || '未指定',
+      experience: tutor.tutorProfile?.experience || '未指定',
+      rating: tutor.rating || 0,
+      avatarUrl: tutor.avatar || `https://randomuser.me/api/portraits/${tutor.gender || 'men'}/${Math.floor(Math.random() * 100)}.jpg`,
+      isVip: tutor.isVip || false,
+      isTop: tutor.isTop || false
+    }));
+
+    console.log('📤 返回格式化後的導師數據');
+    res.json(formattedTutors);
+  } catch (error) {
+    console.error('❌ 獲取導師數據時出錯:', error);
+    res.status(500).json({ message: 'Error fetching tutors' });
+  }
 };
 
 // 根據 ID 回傳特定導師
