@@ -133,36 +133,36 @@ export const tutorApi = {
 // 個案相關 API
 export const caseApi = {
   // 獲取所有找導師的個案
-  getAllTutorCases: () => fetchApi('/find-tutor-cases'),
+  getAllTutorCases: () => fetchApi('/tutor-cases'),
   
   // 獲取所有找學生的個案
-  getAllStudentCases: () => fetchApi('/find-student-cases'),
+  getAllStudentCases: () => fetchApi('/student-cases'),
   
   // 獲取最新/推薦的找學生個案
-  getRecommendedStudentCases: () => fetchApi('/find-student-cases?featured=true&limit=8&sort=latest'),
+  getRecommendedStudentCases: () => fetchApi('/student-cases?featured=true&limit=8&sort=latest'),
   
   // 獲取推薦的找導師個案
-  getRecommendedTutorCases: () => fetchApi('/find-tutor-cases?featured=true&limit=8'),
+  getRecommendedTutorCases: () => fetchApi('/tutor-cases?featured=true&limit=8'),
   
   // 獲取單一個案詳情（通用方法）
   getCaseById: (id: string) => fetchApi(`/cases/${id}`),
   
   // 獲取學生搵導師個案詳情
-  getTutorCaseById: (id: string) => fetchApi(`/find-tutor-cases/${id}`),
+  getTutorCaseById: (id: string) => fetchApi(`/tutor-cases/${id}`),
   
   // 獲取導師搵學生個案詳情  
-  getStudentCaseById: (id: string) => fetchApi(`/find-student-cases/${id}`),
+  getStudentCaseById: (id: string) => fetchApi(`/student-cases/${id}`),
   
   // 創建找導師個案
   createTutorCase: (data: any) => 
-    fetchApi('/find-student-cases', {
+    fetchApi('/student-cases', {
       method: 'POST',
       body: JSON.stringify(data)
     }),
   
   // 創建找學生個案
   createStudentCase: (data: any) => 
-    fetchApi('/find-tutor-cases', {
+    fetchApi('/tutor-cases', {
       method: 'POST',
       body: JSON.stringify(data)
     }),
