@@ -4,13 +4,10 @@ const User = require('../models/User');
 // 回傳所有導師
 const getAllTutors = async (req, res) => {
   try {
-    const { featured, limit } = req.query;
-    console.log('📝 查詢參數:', { featured, limit });
+    const { limit } = req.query;
+    console.log('📝 查詢參數:', { limit });
     
     let query = { userType: 'tutor' };
-    if (featured === 'true') {
-      query.isTop = true;
-    }
     
     console.log('🔍 MongoDB 查詢條件:', query);
     
