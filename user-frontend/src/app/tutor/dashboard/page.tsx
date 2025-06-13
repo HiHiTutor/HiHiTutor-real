@@ -68,7 +68,7 @@ const AVAILABLE_TIMES = [
 interface TutorProfile {
   tutorId: string;
   name: string;
-  gender: 'male' | 'female' | 'other';
+  gender: 'male' | 'female';
   phone: string;
   birthDate: Date | undefined;
   subjects: string[];
@@ -94,7 +94,7 @@ export default function TutorDashboardPage() {
   const [formData, setFormData] = useState<TutorProfile>({
     tutorId: '',
     name: '',
-    gender: 'other',
+    gender: 'male',
     phone: '',
     birthDate: undefined,
     subjects: [],
@@ -303,14 +303,6 @@ export default function TutorDashboardPage() {
                     onCheckedChange={() => setFormData({ ...formData, gender: 'female' })}
                   />
                   <Label htmlFor="female">女</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="other"
-                    checked={formData.gender === 'other'}
-                    onCheckedChange={() => setFormData({ ...formData, gender: 'other' })}
-                  />
-                  <Label htmlFor="other">其他</Label>
                 </div>
               </div>
             </div>
