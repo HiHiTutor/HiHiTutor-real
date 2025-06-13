@@ -117,7 +117,7 @@ const getAllTutors = async (req, res) => {
         }));
 
         console.log('📤 返回所有導師數據');
-        return res.json(formattedTutors);
+        return res.json({ data: { tutors: formattedTutors } });
       }
 
       const formattedTutors = featuredTutors.map(tutor => ({
@@ -133,7 +133,7 @@ const getAllTutors = async (req, res) => {
       }));
 
       console.log('📤 返回置頂或 VIP 導師數據');
-      return res.json(formattedTutors);
+      return res.json({ data: { tutors: formattedTutors } });
     }
     
     // 非 featured 請求，返回所有導師
@@ -164,7 +164,7 @@ const getAllTutors = async (req, res) => {
     }));
 
     console.log('📤 返回所有導師數據');
-    res.json(formattedTutors);
+    res.json({ data: { tutors: formattedTutors } });
   } catch (error) {
     console.error('❌ 獲取導師數據時出錯:', error);
     res.status(500).json({ message: 'Error fetching tutors' });
