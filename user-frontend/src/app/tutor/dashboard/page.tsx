@@ -467,7 +467,7 @@ export default function TutorDashboardPage() {
                 subjects: formData.subjects,
                 teachingMethods: formData.teachingMethods,
                 teachingAreas: formData.teachingAreas,
-                availableTimeSlots: formData.availableTimeSlots,
+                availableTime: formData.availableTime,
                 hourlyRate: formData.hourlyRate,
               })}
               disabled={savingSection === 'teaching'}
@@ -707,8 +707,10 @@ export default function TutorDashboardPage() {
             <Button
               type="button"
               onClick={() => handleSectionSave('documents', {
-                idCardUrl: formData.documents.idCard,
-                educationCertUrl: formData.documents.educationCert,
+                documents: {
+                  idCard: formData.documents.idCard,
+                  educationCert: formData.documents.educationCert,
+                },
               })}
               disabled={savingSection === 'documents'}
             >
