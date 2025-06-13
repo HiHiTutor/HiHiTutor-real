@@ -176,6 +176,7 @@ interface Case {
   featured?: boolean;
   date?: string;
   createdAt?: string;
+  avatarUrl?: string;
   // 其他可能欄位
   [key: string]: any;
 }
@@ -327,6 +328,7 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
                   ? JSON.parse(caseItem.lessonDetails)
                   : caseItem.lessonDetails,
                 createdAt: caseItem.createdAt || caseItem.date || new Date().toISOString(),
+                avatarUrl: caseItem.avatarUrl
               }}
               routeType={routeType}
             />

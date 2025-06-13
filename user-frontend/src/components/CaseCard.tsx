@@ -4,6 +4,7 @@ import React from 'react'
 import { getRegionName, getSubjectName, getSubRegionName } from '@/utils/translate';
 import { CalendarIcon, BookOpenIcon, MapPinIcon, AcademicCapIcon, ComputerDesktopIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
 import { formatDate } from '@/utils/date';
+import Image from 'next/image';
 
 const MODES: Record<string, string> = {
   'in-person': '面授',
@@ -93,6 +94,7 @@ interface CaseData {
   }
   modes?: string[]
   createdAt: string
+  avatarUrl?: string
 }
 
 interface CaseCardProps {
@@ -126,6 +128,18 @@ export default function CaseCard({ caseData, routeType = 'tutor', borderColor }:
       className={`rounded-xl border ${borderColor || colorScheme.border} ${colorScheme.hover} p-4 transition-all cursor-pointer ${colorScheme.bg}`}
       onClick={() => router.push(`/${routeType}-cases/${caseData.id}`)}
     >
+      {/* 導師照片 */}
+      {routeType === 'tutor' && caseData.avatarUrl && (
+        <div className="relative w-full h-48 mb-4 rounded-lg overflow-hidden">
+          <Image
+            src={caseData.avatarUrl}
+            alt={`${caseData.title} 的照片`}
+            fill
+            className="object-cover"
+          />
+        </div>
+      )}
+
       {/* 標題 */}
       <div className="space-y-2">
         <h3 className="text-lg font-semibold line-clamp-2">
@@ -138,7 +152,7 @@ export default function CaseCard({ caseData, routeType = 'tutor', borderColor }:
       </div>
 
       {/* 詳細資訊 */}
-      <div className="space-y-2 text-sm">
+      <div className="mt-4 space-y-2">
         <div className="flex items-start gap-2">
           <BookOpenIcon className={`h-5 w-5 ${colorScheme.text}`} />
           <span>{caseData.subject?.label || '未指定科目'}</span>
