@@ -226,6 +226,8 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
             rawCases = data.cases;
           } else if (Array.isArray(data.data?.cases)) {
             rawCases = data.data.cases;
+          } else if (Array.isArray(data.data?.tutors)) {
+            rawCases = data.data.tutors;
           } else if (Array.isArray(data.data)) {
             rawCases = data.data;
           }
@@ -235,13 +237,13 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
         const validCases = rawCases.filter(case_ => 
           case_ && 
           typeof case_ === 'object' && 
-          (case_.createdAt || case_.date)
+          (case_.createdAt || case_.date || case_.tutorId)
         );
 
         // 排序：VIP置頂好評 > VIP置頂 > 置頂好評 > 置頂 > 好評 > 其他
         const getSortScore = (c: any) => [
           c.isVip ? 1 : 0,
-          c.isPinned ? 1 : 0,
+          c.isTop ? 1 : 0,
           c.rating >= 4.5 ? 1 : 0,
           c.rating || 0,
           new Date(c.createdAt || c.date || 0).getTime()
@@ -250,20 +252,19 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
           const sa = getSortScore(a);
           const sb = getSortScore(b);
           for (let i = 0; i < sa.length; i++) {
-            if (sb[i] !== sa[i]) return sb[i] - sa[i];
+            if (sa[i] !== sb[i]) return sb[i] - sa[i];
           }
           return 0;
         });
 
-        // 只在組件仍然掛載時更新狀態
         if (isMounted) {
           setCases(sorted);
           setError(null);
         }
       } catch (err) {
-        console.error('獲取個案失敗:', err);
+        console.error('Error fetching cases:', err);
         if (isMounted) {
-          setError('獲取個案失敗，請稍後再試');
+          setError('載入失敗，請稍後再試');
           setCases([]);
         }
       } finally {
@@ -275,78 +276,62 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
 
     fetchCases();
 
-    // 清理函數
     return () => {
       isMounted = false;
     };
   }, [fetchUrl]);
 
-  // 移除重複的日誌
-  const displayCases = cases.slice(0, 8);
-
   return (
-    <div className={`border rounded-xl px-4 py-4 ${bgColor || 'bg-sky-50'} border-${borderColor || 'sky'}-300 mx-auto max-w-6xl`}>
-      <div className="flex items-center mb-4">
-        <div className="flex items-center">
-          {icon && <span className="mr-2">{icon}</span>}
-          <h2 className="text-xl font-bold">{title}</h2>
-        </div>
+    <div className="py-8">
+      <div className="flex items-center gap-2 mb-6">
+        <span className="text-2xl">{icon}</span>
+        <h2 className="text-2xl font-bold border-l-4 border-blue-400 pl-3">{title}</h2>
       </div>
-      
+
       {loading ? (
-        <div className="text-center py-4">載入中...</div>
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+          <p className="mt-2 text-gray-600">載入中...</p>
+        </div>
       ) : error ? (
-        <div className="text-center py-4 text-red-500">{error}</div>
+        <div className="text-center py-8 text-red-500">
+          <p>{error}</p>
+        </div>
       ) : cases.length === 0 ? (
-        <div className="text-center py-4 text-gray-500">暫無個案</div>
+        <div className="text-center py-8 text-gray-500">
+          <p>目前沒有{routeType === 'tutor' ? '導師' : '個案'}</p>
+        </div>
       ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {displayCases.map((caseItem, idx) => (
-              <CaseCard
-                key={caseItem.id || (caseItem.tutorId ? caseItem.tutorId : 'noid') + '_' + (caseItem.createdAt || caseItem.date || idx)}
-                borderColor={borderColor}
-                caseData={{
-                  id: caseItem.id || caseItem._id || '',
-                  title: caseItem.title || '',
-                  subject: (() => {
-                    const s = caseItem.subjects && caseItem.subjects[0];
-                    if (!s) return undefined;
-                    return { label: s }; // 直接返回原始代碼，讓 CaseCard 處理映射
-                  })(),
-                  region: (() => {
-                    if (caseItem.region) return { label: regionMap[caseItem.region] || caseItem.region };
-                    if (Array.isArray(caseItem.regions) && caseItem.regions[0]) return { label: regionMap[caseItem.regions[0]] || caseItem.regions[0] };
-                    return undefined;
-                  })(),
-                  mode: (() => {
-                    if (caseItem.mode) return { label: modeMap[caseItem.mode] || caseItem.mode };
-                    if (Array.isArray(caseItem.modes) && caseItem.modes.length > 0) {
-                      const modeLabels = caseItem.modes.map(m => modeMap[m] || m).join('、');
-                      return { label: modeLabels };
-                    }
-                    return undefined;
-                  })(),
-                  modes: caseItem.modes || [],
-                  experienceLevel: caseItem.experience ? { label: caseItem.experience } : undefined,
-                  lessonDetails: caseItem.lessonDetails,
-                  budget: caseItem.budget ? `${caseItem.budget.min} - ${caseItem.budget.max}` : undefined,
-                  createdAt: caseItem.createdAt || caseItem.date || new Date().toISOString()
-                }}
-                routeType={routeType}
-              />
-            ))}
-          </div>
-          <div className="mt-6 text-center">
-            <Link
-              href={linkUrl}
-              className="inline-block border border-gray-400 px-4 py-2 rounded-md text-sm text-gray-700 hover:bg-gray-100"
-            >
-              查看全部
-            </Link>
-          </div>
-        </>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {cases.map((caseItem) => (
+            <CaseCard
+              key={caseItem.id || caseItem.tutorId}
+              caseData={{
+                id: caseItem.id || caseItem.tutorId || '',
+                title: caseItem.title || caseItem.name || '',
+                subject: { label: caseItem.subjects?.[0] || '' },
+                region: { label: caseItem.region || caseItem.regions?.[0] || '' },
+                modes: (caseItem.modes || [caseItem.mode]).filter(Boolean) as string[],
+                experienceLevel: { label: caseItem.experience || '' },
+                lessonDetails: typeof caseItem.lessonDetails === 'string' 
+                  ? JSON.parse(caseItem.lessonDetails)
+                  : caseItem.lessonDetails,
+                createdAt: caseItem.createdAt || caseItem.date || new Date().toISOString(),
+              }}
+              routeType={routeType}
+            />
+          ))}
+        </div>
       )}
+
+      <div className="mt-6 text-center">
+        <Link
+          href={linkUrl}
+          className="inline-flex items-center text-blue-600 hover:text-blue-800"
+        >
+          查看更多 →
+        </Link>
+      </div>
     </div>
   );
 };
