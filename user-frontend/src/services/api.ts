@@ -11,7 +11,7 @@ export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
     const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     
     // 構建完整的 URL
-    const url = `https://hi-hi-tutor-real-backend2.vercel.app/api${normalizedEndpoint}`;
+    const url = `${baseURL}/api${normalizedEndpoint}`;
     
     console.log('🚀 發送 API 請求:', url);
     console.log('📦 請求參數:', options);
@@ -120,7 +120,7 @@ export const tutorApi = {
   getTutorById: (id: string) => fetchApi(`/tutors/${id}`),
   
   // 獲取推薦導師
-  getRecommendedTutors: () => fetchApi('https://hi-hi-tutor-real-backend2.vercel.app/api/tutors?featured=true&limit=8'),
+  getRecommendedTutors: () => fetchApi('/tutors?featured=true&limit=8'),
 
   // 申請配對導師
   applyTutor: (tutorId: number, studentId: number) => 
