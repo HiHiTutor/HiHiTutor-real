@@ -8,36 +8,95 @@ const getAllTutors = async (req, res) => {
     console.log('📝 查詢參數:', { limit, featured });
     
     let query = { userType: 'tutor' };
+    let featuredQuery = { ...query, $or: [{ isTop: true }, { isVip: true }] };
     
-    // 如果是 featured 請求，只返回置頂或 VIP 導師
+    // 如果是 featured 請求，先嘗試獲取置頂或 VIP 導師
     if (featured === 'true') {
-      query.$or = [
-        { isTop: true },
-        { isVip: true }
-      ];
+      const featuredTutors = await User.aggregate([
+        { $match: featuredQuery },
+        {
+          $addFields: {
+            sortScore: {
+              $add: [
+                { $multiply: [{ $cond: [{ $eq: ['$isVip', true] }, 1000, 0] }, 1] },
+                { $multiply: [{ $cond: [{ $eq: ['$isTop', true] }, 100, 0] }, 1] },
+                { $multiply: [{ $ifNull: ['$rating', 0] }, 10] }
+              ]
+            }
+          }
+        },
+        { $sort: { sortScore: -1 } },
+        { $limit: parseInt(limit) || 15 }
+      ]);
+
+      // 如果沒有置頂或 VIP 導師，則返回所有導師
+      if (featuredTutors.length === 0) {
+        console.log('⚠️ 沒有置頂或 VIP 導師，返回所有導師');
+        const allTutors = await User.aggregate([
+          { $match: query },
+          {
+            $addFields: {
+              sortScore: {
+                $add: [
+                  { $multiply: [{ $cond: [{ $eq: ['$isVip', true] }, 1000, 0] }, 1] },
+                  { $multiply: [{ $cond: [{ $eq: ['$isTop', true] }, 100, 0] }, 1] },
+                  { $multiply: [{ $ifNull: ['$rating', 0] }, 10] }
+                ]
+              }
+            }
+          },
+          { $sort: { sortScore: -1 } },
+          { $limit: parseInt(limit) || 15 }
+        ]);
+        
+        const formattedTutors = allTutors.map(tutor => ({
+          id: tutor._id,
+          name: tutor.name,
+          subject: tutor.subjects?.[0] || '未指定',
+          education: tutor.tutorProfile?.education || '未指定',
+          experience: tutor.tutorProfile?.experience || '未指定',
+          rating: tutor.rating || 0,
+          avatarUrl: tutor.avatar || `https://randomuser.me/api/portraits/${tutor.gender || 'men'}/${Math.floor(Math.random() * 100)}.jpg`,
+          isVip: tutor.isVip || false,
+          isTop: tutor.isTop || false
+        }));
+
+        console.log('📤 返回所有導師數據');
+        return res.json(formattedTutors);
+      }
+
+      const formattedTutors = featuredTutors.map(tutor => ({
+        id: tutor._id,
+        name: tutor.name,
+        subject: tutor.subjects?.[0] || '未指定',
+        education: tutor.tutorProfile?.education || '未指定',
+        experience: tutor.tutorProfile?.experience || '未指定',
+        rating: tutor.rating || 0,
+        avatarUrl: tutor.avatar || `https://randomuser.me/api/portraits/${tutor.gender || 'men'}/${Math.floor(Math.random() * 100)}.jpg`,
+        isVip: tutor.isVip || false,
+        isTop: tutor.isTop || false
+      }));
+
+      console.log('📤 返回置頂或 VIP 導師數據');
+      return res.json(formattedTutors);
     }
     
-    console.log('🔍 MongoDB 查詢條件:', query);
-    
-    const limitNum = parseInt(limit) || 15;
-    console.log('📊 查詢限制:', limitNum);
-
+    // 非 featured 請求，返回所有導師
     const tutors = await User.aggregate([
       { $match: query },
       {
         $addFields: {
-          // 計算排序分數
           sortScore: {
             $add: [
-              { $multiply: [{ $cond: [{ $eq: ['$isVip', true] }, 1000, 0] }, 1] },  // VIP 加 1000 分
-              { $multiply: [{ $cond: [{ $eq: ['$isTop', true] }, 100, 0] }, 1] },   // 置頂加 100 分
-              { $multiply: [{ $ifNull: ['$rating', 0] }, 10] }                       // 評分乘以 10
+              { $multiply: [{ $cond: [{ $eq: ['$isVip', true] }, 1000, 0] }, 1] },
+              { $multiply: [{ $cond: [{ $eq: ['$isTop', true] }, 100, 0] }, 1] },
+              { $multiply: [{ $ifNull: ['$rating', 0] }, 10] }
             ]
           }
         }
       },
-      { $sort: { sortScore: -1 } },  // 按總分降序排序
-      { $limit: limitNum }
+      { $sort: { sortScore: -1 } },
+      { $limit: parseInt(limit) || 15 }
     ]);
     
     console.log(`✅ 從 MongoDB 找到 ${tutors.length} 個導師`);
@@ -54,7 +113,7 @@ const getAllTutors = async (req, res) => {
       isTop: tutor.isTop || false
     }));
 
-    console.log('📤 返回格式化後的導師數據');
+    console.log('📤 返回所有導師數據');
     res.json(formattedTutors);
   } catch (error) {
     console.error('❌ 獲取導師數據時出錯:', error);
