@@ -67,6 +67,9 @@ const AVAILABLE_TIMES = [
 
 interface TutorProfile {
   tutorId: string;
+  name: string;
+  gender: 'male' | 'female' | 'other';
+  phone: string;
   birthDate: Date | undefined;
   subjects: string[];
   teachingAreas: string[];
@@ -78,12 +81,21 @@ interface TutorProfile {
   hourlyRate: number;
   availableTime: string[];
   avatar: string;
+  examResults: string;
+  courseFeatures: string;
+  documents: {
+    idCard: string;
+    educationCert: string;
+  };
 }
 
 export default function TutorDashboardPage() {
   const router = useRouter();
   const [formData, setFormData] = useState<TutorProfile>({
     tutorId: '',
+    name: '',
+    gender: 'other',
+    phone: '',
     birthDate: undefined,
     subjects: [],
     teachingAreas: [],
@@ -94,7 +106,13 @@ export default function TutorDashboardPage() {
     qualifications: [],
     hourlyRate: 0,
     availableTime: [],
-    avatar: ''
+    avatar: '',
+    examResults: '',
+    courseFeatures: '',
+    documents: {
+      idCard: '',
+      educationCert: ''
+    }
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -177,6 +195,39 @@ export default function TutorDashboardPage() {
     }
   };
 
+  const handleDocumentUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'idCard' | 'educationCert') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) throw new Error('上傳文件失敗');
+      
+      const data = await response.json();
+      setFormData(prev => ({
+        ...prev,
+        documents: {
+          ...prev.documents,
+          [type]: data.url
+        }
+      }));
+      toast.success('文件上傳成功');
+    } catch (error) {
+      console.error('Error uploading document:', error);
+      toast.error('上傳文件失敗');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   if (loading) {
     return <div className="container mx-auto py-8 text-center">載入中...</div>;
   }
@@ -184,12 +235,13 @@ export default function TutorDashboardPage() {
   return (
     <div className="container mx-auto py-8">
       <form onSubmit={handleSubmit} className="space-y-8">
-        {/* 個人照片 */}
+        {/* 個人資料 */}
         <Card>
           <CardHeader>
-            <CardTitle>個人照片</CardTitle>
+            <CardTitle>個人資料</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-6">
+            {/* 個人照片 */}
             <div className="flex items-center gap-6">
               <div className="relative w-32 h-32 rounded-full overflow-hidden bg-gray-100">
                 {formData.avatar ? (
@@ -220,6 +272,87 @@ export default function TutorDashboardPage() {
                 </p>
               </div>
             </div>
+
+            {/* 稱呼 */}
+            <div className="space-y-2">
+              <Label htmlFor="name">稱呼</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+              />
+            </div>
+
+            {/* 性別 */}
+            <div className="space-y-2">
+              <Label>性別</Label>
+              <div className="flex gap-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="male"
+                    checked={formData.gender === 'male'}
+                    onCheckedChange={() => setFormData({ ...formData, gender: 'male' })}
+                  />
+                  <Label htmlFor="male">男</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="female"
+                    checked={formData.gender === 'female'}
+                    onCheckedChange={() => setFormData({ ...formData, gender: 'female' })}
+                  />
+                  <Label htmlFor="female">女</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="other"
+                    checked={formData.gender === 'other'}
+                    onCheckedChange={() => setFormData({ ...formData, gender: 'other' })}
+                  />
+                  <Label htmlFor="other">其他</Label>
+                </div>
+              </div>
+            </div>
+
+            {/* 聯絡電話 */}
+            <div className="space-y-2">
+              <Label htmlFor="phone">聯絡電話</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                required
+              />
+            </div>
+
+            {/* 出生日期 */}
+            <div className="space-y-2">
+              <Label>出生日期</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !formData.birthDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {formData.birthDate ? format(formData.birthDate, "PPP") : "選擇日期"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={formData.birthDate}
+                    onSelect={(date) => setFormData({ ...formData, birthDate: date })}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </CardContent>
         </Card>
 
@@ -229,6 +362,31 @@ export default function TutorDashboardPage() {
             <CardTitle>教學資料</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* 學歷 */}
+            <div className="space-y-2">
+              <Label htmlFor="education">學歷</Label>
+              <Textarea
+                id="education"
+                value={formData.education}
+                onChange={(e) => setFormData({ ...formData, education: e.target.value })}
+                placeholder="請填寫你的學歷..."
+                required
+              />
+            </div>
+
+            {/* 授課年資 */}
+            <div className="space-y-2">
+              <Label htmlFor="experience">授課年資</Label>
+              <Input
+                id="experience"
+                type="number"
+                min="0"
+                value={formData.experience}
+                onChange={(e) => setFormData({ ...formData, experience: parseInt(e.target.value) })}
+                required
+              />
+            </div>
+
             {/* 教授科目 */}
             <div className="space-y-4">
               <Label>教授科目</Label>
@@ -265,9 +423,86 @@ export default function TutorDashboardPage() {
               </div>
             </div>
 
-            {/* 授課方式 */}
+            {/* 相關科目公開試成績 */}
+            <div className="space-y-2">
+              <Label htmlFor="examResults">相關科目公開試成績</Label>
+              <Textarea
+                id="examResults"
+                value={formData.examResults}
+                onChange={(e) => setFormData({ ...formData, examResults: e.target.value })}
+                placeholder="請填寫你的公開試成績..."
+                required
+              />
+            </div>
+
+            {/* 上堂地區 */}
             <div className="space-y-4">
-              <Label>授課方式</Label>
+              <Label>上堂地區</Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Object.entries(AREA_CATEGORIES).map(([category, areas]) => (
+                  <div key={category} className="space-y-2">
+                    <div className="font-medium">{category}</div>
+                    <div className="space-y-2">
+                      {areas.map((area) => (
+                        <div key={area} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={area}
+                            checked={formData.teachingAreas.includes(area)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setFormData({
+                                  ...formData,
+                                  teachingAreas: [...formData.teachingAreas, area]
+                                });
+                              } else {
+                                setFormData({
+                                  ...formData,
+                                  teachingAreas: formData.teachingAreas.filter((a) => a !== area)
+                                });
+                              }
+                            }}
+                          />
+                          <Label htmlFor={area}>{area}</Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 上堂時間 */}
+            <div className="space-y-4">
+              <Label>上堂時間</Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {AVAILABLE_TIMES.map((time) => (
+                  <div key={time} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={time}
+                      checked={formData.availableTime.includes(time)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setFormData({
+                            ...formData,
+                            availableTime: [...formData.availableTime, time]
+                          });
+                        } else {
+                          setFormData({
+                            ...formData,
+                            availableTime: formData.availableTime.filter((t) => t !== time)
+                          });
+                        }
+                      }}
+                    />
+                    <Label htmlFor={time}>{time}</Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 上堂形式 */}
+            <div className="space-y-4">
+              <Label>上堂形式</Label>
               <div className="flex flex-wrap gap-4">
                 {TEACHING_METHODS.map((method) => (
                   <div key={method.value} className="flex items-center space-x-2">
@@ -294,60 +529,9 @@ export default function TutorDashboardPage() {
               </div>
             </div>
 
-            {/* 教學地區 */}
-            {formData.teachingMethods.includes('face-to-face') && (
-              <div className="space-y-4">
-                <Label>教學地區</Label>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {Object.entries(AREA_CATEGORIES).map(([category, areas]) => (
-                    <div key={category} className="space-y-2">
-                      <div className="font-medium">{category}</div>
-                      <div className="space-y-2">
-                        {areas.map((area) => (
-                          <div key={area} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={area}
-                              checked={formData.teachingAreas.includes(area)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setFormData({
-                                    ...formData,
-                                    teachingAreas: [...formData.teachingAreas, area]
-                                  });
-                                } else {
-                                  setFormData({
-                                    ...formData,
-                                    teachingAreas: formData.teachingAreas.filter((a) => a !== area)
-                                  });
-                                }
-                              }}
-                            />
-                            <Label htmlFor={area}>{area}</Label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* 教學經驗 */}
+            {/* 要求堂費 */}
             <div className="space-y-2">
-              <Label htmlFor="experience">教學經驗（年）</Label>
-              <Input
-                id="experience"
-                type="number"
-                min="0"
-                value={formData.experience}
-                onChange={(e) => setFormData({ ...formData, experience: parseInt(e.target.value) })}
-                required
-              />
-            </div>
-
-            {/* 時薪 */}
-            <div className="space-y-2">
-              <Label htmlFor="hourlyRate">時薪（港幣）</Label>
+              <Label htmlFor="hourlyRate">要求堂費（每小時）</Label>
               <Input
                 id="hourlyRate"
                 type="number"
@@ -358,46 +542,9 @@ export default function TutorDashboardPage() {
               />
             </div>
 
-            {/* 可授課時間 */}
-            <div className="space-y-4">
-              <Label>可授課時間</Label>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {AVAILABLE_TIMES.map((time) => (
-                  <div key={time} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={time}
-                      checked={formData.availableTime.includes(time)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setFormData({
-                            ...formData,
-                            availableTime: [...formData.availableTime, time]
-                          });
-                        } else {
-                          setFormData({
-                            ...formData,
-                            availableTime: formData.availableTime.filter((t) => t !== time)
-                          });
-                        }
-                      }}
-                    />
-                    <Label htmlFor={time}>{time}</Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* 個人簡介 */}
-        <Card>
-          <CardHeader>
-            <CardTitle>個人簡介</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* 簡介 */}
+            {/* 個人簡介 */}
             <div className="space-y-2">
-              <Label htmlFor="introduction">簡介</Label>
+              <Label htmlFor="introduction">個人簡介</Label>
               <Textarea
                 id="introduction"
                 value={formData.introduction}
@@ -407,31 +554,56 @@ export default function TutorDashboardPage() {
               />
             </div>
 
-            {/* 學歷 */}
+            {/* 課程特點 */}
             <div className="space-y-2">
-              <Label htmlFor="education">學歷</Label>
+              <Label htmlFor="courseFeatures">課程特點</Label>
               <Textarea
-                id="education"
-                value={formData.education}
-                onChange={(e) => setFormData({ ...formData, education: e.target.value })}
-                placeholder="請填寫你的學歷..."
+                id="courseFeatures"
+                value={formData.courseFeatures}
+                onChange={(e) => setFormData({ ...formData, courseFeatures: e.target.value })}
+                placeholder="請描述你的課程特點..."
                 required
               />
             </div>
+          </CardContent>
+        </Card>
 
-            {/* 專業資格 */}
+        {/* 文件上傳 */}
+        <Card>
+          <CardHeader>
+            <CardTitle>文件上傳</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* 身份證 */}
             <div className="space-y-2">
-              <Label htmlFor="qualifications">專業資格</Label>
-              <Textarea
-                id="qualifications"
-                value={formData.qualifications.join('\n')}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  qualifications: e.target.value.split('\n').filter(q => q.trim())
-                })}
-                placeholder="請填寫你的專業資格，每行一個..."
+              <Label htmlFor="idCard">身份證</Label>
+              <Input
+                id="idCard"
+                type="file"
+                accept="image/*,.pdf"
+                onChange={(e) => handleDocumentUpload(e, 'idCard')}
+                disabled={uploading}
                 required
               />
+              {formData.documents.idCard && (
+                <p className="text-sm text-green-600">已上傳</p>
+              )}
+            </div>
+
+            {/* 學歷證書 */}
+            <div className="space-y-2">
+              <Label htmlFor="educationCert">學歷證書</Label>
+              <Input
+                id="educationCert"
+                type="file"
+                accept="image/*,.pdf"
+                onChange={(e) => handleDocumentUpload(e, 'educationCert')}
+                disabled={uploading}
+                required
+              />
+              {formData.documents.educationCert && (
+                <p className="text-sm text-green-600">已上傳</p>
+              )}
             </div>
           </CardContent>
         </Card>
