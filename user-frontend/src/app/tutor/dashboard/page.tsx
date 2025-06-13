@@ -15,6 +15,7 @@ import { format } from 'date-fns';
 import { CalendarIcon, Upload } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // 科目分類
 const SUBJECT_CATEGORIES = {
@@ -88,6 +89,25 @@ interface TutorProfile {
   };
 }
 
+// 生成年份選項（18-65歲）
+const generateYearOptions = () => {
+  const currentYear = new Date().getFullYear();
+  const years = [];
+  for (let year = currentYear - 18; year >= currentYear - 65; year--) {
+    years.push(year);
+  }
+  return years;
+};
+
+// 生成月份選項
+const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
+
+// 生成日期選項
+const generateDayOptions = (year: number, month: number) => {
+  const daysInMonth = new Date(year, month, 0).getDate();
+  return Array.from({ length: daysInMonth }, (_, i) => i + 1);
+};
+
 export default function TutorDashboardPage() {
   const router = useRouter();
   const [formData, setFormData] = useState<TutorProfile>({
@@ -115,10 +135,25 @@ export default function TutorDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [birthYear, setBirthYear] = useState<number | undefined>(undefined);
+  const [birthMonth, setBirthMonth] = useState<number | undefined>(undefined);
+  const [birthDay, setBirthDay] = useState<number | undefined>(undefined);
+
+  // 添加部分保存的狀態
+  const [savingSection, setSavingSection] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTutorProfile();
   }, []);
+
+  useEffect(() => {
+    if (formData.birthDate) {
+      const date = new Date(formData.birthDate);
+      setBirthYear(date.getFullYear());
+      setBirthMonth(date.getMonth() + 1);
+      setBirthDay(date.getDate());
+    }
+  }, [formData.birthDate]);
 
   const fetchTutorProfile = async () => {
     try {
@@ -226,6 +261,48 @@ export default function TutorDashboardPage() {
     }
   };
 
+  const handleBirthDateChange = (type: 'year' | 'month' | 'day', value: number) => {
+    if (type === 'year') setBirthYear(value);
+    if (type === 'month') setBirthMonth(value);
+    if (type === 'day') setBirthDay(value);
+
+    if (type === 'year' || type === 'month') {
+      // 如果年份或月份改變，重置日期
+      setBirthDay(undefined);
+    }
+
+    // 當所有值都存在時，更新 formData
+    if (birthYear && birthMonth && birthDay) {
+      const newDate = new Date(birthYear, birthMonth - 1, birthDay);
+      setFormData({ ...formData, birthDate: newDate });
+    }
+  };
+
+  // 部分保存函數
+  const handleSectionSave = async (section: string, data: Partial<TutorProfile>) => {
+    try {
+      setSavingSection(section);
+      const response = await fetch('/api/tutor/profile', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error('更新失敗');
+      }
+
+      toast.success('更新成功');
+    } catch (error) {
+      console.error('更新失敗:', error);
+      toast.error('更新失敗，請稍後再試');
+    } finally {
+      setSavingSection(null);
+    }
+  };
+
   if (loading) {
     return <div className="container mx-auto py-8 text-center">載入中...</div>;
   }
@@ -235,8 +312,22 @@ export default function TutorDashboardPage() {
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* 個人資料 */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>個人資料</CardTitle>
+            <Button
+              type="button"
+              onClick={() => handleSectionSave('personal', {
+                name: formData.name,
+                gender: formData.gender,
+                birthDate: formData.birthDate,
+                education: formData.education,
+                experience: formData.experience,
+                examResults: formData.examResults,
+              })}
+              disabled={savingSection === 'personal'}
+            >
+              {savingSection === 'personal' ? '保存中...' : '保存'}
+            </Button>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* 個人照片 */}
@@ -308,36 +399,81 @@ export default function TutorDashboardPage() {
             {/* 出生日期 */}
             <div className="space-y-2">
               <Label>出生日期</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !formData.birthDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.birthDate ? format(formData.birthDate, "PPP") : "選擇日期"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={formData.birthDate}
-                    onSelect={(date) => setFormData({ ...formData, birthDate: date })}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <div className="grid grid-cols-3 gap-4">
+                {/* 年份選擇 */}
+                <Select
+                  value={birthYear?.toString()}
+                  onValueChange={(value) => handleBirthDateChange('year', parseInt(value))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="年份" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {generateYearOptions().map((year) => (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}年
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* 月份選擇 */}
+                <Select
+                  value={birthMonth?.toString()}
+                  onValueChange={(value) => handleBirthDateChange('month', parseInt(value))}
+                  disabled={!birthYear}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="月份" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MONTHS.map((month) => (
+                      <SelectItem key={month} value={month.toString()}>
+                        {month}月
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* 日期選擇 */}
+                <Select
+                  value={birthDay?.toString()}
+                  onValueChange={(value) => handleBirthDateChange('day', parseInt(value))}
+                  disabled={!birthYear || !birthMonth}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="日期" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {birthYear && birthMonth && generateDayOptions(birthYear, birthMonth).map((day) => (
+                      <SelectItem key={day} value={day.toString()}>
+                        {day}日
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardContent>
         </Card>
 
         {/* 教學資料 */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>教學資料</CardTitle>
+            <Button
+              type="button"
+              onClick={() => handleSectionSave('teaching', {
+                subjects: formData.subjects,
+                teachingMethods: formData.teachingMethods,
+                teachingAreas: formData.teachingAreas,
+                availableTimeSlots: formData.availableTimeSlots,
+                hourlyRate: formData.hourlyRate,
+              })}
+              disabled={savingSection === 'teaching'}
+            >
+              {savingSection === 'teaching' ? '保存中...' : '保存'}
+            </Button>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* 學歷 */}
@@ -366,11 +502,11 @@ export default function TutorDashboardPage() {
             </div>
 
             {/* 教授科目 */}
-            <div className="space-y-4">
+            <div className="space-y-2">
               <Label>教授科目</Label>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 {Object.entries(SUBJECT_CATEGORIES).map(([category, subjects]) => (
-                  <div key={category} className="space-y-2">
+                  <div key={category} className="flex items-center space-x-2">
                     <div className="font-medium">{category}</div>
                     <div className="space-y-2">
                       {subjects.map((subject) => (
@@ -414,11 +550,11 @@ export default function TutorDashboardPage() {
             </div>
 
             {/* 上堂地區 */}
-            <div className="space-y-4">
+            <div className="space-y-2">
               <Label>上堂地區</Label>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 {Object.entries(AREA_CATEGORIES).map(([category, areas]) => (
-                  <div key={category} className="space-y-2">
+                  <div key={category} className="flex items-center space-x-2">
                     <div className="font-medium">{category}</div>
                     <div className="space-y-2">
                       {areas.map((area) => (
@@ -450,9 +586,9 @@ export default function TutorDashboardPage() {
             </div>
 
             {/* 上堂時間 */}
-            <div className="space-y-4">
+            <div className="space-y-2">
               <Label>上堂時間</Label>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 {AVAILABLE_TIMES.map((time) => (
                   <div key={time} className="flex items-center space-x-2">
                     <Checkbox
@@ -479,9 +615,9 @@ export default function TutorDashboardPage() {
             </div>
 
             {/* 上堂形式 */}
-            <div className="space-y-4">
+            <div className="space-y-2">
               <Label>上堂形式</Label>
-              <div className="flex flex-wrap gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 {TEACHING_METHODS.map((method) => (
                   <div key={method.value} className="flex items-center space-x-2">
                     <Checkbox
@@ -519,7 +655,25 @@ export default function TutorDashboardPage() {
                 required
               />
             </div>
+          </CardContent>
+        </Card>
 
+        {/* 個人介紹 */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>個人介紹</CardTitle>
+            <Button
+              type="button"
+              onClick={() => handleSectionSave('introduction', {
+                introduction: formData.introduction,
+                courseFeatures: formData.courseFeatures,
+              })}
+              disabled={savingSection === 'introduction'}
+            >
+              {savingSection === 'introduction' ? '保存中...' : '保存'}
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-6">
             {/* 個人簡介 */}
             <div className="space-y-2">
               <Label htmlFor="introduction">個人簡介</Label>
@@ -548,8 +702,18 @@ export default function TutorDashboardPage() {
 
         {/* 文件上傳 */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>文件上傳</CardTitle>
+            <Button
+              type="button"
+              onClick={() => handleSectionSave('documents', {
+                idCardUrl: formData.documents.idCard,
+                educationCertUrl: formData.documents.educationCert,
+              })}
+              disabled={savingSection === 'documents'}
+            >
+              {savingSection === 'documents' ? '保存中...' : '保存'}
+            </Button>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* 身份證 */}
@@ -585,12 +749,6 @@ export default function TutorDashboardPage() {
             </div>
           </CardContent>
         </Card>
-
-        <div className="flex justify-end">
-          <Button type="submit" disabled={saving}>
-            {saving ? '儲存中...' : '儲存更改'}
-          </Button>
-        </div>
       </form>
     </div>
   );
