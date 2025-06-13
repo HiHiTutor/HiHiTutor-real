@@ -227,7 +227,17 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
           } else if (Array.isArray(data.data?.cases)) {
             rawCases = data.data.cases;
           } else if (Array.isArray(data.data?.tutors)) {
-            rawCases = data.data.tutors;
+            rawCases = data.data.tutors.map((tutor: any) => ({
+              ...tutor,
+              tutorId: tutor.id,
+              subjects: [tutor.subject],
+              teachingMethods: [],
+              experience: tutor.experience,
+              rating: tutor.rating || 0,
+              isVip: tutor.isVip || false,
+              isTop: tutor.isTop || false,
+              createdAt: new Date().toISOString()
+            }));
           } else if (Array.isArray(data.data)) {
             rawCases = data.data;
           }
@@ -237,7 +247,7 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
         const validCases = rawCases.filter(case_ => 
           case_ && 
           typeof case_ === 'object' && 
-          (case_.createdAt || case_.date || case_.tutorId)
+          (case_.createdAt || case_.date || case_.tutorId || case_.id)
         );
 
         // 排序：VIP置頂好評 > VIP置頂 > 置頂好評 > 置頂 > 好評 > 其他
