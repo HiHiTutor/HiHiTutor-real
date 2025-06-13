@@ -15,6 +15,10 @@ export interface User {
   avatar: string;
   upgradeStatus?: 'pending' | 'approved' | 'rejected';
   requestedRole?: string;
+  organizationDocuments?: {
+    businessRegistration: string;
+    addressProof: string;
+  };
   tutorProfile?: {
     education: string;
     experience: string;

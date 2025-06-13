@@ -33,6 +33,28 @@ const UserDetail: React.FC = () => {
     userType: User['userType'];
     role: string;
     status: User['status'];
+    avatar: string;
+    isActive: boolean;
+    organizationDocuments: {
+      businessRegistration: string;
+      addressProof: string;
+    };
+    tutorProfile: {
+      education: string;
+      experience: string;
+      specialties: string[];
+      documents: string[];
+      applicationStatus: 'pending' | 'approved' | 'rejected';
+    };
+    subjects: string[];
+    teachingAreas: string[];
+    teachingMethods: string[];
+    experience: number;
+    rating: number;
+    introduction: string;
+    qualifications: string[];
+    hourlyRate: number;
+    availableTime: string[];
   }>({
     name: '',
     email: '',
@@ -40,29 +62,82 @@ const UserDetail: React.FC = () => {
     userType: 'student',
     role: 'user',
     status: 'active',
+    avatar: '',
+    isActive: true,
+    organizationDocuments: {
+      businessRegistration: '',
+      addressProof: ''
+    },
+    tutorProfile: {
+      education: '',
+      experience: '',
+      specialties: [],
+      documents: [],
+      applicationStatus: 'pending'
+    },
+    subjects: [],
+    teachingAreas: [],
+    teachingMethods: [],
+    experience: 0,
+    rating: 0,
+    introduction: '',
+    qualifications: [],
+    hourlyRate: 0,
+    availableTime: []
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchUserData = async () => {
+    try {
+      setLoading(true);
+      if (id) {
+        const response = await usersAPI.getUserById(id);
+        if (response.data.success && response.data.user) {
+          dispatch(setSelectedUser(response.data.user));
+          setEditForm({
+            name: response.data.user.name,
+            email: response.data.user.email,
+            phone: response.data.user.phone,
+            role: response.data.user.role,
+            userType: response.data.user.userType,
+            status: response.data.user.status,
+            avatar: response.data.user.avatar,
+            isActive: response.data.user.status === 'active',
+            organizationDocuments: response.data.user.organizationDocuments || {
+              businessRegistration: '',
+              addressProof: ''
+            },
+            tutorProfile: response.data.user.tutorProfile || {
+              education: '',
+              experience: '',
+              specialties: [],
+              documents: [],
+              applicationStatus: 'pending'
+            },
+            subjects: response.data.user.subjects || [],
+            teachingAreas: response.data.user.teachingAreas || [],
+            teachingMethods: response.data.user.teachingMethods || [],
+            experience: response.data.user.experience || 0,
+            rating: response.data.user.rating || 0,
+            introduction: response.data.user.introduction || '',
+            qualifications: response.data.user.qualifications || [],
+            hourlyRate: response.data.user.hourlyRate || 0,
+            availableTime: response.data.user.availableTime || []
+          });
+        } else {
+          setError('無法獲取用戶資料');
+        }
+      }
+    } catch (err) {
+      setError('獲取用戶資料時發生錯誤');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        if (id) {
-          const response = await usersAPI.getUserById(id);
-          dispatch(setSelectedUser(response.data));
-          setEditForm({
-            name: response.data.name,
-            email: response.data.email,
-            phone: response.data.phone,
-            userType: response.data.userType,
-            role: response.data.role,
-            status: response.data.status,
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching user:', error);
-      }
-    };
-
-    fetchUser();
+    fetchUserData();
   }, [dispatch, id]);
 
   const handleEdit = async () => {
