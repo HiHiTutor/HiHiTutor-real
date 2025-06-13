@@ -22,7 +22,8 @@ import {
   SelectChangeEvent,
 } from '@mui/material';
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
-import { usersAPI, User } from '../services/api';
+import { usersAPI } from '../services/api';
+import { User } from '../types';
 
 interface TutorProfile {
   education: string;
