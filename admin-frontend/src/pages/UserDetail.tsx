@@ -194,12 +194,13 @@ const UserDetail: React.FC = () => {
     }
   };
 
-  const handleUpgradeApproval = async (type: string) => {
+  const handleApproveUpgrade = async (type: string) => {
+    if (!id) return;
     try {
-      if (id) {
-        await usersAPI.approveUserUpgrade(id, type);
-        const response = await usersAPI.getUserById(id);
-        dispatch(setSelectedUser(response.data));
+      await usersAPI.approveUserUpgrade(id, type);
+      const response = await usersAPI.getUserById(id);
+      if (response.data.success && response.data.user) {
+        dispatch(setSelectedUser(response.data.user as User));
       }
     } catch (error) {
       console.error('Error approving upgrade:', error);
@@ -297,7 +298,7 @@ const UserDetail: React.FC = () => {
                   color="success"
                   onClick={() => {
                     if (selectedUser.requestedRole) {
-                      handleUpgradeApproval(selectedUser.requestedRole);
+                      handleApproveUpgrade(selectedUser.requestedRole);
                     }
                   }}
                 >
