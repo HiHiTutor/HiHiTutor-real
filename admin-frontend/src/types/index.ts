@@ -12,8 +12,34 @@ export interface User {
   userType: 'student' | 'tutor' | 'admin' | 'organization';
   status: 'active' | 'pending' | 'blocked';
   createdAt: string;
+  avatar: string;
   upgradeStatus?: 'pending' | 'approved' | 'rejected';
   requestedRole?: string;
+  tutorProfile?: {
+    education: string;
+    experience: string;
+    specialties: string[];
+    documents: string[];
+    applicationStatus: 'pending' | 'approved' | 'rejected';
+  };
+  subjects?: string[];
+  teachingAreas?: string[];
+  teachingMethods?: string[];
+  experience?: number;
+  rating?: number;
+  introduction?: string;
+  qualifications?: string[];
+  hourlyRate?: number;
+  availableTime?: string[];
+  ratingScore?: number;
+  ratingCount?: number;
+  isVip?: boolean;
+  vipLevel?: number;
+  isTop?: boolean;
+  topLevel?: number;
+  isPaid?: boolean;
+  paymentType?: 'free' | 'basic' | 'premium' | 'vip';
+  promotionLevel?: number;
 }
 
 // Statistics types

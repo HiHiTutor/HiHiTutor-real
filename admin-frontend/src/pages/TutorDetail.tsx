@@ -22,7 +22,7 @@ import {
   SelectChangeEvent,
 } from '@mui/material';
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
-import { usersAPI } from '../services/api';
+import { usersAPI, User } from '../services/api';
 
 interface TutorProfile {
   education: string;
@@ -73,7 +73,7 @@ const AVAILABLE_TIMES = [
 const TutorDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [tutor, setTutor] = useState<Tutor | null>(null);
+  const [tutor, setTutor] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -92,8 +92,8 @@ const TutorDetail: React.FC = () => {
 
       try {
         const response = await usersAPI.getUserById(id);
-        if (response.data.success) {
-          setTutor(response.data.user as Tutor);
+        if (response.data.success && response.data.user) {
+          setTutor(response.data.user);
         } else {
           setError('無法獲取導師資料');
         }
@@ -164,11 +164,11 @@ const TutorDetail: React.FC = () => {
       setSaving(true);
       const response = await usersAPI.updateUser(tutor._id, {
         ...tutor,
-        ratingScore: Number(tutor.ratingScore),
-        ratingCount: Number(tutor.ratingCount),
-        vipLevel: Number(tutor.vipLevel),
-        topLevel: Number(tutor.topLevel),
-        promotionLevel: Number(tutor.promotionLevel),
+        ratingScore: Number(tutor.ratingScore || 0),
+        ratingCount: Number(tutor.ratingCount || 0),
+        vipLevel: Number(tutor.vipLevel || 0),
+        topLevel: Number(tutor.topLevel || 0),
+        promotionLevel: Number(tutor.promotionLevel || 0),
       });
 
       if (response.data.success) {
@@ -263,7 +263,7 @@ const TutorDetail: React.FC = () => {
                 label="評分分數"
                 type="number"
                 name="ratingScore"
-                value={tutor.ratingScore}
+                value={tutor.ratingScore || 0}
                 onChange={handleChange}
                 inputProps={{ min: 0, max: 5, step: 0.1 }}
                 helperText="評分範圍：0-5"
@@ -275,7 +275,7 @@ const TutorDetail: React.FC = () => {
                 label="評價數量"
                 type="number"
                 name="ratingCount"
-                value={tutor.ratingCount}
+                value={tutor.ratingCount || 0}
                 onChange={handleChange}
                 inputProps={{ min: 0 }}
                 helperText="評價總數"
@@ -293,7 +293,7 @@ const TutorDetail: React.FC = () => {
                 <InputLabel>付費類型</InputLabel>
                 <Select
                   name="paymentType"
-                  value={tutor.paymentType}
+                  value={tutor.paymentType || 'free'}
                   onChange={handleChange}
                   label="付費類型"
                 >
@@ -308,7 +308,7 @@ const TutorDetail: React.FC = () => {
               <FormControlLabel
                 control={
                   <Switch
-                    checked={tutor.isPaid}
+                    checked={tutor.isPaid || false}
                     onChange={(e) => setTutor({ ...tutor, isPaid: e.target.checked })}
                   />
                 }
@@ -326,7 +326,7 @@ const TutorDetail: React.FC = () => {
               <FormControlLabel
                 control={
                   <Switch
-                    checked={tutor.isVip}
+                    checked={tutor.isVip || false}
                     onChange={(e) => setTutor({ ...tutor, isVip: e.target.checked })}
                   />
                 }
@@ -338,7 +338,7 @@ const TutorDetail: React.FC = () => {
                   label="VIP等級"
                   type="number"
                   name="vipLevel"
-                  value={tutor.vipLevel}
+                  value={tutor.vipLevel || 0}
                   onChange={handleChange}
                   inputProps={{ min: 0, max: 2 }}
                   helperText="VIP等級：0-2"
@@ -350,7 +350,7 @@ const TutorDetail: React.FC = () => {
               <FormControlLabel
                 control={
                   <Switch
-                    checked={tutor.isTop}
+                    checked={tutor.isTop || false}
                     onChange={(e) => setTutor({ ...tutor, isTop: e.target.checked })}
                   />
                 }
@@ -362,7 +362,7 @@ const TutorDetail: React.FC = () => {
                   label="置頂等級"
                   type="number"
                   name="topLevel"
-                  value={tutor.topLevel}
+                  value={tutor.topLevel || 0}
                   onChange={handleChange}
                   inputProps={{ min: 0, max: 2 }}
                   helperText="置頂等級：0-2"
@@ -383,7 +383,7 @@ const TutorDetail: React.FC = () => {
                 label="推廣等級"
                 type="number"
                 name="promotionLevel"
-                value={tutor.promotionLevel}
+                value={tutor.promotionLevel || 0}
                 onChange={handleChange}
                 inputProps={{ min: 0, max: 5 }}
                 helperText="推廣等級：0-5"
