@@ -14,17 +14,23 @@ const getAllTutors = async (req, res) => {
     const limitNum = parseInt(limit) || 15;
     console.log('📊 查詢限制:', limitNum);
 
-    const tutors = await User.find(query)
-      .select('name subject education experience rating avatar isVip isTop')
-      .sort({
-        // 首先按 isVip 排序（true 在前）
-        isVip: -1,
-        // 然後按 isTop 排序（true 在前）
-        isTop: -1,
-        // 最後按評分排序（高分在前）
-        rating: -1
-      })
-      .limit(limitNum);
+    const tutors = await User.aggregate([
+      { $match: query },
+      {
+        $addFields: {
+          // 計算排序分數
+          sortScore: {
+            $add: [
+              { $multiply: [{ $cond: [{ $eq: ['$isVip', true] }, 1000, 0] }, 1] },  // VIP 加 1000 分
+              { $multiply: [{ $cond: [{ $eq: ['$isTop', true] }, 100, 0] }, 1] },   // 置頂加 100 分
+              { $multiply: [{ $ifNull: ['$rating', 0] }, 10] }                       // 評分乘以 10
+            ]
+          }
+        }
+      },
+      { $sort: { sortScore: -1 } },  // 按總分降序排序
+      { $limit: limitNum }
+    ]);
     
     console.log(`✅ 從 MongoDB 找到 ${tutors.length} 個導師`);
 
