@@ -4,10 +4,18 @@ const User = require('../models/User');
 // 回傳所有導師
 const getAllTutors = async (req, res) => {
   try {
-    const { limit } = req.query;
-    console.log('📝 查詢參數:', { limit });
+    const { limit, featured } = req.query;
+    console.log('📝 查詢參數:', { limit, featured });
     
     let query = { userType: 'tutor' };
+    
+    // 如果是 featured 請求，只返回置頂或 VIP 導師
+    if (featured === 'true') {
+      query.$or = [
+        { isTop: true },
+        { isVip: true }
+      ];
+    }
     
     console.log('🔍 MongoDB 查詢條件:', query);
     
