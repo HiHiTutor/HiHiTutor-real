@@ -12,8 +12,9 @@ import { toast } from 'sonner';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Upload } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 // 科目分類
 const SUBJECT_CATEGORIES = {
@@ -76,6 +77,7 @@ interface TutorProfile {
   qualifications: string[];
   hourlyRate: number;
   availableTime: string[];
+  avatar: string;
 }
 
 export default function TutorDashboardPage() {
@@ -91,10 +93,12 @@ export default function TutorDashboardPage() {
     education: '',
     qualifications: [],
     hourlyRate: 0,
-    availableTime: []
+    availableTime: [],
+    avatar: ''
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     fetchTutorProfile();
@@ -143,6 +147,36 @@ export default function TutorDashboardPage() {
     }
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) throw new Error('上傳照片失敗');
+      
+      const data = await response.json();
+      setFormData(prev => ({
+        ...prev,
+        avatar: data.url
+      }));
+      toast.success('照片上傳成功');
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      toast.error('上傳照片失敗');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   if (loading) {
     return <div className="container mx-auto py-8 text-center">載入中...</div>;
   }
@@ -150,6 +184,45 @@ export default function TutorDashboardPage() {
   return (
     <div className="container mx-auto py-8">
       <form onSubmit={handleSubmit} className="space-y-8">
+        {/* 個人照片 */}
+        <Card>
+          <CardHeader>
+            <CardTitle>個人照片</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-6">
+              <div className="relative w-32 h-32 rounded-full overflow-hidden bg-gray-100">
+                {formData.avatar ? (
+                  <Image
+                    src={formData.avatar}
+                    alt="導師照片"
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    <Upload className="w-8 h-8" />
+                  </div>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="avatar">上傳照片</Label>
+                <Input
+                  id="avatar"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  disabled={uploading}
+                  className="w-full"
+                />
+                <p className="text-sm text-gray-500">
+                  建議上傳正方形照片，大小不超過 2MB
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* 教學資料 */}
         <Card>
           <CardHeader>
