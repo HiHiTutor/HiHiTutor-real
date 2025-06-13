@@ -6,21 +6,24 @@ const User = require('../models/User');
 router.get('/', async (req, res) => {
   try {
     const { featured, limit } = req.query;
+    console.log('📝 查詢參數:', { featured, limit });
+    
     let query = { userType: 'tutor' };
-
-    // 如果請求 featured 導師
     if (featured === 'true') {
       query.isTop = true;
     }
-
-    // 設置查詢限制
+    
+    console.log('🔍 MongoDB 查詢條件:', query);
+    
     const limitNum = parseInt(limit) || 15;
+    console.log('📊 查詢限制:', limitNum);
 
     const tutors = await User.find(query)
       .limit(limitNum)
       .select('name subject education experience rating avatar isVip isTop');
+    
+    console.log(`✅ 從 MongoDB 找到 ${tutors.length} 個導師`);
 
-    // 轉換數據格式以匹配前端期望的格式
     const formattedTutors = tutors.map(tutor => ({
       id: tutor._id,
       name: tutor.name,
@@ -33,9 +36,10 @@ router.get('/', async (req, res) => {
       isTop: tutor.isTop || false
     }));
 
+    console.log('📤 返回格式化後的導師數據');
     res.json(formattedTutors);
   } catch (error) {
-    console.error('Error fetching tutors:', error);
+    console.error('❌ 獲取導師數據時出錯:', error);
     res.status(500).json({ message: 'Error fetching tutors' });
   }
 });
@@ -43,13 +47,16 @@ router.get('/', async (req, res) => {
 // GET /api/tutors/recommended
 router.get('/recommended', async (req, res) => {
   try {
+    console.log('🔍 獲取推薦導師');
+    
     const recommendedTutors = await User.find({
       userType: 'tutor',
       'tutorProfile.applicationStatus': 'approved',
       isTop: true
     }).select('name subject education experience rating avatar isVip isTop');
+    
+    console.log(`✅ 從 MongoDB 找到 ${recommendedTutors.length} 個推薦導師`);
 
-    // 轉換數據格式以匹配前端期望的格式
     const formattedTutors = recommendedTutors.map(tutor => ({
       id: tutor._id,
       name: tutor.name,
@@ -62,9 +69,10 @@ router.get('/recommended', async (req, res) => {
       isTop: tutor.isTop || false
     }));
 
+    console.log('📤 返回格式化後的推薦導師數據');
     res.json(formattedTutors);
   } catch (error) {
-    console.error('Error fetching recommended tutors:', error);
+    console.error('❌ 獲取推薦導師時出錯:', error);
     res.status(500).json({ message: 'Error fetching recommended tutors' });
   }
 });
