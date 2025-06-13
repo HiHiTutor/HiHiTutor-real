@@ -16,10 +16,70 @@ const getAllTutors = async (req, res) => {
         { $match: featuredQuery },
         {
           $addFields: {
+            // 計算排序分數
             sortScore: {
               $add: [
-                { $multiply: [{ $cond: [{ $eq: ['$isVip', true] }, 1000, 0] }, 1] },
-                { $multiply: [{ $cond: [{ $eq: ['$isTop', true] }, 100, 0] }, 1] },
+                // VIP置頂 + 高評分 = 10000 + 評分
+                { $multiply: [
+                  { $cond: [
+                    { $and: [
+                      { $eq: ['$isVip', true] },
+                      { $eq: ['$isTop', true] }
+                    ]},
+                    10000,
+                    0
+                  ]},
+                  1
+                ]},
+                // VIP置頂 = 5000
+                { $multiply: [
+                  { $cond: [
+                    { $and: [
+                      { $eq: ['$isVip', true] },
+                      { $eq: ['$isTop', true] }
+                    ]},
+                    5000,
+                    0
+                  ]},
+                  1
+                ]},
+                // 置頂 + 高評分 = 2000 + 評分
+                { $multiply: [
+                  { $cond: [
+                    { $and: [
+                      { $eq: ['$isVip', false] },
+                      { $eq: ['$isTop', true] }
+                    ]},
+                    2000,
+                    0
+                  ]},
+                  1
+                ]},
+                // 置頂 = 1000
+                { $multiply: [
+                  { $cond: [
+                    { $and: [
+                      { $eq: ['$isVip', false] },
+                      { $eq: ['$isTop', true] }
+                    ]},
+                    1000,
+                    0
+                  ]},
+                  1
+                ]},
+                // 普通tutor + 高評分 = 100 + 評分
+                { $multiply: [
+                  { $cond: [
+                    { $and: [
+                      { $eq: ['$isVip', false] },
+                      { $eq: ['$isTop', false] }
+                    ]},
+                    100,
+                    0
+                  ]},
+                  1
+                ]},
+                // 評分
                 { $multiply: [{ $ifNull: ['$rating', 0] }, 10] }
               ]
             }
