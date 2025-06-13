@@ -36,16 +36,11 @@ const getAllTutors = async (req, res) => {
           { $match: query },
           {
             $addFields: {
-              sortScore: {
-                $add: [
-                  { $multiply: [{ $cond: [{ $eq: ['$isVip', true] }, 1000, 0] }, 1] },
-                  { $multiply: [{ $cond: [{ $eq: ['$isTop', true] }, 100, 0] }, 1] },
-                  { $multiply: [{ $ifNull: ['$rating', 0] }, 10] }
-                ]
-              }
+              // 生成隨機數用於評分相同時的排序
+              randomSort: { $rand: {} }
             }
           },
-          { $sort: { sortScore: -1 } },
+          { $sort: { rating: -1, randomSort: 1 } },  // 先按評分降序，評分相同則按隨機數升序
           { $limit: parseInt(limit) || 15 }
         ]);
         
@@ -86,16 +81,11 @@ const getAllTutors = async (req, res) => {
       { $match: query },
       {
         $addFields: {
-          sortScore: {
-            $add: [
-              { $multiply: [{ $cond: [{ $eq: ['$isVip', true] }, 1000, 0] }, 1] },
-              { $multiply: [{ $cond: [{ $eq: ['$isTop', true] }, 100, 0] }, 1] },
-              { $multiply: [{ $ifNull: ['$rating', 0] }, 10] }
-            ]
-          }
+          // 生成隨機數用於評分相同時的排序
+          randomSort: { $rand: {} }
         }
       },
-      { $sort: { sortScore: -1 } },
+      { $sort: { rating: -1, randomSort: 1 } },  // 先按評分降序，評分相同則按隨機數升序
       { $limit: parseInt(limit) || 15 }
     ]);
     
