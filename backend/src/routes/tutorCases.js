@@ -8,7 +8,7 @@ const path = require('path');
 // GET all tutor cases
 router.get('/', getAllTutorCases);
 
-// GET single tutor case
+// GET single tutor case by ID
 router.get('/:id', getTutorCaseById);
 
 // POST new tutor case
