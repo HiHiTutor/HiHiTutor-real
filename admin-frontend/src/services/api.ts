@@ -88,6 +88,13 @@ api.interceptors.response.use(
   }
 );
 
+interface ApiResponse<T> {
+  success: boolean;
+  message?: string;
+  user?: T;
+  data?: T;
+}
+
 // Users API
 interface UserResponse {
   users: User[];
@@ -122,16 +129,18 @@ export const usersAPI = {
     return api.get<UserResponse>(`/admin/users`, { params });
   },
 
-  getUserById: (id: string) => {
-    return api.get<User>(`/admin/users/${id}`);
+  getUserById: async (id: string): Promise<{ data: ApiResponse<User> }> => {
+    const response = await api.get<ApiResponse<User>>(`/admin/users/${id}`);
+    return response;
   },
 
   createUser: (data: CreateUserData) => {
     return api.post<CreateUserResponse>(`/admin/users`, data);
   },
 
-  updateUser: (id: string, data: Partial<User>) => {
-    return api.put<User>(`/admin/users/${id}`, data);
+  updateUser: async (id: string, userData: Partial<User>): Promise<{ data: ApiResponse<User> }> => {
+    const response = await api.put<ApiResponse<User>>(`/admin/users/${id}`, userData);
+    return response;
   },
 
   approveUserUpgrade: (id: string, role: string) => {

@@ -84,6 +84,12 @@ const TutorDetail: React.FC = () => {
 
   useEffect(() => {
     const fetchTutorData = async () => {
+      if (!id) {
+        setError('無效的導師ID');
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await usersAPI.getUserById(id);
         if (response.data.success) {
