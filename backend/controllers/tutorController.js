@@ -18,8 +18,16 @@ const getAllTutors = async (req, res) => {
     console.log('📊 查詢限制:', limitNum);
 
     const tutors = await User.find(query)
-      .limit(limitNum)
-      .select('name subject education experience rating avatar isVip isTop');
+      .select('name subject education experience rating avatar isVip isTop')
+      .sort({
+        // 首先按 isVip 排序（true 在前）
+        isVip: -1,
+        // 然後按 isTop 排序（true 在前）
+        isTop: -1,
+        // 最後按評分排序（高分在前）
+        rating: -1
+      })
+      .limit(limitNum);
     
     console.log(`✅ 從 MongoDB 找到 ${tutors.length} 個導師`);
 
