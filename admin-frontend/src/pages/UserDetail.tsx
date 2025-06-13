@@ -20,42 +20,44 @@ import { usersAPI } from '../services/api';
 import { setSelectedUser } from '../store/slices/userSlice';
 import { User } from '../types';
 
+interface EditFormData {
+  name: string;
+  email: string;
+  phone: string;
+  userType: 'student' | 'tutor' | 'organization' | 'admin';
+  role: 'user' | 'admin';
+  status: 'active' | 'pending' | 'blocked';
+  avatar: string;
+  isActive: boolean;
+  organizationDocuments: {
+    businessRegistration: string;
+    addressProof: string;
+  };
+  tutorProfile: {
+    education: string;
+    experience: string;
+    specialties: string[];
+    documents: string[];
+    applicationStatus: 'pending' | 'approved' | 'rejected';
+  };
+  subjects: string[];
+  teachingAreas: string[];
+  teachingMethods: string[];
+  experience: number;
+  rating: number;
+  introduction: string;
+  qualifications: string[];
+  hourlyRate: number;
+  availableTime: string[];
+}
+
 const UserDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { selectedUser } = useAppSelector((state) => state.users);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editForm, setEditForm] = useState<{
-    name: string;
-    email: string;
-    phone: string;
-    userType: User['userType'];
-    role: string;
-    status: User['status'];
-    avatar: string;
-    isActive: boolean;
-    organizationDocuments: {
-      businessRegistration: string;
-      addressProof: string;
-    };
-    tutorProfile: {
-      education: string;
-      experience: string;
-      specialties: string[];
-      documents: string[];
-      applicationStatus: 'pending' | 'approved' | 'rejected';
-    };
-    subjects: string[];
-    teachingAreas: string[];
-    teachingMethods: string[];
-    experience: number;
-    rating: number;
-    introduction: string;
-    qualifications: string[];
-    hourlyRate: number;
-    availableTime: string[];
-  }>({
+  const [editForm, setEditForm] = useState<EditFormData>({
     name: '',
     email: '',
     phone: '',
@@ -94,36 +96,37 @@ const UserDetail: React.FC = () => {
       if (id) {
         const response = await usersAPI.getUserById(id);
         if (response.data.success && response.data.user) {
-          dispatch(setSelectedUser(response.data.user));
+          const userData = response.data.user;
+          dispatch(setSelectedUser(userData as User));
           setEditForm({
-            name: response.data.user.name,
-            email: response.data.user.email,
-            phone: response.data.user.phone,
-            role: response.data.user.role,
-            userType: response.data.user.userType,
-            status: response.data.user.status,
-            avatar: response.data.user.avatar,
-            isActive: response.data.user.status === 'active',
-            organizationDocuments: response.data.user.organizationDocuments || {
+            name: userData.name,
+            email: userData.email,
+            phone: userData.phone,
+            role: userData.role,
+            userType: userData.userType,
+            status: userData.status,
+            avatar: userData.avatar,
+            isActive: userData.status === 'active',
+            organizationDocuments: userData.organizationDocuments || {
               businessRegistration: '',
               addressProof: ''
             },
-            tutorProfile: response.data.user.tutorProfile || {
+            tutorProfile: userData.tutorProfile || {
               education: '',
               experience: '',
               specialties: [],
               documents: [],
               applicationStatus: 'pending'
             },
-            subjects: response.data.user.subjects || [],
-            teachingAreas: response.data.user.teachingAreas || [],
-            teachingMethods: response.data.user.teachingMethods || [],
-            experience: response.data.user.experience || 0,
-            rating: response.data.user.rating || 0,
-            introduction: response.data.user.introduction || '',
-            qualifications: response.data.user.qualifications || [],
-            hourlyRate: response.data.user.hourlyRate || 0,
-            availableTime: response.data.user.availableTime || []
+            subjects: userData.subjects || [],
+            teachingAreas: userData.teachingAreas || [],
+            teachingMethods: userData.teachingMethods || [],
+            experience: userData.experience || 0,
+            rating: userData.rating || 0,
+            introduction: userData.introduction || '',
+            qualifications: userData.qualifications || [],
+            hourlyRate: userData.hourlyRate || 0,
+            availableTime: userData.availableTime || []
           });
         } else {
           setError('無法獲取用戶資料');
@@ -140,24 +143,54 @@ const UserDetail: React.FC = () => {
     fetchUserData();
   }, [dispatch, id]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!id) return;
+  const handleSubmit = async () => {
+    if (!id) {
+      setError('用戶ID不存在');
+      return;
+    }
 
     try {
       setLoading(true);
-      await usersAPI.updateUser(id, editForm);
-      const response = await usersAPI.getUserById(id);
+      const response = await usersAPI.updateUser(id, editForm as Partial<User>);
       if (response.data.success && response.data.user) {
-        dispatch(setSelectedUser(response.data.user));
+        const userData = response.data.user;
+        dispatch(setSelectedUser(userData as User));
         setIsEditDialogOpen(false);
+        setError(null);
       } else {
-        setError('更新用戶資料失敗');
+        setError(response.data.message || '更新失敗');
       }
-    } catch (error) {
-      setError('更新用戶資料時發生錯誤');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '更新失敗');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    if (name === 'role') {
+      setEditForm(prev => ({
+        ...prev,
+        [name]: value as 'user' | 'admin'
+      }));
+    } else if (name === 'userType') {
+      setEditForm(prev => ({
+        ...prev,
+        [name]: value as 'student' | 'tutor' | 'organization' | 'admin'
+      }));
+    } else if (name === 'status') {
+      setEditForm(prev => ({
+        ...prev,
+        [name]: value as 'active' | 'pending' | 'blocked'
+      }));
+    } else {
+      setEditForm(prev => ({
+        ...prev,
+        [name]: value
+      }));
     }
   };
 
@@ -166,14 +199,10 @@ const UserDetail: React.FC = () => {
       if (id) {
         await usersAPI.approveUserUpgrade(id, type);
         const response = await usersAPI.getUserById(id);
-        if (response.data.success && response.data.user) {
-          dispatch(setSelectedUser(response.data.user));
-        } else {
-          setError('更新用戶資料失敗');
-        }
+        dispatch(setSelectedUser(response.data));
       }
     } catch (error) {
-      setError('更新用戶資料時發生錯誤');
+      console.error('Error approving upgrade:', error);
     }
   };
 
@@ -297,34 +326,30 @@ const UserDetail: React.FC = () => {
               label="Name"
               fullWidth
               value={editForm.name}
-              onChange={(e) =>
-                setEditForm({ ...editForm, name: e.target.value })
-              }
+              onChange={handleInputChange}
+              name="name"
             />
             <TextField
               label="Email"
               fullWidth
               value={editForm.email}
-              onChange={(e) =>
-                setEditForm({ ...editForm, email: e.target.value })
-              }
+              onChange={handleInputChange}
+              name="email"
             />
             <TextField
               label="Phone"
               fullWidth
               value={editForm.phone}
-              onChange={(e) =>
-                setEditForm({ ...editForm, phone: e.target.value })
-              }
+              onChange={handleInputChange}
+              name="phone"
             />
             <TextField
               select
               label="User Type"
               fullWidth
               value={editForm.userType}
-              onChange={(e) =>
-                setEditForm({ ...editForm, userType: e.target.value as User['userType'] })
-              }
+              onChange={handleInputChange}
+              name="userType"
             >
               <MenuItem value="student">Student</MenuItem>
               <MenuItem value="tutor">Tutor</MenuItem>
@@ -335,9 +360,8 @@ const UserDetail: React.FC = () => {
               label="Role"
               fullWidth
               value={editForm.role}
-              onChange={(e) =>
-                setEditForm({ ...editForm, role: e.target.value })
-              }
+              onChange={handleInputChange}
+              name="role"
             >
               <MenuItem value="user">User</MenuItem>
               <MenuItem value="admin">Admin</MenuItem>
@@ -347,9 +371,8 @@ const UserDetail: React.FC = () => {
               label="Status"
               fullWidth
               value={editForm.status}
-              onChange={(e) =>
-                setEditForm({ ...editForm, status: e.target.value as User['status'] })
-              }
+              onChange={handleInputChange}
+              name="status"
             >
               <MenuItem value="active">Active</MenuItem>
               <MenuItem value="pending">Pending</MenuItem>
