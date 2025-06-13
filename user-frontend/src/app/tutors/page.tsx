@@ -172,7 +172,7 @@ export default function TutorsPage() {
       {/* 導師列表 */}
       {loading ? (
         <div className="text-center py-8">載入中...</div>
-      ) : tutors.length === 0 ? (
+      ) : !tutors || tutors.length === 0 ? (
         <div className="text-center py-8">找不到符合條件的導師</div>
       ) : (
         <>
