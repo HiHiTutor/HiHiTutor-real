@@ -159,16 +159,14 @@ export default function TutorDashboardPage() {
     try {
       setLoading(true);
       const response = await fetch('/api/tutors/profile');
-      if (!response.ok) throw new Error('獲取導師資料失敗');
-      
+      if (!response.ok) {
+        throw new Error('獲取資料失敗');
+      }
       const data = await response.json();
-      setFormData({
-        ...data,
-        birthDate: data.birthDate ? new Date(data.birthDate) : undefined
-      });
+      setFormData(data);
     } catch (error) {
-      console.error('Error fetching tutor profile:', error);
-      toast.error('獲取導師資料失敗');
+      console.error('獲取資料失敗:', error);
+      toast.error('獲取資料失敗，請稍後再試');
     } finally {
       setLoading(false);
     }
@@ -282,7 +280,7 @@ export default function TutorDashboardPage() {
   const handleSectionSave = async (section: string, data: Partial<TutorProfile>) => {
     try {
       setSavingSection(section);
-      const response = await fetch('/api/tutor/profile', {
+      const response = await fetch('/api/tutors/profile', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
