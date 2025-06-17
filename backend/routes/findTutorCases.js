@@ -3,6 +3,7 @@ const router = express.Router();
 const TutorCase = require('../models/TutorCase');
 const mongoose = require('mongoose');
 const { verifyToken } = require('../middleware/authMiddleware');
+const CATEGORY_OPTIONS = require('../constants/categoryOptions');
 
 // 測試端點 - 用於診斷問題
 router.get('/test', async (req, res) => {
@@ -332,6 +333,116 @@ router.post('/', verifyToken, async (req, res) => {
     res.status(500).json({ 
       success: false, 
       message: '建立學生案例失敗',
+      error: err.message
+    });
+  }
+});
+
+// GET 搜尋導師案例
+router.get('/search', async (req, res) => {
+  console.log('🔍 Search request received:', req.query);
+  
+  try {
+    const {
+      keyword,      // 關鍵字搜尋 (標題、描述)
+      subject,      // 科目代碼
+      subjects,     // 多個科目代碼
+      region,       // 地區
+      minPrice,     // 最低價格
+      maxPrice,     // 最高價格
+      sortBy = 'createdAt', // 排序欄位
+      sortOrder = 'desc',   // 排序方向
+      page = 1,     // 頁碼
+      limit = 20    // 每頁數量
+    } = req.query;
+
+    // 構建查詢條件
+    const query = { isApproved: true }; // 只搜尋已審批的案例
+
+    // 關鍵字搜尋
+    if (keyword) {
+      query.$or = [
+        { title: { $regex: keyword, $options: 'i' } },
+        { description: { $regex: keyword, $options: 'i' } }
+      ];
+    }
+
+    // 科目搜尋
+    if (subject) {
+      // 驗證科目代碼是否有效
+      const isValidSubject = Object.values(CATEGORY_OPTIONS).some(category => 
+        category.subjects.some(s => s.value === subject)
+      );
+      
+      if (isValidSubject) {
+        query.subject = subject;
+      }
+    }
+
+    if (subjects) {
+      const subjectArray = subjects.split(',');
+      // 過濾出有效的科目代碼
+      const validSubjects = subjectArray.filter(subject => 
+        Object.values(CATEGORY_OPTIONS).some(category => 
+          category.subjects.some(s => s.value === subject)
+        )
+      );
+      
+      if (validSubjects.length > 0) {
+        query.subjects = { $in: validSubjects };
+      }
+    }
+
+    // 地區搜尋
+    if (region) {
+      query.region = region;
+    }
+
+    // 價格範圍
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = Number(minPrice);
+      if (maxPrice) query.price.$lte = Number(maxPrice);
+    }
+
+    // 計算分頁
+    const skip = (page - 1) * limit;
+
+    // 執行查詢
+    const [cases, total] = await Promise.all([
+      TutorCase.find(query)
+        .sort({ [sortBy]: sortOrder === 'desc' ? -1 : 1 })
+        .skip(skip)
+        .limit(Number(limit)),
+      TutorCase.countDocuments(query)
+    ]);
+
+    // 獲取所有可用的科目選項
+    const availableSubjects = Object.values(CATEGORY_OPTIONS).reduce((acc, category) => {
+      return [...acc, ...category.subjects];
+    }, []);
+
+    res.json({
+      success: true,
+      data: {
+        cases,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: Math.ceil(total / limit)
+        },
+        filters: {
+          subjects: availableSubjects
+        }
+      }
+    });
+
+  } catch (err) {
+    console.error('❌ Search error:', err);
+    res.status(500).json({
+      success: false,
+      message: '搜尋失敗',
       error: err.message
     });
   }
