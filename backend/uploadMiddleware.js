@@ -2,6 +2,8 @@ const multer = require('multer');
 const path = require('path');
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
 const { s3Client, BUCKET_NAME } = require('./config/s3');
+const UploadLog = require('./models/UploadLog');
+const User = require('./models/User');
 
 // 處理檔案名稱，移除特殊字元
 const sanitizeFileName = (fileName) => {
@@ -82,6 +84,49 @@ const uploadToS3 = async (req, res) => {
     const url = `https://${BUCKET_NAME}.s3.ap-southeast-2.amazonaws.com/${key}`;
     
     console.log('✅ S3 上傳成功:', { key, url });
+
+    // 記錄 UploadLog
+    try {
+      // 從 JWT token 中取得用戶 ID
+      const tokenUserId = req.userId;
+      
+      if (tokenUserId && tokenUserId !== 'unknown') {
+        // 查詢用戶資料以取得 userNumber
+        const user = await User.findById(tokenUserId);
+        if (user && user.userId) {
+          // 判斷上傳類型
+          let uploadType = 'general';
+          if (req.file.mimetype === 'application/pdf') {
+            uploadType = 'document';
+          } else if (req.file.mimetype.startsWith('image/')) {
+            uploadType = 'image';
+          }
+
+          // 建立 UploadLog 記錄
+          const uploadLog = new UploadLog({
+            userId: tokenUserId,
+            userNumber: user.userId,
+            fileUrl: url,
+            type: uploadType
+          });
+
+          await uploadLog.save();
+          console.log('✅ UploadLog 記錄已建立:', {
+            userId: tokenUserId,
+            userNumber: user.userId,
+            fileUrl: url,
+            type: uploadType
+          });
+        } else {
+          console.log('⚠️ 無法找到用戶資料，跳過 UploadLog 記錄');
+        }
+      } else {
+        console.log('⚠️ 無法取得用戶 ID，跳過 UploadLog 記錄');
+      }
+    } catch (logError) {
+      console.error('❌ 記錄 UploadLog 失敗:', logError);
+      // 不影響上傳成功，只記錄錯誤
+    }
     
     res.json({
       success: true,

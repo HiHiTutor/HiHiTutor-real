@@ -10,6 +10,10 @@ const tutorApplicationSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  userNumber: {
+    type: String,
+    required: true
+  },
   name: {
     type: String,
     required: true

@@ -64,6 +64,15 @@ const submitTutorApplication = async (req, res) => {
       });
     }
 
+    // 從用戶資料中取得 userNumber (userId)
+    const userNumber = user.userId;
+    if (!userNumber) {
+      return res.status(400).json({
+        success: false,
+        message: '用戶編號不存在'
+      });
+    }
+
     // 生成申請 ID
     const applicationCount = await TutorApplication.countDocuments();
     const applicationId = `TA${String(applicationCount + 1).padStart(3, '0')}`;
@@ -72,6 +81,7 @@ const submitTutorApplication = async (req, res) => {
     const newApplication = new TutorApplication({
       id: applicationId,
       userId,
+      userNumber,
       name: user.name,
       email: user.email,
       phone: user.phone,
