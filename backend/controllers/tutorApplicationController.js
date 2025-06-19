@@ -213,9 +213,27 @@ const getAllApplications = (req, res) => {
   }
 };
 
-const getAllTutorApplications = (req, res) => {
-  const applications = loadApplications();
-  res.json({ success: true, applications });
+const getAllTutorApplications = async (req, res) => {
+  try {
+    const applications = loadApplications();
+    
+    // 按 createdAt 倒序排列
+    const sortedApplications = applications.sort((a, b) => {
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+    
+    res.status(200).json({ 
+      success: true, 
+      data: sortedApplications 
+    });
+  } catch (error) {
+    console.error('❌ 無法獲取導師申請列表:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: '無法獲取導師申請列表', 
+      error: error.message 
+    });
+  }
 };
 
 module.exports = {
