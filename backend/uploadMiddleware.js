@@ -47,13 +47,26 @@ const upload = multer({
 // 上傳到 S3 的函數
 const uploadToS3 = async (req, res) => {
   try {
+    if (!req.file) {
+      console.log('❌ 沒有接收到檔案');
+      return res.status(400).json({ 
+        success: false, 
+        message: '沒有上傳任何文件' 
+      });
+    }
+
+    console.log('📁 接收到檔案:', {
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size
+    });
+
     const userId = req.userId || 'unknown';
-    const originalName = req.file.originalname;
     const timestamp = Date.now();
     
     console.log('🧾 上傳用戶 userId:', userId);
     
-    const key = `uploads/user-docs/${userId}/${timestamp}-${originalName}`;
+    const key = `uploads/user-docs/${userId}/${timestamp}-${req.file.originalname}`;
     console.log('📁 最終上傳用的檔名 key:', key);
 
     const command = new PutObjectCommand({
