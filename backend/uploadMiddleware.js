@@ -63,9 +63,17 @@ const uploadToS3 = async (file, req) => {
       try {
         const token = req.headers.authorization.split(' ')[1];
         if (token) {
-          const decoded = jwt.verify(token, process.env.JWT_SECRET);
-          if (decoded?.userId) {
-            userId = decoded.userId;
+          const jwtSecret = process.env.JWT_SECRET || process.env.REACT_APP_JWT_SECRET;
+          if (!jwtSecret) {
+            console.log('⚠️ JWT_SECRET 環境變數未設定，使用 unknown 用戶');
+          } else {
+            const decoded = jwt.verify(token, jwtSecret);
+            if (decoded?.userId) {
+              userId = decoded.userId;
+              console.log('✅ 成功從 JWT token 解析到 userId:', userId);
+            } else {
+              console.log('⚠️ JWT token 中沒有 userId，使用 unknown 用戶');
+            }
           }
         }
       } catch (jwtError) {
