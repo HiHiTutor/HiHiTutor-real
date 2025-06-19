@@ -37,10 +37,11 @@ router.post('/', verifyToken, upload.single('file'), async (req, res) => {
     });
     
   } catch (err) {
-    console.error('❌ 文件上傳失敗:', err);
-    res.status(500).json({ 
-      success: false, 
-      message: `文件上傳失敗: ${err.message}` 
+    console.error('🛑 上傳失敗詳情：', err);
+    res.status(500).json({
+      success: false,
+      message: '上傳失敗',
+      error: err.message || '未知錯誤'
     });
   }
 });
