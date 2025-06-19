@@ -13,6 +13,7 @@ import {
   People as PeopleIcon,
   Description as DescriptionIcon,
   BarChart as BarChartIcon,
+  School as SchoolIcon,
 } from '@mui/icons-material';
 
 const drawerWidth = 240;
@@ -26,6 +27,7 @@ const menuItems = [
   { text: 'Users', icon: <PeopleIcon />, path: '/users' },
   { text: 'Cases', icon: <DescriptionIcon />, path: '/cases' },
   { text: 'Statistics', icon: <BarChartIcon />, path: '/statistics' },
+  { text: '導師申請審核', icon: <SchoolIcon />, path: '/tutor-applications' },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ open }) => {

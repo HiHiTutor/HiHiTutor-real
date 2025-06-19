@@ -12,6 +12,7 @@ import { useAppSelector } from './hooks/redux';
 import CreateUser from './pages/CreateUser';
 import CreateCase from './pages/CreateCase';
 import NotFound from './pages/NotFound';
+import TutorApplications from './pages/TutorApplications';
 
 // Protected Route component
 const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
@@ -44,6 +45,7 @@ const App: React.FC = () => {
       <Route path="/cases/create" element={<ProtectedRoute element={<Layout><CreateCase /></Layout>} />} />
       <Route path="/cases/:id" element={<ProtectedRoute element={<Layout><CaseDetail /></Layout>} />} />
       <Route path="/statistics" element={<ProtectedRoute element={<Layout><Statistics /></Layout>} />} />
+      <Route path="/tutor-applications" element={<ProtectedRoute element={<Layout><TutorApplications /></Layout>} />} />
       
       {/* Fallback route */}
       <Route path="*" element={<NotFound />} />
