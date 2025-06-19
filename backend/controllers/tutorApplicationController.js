@@ -3,6 +3,7 @@ const path = require('path');
 const userRepository = require('../repositories/UserRepository');
 const TutorApplication = require('../models/TutorApplication');
 const User = require('../models/User');
+const mongoose = require('mongoose');
 
 // 載入申請記錄（保留作為備用）
 const loadApplications = () => {
@@ -119,26 +120,39 @@ const reviewTutorApplication = async (req, res) => {
     const appId = req.params.id;
     const { status, remarks } = req.body;
 
+    // 1. 取得對應的 TutorApplication 記錄
     const application = await TutorApplication.findOne({ id: appId });
     if (!application) {
-      return res.status(404).json({ message: '申請不存在' });
+      return res.status(404).json({ 
+        success: false,
+        message: '申請不存在' 
+      });
     }
 
+    // 2. 更新其 status 和 remarks
     application.status = status || 'pending';
     application.reviewedAt = new Date();
     application.remarks = remarks || '';
 
     await application.save();
 
-    // 根據審核結果更新用戶資料
+    // 3. 根據審核結果更新用戶資料
     if (status === 'approved') {
-      // 當 status 被更新為 "approved" 時
       console.log('[✅] 申請已批准，準備升級用戶為導師');
       
-      // 1. 從 TutorApplication 找出對應的 userId
+      // 用 application.userId 去 User collection
       const userId = application.userId;
       
-      // 2. 更新 User collection 中該 user
+      // 確保 userId 是有效的 ObjectId 格式
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        console.log('[❌] 無效的 userId 格式:', userId);
+        return res.status(400).json({
+          success: false,
+          message: '無效的用戶 ID 格式'
+        });
+      }
+
+      // 將 userType 改為 "tutor"，將 tutorProfile.applicationStatus 改為 "approved"
       const updatedUser = await User.findByIdAndUpdate(
         userId,
         {
@@ -147,7 +161,10 @@ const reviewTutorApplication = async (req, res) => {
             'tutorProfile.applicationStatus': 'approved'
           }
         },
-        { new: true }
+        { 
+          new: true,
+          runValidators: true 
+        }
       );
 
       if (updatedUser) {
@@ -158,13 +175,26 @@ const reviewTutorApplication = async (req, res) => {
         });
       } else {
         console.log('[❌] 用戶升級失敗: 找不到用戶', userId);
+        return res.status(404).json({
+          success: false,
+          message: '找不到對應的用戶'
+        });
       }
     } else if (status === 'rejected') {
-      // 如 status 被設為 "rejected"
       console.log('[❌] 申請被拒絕，更新用戶狀態');
       
       const userId = application.userId;
       
+      // 確保 userId 是有效的 ObjectId 格式
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        console.log('[❌] 無效的 userId 格式:', userId);
+        return res.status(400).json({
+          success: false,
+          message: '無效的用戶 ID 格式'
+        });
+      }
+
+      // 只更新 tutorProfile.applicationStatus 為 "rejected"
       const updatedUser = await User.findByIdAndUpdate(
         userId,
         {
@@ -172,7 +202,10 @@ const reviewTutorApplication = async (req, res) => {
             'tutorProfile.applicationStatus': 'rejected'
           }
         },
-        { new: true }
+        { 
+          new: true,
+          runValidators: true 
+        }
       );
 
       if (updatedUser) {
@@ -183,15 +216,25 @@ const reviewTutorApplication = async (req, res) => {
         });
       } else {
         console.log('[❌] 用戶狀態更新失敗: 找不到用戶', userId);
+        return res.status(404).json({
+          success: false,
+          message: '找不到對應的用戶'
+        });
       }
     }
 
-    res.json({ success: true, application });
+    res.json({ 
+      success: true, 
+      application,
+      message: status === 'approved' ? '申請已批准，用戶已升級為導師' : 
+               status === 'rejected' ? '申請已拒絕' : '申請狀態已更新'
+    });
   } catch (error) {
     console.error('審核申請失敗:', error);
     res.status(500).json({ 
       success: false, 
-      message: '審核申請失敗' 
+      message: '審核申請失敗',
+      error: error.message 
     });
   }
 };
