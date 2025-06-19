@@ -88,7 +88,12 @@ exports.upgradeToTutor = async (req, res) => {
 const upgradeTutor = async (req, res) => {
   try {
     const userId = req.params.id;
-    const updates = req.body;
+    const {
+      gender, birthDate, teachingExperienceYears, educationLevel,
+      subjects, examResults, teachingAreas, availableTime,
+      teachingMethods, classType, sessionRate, introduction,
+      courseFeatures, documents
+    } = req.body;
 
     // 檢查用戶是否存在
     const user = await User.findById(userId);
@@ -101,22 +106,35 @@ const upgradeTutor = async (req, res) => {
       return res.status(400).json({ error: '只有 student 用戶可以申請升級為導師' });
     }
 
-    // 處理 tutorProfile 資料，確保符合 Schema 定義
-    const tutorProfileData = {
-      ...updates.tutorProfile,
-      // 補充缺失欄位
-      displayPublic: updates.tutorProfile.displayPublic ?? true,
-      applicationStatus: updates.tutorProfile.applicationStatus ?? 'notApplied',
-      // 處理 birthDate 型別轉換
-      birthDate: updates.tutorProfile.birthDate ? new Date(updates.tutorProfile.birthDate) : undefined
-    };
+    // 驗證必要欄位
+    if (!subjects || !Array.isArray(subjects) || subjects.length === 0) {
+      return res.status(400).json({ error: 'subjects 必須為非空陣列' });
+    }
 
+    if (!sessionRate || sessionRate < 100) {
+      return res.status(400).json({ error: 'sessionRate 不得少於 100' });
+    }
+
+    // 更新 tutorProfile 資料
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
         $set: {
-          userType: 'tutor',
-          'tutorProfile': tutorProfileData
+          'tutorProfile.gender': gender,
+          'tutorProfile.birthDate': birthDate ? new Date(birthDate) : undefined,
+          'tutorProfile.teachingExperienceYears': teachingExperienceYears,
+          'tutorProfile.educationLevel': educationLevel,
+          'tutorProfile.subjects': subjects,
+          'tutorProfile.examResults': examResults,
+          'tutorProfile.teachingAreas': teachingAreas,
+          'tutorProfile.availableTime': availableTime,
+          'tutorProfile.teachingMethods': teachingMethods,
+          'tutorProfile.classType': classType,
+          'tutorProfile.sessionRate': sessionRate,
+          'tutorProfile.introduction': introduction,
+          'tutorProfile.courseFeatures': courseFeatures,
+          'tutorProfile.documents': documents,
+          'tutorProfile.applicationStatus': 'pending'
         }
       },
       { new: true }
@@ -126,7 +144,10 @@ const upgradeTutor = async (req, res) => {
       return res.status(404).json({ message: '找不到用戶' });
     }
 
-    res.status(200).json({ message: '升級為導師成功', user: updatedUser });
+    res.status(200).json({ 
+      success: true, 
+      message: '升級資料已提交' 
+    });
   } catch (error) {
     console.error('升級導師錯誤:', error);
     res.status(500).json({ message: '升級導師失敗', error: error.message });

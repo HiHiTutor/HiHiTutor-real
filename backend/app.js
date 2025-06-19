@@ -28,6 +28,7 @@ const adminRoutes = require('./routes/admin');
 const adminAuthRoutes = require('./routes/adminAuth');
 const tutorApplicationsRouter = require('./routes/tutorApplications');
 const uploadRouter = require('./routes/upload');
+const usersRouter = require('./routes/users');
 
 const app = express();
 
@@ -174,6 +175,7 @@ app.use('/api/articles', articlesRoutes);
 app.use('/api/regions', regionsRouter);
 app.use('/api/tutor-applications', tutorApplicationsRouter);
 app.use('/api/upload', uploadRouter);
+app.use('/api/users', usersRouter);
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
