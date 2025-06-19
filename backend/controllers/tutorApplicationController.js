@@ -1,8 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 const userRepository = require('../repositories/UserRepository');
+const TutorApplication = require('../models/TutorApplication');
 
-// 載入申請記錄
+// 載入申請記錄（保留作為備用）
 const loadApplications = () => {
   try {
     const data = fs.readFileSync(path.join(__dirname, '../data/tutorApplications.json'), 'utf8');
@@ -13,7 +14,7 @@ const loadApplications = () => {
   }
 };
 
-// 儲存申請記錄
+// 儲存申請記錄（保留作為備用）
 const saveApplications = (applications) => {
   try {
     fs.writeFileSync(
@@ -40,13 +41,11 @@ const submitTutorApplication = async (req, res) => {
       });
     }
 
-    // 載入申請記錄
-    const applications = loadApplications();
-    
     // 檢查是否已有待審核的申請
-    const existingApplication = applications.find(
-      app => app.userId === userId && app.status === 'pending'
-    );
+    const existingApplication = await TutorApplication.findOne({
+      userId: userId,
+      status: 'pending'
+    });
 
     if (existingApplication) {
       return res.status(400).json({
@@ -65,9 +64,13 @@ const submitTutorApplication = async (req, res) => {
       });
     }
 
+    // 生成申請 ID
+    const applicationCount = await TutorApplication.countDocuments();
+    const applicationId = `TA${String(applicationCount + 1).padStart(3, '0')}`;
+
     // 創建新申請
-    const newApplication = {
-      id: `TA${String(applications.length + 1).padStart(3, '0')}`,
+    const newApplication = new TutorApplication({
+      id: applicationId,
       userId,
       name: user.name,
       email: user.email,
@@ -76,14 +79,10 @@ const submitTutorApplication = async (req, res) => {
       experience,
       subjects,
       documents,
-      status: 'pending',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
+      status: 'pending'
+    });
 
-    // 儲存申請
-    applications.push(newApplication);
-    saveApplications(applications);
+    await newApplication.save();
 
     // 更新用戶升級狀態
     user.upgradeRequested = true;
@@ -105,35 +104,42 @@ const submitTutorApplication = async (req, res) => {
 
 // 2. 審核導師申請
 const reviewTutorApplication = async (req, res) => {
-  const applications = loadApplications();
-  const appId = req.params.id;
-  const { status, remarks } = req.body;
+  try {
+    const appId = req.params.id;
+    const { status, remarks } = req.body;
 
-  const app = applications.find(a => a.id === appId);
-  if (!app) {
-    return res.status(404).json({ message: '申請不存在' });
-  }
-
-  app.status = status || 'pending';
-  app.reviewedAt = new Date().toISOString();
-  app.remarks = remarks || '';
-
-  // 自動升級 userType
-  if (status === 'approved') {
-    const user = await userRepository.getUserById(app.userId);
-    console.log('[升級用戶]', user);
-    if (user) {
-      user.userType = 'tutor';
-      await userRepository.updateUser(user);
-      console.log('[升級完成]', user);
-    } else {
-      console.log('[升級失敗] 找不到 user', app.userId);
+    const application = await TutorApplication.findOne({ id: appId });
+    if (!application) {
+      return res.status(404).json({ message: '申請不存在' });
     }
+
+    application.status = status || 'pending';
+    application.reviewedAt = new Date();
+    application.remarks = remarks || '';
+
+    await application.save();
+
+    // 自動升級 userType
+    if (status === 'approved') {
+      const user = await userRepository.getUserById(application.userId);
+      console.log('[升級用戶]', user);
+      if (user) {
+        user.userType = 'tutor';
+        await userRepository.updateUser(user);
+        console.log('[升級完成]', user);
+      } else {
+        console.log('[升級失敗] 找不到 user', application.userId);
+      }
+    }
+
+    res.json({ success: true, application });
+  } catch (error) {
+    console.error('審核申請失敗:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: '審核申請失敗' 
+    });
   }
-
-  saveApplications(applications);
-
-  res.json({ success: true, application: app });
 };
 
 // 3. 手動創建導師用戶
@@ -197,9 +203,9 @@ const createTutorUser = async (req, res) => {
 };
 
 // 獲取所有申請記錄
-const getAllApplications = (req, res) => {
+const getAllApplications = async (req, res) => {
   try {
-    const applications = loadApplications();
+    const applications = await TutorApplication.find().sort({ createdAt: -1 });
     res.json({
       success: true,
       data: applications
@@ -215,16 +221,11 @@ const getAllApplications = (req, res) => {
 
 const getAllTutorApplications = async (req, res) => {
   try {
-    const applications = loadApplications();
-    
-    // 按 createdAt 倒序排列
-    const sortedApplications = applications.sort((a, b) => {
-      return new Date(b.createdAt) - new Date(a.createdAt);
-    });
+    const applications = await TutorApplication.find().sort({ createdAt: -1 });
     
     res.status(200).json({ 
       success: true, 
-      data: sortedApplications 
+      data: applications 
     });
   } catch (error) {
     console.error('❌ 無法獲取導師申請列表:', error);
