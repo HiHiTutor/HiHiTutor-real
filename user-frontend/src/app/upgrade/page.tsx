@@ -85,7 +85,7 @@ export default function UpgradePage() {
       const uploadedUrls: string[] = [];
       for (const file of formData.files) {
         const formDataObj = new FormData();
-        formDataObj.append("files", file);
+        formDataObj.append("file", file);
         
         const res = await fetch(`${API_BASE}/api/upload`, {
           method: "POST",
@@ -101,8 +101,8 @@ export default function UpgradePage() {
         }
 
         const data = await res.json();
-        if (data.success && data.files && data.files.length > 0) {
-          uploadedUrls.push(data.files[0].url);
+        if (data.success && data.url) {
+          uploadedUrls.push(data.url);
         } else {
           throw new Error("檔案上傳失敗");
         }
