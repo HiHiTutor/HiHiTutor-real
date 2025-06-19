@@ -144,9 +144,13 @@ const userSchema = new mongoose.Schema({
     }],
     sessionRate: {
       type: Number,
-      required: true,
+      required: function () {
+        return this.userType === 'tutor';
+      },
       validate: {
-        validator: v => v >= 100,
+        validator: function(v) {
+          return this.userType !== 'tutor' || (v >= 100);
+        },
         message: '堂費不能少於 100 元'
       }
     },
