@@ -601,14 +601,17 @@ const getProfile = (req, res) => {
     return res.status(404).json({ message: 'User not found' });
   }
 
-  const { id, name, email, phone, role } = user;
-
   res.json({
-    id,
-    name,
-    email,
-    phone,
-    role
+    id: user._id,
+    userId: user.userId,
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    userType: user.userType,
+    role: user.role,
+    status: user.status,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt
   });
 };
 
