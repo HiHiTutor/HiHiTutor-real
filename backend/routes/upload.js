@@ -22,11 +22,9 @@ router.post('/', verifyToken, upload.single('file'), async (req, res) => {
       size: req.file.size
     });
 
-    const userId = req.user.id;
-    
     // 上傳檔案到 S3
     console.log('☁️ 開始上傳到 S3...');
-    const result = await uploadToS3(req.file, userId);
+    const result = await uploadToS3(req.file, req);
     
     console.log('✅ S3 上傳成功:', result);
 

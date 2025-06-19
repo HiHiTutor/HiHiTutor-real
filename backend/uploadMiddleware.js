@@ -45,11 +45,16 @@ const upload = multer({
 });
 
 // 上傳到 S3 的函數
-const uploadToS3 = async (file, userId) => {
+const uploadToS3 = async (file, req) => {
   try {
     const safeFileName = sanitizeFileName(file.originalname);
     const timestamp = Date.now();
-    const key = `uploads/user-docs/${timestamp}-${safeFileName}`;
+    
+    // 使用 userId 生成路徑，如果不存在則使用 unknown
+    const userId = req.user?.userId || 'unknown';
+    const key = `uploads/user-docs/${userId}/${timestamp}-${safeFileName}`;
+    
+    console.log('📁 最終上傳用的檔名 key:', key);
 
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
