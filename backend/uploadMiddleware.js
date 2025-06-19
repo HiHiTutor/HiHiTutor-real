@@ -1,6 +1,5 @@
 const multer = require('multer');
 const path = require('path');
-const jwt = require('jsonwebtoken');
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
 const { s3Client, BUCKET_NAME } = require('./config/s3');
 
@@ -46,61 +45,42 @@ const upload = multer({
 });
 
 // 上傳到 S3 的函數
-const uploadToS3 = async (file, req) => {
+const uploadToS3 = async (req, res) => {
   try {
-    const safeFileName = sanitizeFileName(file.originalname);
+    const userId = req.userId || 'unknown';
+    const originalName = req.file.originalname;
     const timestamp = Date.now();
-    
-    // 嘗試從多個來源取得 userId
-    let userId = 'unknown';
-    
-    // 1. 優先從 req.user.userId 取得
-    if (req.user?.userId) {
-      userId = req.user.userId;
-    }
-    // 2. 如果 req.user.userId 不存在，嘗試從 JWT token 解析
-    else if (req.headers.authorization) {
-      try {
-        const token = req.headers.authorization.split(' ')[1];
-        if (token) {
-          const jwtSecret = process.env.JWT_SECRET || process.env.REACT_APP_JWT_SECRET;
-          if (!jwtSecret) {
-            console.log('⚠️ JWT_SECRET 環境變數未設定，使用 unknown 用戶');
-          } else {
-            const decoded = jwt.verify(token, jwtSecret);
-            if (decoded?.userId) {
-              userId = decoded.userId;
-              console.log('✅ 成功從 JWT token 解析到 userId:', userId);
-            } else {
-              console.log('⚠️ JWT token 中沒有 userId，使用 unknown 用戶');
-            }
-          }
-        }
-      } catch (jwtError) {
-        console.log('⚠️ JWT token 解析失敗，使用 unknown 用戶:', jwtError.message);
-      }
-    }
     
     console.log('🧾 上傳用戶 userId:', userId);
     
-    const key = `uploads/user-docs/${userId}/${timestamp}-${safeFileName}`;
+    const key = `uploads/user-docs/${userId}/${timestamp}-${originalName}`;
     console.log('📁 最終上傳用的檔名 key:', key);
 
     const command = new PutObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,
-      Body: file.buffer,
-      ContentType: file.mimetype
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype
     });
 
     await s3Client.send(command);
     
     // 回傳 S3 的公開 URL
     const url = `https://${BUCKET_NAME}.s3.ap-southeast-2.amazonaws.com/${key}`;
-    return { key, url };
+    
+    console.log('✅ S3 上傳成功:', { key, url });
+    
+    res.json({
+      success: true,
+      url: url
+    });
   } catch (error) {
     console.error('S3 上傳失敗:', error);
-    throw new Error(`S3 上傳失敗: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: '上傳失敗',
+      error: error.message || '未知錯誤'
+    });
   }
 };
 
