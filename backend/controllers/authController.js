@@ -597,6 +597,8 @@ const getProfile = (req, res) => {
 
   const user = getUserById(userId);
 
+  console.log('[DEBUG] user in getProfile =', user);
+
   if (!user) {
     return res.status(404).json({ message: 'User not found' });
   }
