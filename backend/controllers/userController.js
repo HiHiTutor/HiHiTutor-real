@@ -90,13 +90,33 @@ const upgradeTutor = async (req, res) => {
     const userId = req.params.id;
     const updates = req.body;
 
+    // 檢查用戶是否存在
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: '找不到用戶' });
+    }
+
+    // 檢查用戶類型，只有 student 可以申請升級
+    if (user.userType !== 'student') {
+      return res.status(400).json({ error: '只有 student 用戶可以申請升級為導師' });
+    }
+
+    // 處理 tutorProfile 資料，確保符合 Schema 定義
+    const tutorProfileData = {
+      ...updates.tutorProfile,
+      // 補充缺失欄位
+      displayPublic: updates.tutorProfile.displayPublic ?? true,
+      applicationStatus: updates.tutorProfile.applicationStatus ?? 'notApplied',
+      // 處理 birthDate 型別轉換
+      birthDate: updates.tutorProfile.birthDate ? new Date(updates.tutorProfile.birthDate) : undefined
+    };
+
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
         $set: {
           userType: 'tutor',
-          'tutorProfile': updates.tutorProfile,
-          'tutorProfile.applicationStatus': 'pending'
+          'tutorProfile': tutorProfileData
         }
       },
       { new: true }
