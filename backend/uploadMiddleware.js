@@ -15,7 +15,7 @@ const sanitizeFileName = (fileName) => {
   return `${safeName}${ext}`;
 };
 
-// 使用 memoryStorage
+// 使用 memoryStorage 避免 Vercel 本地磁碟寫入問題
 const storage = multer.memoryStorage();
 
 // 檔案過濾器
@@ -46,18 +46,28 @@ const upload = multer({
 
 // 上傳到 S3 的函數
 const uploadToS3 = async (file, userId) => {
-  const safeFileName = sanitizeFileName(file.originalname);
-  const key = `${userId}/${Date.now()}-${safeFileName}`;
+  try {
+    const safeFileName = sanitizeFileName(file.originalname);
+    const timestamp = Date.now();
+    const key = `uploads/user-docs/${timestamp}-${safeFileName}`;
 
-  const command = new PutObjectCommand({
-    Bucket: BUCKET_NAME,
-    Key: key,
-    Body: file.buffer,
-    ContentType: file.mimetype
-  });
+    const command = new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+      ACL: 'public-read' // 設定為公開讀取
+    });
 
-  await s3Client.send(command);
-  return key;
+    await s3Client.send(command);
+    
+    // 回傳 S3 的公開 URL
+    const url = `https://${BUCKET_NAME}.s3.ap-southeast-2.amazonaws.com/${key}`;
+    return { key, url };
+  } catch (error) {
+    console.error('S3 上傳失敗:', error);
+    throw new Error(`S3 上傳失敗: ${error.message}`);
+  }
 };
 
 module.exports = {

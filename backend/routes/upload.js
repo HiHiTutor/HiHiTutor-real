@@ -4,37 +4,43 @@ const { upload, uploadToS3 } = require('../uploadMiddleware');
 const { verifyToken } = require('../middleware/authMiddleware');
 
 // POST /api/upload
-router.post('/', verifyToken, upload.array('files'), async (req, res) => {
+router.post('/', verifyToken, upload.single('file'), async (req, res) => {
   try {
-    const uploadedFiles = req.files;
-    const userId = req.user.id;
+    console.log('📤 開始處理檔案上傳請求');
     
-    if (!uploadedFiles || uploadedFiles.length === 0) {
+    if (!req.file) {
+      console.log('❌ 沒有接收到檔案');
       return res.status(400).json({ 
         success: false, 
         message: '沒有上傳任何文件' 
       });
     }
 
-    // 上傳所有文件到 S3
-    const uploadPromises = uploadedFiles.map(file => uploadToS3(file, userId));
-    const keys = await Promise.all(uploadPromises);
+    console.log('📁 接收到檔案:', {
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size
+    });
 
-    // 回傳所有檔案的資訊
+    const userId = req.user.id;
+    
+    // 上傳檔案到 S3
+    console.log('☁️ 開始上傳到 S3...');
+    const result = await uploadToS3(req.file, userId);
+    
+    console.log('✅ S3 上傳成功:', result);
+
+    // 回傳成功響應
     res.json({
       success: true,
-      files: uploadedFiles.map((f, index) => ({
-        filename: f.originalname,
-        mimetype: f.mimetype,
-        size: f.size,
-        key: keys[index]
-      }))
+      url: result.url
     });
+    
   } catch (err) {
-    console.error('文件上傳失敗:', err);
+    console.error('❌ 文件上傳失敗:', err);
     res.status(500).json({ 
       success: false, 
-      message: '文件上傳失敗' 
+      message: `文件上傳失敗: ${err.message}` 
     });
   }
 });
