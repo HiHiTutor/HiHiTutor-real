@@ -572,6 +572,7 @@ const getMe = async (req, res) => {
     const { password, ...safeUser } = user;
     const userData = {
       id: safeUser.id,
+      userId: safeUser.userId,
       name: safeUser.name || '',
       email: safeUser.email || '',
       phone: safeUser.phone || '',
