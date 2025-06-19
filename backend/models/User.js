@@ -9,13 +9,7 @@ const userSchema = new mongoose.Schema({
   },
   tutorId: {
     type: String,
-    unique: true,
-    sparse: true
-  },
-  orgId: {
-    type: String,
-    unique: true,
-    sparse: true
+    default: null, // 僅適用於 userType 為 'tutor'
   },
   name: {
     type: String,
@@ -24,12 +18,24 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    validate: {
+      validator: function(v) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+      },
+      message: 'Email 格式不正確'
+    }
   },
   phone: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    validate: {
+      validator: function(v) {
+        return /^\d{8}$/.test(v);
+      },
+      message: '請輸入8位數字電話'
+    }
   },
   password: {
     type: String,
@@ -37,7 +43,7 @@ const userSchema = new mongoose.Schema({
   },
   userType: {
     type: String,
-    enum: ['student', 'tutor', 'admin', 'organization'],
+    enum: ['student', 'tutor', 'organization'],
     required: true
   },
   role: {
@@ -53,64 +59,125 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
-  refreshToken: String,
   status: {
     type: String,
-    enum: ['active', 'inactive', 'pending', 'banned'],
+    enum: ['active', 'banned', 'pending'],
     default: 'active'
   },
-  organizationDocuments: {
-    businessRegistration: String,  // 商業登記證
-    addressProof: String          // 地址證明
+  refreshToken: {
+    type: String,
+    default: null, // 預留欄位，支援登入延伸
+  },
+  organizationProfile: {
+    orgId: {
+      type: String,
+      default: null
+    },
+    documents: [
+      {
+        type: {
+          type: String,
+          required: true
+        },
+        url: {
+          type: String,
+          required: true
+        }
+      }
+    ]
   },
   tutorProfile: {
-    education: String,
-    experience: String,
-    specialties: [String],
-    documents: [String],
+    displayPublic: {
+      type: Boolean,
+      default: true
+    },
+    gender: {
+      type: String,
+      enum: ['male', 'female']
+    },
+    birthDate: {
+      type: Date
+    },
+    teachingExperienceYears: {
+      type: Number,
+      default: 0
+    },
+    educationLevel: {
+      type: String
+    },
+    subjects: {
+      type: [String],
+      validate: {
+        validator: function (arr) {
+          return Array.isArray(arr) && arr.length > 0;
+        },
+        message: '請至少填寫一個可教授科目'
+      },
+      required: true
+    },
+    examResults: [{
+      subject: {
+        type: String
+      },
+      grade: {
+        type: String
+      }
+    }],
+    teachingAreas: [{
+      type: String
+    }],
+    availableTime: [{
+      day: {
+        type: String
+      },
+      time: {
+        type: String
+      }
+    }],
+    teachingMethods: [{
+      type: String
+    }],
+    classType: [{
+      type: String
+    }],
+    sessionRate: {
+      type: Number,
+      required: true,
+      validate: {
+        validator: v => v >= 100,
+        message: '堂費不能少於 100 元'
+      }
+    },
+    introduction: {
+      type: String
+    },
+    courseFeatures: {
+      type: String
+    },
+    documents: [{
+      type: {
+        type: String
+      },
+      url: {
+        type: String
+      }
+    }],
+    avatarUrl: {
+      type: String
+    },
     applicationStatus: {
       type: String,
-      enum: ['pending', 'approved', 'rejected'],
-      default: 'pending'
+      enum: ['notApplied', 'pending', 'approved', 'rejected'],
+      default: 'notApplied'
     }
-  },
-  // 導師特有欄位
-  subjects: [{
-    type: String
-  }],
-  teachingAreas: [{
-    type: String
-  }],
-  teachingMethods: [{
-    type: String
-  }],
-  experience: {
-    type: Number,
-    default: 0
   },
   rating: {
     type: Number,
     default: 0
   },
-  introduction: {
-    type: String
-  },
-  qualifications: [{
-    type: String
-  }],
-  hourlyRate: {
-    type: Number
-  },
-  availableTime: [{
-    type: String
-  }],
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
+  totalReviews: {
+    type: Number,
+    default: 0
   }
 }, {
   timestamps: true
@@ -138,15 +205,11 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
   }
 };
 
-// 設置 organization 用戶的默認狀態為 pending
+// 設置管理員用戶的默認狀態
 userSchema.pre('save', function(next) {
-  if (this.isNew && this.userType === 'organization') {
-    this.status = 'pending';
-  }
   // 確保管理員用戶總是 active
-  if (this.userType === 'admin') {
+  if (this.role === 'admin') {
     this.status = 'active';
-    this.role = 'admin';
   }
   next();
 });
