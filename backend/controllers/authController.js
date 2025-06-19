@@ -339,7 +339,9 @@ const register = async (req, res) => {
       // 創建新用戶
       console.log('📝 創建新用戶...');
       const userId = await generateUserId();
-      const newUser = new User({
+      
+      // 準備用戶資料
+      const userData = {
         name,
         email,
         phone,
@@ -347,7 +349,14 @@ const register = async (req, res) => {
         userType,
         role,
         userId
-      });
+      };
+
+      // 當 userType 為 student 時，設定 tutorProfile 為空物件
+      if (userType === 'student') {
+        userData.tutorProfile = {};
+      }
+
+      const newUser = new User(userData);
 
       console.log('🔐 密碼信息（創建前）：', {
         originalPassword: password,
@@ -397,10 +406,10 @@ const register = async (req, res) => {
       });
 
     } catch (error) {
-      console.error("❌ 註冊過程發生錯誤：", error);
+      console.error("❌ 註冊錯誤:", error);
       return res.status(500).json({
         success: false,
-        message: '註冊過程發生錯誤，請稍後再試'
+        message: "註冊過程發生錯誤，請稍後再試"
       });
     }
   } catch (error) {

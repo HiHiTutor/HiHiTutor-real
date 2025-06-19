@@ -107,13 +107,15 @@ const userSchema = new mongoose.Schema({
     },
     subjects: {
       type: [String],
+      required: function () {
+        return this.userType === 'tutor';
+      },
       validate: {
         validator: function (arr) {
-          return Array.isArray(arr) && arr.length > 0;
+          return this.userType !== 'tutor' || (Array.isArray(arr) && arr.length > 0);
         },
         message: '請至少填寫一個可教授科目'
-      },
-      required: true
+      }
     },
     examResults: [{
       subject: {
