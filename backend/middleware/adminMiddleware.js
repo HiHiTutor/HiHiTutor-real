@@ -5,9 +5,21 @@ const verifyAdmin = async (req, res, next) => {
     const userId = req.user?.id;
     const user = await userRepository.getUserById(userId);
 
-    if (!user || !user.isAdmin) {
+    if (!user || user.role !== 'admin') {
+      console.log('❌ Admin 驗證失敗:', {
+        userId,
+        hasUser: !!user,
+        userRole: user?.role,
+        userType: user?.userType
+      });
       return res.status(403).json({ message: '需要管理員權限' });
     }
+
+    console.log('✅ Admin 驗證成功:', {
+      userId,
+      userRole: user.role,
+      userType: user.userType
+    });
 
     next();
   } catch (error) {

@@ -23,7 +23,7 @@ import {
   Cancel as CancelIcon,
   Link as LinkIcon,
 } from '@mui/icons-material';
-import axios from 'axios';
+import api from '../services/api';
 
 interface TutorApplication {
   _id: string;
@@ -58,8 +58,6 @@ const TutorApplications: React.FC = () => {
     severity: 'success',
   });
 
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://hi-hi-tutor-real-backend2.vercel.app/api';
-
   useEffect(() => {
     fetchApplications();
   }, []);
@@ -69,21 +67,43 @@ const TutorApplications: React.FC = () => {
       setLoading(true);
       setError(null);
       
+      console.log('🔍 開始獲取導師申請資料...');
       const token = localStorage.getItem('adminToken');
-      const response = await axios.get(`${API_BASE_URL}/tutor-applications`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      console.log('🔑 Token 存在:', !!token);
+      
+      const response = await api.get('/tutor-applications');
 
+      console.log('✅ API 回應:', response.data);
+      
       if (response.data.success) {
         setApplications(response.data.data);
+        console.log('📋 成功載入申請資料，共', response.data.data.length, '筆');
       } else {
         setError('Failed to fetch applications');
+        console.error('❌ API 回應失敗:', response.data);
       }
-    } catch (error) {
-      console.error('Error fetching applications:', error);
-      setError('Failed to fetch applications');
+    } catch (error: any) {
+      console.error('❌ 獲取申請資料失敗:', error);
+      
+      if (error.response) {
+        console.error('📊 錯誤詳情:', {
+          status: error.response.status,
+          data: error.response.data,
+          headers: error.response.headers
+        });
+        
+        if (error.response.status === 403) {
+          setError('權限不足，請確認您已登入管理員帳號');
+        } else if (error.response.status === 401) {
+          setError('登入已過期，請重新登入');
+        } else {
+          setError(`API 錯誤 (${error.response.status}): ${error.response.data?.message || '未知錯誤'}`);
+        }
+      } else if (error.request) {
+        setError('網路連線錯誤，請檢查網路連線');
+      } else {
+        setError('發生未知錯誤，請稍後再試');
+      }
     } finally {
       setLoading(false);
     }
@@ -91,24 +111,18 @@ const TutorApplications: React.FC = () => {
 
   const handleReview = async (applicationId: string, status: 'approved' | 'rejected') => {
     try {
-      const token = localStorage.getItem('adminToken');
       const remarks = status === 'approved' 
         ? '資料齊全，審核通過' 
         : '不符合資格，請補交資料';
 
-      const response = await axios.put(
-        `${API_BASE_URL}/tutor-applications/${applicationId}/review`,
-        {
-          status,
-          remarks,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      console.log('🔍 開始審核申請:', { applicationId, status, remarks });
+
+      const response = await api.put(`/tutor-applications/${applicationId}/review`, {
+        status,
+        remarks,
+      });
+
+      console.log('✅ 審核回應:', response.data);
 
       if (response.data.success) {
         setSnackbar({
@@ -121,11 +135,19 @@ const TutorApplications: React.FC = () => {
       } else {
         throw new Error(response.data.message || 'Review failed');
       }
-    } catch (error) {
-      console.error('Error reviewing application:', error);
+    } catch (error: any) {
+      console.error('❌ 審核失敗:', error);
+      
+      let errorMessage = '審核失敗，請稍後再試';
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       setSnackbar({
         open: true,
-        message: '審核失敗，請稍後再試',
+        message: errorMessage,
         severity: 'error',
       });
     }
@@ -188,101 +210,107 @@ const TutorApplications: React.FC = () => {
         導師申請審核
       </Typography>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>用戶編號</TableCell>
-              <TableCell>姓名</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>電話</TableCell>
-              <TableCell>可教授科目</TableCell>
-              <TableCell>上傳文件</TableCell>
-              <TableCell>狀態</TableCell>
-              <TableCell>申請時間</TableCell>
-              <TableCell>操作</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {applications.map((application) => (
-              <TableRow key={application._id}>
-                <TableCell>{application.userNumber}</TableCell>
-                <TableCell>{application.name}</TableCell>
-                <TableCell>{application.email}</TableCell>
-                <TableCell>{application.phone}</TableCell>
-                <TableCell>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {application.subjects.map((subject, index) => (
-                      <Chip
-                        key={index}
-                        label={subject}
-                        size="small"
-                        variant="outlined"
-                        color="primary"
-                      />
-                    ))}
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                    {application.documents.map((doc, index) => (
-                      <Link
-                        key={index}
-                        href={doc}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
-                      >
-                        <LinkIcon fontSize="small" />
-                        文件 {index + 1}
-                      </Link>
-                    ))}
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    label={getStatusText(application.status)}
-                    color={getStatusColor(application.status) as any}
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell>
-                  {new Date(application.createdAt).toLocaleDateString('zh-TW')}
-                </TableCell>
-                <TableCell>
-                  {application.status === 'pending' && (
-                    <Box sx={{ display: 'flex', gap: 1 }}>
-                      <Tooltip title="審批通過">
-                        <IconButton
-                          color="success"
-                          size="small"
-                          onClick={() => handleReview(application.id, 'approved')}
-                        >
-                          <CheckCircleIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="拒絕申請">
-                        <IconButton
-                          color="error"
-                          size="small"
-                          onClick={() => handleReview(application.id, 'rejected')}
-                        >
-                          <CancelIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  )}
-                  {application.status !== 'pending' && (
-                    <Typography variant="body2" color="textSecondary">
-                      {application.status === 'approved' ? '已批准' : '已拒絕'}
-                    </Typography>
-                  )}
-                </TableCell>
+      {applications.length === 0 ? (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          目前沒有任何導師申請記錄
+        </Alert>
+      ) : (
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>用戶編號</TableCell>
+                <TableCell>姓名</TableCell>
+                <TableCell>Email</TableCell>
+                <TableCell>電話</TableCell>
+                <TableCell>可教授科目</TableCell>
+                <TableCell>上傳文件</TableCell>
+                <TableCell>狀態</TableCell>
+                <TableCell>申請時間</TableCell>
+                <TableCell>操作</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {applications.map((application) => (
+                <TableRow key={application._id}>
+                  <TableCell>{application.userNumber}</TableCell>
+                  <TableCell>{application.name}</TableCell>
+                  <TableCell>{application.email}</TableCell>
+                  <TableCell>{application.phone}</TableCell>
+                  <TableCell>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {application.subjects.map((subject, index) => (
+                        <Chip
+                          key={index}
+                          label={subject}
+                          size="small"
+                          variant="outlined"
+                          color="primary"
+                        />
+                      ))}
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                      {application.documents.map((doc, index) => (
+                        <Link
+                          key={index}
+                          href={doc}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+                        >
+                          <LinkIcon fontSize="small" />
+                          文件 {index + 1}
+                        </Link>
+                      ))}
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      label={getStatusText(application.status)}
+                      color={getStatusColor(application.status) as any}
+                      size="small"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    {new Date(application.createdAt).toLocaleDateString('zh-TW')}
+                  </TableCell>
+                  <TableCell>
+                    {application.status === 'pending' && (
+                      <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Tooltip title="審批通過">
+                          <IconButton
+                            color="success"
+                            size="small"
+                            onClick={() => handleReview(application.id, 'approved')}
+                          >
+                            <CheckCircleIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="拒絕申請">
+                          <IconButton
+                            color="error"
+                            size="small"
+                            onClick={() => handleReview(application.id, 'rejected')}
+                          >
+                            <CancelIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                    )}
+                    {application.status !== 'pending' && (
+                      <Typography variant="body2" color="textSecondary">
+                        {application.status === 'approved' ? '已批准' : '已拒絕'}
+                      </Typography>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
 
       <Snackbar
         open={snackbar.open}
