@@ -55,8 +55,7 @@ const uploadToS3 = async (file, userId) => {
       Bucket: BUCKET_NAME,
       Key: key,
       Body: file.buffer,
-      ContentType: file.mimetype,
-      ACL: 'public-read' // 設定為公開讀取
+      ContentType: file.mimetype
     });
 
     await s3Client.send(command);
