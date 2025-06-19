@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const userRepository = require('../repositories/UserRepository');
 const TutorApplication = require('../models/TutorApplication');
+const User = require('../models/User');
 
 // 載入申請記錄（保留作為備用）
 const loadApplications = () => {
@@ -129,16 +130,59 @@ const reviewTutorApplication = async (req, res) => {
 
     await application.save();
 
-    // 自動升級 userType
+    // 根據審核結果更新用戶資料
     if (status === 'approved') {
-      const user = await userRepository.getUserById(application.userId);
-      console.log('[升級用戶]', user);
-      if (user) {
-        user.userType = 'tutor';
-        await userRepository.updateUser(user);
-        console.log('[升級完成]', user);
+      // 當 status 被更新為 "approved" 時
+      console.log('[✅] 申請已批准，準備升級用戶為導師');
+      
+      // 1. 從 TutorApplication 找出對應的 userId
+      const userId = application.userId;
+      
+      // 2. 更新 User collection 中該 user
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        {
+          $set: {
+            userType: 'tutor',
+            'tutorProfile.applicationStatus': 'approved'
+          }
+        },
+        { new: true }
+      );
+
+      if (updatedUser) {
+        console.log('[✅] 用戶升級成功:', {
+          userId: updatedUser._id,
+          userType: updatedUser.userType,
+          applicationStatus: updatedUser.tutorProfile?.applicationStatus
+        });
       } else {
-        console.log('[升級失敗] 找不到 user', application.userId);
+        console.log('[❌] 用戶升級失敗: 找不到用戶', userId);
+      }
+    } else if (status === 'rejected') {
+      // 如 status 被設為 "rejected"
+      console.log('[❌] 申請被拒絕，更新用戶狀態');
+      
+      const userId = application.userId;
+      
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        {
+          $set: {
+            'tutorProfile.applicationStatus': 'rejected'
+          }
+        },
+        { new: true }
+      );
+
+      if (updatedUser) {
+        console.log('[✅] 用戶狀態更新成功:', {
+          userId: updatedUser._id,
+          userType: updatedUser.userType,
+          applicationStatus: updatedUser.tutorProfile?.applicationStatus
+        });
+      } else {
+        console.log('[❌] 用戶狀態更新失敗: 找不到用戶', userId);
       }
     }
 
