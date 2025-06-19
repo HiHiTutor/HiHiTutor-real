@@ -85,6 +85,35 @@ exports.upgradeToTutor = async (req, res) => {
   }
 };
 
+const upgradeTutor = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const updates = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        $set: {
+          userType: 'tutor',
+          'tutorProfile': updates.tutorProfile,
+          'tutorProfile.applicationStatus': 'pending'
+        }
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: '找不到用戶' });
+    }
+
+    res.status(200).json({ message: '升級為導師成功', user: updatedUser });
+  } catch (error) {
+    console.error('升級導師錯誤:', error);
+    res.status(500).json({ message: '升級導師失敗', error: error.message });
+  }
+};
+
 module.exports = {
-  getCurrentUser
+  getCurrentUser,
+  upgradeTutor,
 }; 

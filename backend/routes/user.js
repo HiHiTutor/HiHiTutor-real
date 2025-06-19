@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getCurrentUser, upgradeToTutor } = require('../controllers/userController');
+const { getCurrentUser, upgradeTutor } = require('../controllers/userController');
 const { verifyToken } = require('../middleware/authMiddleware');
 const userRepository = require('../repositories/UserRepository');
 const { getMe } = require('../controllers/authController');
@@ -9,7 +9,7 @@ const { getMe } = require('../controllers/authController');
 router.get('/auth/me', verifyToken, getMe);
 
 // 導師升級路由
-router.put('/:id/upgrade', verifyToken, upgradeToTutor);
+router.put('/users/:id/upgrade', upgradeTutor);
 
 // 更新用戶資料
 router.put('/me/update', verifyToken, async (req, res) => {
