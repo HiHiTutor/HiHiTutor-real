@@ -1,5 +1,6 @@
 const multer = require('multer');
 const path = require('path');
+const jwt = require('jsonwebtoken');
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
 const { s3Client, BUCKET_NAME } = require('./config/s3');
 
@@ -50,10 +51,31 @@ const uploadToS3 = async (file, req) => {
     const safeFileName = sanitizeFileName(file.originalname);
     const timestamp = Date.now();
     
-    // 使用 userId 生成路徑，如果不存在則使用 unknown
-    const userId = req.user?.userId || 'unknown';
-    const key = `uploads/user-docs/${userId}/${timestamp}-${safeFileName}`;
+    // 嘗試從多個來源取得 userId
+    let userId = 'unknown';
     
+    // 1. 優先從 req.user.userId 取得
+    if (req.user?.userId) {
+      userId = req.user.userId;
+    }
+    // 2. 如果 req.user.userId 不存在，嘗試從 JWT token 解析
+    else if (req.headers.authorization) {
+      try {
+        const token = req.headers.authorization.split(' ')[1];
+        if (token) {
+          const decoded = jwt.verify(token, process.env.JWT_SECRET);
+          if (decoded?.userId) {
+            userId = decoded.userId;
+          }
+        }
+      } catch (jwtError) {
+        console.log('⚠️ JWT token 解析失敗，使用 unknown 用戶:', jwtError.message);
+      }
+    }
+    
+    console.log('🧾 上傳用戶 userId:', userId);
+    
+    const key = `uploads/user-docs/${userId}/${timestamp}-${safeFileName}`;
     console.log('📁 最終上傳用的檔名 key:', key);
 
     const command = new PutObjectCommand({
