@@ -562,6 +562,8 @@ const getMe = async (req, res) => {
     console.log('[getMe] 正在查找用戶 ID:', req.user.id);
     const user = await userRepository.getUserById(req.user.id);
     console.log('[getMe] 找到用戶:', user);
+    console.log('[getMe] 用戶完整資料:', JSON.stringify(user, null, 2));
+    console.log('[getMe] userId 欄位:', user?.userId);
     
     if (!user) {
       console.log('[getMe] ❌ 找不到用戶');
