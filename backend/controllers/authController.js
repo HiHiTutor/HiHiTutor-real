@@ -471,6 +471,7 @@ const getCurrentUser = async (req, res) => {
     // 移除敏感資料並確保返回所有必要欄位
     const userData = {
       id: user._id,
+      userId: user.userId,
       name: user.name || '',
       email: user.email || '',
       phone: user.phone || '',
