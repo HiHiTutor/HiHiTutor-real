@@ -143,7 +143,8 @@ const loginUser = async (req, res) => {
     console.log("🎟️ 生成 JWT token...");
     const token = jwt.sign(
       { 
-        id: user._id, 
+        id: user._id,
+        userId: user.userId,
         email: user.email,
         phone: user.phone 
       },
