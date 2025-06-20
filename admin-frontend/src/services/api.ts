@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { User, Case, Statistics, DashboardStatistics } from '../types';
+import { User, Case, Statistics, DashboardStatistics, PlatformUsers, PlatformCases } from '../types';
 import { CaseResponse, SingleCaseResponse } from '../types/case';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://hi-hi-tutor-real-backend2.vercel.app/api';
@@ -198,8 +198,8 @@ export const statisticsAPI = {
     
     // 後端返回結構: { success: true, data: { users: {...}, cases: {...} } }
     const responseData = response.data?.data || response.data;
-    const users = responseData?.users || {};
-    const cases = responseData?.cases || {};
+    const users = (responseData?.users || {}) as PlatformUsers;
+    const cases = (responseData?.cases || {}) as PlatformCases;
     
     console.log('Processed statistics:', { users, cases });
     
