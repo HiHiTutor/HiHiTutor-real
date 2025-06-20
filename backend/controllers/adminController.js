@@ -70,11 +70,22 @@ const getAllUsers = async (req, res) => {
 
     const total = await User.countDocuments(query);
 
+    console.log('📊 用戶查詢結果:', {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total,
+      returnedUsers: users.length,
+      query
+    });
+
     res.json({
       users,
-      total,
-      page: parseInt(page),
-      totalPages: Math.ceil(total / limit),
+      pagination: {
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        totalPages: Math.ceil(total / limit)
+      }
     });
   } catch (error) {
     console.error('Error getting users:', error);
