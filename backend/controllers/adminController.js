@@ -53,14 +53,33 @@ const getAllUsers = async (req, res) => {
     const { page = 1, limit = 10, role, status, search } = req.query;
     const query = {};
 
-    if (role) query.role = role;
+    // 使用 userType 來過濾用戶類型（student, tutor, organization, admin）
+    if (role) {
+      if (role === 'admin') {
+        query.role = 'admin'; // admin 用戶的 role 是 'admin'
+      } else {
+        query.userType = role; // student, tutor, organization 用戶的 userType 是對應值
+      }
+    }
+    
     if (status) query.status = status;
+    
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
         { email: { $regex: search, $options: 'i' } },
+        { userId: { $regex: search, $options: 'i' } }, // 也搜尋 userId
       ];
     }
+
+    console.log('🔍 用戶查詢參數:', {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      role,
+      status,
+      search,
+      query
+    });
 
     const users = await User.find(query)
       .skip((page - 1) * limit)
