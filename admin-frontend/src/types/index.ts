@@ -80,8 +80,13 @@ export interface PlatformCases {
 }
 
 export interface Statistics {
-  users: PlatformUsers;
-  cases: PlatformCases;
+  success?: boolean;
+  data?: {
+    users: PlatformUsers;
+    cases: PlatformCases;
+  };
+  users?: PlatformUsers;
+  cases?: PlatformCases;
 }
 
 export interface DashboardStatistics {

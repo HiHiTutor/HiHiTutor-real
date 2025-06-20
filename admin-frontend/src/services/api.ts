@@ -196,9 +196,12 @@ export const statisticsAPI = {
   getPlatformStats: () => api.get<Statistics>('/admin/statistics/platform').then(response => {
     console.log('Raw statistics response:', response.data);
     
-    // Safely extract values with fallbacks
-    const users = response.data?.users || {};
-    const cases = response.data?.cases || {};
+    // 後端返回結構: { success: true, data: { users: {...}, cases: {...} } }
+    const responseData = response.data?.data || response.data;
+    const users = responseData?.users || {};
+    const cases = responseData?.cases || {};
+    
+    console.log('Processed statistics:', { users, cases });
     
     return {
       ...response,
