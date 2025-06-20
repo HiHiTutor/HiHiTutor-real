@@ -14,6 +14,33 @@ const validateUserUpdate = (data) => {
       then: Joi.string().required(),
       otherwise: Joi.string().allow(''),
     }),
+    avatar: Joi.string().allow(''),
+    isActive: Joi.boolean(),
+    organizationDocuments: Joi.object({
+      businessRegistration: Joi.string().allow(''),
+      addressProof: Joi.string().allow('')
+    }),
+    tutorProfile: Joi.object({
+      displayPublic: Joi.boolean(),
+      teachingExperienceYears: Joi.number().min(0),
+      subjects: Joi.array(),
+      examResults: Joi.array(),
+      teachingAreas: Joi.array(),
+      availableTime: Joi.array(),
+      teachingMethods: Joi.array(),
+      classType: Joi.array(),
+      documents: Joi.array(),
+      applicationStatus: Joi.string().valid('pending', 'approved', 'rejected')
+    }),
+    subjects: Joi.array(),
+    teachingAreas: Joi.array(),
+    teachingMethods: Joi.array(),
+    experience: Joi.number().min(0),
+    rating: Joi.number().min(0),
+    introduction: Joi.string().allow(''),
+    qualifications: Joi.array(),
+    hourlyRate: Joi.number().min(0),
+    availableTime: Joi.array()
   });
 
   return schema.validate(data);
