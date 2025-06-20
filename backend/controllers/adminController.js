@@ -149,11 +149,26 @@ const updateUser = async (req, res) => {
       ...(req.body.role === 'admin' ? { userType: 'admin', status: 'active' } : {})
     };
 
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { $set: updateData },
-      { new: true }
-    ).select('-password');
+    // 支援通過 userId 或 MongoDB _id 查找用戶
+    let user;
+    const { id } = req.params;
+    
+    // 檢查是否為 MongoDB ObjectId 格式
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      // 如果是 MongoDB ObjectId，直接使用
+      user = await User.findByIdAndUpdate(
+        id,
+        { $set: updateData },
+        { new: true }
+      ).select('-password');
+    } else {
+      // 如果不是 ObjectId，假設是 userId
+      user = await User.findOneAndUpdate(
+        { userId: id },
+        { $set: updateData },
+        { new: true }
+      ).select('-password');
+    }
 
     if (!user) {
       return res.status(404).json({ 
@@ -161,6 +176,14 @@ const updateUser = async (req, res) => {
         message: 'User not found' 
       });
     }
+
+    console.log('✅ 用戶更新成功:', {
+      _id: user._id,
+      userId: user.userId,
+      name: user.name,
+      email: user.email,
+      userType: user.userType
+    });
 
     res.json({
       success: true,
@@ -177,7 +200,22 @@ const updateUser = async (req, res) => {
 
 const getUserUpgradeDocuments = async (req, res) => {
   try {
-    const documents = await UpgradeDocument.find({ userId: req.params.id });
+    const { id } = req.params;
+    
+    // 支援通過 userId 或 MongoDB _id 查找升級文件
+    let documents;
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      // 如果是 MongoDB ObjectId，先找到用戶的 userId
+      const user = await User.findById(id);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      documents = await UpgradeDocument.find({ userId: user.userId });
+    } else {
+      // 如果不是 ObjectId，假設是 userId
+      documents = await UpgradeDocument.find({ userId: id });
+    }
+    
     res.json(documents);
   } catch (error) {
     console.error('Error getting upgrade documents:', error);
@@ -188,16 +226,35 @@ const getUserUpgradeDocuments = async (req, res) => {
 const approveUserUpgrade = async (req, res) => {
   try {
     const { type } = req.body;
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      {
-        $set: {
-          role: type,
-          upgradeStatus: 'approved',
+    const { id } = req.params;
+    
+    // 支援通過 userId 或 MongoDB _id 查找用戶
+    let user;
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      // 如果是 MongoDB ObjectId，直接使用
+      user = await User.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            role: type,
+            upgradeStatus: 'approved',
+          },
         },
-      },
-      { new: true }
-    ).select('-password');
+        { new: true }
+      ).select('-password');
+    } else {
+      // 如果不是 ObjectId，假設是 userId
+      user = await User.findOneAndUpdate(
+        { userId: id },
+        {
+          $set: {
+            role: type,
+            upgradeStatus: 'approved',
+          },
+        },
+        { new: true }
+      ).select('-password');
+    }
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -213,16 +270,35 @@ const approveUserUpgrade = async (req, res) => {
 const rejectUserUpgrade = async (req, res) => {
   try {
     const { reason } = req.body;
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      {
-        $set: {
-          upgradeStatus: 'rejected',
-          upgradeRejectionReason: reason,
+    const { id } = req.params;
+    
+    // 支援通過 userId 或 MongoDB _id 查找用戶
+    let user;
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      // 如果是 MongoDB ObjectId，直接使用
+      user = await User.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            upgradeStatus: 'rejected',
+            upgradeRejectionReason: reason,
+          },
         },
-      },
-      { new: true }
-    ).select('-password');
+        { new: true }
+      ).select('-password');
+    } else {
+      // 如果不是 ObjectId，假設是 userId
+      user = await User.findOneAndUpdate(
+        { userId: id },
+        {
+          $set: {
+            upgradeStatus: 'rejected',
+            upgradeRejectionReason: reason,
+          },
+        },
+        { new: true }
+      ).select('-password');
+    }
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
