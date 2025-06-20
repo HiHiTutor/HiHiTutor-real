@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const StudentCase = require('../models/StudentCase');
 const TutorCase = require('../models/TutorCase');
 const connectDB = require('../config/db');
+const mongoose = require('mongoose');
 
 // User Management
 const createUser = async (req, res) => {
@@ -83,14 +84,42 @@ const getAllUsers = async (req, res) => {
 
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-password').lean();
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    const { id } = req.params;
+    let user;
+
+    // 檢查是否為 MongoDB ObjectId 格式
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      // 如果是 ObjectId 格式，直接用 _id 查詢
+      user = await User.findById(id).select('-password').lean();
+    } else {
+      // 如果不是 ObjectId 格式，假設是 userId，用 userId 欄位查詢
+      user = await User.findOne({ userId: id }).select('-password').lean();
     }
-    res.json(user);
+
+    if (!user) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'User not found' 
+      });
+    }
+
+    console.log('✅ 找到用戶:', {
+      _id: user._id,
+      userId: user.userId,
+      name: user.name,
+      email: user.email
+    });
+
+    res.json({
+      success: true,
+      user: user
+    });
   } catch (error) {
     console.error('Error getting user:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Internal server error' 
+    });
   }
 };
 
