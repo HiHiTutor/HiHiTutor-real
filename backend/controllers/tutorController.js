@@ -111,7 +111,7 @@ const getAllTutors = async (req, res) => {
           education: tutor.tutorProfile?.education || '未指定',
           experience: tutor.tutorProfile?.experience || '未指定',
           rating: tutor.rating || 0,
-          avatarUrl: tutor.avatar || `https://randomuser.me/api/portraits/${tutor.gender || 'men'}/${Math.floor(Math.random() * 100)}.jpg`,
+          avatarUrl: tutor.avatar || `/avatars/teacher${Math.floor(Math.random() * 6) + 1}.png`,
           isVip: tutor.isVip || false,
           isTop: tutor.isTop || false
         }));
@@ -127,7 +127,7 @@ const getAllTutors = async (req, res) => {
         education: tutor.tutorProfile?.education || '未指定',
         experience: tutor.tutorProfile?.experience || '未指定',
         rating: tutor.rating || 0,
-        avatarUrl: tutor.avatar || `https://randomuser.me/api/portraits/${tutor.gender || 'men'}/${Math.floor(Math.random() * 100)}.jpg`,
+        avatarUrl: tutor.avatar || `/avatars/teacher${Math.floor(Math.random() * 6) + 1}.png`,
         isVip: tutor.isVip || false,
         isTop: tutor.isTop || false
       }));
@@ -158,7 +158,7 @@ const getAllTutors = async (req, res) => {
       education: tutor.tutorProfile?.education || '未指定',
       experience: tutor.tutorProfile?.experience || '未指定',
       rating: tutor.rating || 0,
-      avatarUrl: tutor.avatar || `https://randomuser.me/api/portraits/${tutor.gender || 'men'}/${Math.floor(Math.random() * 100)}.jpg`,
+      avatarUrl: tutor.avatar || `/avatars/teacher${Math.floor(Math.random() * 6) + 1}.png`,
       isVip: tutor.isVip || false,
       isTop: tutor.isTop || false
     }));
@@ -297,10 +297,130 @@ const getTutorDetail = async (req, res) => {
   }
 };
 
+// 獲取當前登入導師的 profile
+const getTutorProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    console.log('🔍 獲取導師 profile:', userId);
+
+    const tutor = await User.findById(userId).select('-password');
+    
+    if (!tutor) {
+      return res.status(404).json({
+        success: false,
+        message: '找不到導師'
+      });
+    }
+
+    if (tutor.userType !== 'tutor') {
+      return res.status(400).json({
+        success: false,
+        message: '該用戶不是導師'
+      });
+    }
+
+    console.log('✅ 導師 profile 獲取成功');
+
+    res.json({
+      success: true,
+      data: tutor
+    });
+  } catch (error) {
+    console.error('❌ 獲取導師 profile 錯誤:', error);
+    res.status(500).json({
+      success: false,
+      message: '獲取導師 profile 失敗',
+      error: error.message
+    });
+  }
+};
+
+// 更新當前登入導師的 profile
+const updateTutorProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const updateData = req.body;
+    
+    console.log('🔍 更新導師 profile:', userId, updateData);
+
+    // 檢查導師是否存在
+    const tutor = await User.findById(userId);
+    
+    if (!tutor) {
+      return res.status(404).json({
+        success: false,
+        message: '找不到導師'
+      });
+    }
+
+    if (tutor.userType !== 'tutor') {
+      return res.status(400).json({
+        success: false,
+        message: '該用戶不是導師'
+      });
+    }
+
+    // 只允許更新特定欄位
+    const allowedFields = [
+      'name',
+      'phone',
+      'avatar',
+      'tutorProfile.gender',
+      'tutorProfile.birthDate',
+      'tutorProfile.teachingExperienceYears',
+      'tutorProfile.educationLevel',
+      'tutorProfile.subjects',
+      'tutorProfile.examResults',
+      'tutorProfile.teachingAreas',
+      'tutorProfile.availableTime',
+      'tutorProfile.teachingMethods',
+      'tutorProfile.classType',
+      'tutorProfile.sessionRate',
+      'tutorProfile.introduction',
+      'tutorProfile.courseFeatures',
+      'tutorProfile.documents',
+      'tutorProfile.displayPublic'
+    ];
+
+    // 過濾允許更新的欄位
+    const filteredData = {};
+    Object.keys(updateData).forEach(key => {
+      if (allowedFields.includes(key)) {
+        filteredData[key] = updateData[key];
+      }
+    });
+
+    // 更新導師資料
+    const updatedTutor = await User.findByIdAndUpdate(
+      userId,
+      { $set: filteredData },
+      { new: true }
+    ).select('-password');
+
+    console.log('✅ 導師 profile 更新成功');
+
+    res.json({
+      success: true,
+      data: updatedTutor,
+      message: '導師資料更新成功'
+    });
+  } catch (error) {
+    console.error('❌ 更新導師 profile 錯誤:', error);
+    res.status(500).json({
+      success: false,
+      message: '更新導師 profile 失敗',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getAllTutors,
   getTutorById,
   getTutorByTutorId,
   getTutors,
-  getTutorDetail
+  getTutorDetail,
+  getTutorProfile,
+  updateTutorProfile
 }; 

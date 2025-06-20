@@ -400,7 +400,7 @@ export default function TutorDashboardPage() {
               <div className="grid grid-cols-3 gap-4">
                 {/* 年份選擇 */}
                 <Select
-                  value={birthYear?.toString()}
+                  value={birthYear?.toString() || ''}
                   onValueChange={(value) => handleBirthDateChange('year', parseInt(value))}
                 >
                   <SelectTrigger>
@@ -417,7 +417,7 @@ export default function TutorDashboardPage() {
 
                 {/* 月份選擇 */}
                 <Select
-                  value={birthMonth?.toString()}
+                  value={birthMonth?.toString() || ''}
                   onValueChange={(value) => handleBirthDateChange('month', parseInt(value))}
                   disabled={!birthYear}
                 >
@@ -435,7 +435,7 @@ export default function TutorDashboardPage() {
 
                 {/* 日期選擇 */}
                 <Select
-                  value={birthDay?.toString()}
+                  value={birthDay?.toString() || ''}
                   onValueChange={(value) => handleBirthDateChange('day', parseInt(value))}
                   disabled={!birthYear || !birthMonth}
                 >
