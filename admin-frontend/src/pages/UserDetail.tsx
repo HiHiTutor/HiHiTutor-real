@@ -186,6 +186,12 @@ const UserDetail: React.FC = () => {
       setLoading(true);
       const response = await usersAPI.updateUser(id, editForm as Partial<User>);
       console.log('✅ 更新用戶回應:', response.data);
+      console.log('✅ 回應結構檢查:', {
+        success: response.data.success,
+        hasData: !!response.data.data,
+        dataType: typeof response.data.data,
+        dataKeys: response.data.data ? Object.keys(response.data.data) : 'no data'
+      });
       
       if (response.data.success && response.data.data) {
         const userData = response.data.data;
@@ -195,7 +201,8 @@ const UserDetail: React.FC = () => {
         setSuccess('用戶更新成功');
         console.log('✅ 用戶更新成功');
       } else {
-        setError(response.data.message || '更新失敗');
+        console.error('❌ 回應結構不符合預期:', response.data);
+        setError(response.data.message || '更新失敗 - 回應結構異常');
       }
     } catch (err: any) {
       console.error('❌ 更新用戶失敗:', err);
