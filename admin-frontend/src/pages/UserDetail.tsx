@@ -183,11 +183,14 @@ const UserDetail: React.FC = () => {
     try {
       setLoading(true);
       const response = await usersAPI.updateUser(id, editForm as Partial<User>);
-      if (response.data.success && response.data.user) {
-        const userData = response.data.user;
+      console.log('✅ 更新用戶回應:', response.data);
+      
+      if (response.data.success && response.data.data) {
+        const userData = response.data.data;
         dispatch(setSelectedUser(userData as User));
         setIsEditDialogOpen(false);
         setError(null);
+        console.log('✅ 用戶更新成功');
       } else {
         setError(response.data.message || '更新失敗');
       }
