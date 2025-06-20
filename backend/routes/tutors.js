@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { getAllTutors, getTutorById, getTutorByTutorId, getTutorProfile, updateTutorProfile } = require('../controllers/tutorController');
-const { verifyToken } = require('../middleware/auth');
+const { verifyToken } = require('../middleware/authMiddleware');
 
 // 公開 API
 router.get('/', getAllTutors);

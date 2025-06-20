@@ -30,11 +30,15 @@ router.get('/', async (req, res) => {
 });
 
 // 根據 ID 取得單篇文章
-router.get('/:id', (req, res) => {
-  const data = JSON.parse(fs.readFileSync(filePath));
-  const article = data.find((a) => a.id === req.params.id);
-  if (article) return res.json(article);
-  res.status(404).json({ message: '找不到文章' });
+router.get('/:id', async (req, res) => {
+  try {
+    const articles = await loadArticles();
+    const article = articles.find((a) => a.id === req.params.id);
+    if (article) return res.json(article);
+    res.status(404).json({ message: '找不到文章' });
+  } catch (err) {
+    res.status(500).json({ message: '載入文章失敗' });
+  }
 });
 
 // 投稿（導師付費才能用）
