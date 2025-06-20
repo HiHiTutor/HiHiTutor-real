@@ -14,6 +14,8 @@ import {
   DialogActions,
   TextField,
   MenuItem,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { usersAPI } from '../services/api';
@@ -87,53 +89,74 @@ const UserDetail: React.FC = () => {
     hourlyRate: 0,
     availableTime: []
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchUserData = async () => {
+    if (!id) {
+      setError('用戶ID不存在');
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
-      if (id) {
-        const response = await usersAPI.getUserById(id);
-        if (response.data.success && response.data.user) {
-          const userData = response.data.user;
-          dispatch(setSelectedUser(userData as User));
-          setEditForm({
-            name: userData.name,
-            email: userData.email,
-            phone: userData.phone,
-            role: userData.role,
-            userType: userData.userType,
-            status: userData.status,
-            avatar: userData.avatar,
-            isActive: userData.status === 'active',
-            organizationDocuments: userData.organizationDocuments || {
-              businessRegistration: '',
-              addressProof: ''
-            },
-            tutorProfile: userData.tutorProfile || {
-              education: '',
-              experience: '',
-              specialties: [],
-              documents: [],
-              applicationStatus: 'pending'
-            },
-            subjects: userData.subjects || [],
-            teachingAreas: userData.teachingAreas || [],
-            teachingMethods: userData.teachingMethods || [],
-            experience: userData.experience || 0,
-            rating: userData.rating || 0,
-            introduction: userData.introduction || '',
-            qualifications: userData.qualifications || [],
-            hourlyRate: userData.hourlyRate || 0,
-            availableTime: userData.availableTime || []
-          });
-        } else {
-          setError('無法獲取用戶資料');
-        }
+      setError(null);
+      
+      console.log('🔍 開始獲取用戶資料:', id);
+      const response = await usersAPI.getUserById(id);
+      
+      console.log('✅ 用戶資料回應:', response.data);
+      
+      if (response.data.success && response.data.user) {
+        const userData = response.data.user;
+        dispatch(setSelectedUser(userData as User));
+        setEditForm({
+          name: userData.name || '',
+          email: userData.email || '',
+          phone: userData.phone || '',
+          role: userData.role || 'user',
+          userType: userData.userType || 'student',
+          status: userData.status || 'active',
+          avatar: userData.avatar || '',
+          isActive: userData.status === 'active',
+          organizationDocuments: userData.organizationDocuments || {
+            businessRegistration: '',
+            addressProof: ''
+          },
+          tutorProfile: userData.tutorProfile || {
+            education: '',
+            experience: '',
+            specialties: [],
+            documents: [],
+            applicationStatus: 'pending'
+          },
+          subjects: userData.subjects || [],
+          teachingAreas: userData.teachingAreas || [],
+          teachingMethods: userData.teachingMethods || [],
+          experience: userData.experience || 0,
+          rating: userData.rating || 0,
+          introduction: userData.introduction || '',
+          qualifications: userData.qualifications || [],
+          hourlyRate: userData.hourlyRate || 0,
+          availableTime: userData.availableTime || []
+        });
+        console.log('✅ 用戶資料載入成功');
+      } else {
+        setError(response.data.message || '無法獲取用戶資料');
+        console.error('❌ API 回應失敗:', response.data);
       }
-    } catch (err) {
-      setError('獲取用戶資料時發生錯誤');
+    } catch (err: any) {
+      console.error('❌ 獲取用戶資料失敗:', err);
+      
+      let errorMessage = '獲取用戶資料時發生錯誤';
+      if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -141,7 +164,7 @@ const UserDetail: React.FC = () => {
 
   useEffect(() => {
     fetchUserData();
-  }, [dispatch, id]);
+  }, [id]);
 
   const handleSubmit = async () => {
     if (!id) {
@@ -160,8 +183,9 @@ const UserDetail: React.FC = () => {
       } else {
         setError(response.data.message || '更新失敗');
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '更新失敗');
+    } catch (err: any) {
+      console.error('❌ 更新用戶失敗:', err);
+      setError(err.message || '更新失敗');
     } finally {
       setLoading(false);
     }
@@ -207,16 +231,53 @@ const UserDetail: React.FC = () => {
     }
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <CircularProgress />
+        <Typography sx={{ ml: 2 }}>載入用戶資料中...</Typography>
+      </Box>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+        <Button variant="contained" onClick={fetchUserData}>
+          重新載入
+        </Button>
+        <Button variant="outlined" onClick={() => navigate('/users')} sx={{ ml: 2 }}>
+          返回用戶列表
+        </Button>
+      </Box>
+    );
+  }
+
+  // No user data
   if (!selectedUser) {
-    return <Typography>Loading...</Typography>;
+    return (
+      <Box sx={{ p: 3 }}>
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          找不到用戶資料
+        </Alert>
+        <Button variant="outlined" onClick={() => navigate('/users')}>
+          返回用戶列表
+        </Button>
+      </Box>
+    );
   }
 
   return (
     <Box sx={{ p: 3 }}>
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between' }}>
-        <Typography variant="h4">User Details</Typography>
+        <Typography variant="h4">用戶詳情</Typography>
         <Button variant="outlined" onClick={() => navigate('/users')}>
-          Back to Users
+          返回用戶列表
         </Button>
       </Box>
 
@@ -224,12 +285,12 @@ const UserDetail: React.FC = () => {
         <Grid item xs={12} md={6}>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
-              Basic Information
+              基本資料
             </Typography>
             <Divider sx={{ my: 2 }} />
             <Grid container spacing={2}>
               <Grid item xs={4}>
-                <Typography color="textSecondary">Name</Typography>
+                <Typography color="textSecondary">姓名</Typography>
               </Grid>
               <Grid item xs={8}>
                 <Typography>{selectedUser.name}</Typography>
@@ -241,30 +302,41 @@ const UserDetail: React.FC = () => {
                 <Typography>{selectedUser.email}</Typography>
               </Grid>
               <Grid item xs={4}>
-                <Typography color="textSecondary">Phone</Typography>
+                <Typography color="textSecondary">電話</Typography>
               </Grid>
               <Grid item xs={8}>
                 <Typography>{selectedUser.phone}</Typography>
               </Grid>
               <Grid item xs={4}>
-                <Typography color="textSecondary">User Type</Typography>
+                <Typography color="textSecondary">用戶類型</Typography>
               </Grid>
               <Grid item xs={8}>
-                <Chip label={selectedUser.userType} color="primary" />
+                <Chip 
+                  label={selectedUser.userType === 'tutor' ? '導師' : 
+                         selectedUser.userType === 'student' ? '學生' : 
+                         selectedUser.userType === 'organization' ? '機構' : 
+                         selectedUser.userType} 
+                  color="primary" 
+                />
               </Grid>
               <Grid item xs={4}>
-                <Typography color="textSecondary">Role</Typography>
+                <Typography color="textSecondary">角色</Typography>
               </Grid>
               <Grid item xs={8}>
-                <Chip label={selectedUser.role} color="secondary" />
+                <Chip 
+                  label={selectedUser.role === 'admin' ? '管理員' : '用戶'} 
+                  color="secondary" 
+                />
               </Grid>
               <Grid item xs={4}>
-                <Typography color="textSecondary">Status</Typography>
+                <Typography color="textSecondary">狀態</Typography>
               </Grid>
               <Grid item xs={8}>
                 <Chip
-                  label={selectedUser.status}
-                  color={selectedUser.status === 'active' ? 'success' : 'error'}
+                  label={selectedUser.status === 'active' ? '啟用' : 
+                         selectedUser.status === 'pending' ? '待審核' : '已封鎖'}
+                  color={selectedUser.status === 'active' ? 'success' : 
+                         selectedUser.status === 'pending' ? 'warning' : 'error'}
                 />
               </Grid>
             </Grid>
@@ -273,7 +345,7 @@ const UserDetail: React.FC = () => {
                 variant="contained"
                 onClick={() => setIsEditDialogOpen(true)}
               >
-                Edit User
+                編輯用戶
               </Button>
             </Box>
           </Paper>
@@ -283,12 +355,12 @@ const UserDetail: React.FC = () => {
           <Grid item xs={12} md={6}>
             <Paper sx={{ p: 3 }}>
               <Typography variant="h6" gutterBottom>
-                Upgrade Request
+                升級申請
               </Typography>
               <Divider sx={{ my: 2 }} />
               <Box sx={{ mb: 2 }}>
                 <Typography color="textSecondary" gutterBottom>
-                  Requested Role
+                  申請角色
                 </Typography>
                 <Typography>{selectedUser.requestedRole}</Typography>
               </Box>
@@ -302,10 +374,10 @@ const UserDetail: React.FC = () => {
                     }
                   }}
                 >
-                  Approve
+                  批准
                 </Button>
                 <Button variant="contained" color="error">
-                  Reject
+                  拒絕
                 </Button>
               </Box>
             </Paper>
@@ -320,11 +392,11 @@ const UserDetail: React.FC = () => {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Edit User</DialogTitle>
+        <DialogTitle>編輯用戶</DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
-              label="Name"
+              label="姓名"
               fullWidth
               value={editForm.name}
               onChange={handleInputChange}
@@ -338,7 +410,7 @@ const UserDetail: React.FC = () => {
               name="email"
             />
             <TextField
-              label="Phone"
+              label="電話"
               fullWidth
               value={editForm.phone}
               onChange={handleInputChange}
@@ -346,45 +418,45 @@ const UserDetail: React.FC = () => {
             />
             <TextField
               select
-              label="User Type"
+              label="用戶類型"
               fullWidth
               value={editForm.userType}
               onChange={handleInputChange}
               name="userType"
             >
-              <MenuItem value="student">Student</MenuItem>
-              <MenuItem value="tutor">Tutor</MenuItem>
-              <MenuItem value="organization">Organization</MenuItem>
+              <MenuItem value="student">學生</MenuItem>
+              <MenuItem value="tutor">導師</MenuItem>
+              <MenuItem value="organization">機構</MenuItem>
             </TextField>
             <TextField
               select
-              label="Role"
+              label="角色"
               fullWidth
               value={editForm.role}
               onChange={handleInputChange}
               name="role"
             >
-              <MenuItem value="user">User</MenuItem>
-              <MenuItem value="admin">Admin</MenuItem>
+              <MenuItem value="user">用戶</MenuItem>
+              <MenuItem value="admin">管理員</MenuItem>
             </TextField>
             <TextField
               select
-              label="Status"
+              label="狀態"
               fullWidth
               value={editForm.status}
               onChange={handleInputChange}
               name="status"
             >
-              <MenuItem value="active">Active</MenuItem>
-              <MenuItem value="pending">Pending</MenuItem>
-              <MenuItem value="blocked">Blocked</MenuItem>
+              <MenuItem value="active">啟用</MenuItem>
+              <MenuItem value="pending">待審核</MenuItem>
+              <MenuItem value="blocked">已封鎖</MenuItem>
             </TextField>
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setIsEditDialogOpen(false)}>取消</Button>
           <Button onClick={handleSubmit} variant="contained">
-            Save
+            儲存
           </Button>
         </DialogActions>
       </Dialog>
