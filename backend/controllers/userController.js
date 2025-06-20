@@ -154,7 +154,81 @@ const upgradeTutor = async (req, res) => {
   }
 };
 
+const toggleTutorPublic = async (req, res) => {
+  try {
+    const tutorId = req.params.id;
+    const currentUserId = req.user.id;
+    const currentUserRole = req.user.role;
+
+    console.log('🔍 切換導師公開狀態:', {
+      tutorId,
+      currentUserId,
+      currentUserRole
+    });
+
+    // 檢查導師是否存在
+    const tutor = await User.findById(tutorId);
+    if (!tutor) {
+      return res.status(404).json({
+        success: false,
+        message: '導師不存在'
+      });
+    }
+
+    // 檢查是否為導師
+    if (tutor.userType !== 'tutor') {
+      return res.status(400).json({
+        success: false,
+        message: '該用戶不是導師'
+      });
+    }
+
+    // 權限檢查：只能修改自己的資料，或 admin 可修改任意導師
+    if (currentUserRole !== 'admin' && currentUserId !== tutorId) {
+      return res.status(403).json({
+        success: false,
+        message: '無權限修改其他導師的資料'
+      });
+    }
+
+    // 切換 displayPublic 狀態
+    const newStatus = !tutor.tutorProfile.displayPublic;
+    
+    const updatedTutor = await User.findByIdAndUpdate(
+      tutorId,
+      {
+        $set: {
+          'tutorProfile.displayPublic': newStatus
+        }
+      },
+      { new: true }
+    ).select('-password');
+
+    console.log('✅ 導師公開狀態切換成功:', {
+      tutorId,
+      oldStatus: tutor.tutorProfile.displayPublic,
+      newStatus,
+      updatedBy: currentUserRole === 'admin' ? 'admin' : 'self'
+    });
+
+    res.json({
+      success: true,
+      newStatus: newStatus,
+      message: `導師資料已${newStatus ? '公開' : '隱藏'}`
+    });
+
+  } catch (error) {
+    console.error('❌ 切換導師公開狀態錯誤:', error);
+    res.status(500).json({
+      success: false,
+      message: '切換公開狀態失敗',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getCurrentUser,
   upgradeTutor,
+  toggleTutorPublic,
 }; 

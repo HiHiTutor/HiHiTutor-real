@@ -89,7 +89,7 @@ const userSchema = new mongoose.Schema({
   tutorProfile: {
     displayPublic: {
       type: Boolean,
-      default: true
+      default: false
     },
     gender: {
       type: String,

@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { getCurrentUser } = require('../controllers/userController');
+const { getCurrentUser, toggleTutorPublic } = require('../controllers/userController');
 const { verifyToken } = require('../middleware/authMiddleware');
 const userRepository = require('../repositories/UserRepository');
 const { getMe } = require('../controllers/authController');
 
 // 只保留 /auth/me 路由
 router.get('/auth/me', verifyToken, getMe);
+
+// 導師公開狀態切換
+router.patch('/tutors/:id/public-toggle', verifyToken, toggleTutorPublic);
 
 // 更新用戶資料
 router.put('/me/update', verifyToken, async (req, res) => {
