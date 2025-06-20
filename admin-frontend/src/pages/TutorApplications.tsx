@@ -337,9 +337,14 @@ const TutorApplications: React.FC = () => {
                           </Tooltip>
                         </Box>
                       )}
-                      {application.status !== 'pending' && (
-                        <Typography variant="body2" color="textSecondary">
-                          {application.status === 'approved' ? '已批准' : '已拒絕'}
+                      {application.status === 'approved' && (
+                        <Typography variant="body2" color="success.main">
+                          已批准
+                        </Typography>
+                      )}
+                      {application.status === 'rejected' && (
+                        <Typography variant="body2" color="error.main">
+                          已拒絕
                         </Typography>
                       )}
                     </TableCell>
