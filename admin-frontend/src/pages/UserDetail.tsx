@@ -91,6 +91,7 @@ const UserDetail: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const fetchUserData = async () => {
     if (!id) {
@@ -102,6 +103,7 @@ const UserDetail: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
+      setSuccess(null);
       
       console.log('🔍 開始獲取用戶資料:', id);
       const response = await usersAPI.getUserById(id);
@@ -190,6 +192,7 @@ const UserDetail: React.FC = () => {
         dispatch(setSelectedUser(userData as User));
         setIsEditDialogOpen(false);
         setError(null);
+        setSuccess('用戶更新成功');
         console.log('✅ 用戶更新成功');
       } else {
         setError(response.data.message || '更新失敗');
@@ -285,6 +288,13 @@ const UserDetail: React.FC = () => {
 
   return (
     <Box sx={{ p: 3 }}>
+      {/* 成功提示 */}
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess(null)}>
+          {success}
+        </Alert>
+      )}
+      
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between' }}>
         <Typography variant="h4">用戶詳情</Typography>
         <Button variant="outlined" onClick={() => navigate('/users')}>
