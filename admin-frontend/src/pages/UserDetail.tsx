@@ -108,44 +108,52 @@ const UserDetail: React.FC = () => {
       
       console.log('✅ 用戶資料回應:', response.data);
       
+      // 檢查回應結構 - 可能是直接返回用戶資料或包在 success 結構中
+      let userData: any;
       if (response.data.success && response.data.user) {
-        const userData = response.data.user;
-        dispatch(setSelectedUser(userData as User));
-        setEditForm({
-          name: userData.name || '',
-          email: userData.email || '',
-          phone: userData.phone || '',
-          role: userData.role || 'user',
-          userType: userData.userType || 'student',
-          status: userData.status || 'active',
-          avatar: userData.avatar || '',
-          isActive: userData.status === 'active',
-          organizationDocuments: userData.organizationDocuments || {
-            businessRegistration: '',
-            addressProof: ''
-          },
-          tutorProfile: userData.tutorProfile || {
-            education: '',
-            experience: '',
-            specialties: [],
-            documents: [],
-            applicationStatus: 'pending'
-          },
-          subjects: userData.subjects || [],
-          teachingAreas: userData.teachingAreas || [],
-          teachingMethods: userData.teachingMethods || [],
-          experience: userData.experience || 0,
-          rating: userData.rating || 0,
-          introduction: userData.introduction || '',
-          qualifications: userData.qualifications || [],
-          hourlyRate: userData.hourlyRate || 0,
-          availableTime: userData.availableTime || []
-        });
-        console.log('✅ 用戶資料載入成功');
+        // 結構: {success: true, user: {...}}
+        userData = response.data.user;
+      } else if (response.data && typeof response.data === 'object' && '_id' in response.data) {
+        // 結構: 直接返回用戶資料
+        userData = response.data;
       } else {
-        setError(response.data.message || '無法獲取用戶資料');
-        console.error('❌ API 回應失敗:', response.data);
+        setError('無法獲取用戶資料');
+        console.error('❌ API 回應結構異常:', response.data);
+        return;
       }
+      
+      dispatch(setSelectedUser(userData as User));
+      setEditForm({
+        name: userData.name || '',
+        email: userData.email || '',
+        phone: userData.phone || '',
+        role: userData.role || 'user',
+        userType: userData.userType || 'student',
+        status: userData.status || 'active',
+        avatar: userData.avatar || '',
+        isActive: userData.status === 'active',
+        organizationDocuments: userData.organizationDocuments || {
+          businessRegistration: '',
+          addressProof: ''
+        },
+        tutorProfile: userData.tutorProfile || {
+          education: '',
+          experience: '',
+          specialties: [],
+          documents: [],
+          applicationStatus: 'pending'
+        },
+        subjects: userData.subjects || [],
+        teachingAreas: userData.teachingAreas || [],
+        teachingMethods: userData.teachingMethods || [],
+        experience: userData.experience || 0,
+        rating: userData.rating || 0,
+        introduction: userData.introduction || '',
+        qualifications: userData.qualifications || [],
+        hourlyRate: userData.hourlyRate || 0,
+        availableTime: userData.availableTime || []
+      });
+      console.log('✅ 用戶資料載入成功');
     } catch (err: any) {
       console.error('❌ 獲取用戶資料失敗:', err);
       

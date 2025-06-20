@@ -193,7 +193,7 @@ const Users: React.FC = () => {
                   <Button
                     variant="outlined"
                     size="small"
-                    onClick={() => handleViewUser(user._id)}
+                    onClick={() => handleViewUser(user.id || user._id)}
                   >
                     View
                   </Button>
