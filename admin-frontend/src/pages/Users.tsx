@@ -75,7 +75,7 @@ const Users: React.FC = () => {
         return 'primary';
       case 'tutor':
         return 'secondary';
-      case 'institution':
+      case 'organization':
         return 'success';
       default:
         return 'default';
@@ -147,7 +147,8 @@ const Users: React.FC = () => {
           <MenuItem value="">All Roles</MenuItem>
           <MenuItem value="student">Student</MenuItem>
           <MenuItem value="tutor">Tutor</MenuItem>
-          <MenuItem value="institution">Institution</MenuItem>
+          <MenuItem value="organization">Organization</MenuItem>
+          <MenuItem value="admin">Admin</MenuItem>
         </TextField>
       </Box>
 
