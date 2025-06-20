@@ -298,6 +298,12 @@ const UserDetail: React.FC = () => {
             <Divider sx={{ my: 2 }} />
             <Grid container spacing={2}>
               <Grid item xs={4}>
+                <Typography color="textSecondary">用戶編號</Typography>
+              </Grid>
+              <Grid item xs={8}>
+                <Typography>{(selectedUser as any).userId || selectedUser.id || selectedUser._id}</Typography>
+              </Grid>
+              <Grid item xs={4}>
                 <Typography color="textSecondary">姓名</Typography>
               </Grid>
               <Grid item xs={8}>
@@ -347,6 +353,22 @@ const UserDetail: React.FC = () => {
                          selectedUser.status === 'pending' ? 'warning' : 'error'}
                 />
               </Grid>
+              <Grid item xs={4}>
+                <Typography color="textSecondary">註冊時間</Typography>
+              </Grid>
+              <Grid item xs={8}>
+                <Typography>{new Date(selectedUser.createdAt).toLocaleString('zh-TW')}</Typography>
+              </Grid>
+              {(selectedUser as any).tutorId && (
+                <>
+                  <Grid item xs={4}>
+                    <Typography color="textSecondary">導師編號</Typography>
+                  </Grid>
+                  <Grid item xs={8}>
+                    <Typography>{(selectedUser as any).tutorId}</Typography>
+                  </Grid>
+                </>
+              )}
             </Grid>
             <Box sx={{ mt: 2 }}>
               <Button
@@ -359,6 +381,81 @@ const UserDetail: React.FC = () => {
           </Paper>
         </Grid>
 
+        {/* 導師資料區塊 */}
+        {selectedUser.userType === 'tutor' && selectedUser.tutorProfile && (
+          <Grid item xs={12} md={6}>
+            <Paper sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                導師資料
+              </Typography>
+              <Divider sx={{ my: 2 }} />
+              <Grid container spacing={2}>
+                <Grid item xs={4}>
+                  <Typography color="textSecondary">學歷</Typography>
+                </Grid>
+                <Grid item xs={8}>
+                  <Typography>{selectedUser.tutorProfile.education || '未填寫'}</Typography>
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography color="textSecondary">教學經驗</Typography>
+                </Grid>
+                <Grid item xs={8}>
+                  <Typography>{selectedUser.tutorProfile.experience || '未填寫'}</Typography>
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography color="textSecondary">申請狀態</Typography>
+                </Grid>
+                <Grid item xs={8}>
+                  <Chip
+                    label={selectedUser.tutorProfile.applicationStatus === 'approved' ? '已批准' :
+                           selectedUser.tutorProfile.applicationStatus === 'rejected' ? '已拒絕' :
+                           selectedUser.tutorProfile.applicationStatus === 'pending' ? '待審核' : '未申請'}
+                    color={selectedUser.tutorProfile.applicationStatus === 'approved' ? 'success' :
+                           selectedUser.tutorProfile.applicationStatus === 'rejected' ? 'error' :
+                           selectedUser.tutorProfile.applicationStatus === 'pending' ? 'warning' : 'default'}
+                    size="small"
+                  />
+                </Grid>
+                {selectedUser.subjects && selectedUser.subjects.length > 0 && (
+                  <>
+                    <Grid item xs={4}>
+                      <Typography color="textSecondary">可教授科目</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {selectedUser.subjects.map((subject, index) => (
+                          <Chip key={index} label={subject} size="small" variant="outlined" />
+                        ))}
+                      </Box>
+                    </Grid>
+                  </>
+                )}
+                {selectedUser.rating !== undefined && (
+                  <>
+                    <Grid item xs={4}>
+                      <Typography color="textSecondary">評分</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Typography>{selectedUser.rating.toFixed(1)} / 5.0</Typography>
+                    </Grid>
+                  </>
+                )}
+                {selectedUser.hourlyRate && (
+                  <>
+                    <Grid item xs={4}>
+                      <Typography color="textSecondary">時薪</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Typography>HK$ {selectedUser.hourlyRate}</Typography>
+                    </Grid>
+                  </>
+                )}
+              </Grid>
+            </Paper>
+          </Grid>
+        )}
+
+        {/* 升級申請區塊 */}
         {selectedUser.upgradeStatus === 'pending' && selectedUser.requestedRole && (
           <Grid item xs={12} md={6}>
             <Paper sx={{ p: 3 }}>
@@ -391,6 +488,112 @@ const UserDetail: React.FC = () => {
             </Paper>
           </Grid>
         )}
+
+        {/* 詳細資料區塊 */}
+        <Grid item xs={12}>
+          <Paper sx={{ p: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              詳細資料
+            </Typography>
+            <Divider sx={{ my: 2 }} />
+            <Grid container spacing={2}>
+              {selectedUser.introduction && (
+                <>
+                  <Grid item xs={12}>
+                    <Typography color="textSecondary" gutterBottom>
+                      自我介紹
+                    </Typography>
+                    <Typography>{selectedUser.introduction}</Typography>
+                  </Grid>
+                </>
+              )}
+              {selectedUser.teachingAreas && selectedUser.teachingAreas.length > 0 && (
+                <>
+                  <Grid item xs={12}>
+                    <Typography color="textSecondary" gutterBottom>
+                      教學地區
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {selectedUser.teachingAreas.map((area, index) => (
+                        <Chip key={index} label={area} size="small" variant="outlined" />
+                      ))}
+                    </Box>
+                  </Grid>
+                </>
+              )}
+              {selectedUser.teachingMethods && selectedUser.teachingMethods.length > 0 && (
+                <>
+                  <Grid item xs={12}>
+                    <Typography color="textSecondary" gutterBottom>
+                      教學方式
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {selectedUser.teachingMethods.map((method, index) => (
+                        <Chip key={index} label={method} size="small" variant="outlined" />
+                      ))}
+                    </Box>
+                  </Grid>
+                </>
+              )}
+              {selectedUser.qualifications && selectedUser.qualifications.length > 0 && (
+                <>
+                  <Grid item xs={12}>
+                    <Typography color="textSecondary" gutterBottom>
+                      資格認證
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {selectedUser.qualifications.map((qual, index) => (
+                        <Chip key={index} label={qual} size="small" variant="outlined" />
+                      ))}
+                    </Box>
+                  </Grid>
+                </>
+              )}
+              {selectedUser.availableTime && selectedUser.availableTime.length > 0 && (
+                <>
+                  <Grid item xs={12}>
+                    <Typography color="textSecondary" gutterBottom>
+                      可上課時間
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {selectedUser.availableTime.map((time, index) => (
+                        <Chip key={index} label={time} size="small" variant="outlined" />
+                      ))}
+                    </Box>
+                  </Grid>
+                </>
+              )}
+              {(selectedUser as any).isVip && (
+                <>
+                  <Grid item xs={12}>
+                    <Typography color="textSecondary" gutterBottom>
+                      VIP 等級
+                    </Typography>
+                    <Chip 
+                      label={`VIP Level ${(selectedUser as any).vipLevel || 1}`} 
+                      color="warning" 
+                      size="small" 
+                    />
+                  </Grid>
+                </>
+              )}
+              {(selectedUser as any).isTop && (
+                <>
+                  <Grid item xs={12}>
+                    <Typography color="textSecondary" gutterBottom>
+                      置頂等級
+                    </Typography>
+                    <Chip 
+                      label={`Top Level ${(selectedUser as any).topLevel || 1}`} 
+                      color="info" 
+                      size="small" 
+                    />
+                  </Grid>
+                </>
+              )}
+            </Grid>
+          </Paper>
+        </Grid>
       </Grid>
 
       {/* Edit Dialog */}

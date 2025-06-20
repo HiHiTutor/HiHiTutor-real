@@ -168,7 +168,7 @@ const Users: React.FC = () => {
           <TableBody>
             {(users || []).map((user) => (
               <TableRow key={user._id}>
-                <TableCell>{user.id || user._id}</TableCell>
+                <TableCell>{(user as any).userId || user.id || user._id}</TableCell>
                 <TableCell>{user.name}</TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.phone}</TableCell>
@@ -193,7 +193,7 @@ const Users: React.FC = () => {
                   <Button
                     variant="outlined"
                     size="small"
-                    onClick={() => handleViewUser(user.id || user._id)}
+                    onClick={() => handleViewUser((user as any).userId || user.id || user._id)}
                   >
                     View
                   </Button>
