@@ -17,11 +17,19 @@ import {
   Link,
   IconButton,
   Tooltip,
+  Collapse,
+  Card,
+  CardContent,
+  Grid,
+  Divider,
 } from '@mui/material';
 import {
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
   Link as LinkIcon,
+  ExpandMore as ExpandMoreIcon,
+  ExpandLess as ExpandLessIcon,
+  Visibility as VisibilityIcon,
 } from '@mui/icons-material';
 import api from '../services/api';
 
@@ -48,6 +56,8 @@ const TutorApplications: React.FC = () => {
   const [applications, setApplications] = useState<TutorApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [reviewing, setReviewing] = useState<string | null>(null);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -111,9 +121,10 @@ const TutorApplications: React.FC = () => {
 
   const handleReview = async (applicationId: string, status: 'approved' | 'rejected') => {
     try {
+      setReviewing(applicationId);
       const remarks = status === 'approved' 
-        ? '資料齊全，審核通過' 
-        : '不符合資格，請補交資料';
+        ? '審核通過' 
+        : '不符合資格';
 
       console.log('🔍 開始審核申請:', { applicationId, status, remarks });
 
@@ -131,7 +142,7 @@ const TutorApplications: React.FC = () => {
           severity: 'success',
         });
         // 重新獲取資料以更新狀態
-        fetchApplications();
+        await fetchApplications();
       } else {
         throw new Error(response.data.message || 'Review failed');
       }
@@ -150,7 +161,19 @@ const TutorApplications: React.FC = () => {
         message: errorMessage,
         severity: 'error',
       });
+    } finally {
+      setReviewing(null);
     }
+  };
+
+  const toggleRowExpansion = (applicationId: string) => {
+    const newExpandedRows = new Set(expandedRows);
+    if (newExpandedRows.has(applicationId)) {
+      newExpandedRows.delete(applicationId);
+    } else {
+      newExpandedRows.add(applicationId);
+    }
+    setExpandedRows(newExpandedRows);
   };
 
   const getStatusColor = (status: string) => {
@@ -219,12 +242,12 @@ const TutorApplications: React.FC = () => {
           <Table>
             <TableHead>
               <TableRow>
+                <TableCell width="50px"></TableCell>
                 <TableCell>用戶編號</TableCell>
                 <TableCell>姓名</TableCell>
                 <TableCell>Email</TableCell>
                 <TableCell>電話</TableCell>
                 <TableCell>可教授科目</TableCell>
-                <TableCell>上傳文件</TableCell>
                 <TableCell>狀態</TableCell>
                 <TableCell>申請時間</TableCell>
                 <TableCell>操作</TableCell>
@@ -232,80 +255,219 @@ const TutorApplications: React.FC = () => {
             </TableHead>
             <TableBody>
               {applications.map((application) => (
-                <TableRow key={application._id}>
-                  <TableCell>{application.userNumber}</TableCell>
-                  <TableCell>{application.name}</TableCell>
-                  <TableCell>{application.email}</TableCell>
-                  <TableCell>{application.phone}</TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      {application.subjects.map((subject, index) => (
-                        <Chip
-                          key={index}
-                          label={subject}
-                          size="small"
-                          variant="outlined"
-                          color="primary"
-                        />
-                      ))}
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                      {application.documents.map((doc, index) => (
-                        <Link
-                          key={index}
-                          href={doc}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
-                        >
-                          <LinkIcon fontSize="small" />
-                          文件 {index + 1}
-                        </Link>
-                      ))}
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={getStatusText(application.status)}
-                      color={getStatusColor(application.status) as any}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    {new Date(application.createdAt).toLocaleDateString('zh-TW')}
-                  </TableCell>
-                  <TableCell>
-                    {application.status === 'pending' && (
-                      <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Tooltip title="審批通過">
-                          <IconButton
-                            color="success"
+                <React.Fragment key={application._id}>
+                  <TableRow>
+                    <TableCell>
+                      <IconButton
+                        size="small"
+                        onClick={() => toggleRowExpansion(application._id)}
+                      >
+                        {expandedRows.has(application._id) ? (
+                          <ExpandLessIcon />
+                        ) : (
+                          <ExpandMoreIcon />
+                        )}
+                      </IconButton>
+                    </TableCell>
+                    <TableCell>{application.userNumber}</TableCell>
+                    <TableCell>{application.name}</TableCell>
+                    <TableCell>{application.email}</TableCell>
+                    <TableCell>{application.phone}</TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {application.subjects.slice(0, 2).map((subject, index) => (
+                          <Chip
+                            key={index}
+                            label={subject}
                             size="small"
-                            onClick={() => handleReview(application.id, 'approved')}
-                          >
-                            <CheckCircleIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="拒絕申請">
-                          <IconButton
-                            color="error"
+                            variant="outlined"
+                            color="primary"
+                          />
+                        ))}
+                        {application.subjects.length > 2 && (
+                          <Chip
+                            label={`+${application.subjects.length - 2}`}
                             size="small"
-                            onClick={() => handleReview(application.id, 'rejected')}
-                          >
-                            <CancelIcon />
-                          </IconButton>
-                        </Tooltip>
+                            variant="outlined"
+                            color="secondary"
+                          />
+                        )}
                       </Box>
-                    )}
-                    {application.status !== 'pending' && (
-                      <Typography variant="body2" color="textSecondary">
-                        {application.status === 'approved' ? '已批准' : '已拒絕'}
-                      </Typography>
-                    )}
-                  </TableCell>
-                </TableRow>
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        label={getStatusText(application.status)}
+                        color={getStatusColor(application.status) as any}
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {new Date(application.createdAt).toLocaleDateString('zh-TW')}
+                    </TableCell>
+                    <TableCell>
+                      {application.status === 'pending' && (
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Tooltip title="審批通過">
+                            <IconButton
+                              color="success"
+                              size="small"
+                              disabled={reviewing === application._id}
+                              onClick={() => handleReview(application.id, 'approved')}
+                            >
+                              {reviewing === application._id ? (
+                                <CircularProgress size={20} />
+                              ) : (
+                                <CheckCircleIcon />
+                              )}
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="拒絕申請">
+                            <IconButton
+                              color="error"
+                              size="small"
+                              disabled={reviewing === application._id}
+                              onClick={() => handleReview(application.id, 'rejected')}
+                            >
+                              {reviewing === application._id ? (
+                                <CircularProgress size={20} />
+                              ) : (
+                                <CancelIcon />
+                              )}
+                            </IconButton>
+                          </Tooltip>
+                        </Box>
+                      )}
+                      {application.status !== 'pending' && (
+                        <Typography variant="body2" color="textSecondary">
+                          {application.status === 'approved' ? '已批准' : '已拒絕'}
+                        </Typography>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
+                      <Collapse in={expandedRows.has(application._id)} timeout="auto" unmountOnExit>
+                        <Box sx={{ margin: 1 }}>
+                          <Card variant="outlined">
+                            <CardContent>
+                              <Typography variant="h6" gutterBottom>
+                                申請詳情
+                              </Typography>
+                              <Grid container spacing={2}>
+                                <Grid item xs={12} md={6}>
+                                  <Typography variant="subtitle2" color="textSecondary">
+                                    用戶編號
+                                  </Typography>
+                                  <Typography variant="body1" sx={{ mb: 2 }}>
+                                    {application.userNumber}
+                                  </Typography>
+                                  
+                                  <Typography variant="subtitle2" color="textSecondary">
+                                    姓名
+                                  </Typography>
+                                  <Typography variant="body1" sx={{ mb: 2 }}>
+                                    {application.name}
+                                  </Typography>
+                                  
+                                  <Typography variant="subtitle2" color="textSecondary">
+                                    電子郵件
+                                  </Typography>
+                                  <Typography variant="body1" sx={{ mb: 2 }}>
+                                    {application.email}
+                                  </Typography>
+                                  
+                                  <Typography variant="subtitle2" color="textSecondary">
+                                    電話
+                                  </Typography>
+                                  <Typography variant="body1" sx={{ mb: 2 }}>
+                                    {application.phone}
+                                  </Typography>
+                                </Grid>
+                                
+                                <Grid item xs={12} md={6}>
+                                  <Typography variant="subtitle2" color="textSecondary">
+                                    學歷背景
+                                  </Typography>
+                                  <Typography variant="body1" sx={{ mb: 2 }}>
+                                    {application.education}
+                                  </Typography>
+                                  
+                                  <Typography variant="subtitle2" color="textSecondary">
+                                    教學經驗
+                                  </Typography>
+                                  <Typography variant="body1" sx={{ mb: 2 }}>
+                                    {application.experience}
+                                  </Typography>
+                                </Grid>
+                                
+                                <Grid item xs={12}>
+                                  <Divider sx={{ my: 2 }} />
+                                  <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                                    可教授科目
+                                  </Typography>
+                                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                                    {application.subjects.map((subject, index) => (
+                                      <Chip
+                                        key={index}
+                                        label={subject}
+                                        variant="outlined"
+                                        color="primary"
+                                      />
+                                    ))}
+                                  </Box>
+                                  
+                                  <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                                    上傳文件
+                                  </Typography>
+                                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    {application.documents.map((doc, index) => (
+                                      <Link
+                                        key={index}
+                                        href={doc}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        sx={{ 
+                                          display: 'flex', 
+                                          alignItems: 'center', 
+                                          gap: 1,
+                                          textDecoration: 'none',
+                                          '&:hover': {
+                                            textDecoration: 'underline'
+                                          }
+                                        }}
+                                      >
+                                        <LinkIcon fontSize="small" />
+                                        文件 {index + 1}
+                                      </Link>
+                                    ))}
+                                  </Box>
+                                  
+                                  {application.status !== 'pending' && (
+                                    <>
+                                      <Divider sx={{ my: 2 }} />
+                                      <Typography variant="subtitle2" color="textSecondary">
+                                        審核備註
+                                      </Typography>
+                                      <Typography variant="body1" sx={{ mb: 1 }}>
+                                        {application.remarks || '無備註'}
+                                      </Typography>
+                                      <Typography variant="caption" color="textSecondary">
+                                        審核時間: {application.reviewedAt ? 
+                                          new Date(application.reviewedAt).toLocaleString('zh-TW') : 
+                                          '未知'
+                                        }
+                                      </Typography>
+                                    </>
+                                  )}
+                                </Grid>
+                              </Grid>
+                            </CardContent>
+                          </Card>
+                        </Box>
+                      </Collapse>
+                    </TableCell>
+                  </TableRow>
+                </React.Fragment>
               ))}
             </TableBody>
           </Table>
