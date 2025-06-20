@@ -184,8 +184,12 @@ const UserDetail: React.FC = () => {
 
     try {
       setLoading(true);
+      console.log('🚀 開始更新用戶:', id);
+      console.log('📤 發送數據:', editForm);
+      
       const response = await usersAPI.updateUser(id, editForm as Partial<User>);
-      console.log('✅ 更新用戶回應:', response.data);
+      console.log('✅ 更新用戶回應:', response);
+      console.log('✅ 回應數據:', response.data);
       console.log('✅ 回應結構檢查:', {
         success: response.data.success,
         hasData: !!response.data.data,
@@ -193,16 +197,22 @@ const UserDetail: React.FC = () => {
         dataKeys: response.data.data ? Object.keys(response.data.data) : 'no data'
       });
       
-      if (response.data.success && response.data.data) {
-        const userData = response.data.data;
-        dispatch(setSelectedUser(userData as User));
-        setIsEditDialogOpen(false);
-        setError(null);
-        setSuccess('用戶更新成功');
-        console.log('✅ 用戶更新成功');
+      // 簡化檢查邏輯
+      if (response.data && response.data.success) {
+        const userData = response.data.data || response.data.user;
+        if (userData) {
+          dispatch(setSelectedUser(userData as User));
+          setIsEditDialogOpen(false);
+          setError(null);
+          setSuccess('用戶更新成功');
+          console.log('✅ 用戶更新成功');
+        } else {
+          console.error('❌ 回應中沒有用戶數據:', response.data);
+          setError('更新失敗 - 回應中沒有用戶數據');
+        }
       } else {
         console.error('❌ 回應結構不符合預期:', response.data);
-        setError(response.data.message || '更新失敗 - 回應結構異常');
+        setError(response.data?.message || '更新失敗 - 回應結構異常');
       }
     } catch (err: any) {
       console.error('❌ 更新用戶失敗:', err);

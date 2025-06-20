@@ -138,8 +138,9 @@ export const usersAPI = {
     return api.post<CreateUserResponse>(`/admin/users`, data);
   },
 
-  updateUser: async (id: string, userData: Partial<User>): Promise<{ data: ApiResponse<User> }> => {
+  updateUser: async (id: string, userData: Partial<User>) => {
     const response = await api.put<ApiResponse<User>>(`/admin/users/${id}`, userData);
+    console.log('🔍 updateUser API 回應:', response);
     return response;
   },
 
