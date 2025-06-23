@@ -316,7 +316,7 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
             routeType === 'tutor' ? (
               <TutorCard key={caseItem.id} tutor={caseItem as any} />
             ) : (
-              <CaseCard key={caseItem.id} caseData={caseItem as any} />
+              <CaseCard key={caseItem.id} caseData={caseItem as any} routeType={routeType} />
             )
           ))}
         </div>
