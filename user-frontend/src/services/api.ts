@@ -192,11 +192,11 @@ export const categoryApi = {
 export const searchApi = {
   // 搜尋導師
   searchTutors: (query: string) => 
-    fetchApi(`/search/tutors?q=${encodeURIComponent(query)}`),
+    fetchApi(`/search?q=${encodeURIComponent(query)}`),
   
   // 搜尋個案
   searchCases: (query: string) => 
-    fetchApi(`/search/cases?q=${encodeURIComponent(query)}`),
+    fetchApi(`/search?q=${encodeURIComponent(query)}`),
 };
 
 // 學生個案相關 API
