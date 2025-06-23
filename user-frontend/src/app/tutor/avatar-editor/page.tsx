@@ -1,20 +1,83 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import AvatarEditor from '@/components/AvatarEditor';
+import { tutorApi } from '@/services/api';
+import toast from 'react-hot-toast';
 
 export default function AvatarEditorPage() {
+  const router = useRouter();
   const [currentOffsetX, setCurrentOffsetX] = useState(50);
-  const [currentAvatarUrl, setCurrentAvatarUrl] = useState('/avatars/teacher1.png');
+  const [currentAvatarUrl, setCurrentAvatarUrl] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  // 獲取導師資料
+  useEffect(() => {
+    const fetchTutorProfile = async () => {
+      try {
+        setLoading(true);
+        const profile = await tutorApi.getProfile();
+        setCurrentAvatarUrl(profile.avatar || '');
+        
+        // 如果有保存的偏移值，使用它
+        if (profile.avatarOffsetX !== undefined) {
+          setCurrentOffsetX(profile.avatarOffsetX);
+        }
+      } catch (error) {
+        console.error('獲取導師資料失敗:', error);
+        toast.error('獲取導師資料失敗');
+        router.push('/tutor/dashboard');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTutorProfile();
+  }, [router]);
 
   const handleSave = async (offsetX: number) => {
-    // 模擬 API 調用
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setCurrentOffsetX(offsetX);
-    
-    // 這裡應該調用實際的 API 來更新導師的 avatarOffsetX
-    console.log('保存頭像偏移位置:', offsetX);
+    try {
+      // 調用 API 更新導師的 avatarOffsetX
+      await tutorApi.updateProfile({ avatarOffsetX: offsetX });
+      setCurrentOffsetX(offsetX);
+      toast.success('頭像位置已更新');
+    } catch (error) {
+      console.error('保存頭像位置失敗:', error);
+      toast.error('保存失敗，請稍後再試');
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-lg">載入中...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentAvatarUrl) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center py-8">
+            <h1 className="text-2xl font-bold mb-4">頭像位置編輯器</h1>
+            <p className="text-gray-600 mb-4">請先上傳頭像後再使用此功能</p>
+            <button
+              onClick={() => router.push('/tutor/dashboard')}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              返回儀表板
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-8 px-4">

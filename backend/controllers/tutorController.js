@@ -349,6 +349,7 @@ const getTutorProfile = async (req, res) => {
       hourlyRate: user.tutorProfile?.sessionRate || 0,
       availableTime: user.tutorProfile?.availableTime || [],
       avatar: user.avatar || user.tutorProfile?.avatarUrl || '',
+      avatarOffsetX: user.tutorProfile?.avatarOffsetX || 50,
       examResults: user.tutorProfile?.examResults || '',
       courseFeatures: user.tutorProfile?.courseFeatures || '',
       documents: {
@@ -410,7 +411,8 @@ const updateTutorProfile = async (req, res) => {
       'tutorProfile.introduction',
       'tutorProfile.courseFeatures',
       'tutorProfile.documents',
-      'tutorProfile.displayPublic'
+      'tutorProfile.displayPublic',
+      'tutorProfile.avatarOffsetX'
     ];
 
     // 過濾允許更新的欄位

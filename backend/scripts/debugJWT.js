@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-// 從你的登入回應中複製的 token
-const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4N…DcwfQ.niiRx8o2X7ODx_zHqU0mGyTR3IF5Nvj3gDu0KX5NhIg';
+// 從你的登入回應中複製的完整 token
+const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NTNhOGZjZTY1YjQ1NWIzNDM3ZTcxYyIsInVzZXJJZCI6IjEwMDAwMDIiLCJlbWFpbCI6InRyeTMxQGV4YW1wbGUuY29tIiwicGhvbmUiOiI5MTExMTEzMSIsInJvbGUiOiJ1c2VyIiwidXNlclR5cGUiOiJ0dXRvciIsImlhdCI6MTc1MDY3MzA3MCwiZXhwIjoxNzUwNzU5NDcwfQ.niiRx8o2X7ODx_zHqU0mGyTR3IF5Nvj3gDu0KX5NhIg';
 
 console.log('🔍 調試 JWT Token:');
 console.log('Token:', token);
