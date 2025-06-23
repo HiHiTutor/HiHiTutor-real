@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Star } from 'lucide-react';
@@ -24,6 +25,7 @@ interface Tutor {
   teachingMethods: string[];
   experience: number;
   hourlyRate: number;
+  avatarUrl?: string;
 }
 
 export default function Home() {
@@ -206,6 +208,17 @@ function HomeContent({ tutors, loading }: { tutors: Tutor[], loading: boolean })
                   <Link key={tutor.tutorId} href={`/tutors/${tutor.tutorId}`}>
                     <Card className="h-full hover:shadow-lg transition-shadow">
                       <CardHeader>
+                        {/* 圓形頭像 */}
+                        <div className="w-[80px] h-[80px] rounded-full overflow-hidden mx-auto mb-4">
+                          <Image
+                            src={tutor.avatarUrl || '/default.jpg'}
+                            alt={`${tutor.name} 的照片`}
+                            width={80}
+                            height={80}
+                            className="w-full h-full object-cover"
+                            unoptimized
+                          />
+                        </div>
                         <div className="flex justify-between items-start">
                           <CardTitle className="text-lg">{tutor.name}</CardTitle>
                           <div className="flex items-center space-x-1">
