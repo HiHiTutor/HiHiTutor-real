@@ -16,6 +16,7 @@ interface Tutor {
   };
   avatarUrl?: string;
   avatar?: string;
+  avatarOffsetX?: number;
   rating?: number;
 }
 
@@ -30,20 +31,18 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
   const displayExperience = tutor.experience || tutor.tutorProfile?.experience || '未指定';
   const displayEducation = tutor.education || tutor.tutorProfile?.education || '未指定';
   const displayAvatar = tutor.avatarUrl || tutor.avatar || '/avatars/default.png';
+  const avatarOffsetX = tutor.avatarOffsetX || 50; // 預設置中
 
   return (
     <Link href={`/tutors/${tutor.id}`}>
       <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
-        <div className="w-[100px] h-[100px] rounded-full overflow-hidden mx-auto mb-4">
-          <Image
-            src={displayAvatar}
-            alt={`${displayName} 的照片`}
-            width={100}
-            height={100}
-            className="w-full h-full object-cover"
-            unoptimized
-          />
-        </div>
+        <div
+          className="w-[100px] h-[100px] rounded-full overflow-hidden mx-auto mb-4 bg-center bg-cover"
+          style={{
+            backgroundImage: `url(${displayAvatar})`,
+            backgroundPositionX: `${avatarOffsetX}%`,
+          }}
+        />
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold">{displayName}</h3>
           {tutor.rating && (
