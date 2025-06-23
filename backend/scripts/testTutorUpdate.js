@@ -48,7 +48,10 @@ async function testTutorUpdate() {
       'tutorProfile.availableTime': ['星期一 上午', '星期二 下午'],
       'tutorProfile.examResults': 'DSE 5**',
       'tutorProfile.courseFeatures': '專注於考試技巧',
-      'tutorProfile.documents': ['教師證書', '學位證書']
+      'tutorProfile.documents': [
+        { type: '教師證書', url: '' },
+        { type: '學位證書', url: '' }
+      ]
     };
     
     console.log('📝 更新數據:', updateData);

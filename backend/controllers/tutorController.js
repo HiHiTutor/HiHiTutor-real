@@ -234,8 +234,8 @@ const getTutorById = async (req, res) => {
       education: tutor.tutorProfile?.educationLevel || '',
       qualifications: tutor.tutorProfile?.documents?.map(doc => doc.type) || [],
       hourlyRate: tutor.tutorProfile?.sessionRate || 0,
-      availableTime: tutor.tutorProfile?.availableTime || [],
-      examResults: tutor.tutorProfile?.examResults || '',
+      availableTime: tutor.tutorProfile?.availableTime?.map(time => `${time.day} ${time.time}`.trim()) || [],
+      examResults: tutor.tutorProfile?.examResults?.map(exam => `${exam.subject} ${exam.grade}`).join(', ') || '',
       courseFeatures: tutor.tutorProfile?.courseFeatures || '',
       rating: tutor.rating || 0
     };
@@ -419,10 +419,10 @@ const getTutorProfile = async (req, res) => {
       education: user.tutorProfile?.educationLevel || '',
       qualifications: user.tutorProfile?.documents?.map(doc => doc.type) || [],
       hourlyRate: user.tutorProfile?.sessionRate || 0,
-      availableTime: user.tutorProfile?.availableTime || [],
+      availableTime: user.tutorProfile?.availableTime?.map(time => `${time.day} ${time.time}`.trim()) || [],
       avatar: user.avatar || user.tutorProfile?.avatarUrl || '',
       avatarOffsetX: user.tutorProfile?.avatarOffsetX || 50,
-      examResults: user.tutorProfile?.examResults || '',
+      examResults: user.tutorProfile?.examResults?.map(exam => `${exam.subject} ${exam.grade}`).join(', ') || '',
       courseFeatures: user.tutorProfile?.courseFeatures || '',
       documents: {
         idCard: '',
@@ -477,22 +477,59 @@ const updateTutorProfile = async (req, res) => {
     if (updateData.experience !== undefined) updateObject['tutorProfile.teachingExperienceYears'] = updateData.experience;
     if (updateData.education !== undefined) updateObject['tutorProfile.educationLevel'] = updateData.education;
     if (updateData.subjects !== undefined) updateObject['tutorProfile.subjects'] = updateData.subjects;
-    if (updateData.examResults !== undefined) updateObject['tutorProfile.examResults'] = updateData.examResults;
     if (updateData.teachingAreas !== undefined) updateObject['tutorProfile.teachingAreas'] = updateData.teachingAreas;
-    if (updateData.availableTime !== undefined) updateObject['tutorProfile.availableTime'] = updateData.availableTime;
     if (updateData.teachingMethods !== undefined) updateObject['tutorProfile.teachingMethods'] = updateData.teachingMethods;
     if (updateData.hourlyRate !== undefined) updateObject['tutorProfile.sessionRate'] = updateData.hourlyRate;
     if (updateData.introduction !== undefined) updateObject['tutorProfile.introduction'] = updateData.introduction;
     if (updateData.courseFeatures !== undefined) updateObject['tutorProfile.courseFeatures'] = updateData.courseFeatures;
-    if (updateData.qualifications !== undefined) {
-      // 將 qualifications 字符串數組轉換為 documents 對象數組
-      const documents = updateData.qualifications.map(qual => ({
-        type: qual,
-        url: ''
-      }));
-      updateObject['tutorProfile.documents'] = documents;
-    }
     if (updateData.avatarOffsetX !== undefined) updateObject['tutorProfile.avatarOffsetX'] = updateData.avatarOffsetX;
+    
+    // 處理 examResults - 將字符串轉換為對象數組
+    if (updateData.examResults !== undefined) {
+      if (typeof updateData.examResults === 'string') {
+        // 如果是字符串，轉換為對象格式
+        updateObject['tutorProfile.examResults'] = [{ subject: '考試', grade: updateData.examResults }];
+      } else if (Array.isArray(updateData.examResults)) {
+        // 如果是數組，檢查是否已經是對象格式
+        const examResults = updateData.examResults.map(item => {
+          if (typeof item === 'string') {
+            return { subject: '考試', grade: item };
+          }
+          return item;
+        });
+        updateObject['tutorProfile.examResults'] = examResults;
+      }
+    }
+    
+    // 處理 availableTime - 將字符串數組轉換為對象數組
+    if (updateData.availableTime !== undefined) {
+      if (Array.isArray(updateData.availableTime)) {
+        const availableTime = updateData.availableTime.map(timeStr => {
+          if (typeof timeStr === 'string') {
+            // 解析 "星期一 上午" 格式
+            const parts = timeStr.split(' ');
+            if (parts.length >= 2) {
+              return { day: parts[0], time: parts[1] };
+            } else {
+              return { day: timeStr, time: '' };
+            }
+          }
+          return timeStr;
+        });
+        updateObject['tutorProfile.availableTime'] = availableTime;
+      }
+    }
+    
+    // 處理 qualifications - 將字符串數組轉換為 documents 對象數組
+    if (updateData.qualifications !== undefined) {
+      if (Array.isArray(updateData.qualifications)) {
+        const documents = updateData.qualifications.map(qual => ({
+          type: qual,
+          url: ''
+        }));
+        updateObject['tutorProfile.documents'] = documents;
+      }
+    }
 
     console.log('📝 更新對象:', updateObject);
 
