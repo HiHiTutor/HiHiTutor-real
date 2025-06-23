@@ -89,7 +89,7 @@ export default function TutorDetailPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto max-w-6xl py-8">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* 左側：基本資料 */}
         <div className="md:col-span-2 space-y-6">
