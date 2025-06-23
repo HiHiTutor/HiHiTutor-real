@@ -1,5 +1,9 @@
 const userRepository = require('../repositories/UserRepository');
 const User = require('../models/User');
+const multer = require('multer');
+const path = require('path');
+const { PutObjectCommand } = require('@aws-sdk/client-s3');
+const { s3Client, BUCKET_NAME } = require('../config/s3');
 
 const getCurrentUser = async (req, res) => {
   try {
@@ -227,8 +231,124 @@ const toggleTutorPublic = async (req, res) => {
   }
 };
 
+// 設定 multer 為 memory storage
+const storage = multer.memoryStorage();
+
+// 檔案過濾器 - 只接受圖片
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = ['image/jpeg', 'image/png'];
+  
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('只接受 JPEG 和 PNG 圖片格式'), false);
+  }
+};
+
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB 限制
+  }
+});
+
+// 上傳頭像
+const uploadAvatar = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    const userRole = req.user.role;
+
+    // 權限檢查：只允許本人或 admin 上傳
+    if (userId !== id && userRole !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: '無權限上傳此用戶的頭像'
+      });
+    }
+
+    // 檢查用戶是否存在
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: '用戶不存在'
+      });
+    }
+
+    // 檢查是否有檔案上傳
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: '請選擇要上傳的圖片'
+      });
+    }
+
+    // 取得檔案副檔名
+    const ext = path.extname(req.file.originalname).toLowerCase();
+    if (!['.jpg', '.jpeg', '.png'].includes(ext)) {
+      return res.status(400).json({
+        success: false,
+        message: '只接受 JPEG 和 PNG 圖片格式'
+      });
+    }
+
+    // 建立 S3 檔案路徑：avatars/{userId}.{ext}
+    const key = `avatars/${id}${ext}`;
+
+    // 上傳到 S3
+    const command = new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype,
+      ACL: 'public-read' // 設定為公開可讀
+    });
+
+    await s3Client.send(command);
+
+    // 建立公開 URL
+    const avatarUrl = `https://${BUCKET_NAME}.s3.ap-southeast-2.amazonaws.com/${key}`;
+
+    // 更新用戶資料
+    const updateData = {};
+    
+    // 如果是導師，更新 tutorProfile.avatarUrl
+    if (user.userType === 'tutor') {
+      updateData['tutorProfile.avatarUrl'] = avatarUrl;
+    }
+    
+    // 同時更新主要的 avatar 欄位
+    updateData.avatar = avatarUrl;
+
+    await User.findByIdAndUpdate(id, updateData);
+
+    console.log('✅ 頭像上傳成功:', {
+      userId: id,
+      avatarUrl,
+      uploadedBy: userId
+    });
+
+    res.json({
+      success: true,
+      avatarUrl: avatarUrl
+    });
+
+  } catch (error) {
+    console.error('❌ 頭像上傳失敗:', error);
+    res.status(500).json({
+      success: false,
+      message: '頭像上傳失敗',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getCurrentUser,
   upgradeTutor,
   toggleTutorPublic,
+  uploadAvatar,
+  upload
 }; 
