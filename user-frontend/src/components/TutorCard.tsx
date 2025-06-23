@@ -80,10 +80,24 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
           <h3 className="text-lg font-semibold">{displayName}</h3>
           <Rating rating={tutor.rating || 0} />
         </div>
-        <p className="text-gray-600">
-          {displaySubjects}
-          {hasMoreSubjects && <span className="ml-1">+</span>}
-        </p>
+        
+        {/* 科目顯示 - 使用 badge 樣式 */}
+        <div className="flex flex-wrap gap-1 my-2">
+          {subjects.slice(0, 2).map((subject, idx) => (
+            <span
+              key={subject}
+              className="inline-block bg-blue-100 text-blue-800 rounded px-2 py-0.5 text-xs font-medium"
+            >
+              {subject}
+            </span>
+          ))}
+          {subjects.length > 2 && (
+            <span className="inline-block bg-gray-100 text-gray-600 rounded px-2 py-0.5 text-xs font-medium">
+              +{subjects.length - 2}
+            </span>
+          )}
+        </div>
+        
         <div className="text-sm text-gray-500">
           <span>教學年資: {displayExperience}</span>
         </div>
