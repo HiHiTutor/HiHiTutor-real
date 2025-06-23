@@ -256,26 +256,69 @@ const upload = multer({
 // 上傳頭像
 const uploadAvatar = async (req, res) => {
   try {
-    const { id } = req.params;
-    const userId = req.user.id;
+    const { id } = req.params; // 這個 id 現在是 userId
+    const tokenUserId = req.user.userId; // 從 JWT token 中取得 userId
+    const tokenId = req.user.id; // MongoDB 的 _id
     const userRole = req.user.role;
 
+    console.log('🔍 權限檢查詳細資訊:', {
+      requestedUserId: id,
+      tokenUserId,
+      tokenId,
+      userRole,
+      reqUser: req.user, // 完整的 req.user 物件
+      params: req.params // 完整的 req.params 物件
+    });
+
+    // 檢查 token 中是否有 userId
+    if (!tokenUserId) {
+      console.log('❌ JWT token 中缺少 userId 欄位');
+      return res.status(401).json({
+        success: false,
+        message: 'JWT token 格式錯誤，缺少 userId'
+      });
+    }
+
     // 權限檢查：只允許本人或 admin 上傳
-    if (userId !== id && userRole !== 'admin') {
+    // 檢查 userId 是否匹配，或者是否為 admin
+    const isOwnUser = tokenUserId === id;
+    const isAdmin = userRole === 'admin';
+    
+    console.log('🔐 權限判斷:', {
+      isOwnUser,
+      isAdmin,
+      tokenUserId,
+      requestedId: id,
+      userIdMatch: tokenUserId === id,
+      userRoleMatch: userRole === 'admin'
+    });
+
+    if (!isOwnUser && !isAdmin) {
+      console.log('❌ 權限驗證失敗:', {
+        reason: '既不是本人也不是 admin',
+        tokenUserId,
+        requestedId: id,
+        userRole
+      });
       return res.status(403).json({
         success: false,
         message: '無權限上傳此用戶的頭像'
       });
     }
 
-    // 檢查用戶是否存在
-    const user = await User.findById(id);
+    console.log('✅ 權限驗證通過');
+
+    // 檢查用戶是否存在 - 使用 userId 欄位查找
+    const user = await User.findOne({ userId: id });
     if (!user) {
+      console.log('❌ 找不到用戶:', { userId: id });
       return res.status(404).json({
         success: false,
         message: '用戶不存在'
       });
     }
+
+    console.log('✅ 用戶存在:', { userId: id, userName: user.name });
 
     // 檢查是否有檔案上傳
     if (!req.file) {
@@ -311,7 +354,7 @@ const uploadAvatar = async (req, res) => {
     // 建立公開 URL
     const avatarUrl = `https://${BUCKET_NAME}.s3.ap-southeast-2.amazonaws.com/${key}`;
 
-    // 更新用戶資料
+    // 更新用戶資料 - 使用 userId 查找並更新
     const updateData = {};
     
     // 如果是導師，更新 tutorProfile.avatarUrl
@@ -322,12 +365,12 @@ const uploadAvatar = async (req, res) => {
     // 同時更新主要的 avatar 欄位
     updateData.avatar = avatarUrl;
 
-    await User.findByIdAndUpdate(id, updateData);
+    await User.findOneAndUpdate({ userId: id }, updateData);
 
     console.log('✅ 頭像上傳成功:', {
       userId: id,
       avatarUrl,
-      uploadedBy: userId
+      uploadedBy: tokenUserId || tokenId
     });
 
     res.json({
