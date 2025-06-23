@@ -172,15 +172,84 @@ const getAllTutors = async (req, res) => {
 };
 
 // 根據 ID 回傳特定導師
-const getTutorById = (req, res) => {
-  const id = parseInt(req.params.id);
-  const tutor = tutors.find(tutor => tutor.id === id);
-  
-  if (!tutor) {
-    return res.status(404).json({ error: '找不到該導師' });
+const getTutorById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    console.log('🔍 查找導師:', id);
+    
+    // 嘗試多種方式查找導師
+    let tutor = null;
+    
+    // 1. 先嘗試用 userId 查找
+    if (id && id !== 'undefined') {
+      tutor = await User.findOne({ 
+        userId: id,
+        userType: 'tutor',
+        isActive: true 
+      }).select('-password -refreshToken');
+    }
+    
+    // 2. 如果找不到，嘗試用 MongoDB _id 查找
+    if (!tutor && id && id.length === 24) {
+      tutor = await User.findOne({ 
+        _id: id,
+        userType: 'tutor',
+        isActive: true 
+      }).select('-password -refreshToken');
+    }
+    
+    // 3. 如果還是找不到，嘗試用 tutorId 查找
+    if (!tutor) {
+      tutor = await User.findOne({ 
+        tutorId: id,
+        userType: 'tutor',
+        isActive: true 
+      }).select('-password -refreshToken');
+    }
+    
+    if (!tutor) {
+      console.log('❌ 找不到導師:', id);
+      return res.status(404).json({ 
+        success: false,
+        message: '找不到該導師' 
+      });
+    }
+    
+    console.log('✅ 找到導師:', tutor.name);
+    
+    // 回傳導師公開資料
+    const publicProfile = {
+      id: tutor._id,
+      userId: tutor.userId,
+      tutorId: tutor.tutorId,
+      name: tutor.name,
+      avatar: tutor.avatar || tutor.tutorProfile?.avatarUrl || '',
+      avatarOffsetX: tutor.tutorProfile?.avatarOffsetX || 50,
+      subjects: tutor.tutorProfile?.subjects || [],
+      teachingAreas: tutor.tutorProfile?.teachingAreas || [],
+      teachingMethods: tutor.tutorProfile?.teachingMethods || [],
+      experience: tutor.tutorProfile?.teachingExperienceYears || 0,
+      introduction: tutor.tutorProfile?.introduction || '',
+      education: tutor.tutorProfile?.educationLevel || '',
+      hourlyRate: tutor.tutorProfile?.sessionRate || 0,
+      availableTime: tutor.tutorProfile?.availableTime || [],
+      examResults: tutor.tutorProfile?.examResults || '',
+      courseFeatures: tutor.tutorProfile?.courseFeatures || '',
+      rating: tutor.rating || 0
+    };
+    
+    res.json({
+      success: true,
+      data: publicProfile
+    });
+  } catch (error) {
+    console.error('❌ 獲取導師詳情錯誤:', error);
+    res.status(500).json({ 
+      success: false,
+      message: '獲取導師詳情失敗' 
+    });
   }
-  
-  res.json(tutor);
 };
 
 // 根據 tutorId 回傳導師公開 profile
@@ -255,7 +324,7 @@ const getTutors = async (req, res) => {
 
     // 執行查詢
     const tutors = await User.find(query)
-      .select('tutorId name avatar subjects teachingAreas teachingMethods experience rating introduction')
+      .select('userId tutorId name avatar subjects teachingAreas teachingMethods experience rating introduction')
       .sort(sort)
       .skip((page - 1) * limit)
       .limit(parseInt(limit));

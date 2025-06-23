@@ -5,6 +5,7 @@ import Link from 'next/link';
 
 interface Tutor {
   id: string;
+  userId?: string;
   name: string;
   subject?: string;
   subjects?: string[];
@@ -32,9 +33,12 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
   const displayEducation = tutor.education || tutor.tutorProfile?.education || '未指定';
   const displayAvatar = tutor.avatarUrl || tutor.avatar || '/avatars/default.png';
   const avatarOffsetX = tutor.avatarOffsetX || 50; // 預設置中
+  
+  // 使用 userId 作為導航 ID，如果沒有則使用 id
+  const navigationId = tutor.userId || tutor.id;
 
   return (
-    <Link href={`/tutors/${tutor.id}`}>
+    <Link href={`/tutors/${navigationId}`}>
       <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
         <div
           className="w-[100px] h-[100px] rounded-full overflow-hidden mx-auto mb-4 bg-center bg-cover"

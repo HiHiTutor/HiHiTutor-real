@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { toast } from 'sonner';
+import { toast } from 'react-hot-toast';
 
 interface Tutor {
   tutorId: string;
@@ -33,11 +33,15 @@ export default function TutorDetailPage() {
     const fetchTutorDetail = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/tutors/detail/${tutorId}`);
+        const response = await fetch(`/api/tutors/${tutorId}`);
         if (!response.ok) throw new Error('獲取導師詳情失敗');
         
-        const data = await response.json();
-        setTutor(data);
+        const result = await response.json();
+        if (result.success && result.data) {
+          setTutor(result.data);
+        } else {
+          throw new Error(result.message || '獲取導師詳情失敗');
+        }
       } catch (error) {
         console.error('Error fetching tutor detail:', error);
         toast.error('獲取導師詳情失敗');
