@@ -70,6 +70,18 @@ export default function TutorDetailPage() {
     fetchTutorDetail();
   }, [tutorId]);
 
+  if (tutor) {
+    // fallback: 保證所有陣列型欄位不為 undefined
+    tutor.subjects = tutor.subjects || [];
+    tutor.teachingAreas = tutor.teachingAreas || [];
+    tutor.teachingMethods = tutor.teachingMethods || [];
+    tutor.qualifications = tutor.qualifications || [];
+    tutor.availableTime = tutor.availableTime || [];
+    tutor.examResults = tutor.examResults || [];
+    // debug print
+    console.log('tutor data:', tutor);
+  }
+
   if (loading) {
     return <div className="container mx-auto py-8 text-center">載入中...</div>;
   }
@@ -80,6 +92,8 @@ export default function TutorDetailPage() {
 
   return (
     <div className="container mx-auto py-8">
+      {/* debug print */}
+      <pre className="mb-4 bg-gray-100 p-2 text-xs overflow-x-auto">{JSON.stringify(tutor, null, 2)}</pre>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* 左側：基本資料 */}
         <div className="md:col-span-2 space-y-6">
