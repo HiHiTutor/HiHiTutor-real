@@ -235,7 +235,7 @@ const getTutorById = async (req, res) => {
       qualifications: tutor.tutorProfile?.documents?.map(doc => doc.type) || [],
       hourlyRate: tutor.tutorProfile?.sessionRate || 0,
       availableTime: tutor.tutorProfile?.availableTime?.map(time => `${time.day} ${time.time}`.trim()) || [],
-      examResults: tutor.tutorProfile?.examResults?.map(exam => `${exam.subject} ${exam.grade}`).join(', ') || '',
+      examResults: tutor.tutorProfile?.examResults?.map(exam => `${exam.subject} ${exam.grade}`) || [],
       courseFeatures: tutor.tutorProfile?.courseFeatures || '',
       rating: tutor.rating || 0
     };

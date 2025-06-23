@@ -45,8 +45,13 @@ async function testTutorUpdate() {
       'tutorProfile.teachingAreas': ['港島', '九龍'],
       'tutorProfile.teachingMethods': ['face-to-face', 'online'],
       'tutorProfile.sessionRate': 300,
-      'tutorProfile.availableTime': ['星期一 上午', '星期二 下午'],
-      'tutorProfile.examResults': 'DSE 5**',
+      'tutorProfile.availableTime': [
+        { day: '星期一', time: '上午' },
+        { day: '星期二', time: '下午' }
+      ],
+      'tutorProfile.examResults': [
+        { subject: 'DSE', grade: '5**' }
+      ],
       'tutorProfile.courseFeatures': '專注於考試技巧',
       'tutorProfile.documents': [
         { type: '教師證書', url: '' },
