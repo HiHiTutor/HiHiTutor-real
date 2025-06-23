@@ -300,13 +300,29 @@ const getTutorDetail = async (req, res) => {
 // 獲取當前登入導師的 profile
 const getTutorProfile = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const tokenUserId = req.user.userId; // 從 JWT token 中取得 userId
+    const tokenId = req.user.id; // MongoDB 的 _id
     
-    console.log('🔍 獲取導師 profile:', userId);
+    console.log('🔍 獲取導師 profile:', {
+      tokenUserId,
+      tokenId,
+      userType: req.user.userType,
+      role: req.user.role
+    });
 
-    const tutor = await User.findById(userId).select('-password');
+    // 檢查是否為導師
+    if (req.user.userType !== 'tutor') {
+      return res.status(403).json({
+        success: false,
+        message: '只有導師才能使用此 API'
+      });
+    }
+
+    // 使用 userId 查找導師
+    const tutor = await User.findOne({ userId: tokenUserId }).select('-password');
     
     if (!tutor) {
+      console.log('❌ 找不到導師:', tokenUserId);
       return res.status(404).json({
         success: false,
         message: '找不到導師'
@@ -320,11 +336,20 @@ const getTutorProfile = async (req, res) => {
       });
     }
 
-    console.log('✅ 導師 profile 獲取成功');
+    console.log('✅ 導師 profile 獲取成功:', tutor.name);
 
+    // 回傳符合需求的格式
     res.json({
       success: true,
-      data: tutor
+      tutor: {
+        userId: tutor.userId,
+        name: tutor.name,
+        email: tutor.email,
+        phone: tutor.phone,
+        avatarUrl: tutor.avatar || tutor.tutorProfile?.avatarUrl,
+        userType: tutor.userType,
+        role: tutor.role
+      }
     });
   } catch (error) {
     console.error('❌ 獲取導師 profile 錯誤:', error);
