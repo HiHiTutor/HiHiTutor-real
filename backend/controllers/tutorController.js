@@ -232,7 +232,7 @@ const getTutorById = async (req, res) => {
       experience: tutor.tutorProfile?.teachingExperienceYears || 0,
       introduction: tutor.tutorProfile?.introduction || '',
       education: tutor.tutorProfile?.educationLevel || '',
-      qualifications: tutor.tutorProfile?.qualifications || [],
+      qualifications: tutor.tutorProfile?.documents?.map(doc => doc.type) || [],
       hourlyRate: tutor.tutorProfile?.sessionRate || 0,
       availableTime: tutor.tutorProfile?.availableTime || [],
       examResults: tutor.tutorProfile?.examResults || '',
@@ -417,7 +417,7 @@ const getTutorProfile = async (req, res) => {
       experience: user.tutorProfile?.teachingExperienceYears || 0,
       introduction: user.tutorProfile?.introduction || '',
       education: user.tutorProfile?.educationLevel || '',
-      qualifications: user.tutorProfile?.documents || [],
+      qualifications: user.tutorProfile?.documents?.map(doc => doc.type) || [],
       hourlyRate: user.tutorProfile?.sessionRate || 0,
       availableTime: user.tutorProfile?.availableTime || [],
       avatar: user.avatar || user.tutorProfile?.avatarUrl || '',
@@ -484,7 +484,14 @@ const updateTutorProfile = async (req, res) => {
     if (updateData.hourlyRate !== undefined) updateObject['tutorProfile.sessionRate'] = updateData.hourlyRate;
     if (updateData.introduction !== undefined) updateObject['tutorProfile.introduction'] = updateData.introduction;
     if (updateData.courseFeatures !== undefined) updateObject['tutorProfile.courseFeatures'] = updateData.courseFeatures;
-    if (updateData.qualifications !== undefined) updateObject['tutorProfile.documents'] = updateData.qualifications;
+    if (updateData.qualifications !== undefined) {
+      // 將 qualifications 字符串數組轉換為 documents 對象數組
+      const documents = updateData.qualifications.map(qual => ({
+        type: qual,
+        url: ''
+      }));
+      updateObject['tutorProfile.documents'] = documents;
+    }
     if (updateData.avatarOffsetX !== undefined) updateObject['tutorProfile.avatarOffsetX'] = updateData.avatarOffsetX;
 
     console.log('📝 更新對象:', updateObject);
