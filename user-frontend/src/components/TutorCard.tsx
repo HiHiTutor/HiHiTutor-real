@@ -51,7 +51,12 @@ const Rating = ({ rating }: { rating: number }) => {
 const TutorCard = ({ tutor }: TutorCardProps) => {
   // 處理數據結構差異
   const displayName = tutor.name || '未指定';
-  const displaySubject = tutor.subject || tutor.subjects?.[0] || '未指定';
+
+  // 科目顯示邏輯
+  const subjects = tutor.subjects || [];
+  const displaySubjects = subjects.slice(0, 2).join(' / ');
+  const hasMoreSubjects = subjects.length > 2;
+
   const rawExperience = tutor.tutorProfile?.experience || tutor.experience;
   const displayExperience = typeof rawExperience === 'number' ? `${rawExperience}年` : rawExperience || '未指定';
   const displayEducation = tutor.education || tutor.tutorProfile?.education || '未指定';
@@ -75,7 +80,10 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
           <h3 className="text-lg font-semibold">{displayName}</h3>
           <Rating rating={tutor.rating || 0} />
         </div>
-        <p className="text-gray-600">{displaySubject}</p>
+        <p className="text-gray-600">
+          {displaySubjects}
+          {hasMoreSubjects && <span className="ml-1">+</span>}
+        </p>
         <div className="text-sm text-gray-500">
           <span>教學年資: {displayExperience}</span>
         </div>
