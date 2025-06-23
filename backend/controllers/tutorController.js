@@ -464,41 +464,35 @@ const updateTutorProfile = async (req, res) => {
       });
     }
 
-    // 只允許更新特定欄位
-    const allowedFields = [
-      'name',
-      'phone',
-      'avatar',
-      'tutorProfile.gender',
-      'tutorProfile.birthDate',
-      'tutorProfile.teachingExperienceYears',
-      'tutorProfile.educationLevel',
-      'tutorProfile.subjects',
-      'tutorProfile.examResults',
-      'tutorProfile.teachingAreas',
-      'tutorProfile.availableTime',
-      'tutorProfile.teachingMethods',
-      'tutorProfile.classType',
-      'tutorProfile.sessionRate',
-      'tutorProfile.introduction',
-      'tutorProfile.courseFeatures',
-      'tutorProfile.documents',
-      'tutorProfile.displayPublic',
-      'tutorProfile.avatarOffsetX'
-    ];
+    // 構建更新對象
+    const updateObject = {};
+    
+    // 直接更新的字段
+    if (updateData.name !== undefined) updateObject.name = updateData.name;
+    if (updateData.avatar !== undefined) updateObject.avatar = updateData.avatar;
+    
+    // tutorProfile 子對象的字段
+    if (updateData.gender !== undefined) updateObject['tutorProfile.gender'] = updateData.gender;
+    if (updateData.birthDate !== undefined) updateObject['tutorProfile.birthDate'] = updateData.birthDate;
+    if (updateData.experience !== undefined) updateObject['tutorProfile.teachingExperienceYears'] = updateData.experience;
+    if (updateData.education !== undefined) updateObject['tutorProfile.educationLevel'] = updateData.education;
+    if (updateData.subjects !== undefined) updateObject['tutorProfile.subjects'] = updateData.subjects;
+    if (updateData.examResults !== undefined) updateObject['tutorProfile.examResults'] = updateData.examResults;
+    if (updateData.teachingAreas !== undefined) updateObject['tutorProfile.teachingAreas'] = updateData.teachingAreas;
+    if (updateData.availableTime !== undefined) updateObject['tutorProfile.availableTime'] = updateData.availableTime;
+    if (updateData.teachingMethods !== undefined) updateObject['tutorProfile.teachingMethods'] = updateData.teachingMethods;
+    if (updateData.hourlyRate !== undefined) updateObject['tutorProfile.sessionRate'] = updateData.hourlyRate;
+    if (updateData.introduction !== undefined) updateObject['tutorProfile.introduction'] = updateData.introduction;
+    if (updateData.courseFeatures !== undefined) updateObject['tutorProfile.courseFeatures'] = updateData.courseFeatures;
+    if (updateData.qualifications !== undefined) updateObject['tutorProfile.documents'] = updateData.qualifications;
+    if (updateData.avatarOffsetX !== undefined) updateObject['tutorProfile.avatarOffsetX'] = updateData.avatarOffsetX;
 
-    // 過濾允許更新的欄位
-    const filteredData = {};
-    Object.keys(updateData).forEach(key => {
-      if (allowedFields.includes(key)) {
-        filteredData[key] = updateData[key];
-      }
-    });
+    console.log('📝 更新對象:', updateObject);
 
     // 更新導師資料
     const updatedTutor = await User.findByIdAndUpdate(
       userId,
-      { $set: filteredData },
+      { $set: updateObject },
       { new: true }
     ).select('-password');
 
