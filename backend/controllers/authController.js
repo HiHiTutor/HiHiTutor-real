@@ -356,10 +356,8 @@ const register = async (req, res) => {
         userId
       };
 
-      // 當 userType 為 student 時，設定 tutorProfile 為空物件
-      if (userType === 'student') {
-        userData.tutorProfile = {};
-      }
+      // 當 userType 為 student 時，不設置 tutorProfile，讓它使用預設值
+      // 當 userType 為 organization 時，也不設置 tutorProfile
 
       const newUser = new User(userData);
 

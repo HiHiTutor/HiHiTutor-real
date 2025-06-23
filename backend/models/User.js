@@ -112,7 +112,10 @@ const userSchema = new mongoose.Schema({
       },
       validate: {
         validator: function (arr) {
-          return this.userType !== 'tutor' || (Array.isArray(arr) && arr.length > 0);
+          if (this.userType !== 'tutor') {
+            return true;
+          }
+          return Array.isArray(arr) && arr.length > 0;
         },
         message: '請至少填寫一個可教授科目'
       }
@@ -149,7 +152,10 @@ const userSchema = new mongoose.Schema({
       },
       validate: {
         validator: function(v) {
-          return this.userType !== 'tutor' || (v >= 100);
+          if (this.userType !== 'tutor') {
+            return true;
+          }
+          return v >= 100;
         },
         message: '堂費不能少於 100 元'
       }

@@ -239,6 +239,109 @@ const reviewTutorApplication = async (req, res) => {
   }
 };
 
+// 3. 批准導師申請
+const approveTutorApplication = async (req, res) => {
+  try {
+    const appId = req.params.id;
+    const { remarks } = req.body;
+
+    console.log('[🔍] 批准導師申請:', appId);
+
+    // 1. 取得對應的 TutorApplication 記錄
+    const application = await TutorApplication.findOne({ id: appId });
+    if (!application) {
+      return res.status(404).json({ 
+        success: false,
+        message: '申請不存在' 
+      });
+    }
+
+    // 檢查申請狀態
+    if (application.status === 'approved') {
+      return res.status(400).json({
+        success: false,
+        message: '該申請已經被批准'
+      });
+    }
+
+    if (application.status === 'rejected') {
+      return res.status(400).json({
+        success: false,
+        message: '該申請已被拒絕，無法重新批准'
+      });
+    }
+
+    // 2. 更新申請狀態為 approved
+    application.status = 'approved';
+    application.reviewedAt = new Date();
+    application.remarks = remarks || '';
+
+    await application.save();
+
+    // 3. 升級用戶為導師
+    console.log('[✅] 申請已批准，準備升級用戶為導師');
+    
+    const userId = application.userId;
+    
+    // 確保 userId 是有效的 ObjectId 格式
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      console.log('[❌] 無效的 userId 格式:', userId);
+      return res.status(400).json({
+        success: false,
+        message: '無效的用戶 ID 格式'
+      });
+    }
+
+    // 將 userType 改為 "tutor"，將 tutorProfile.applicationStatus 改為 "approved"
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        $set: {
+          userType: 'tutor',
+          'tutorProfile.applicationStatus': 'approved'
+        }
+      },
+      { 
+        new: true,
+        runValidators: true 
+      }
+    );
+
+    if (updatedUser) {
+      console.log('[✅] 用戶升級成功:', {
+        userId: updatedUser._id,
+        userType: updatedUser.userType,
+        applicationStatus: updatedUser.tutorProfile?.applicationStatus
+      });
+    } else {
+      console.log('[❌] 用戶升級失敗: 找不到用戶', userId);
+      return res.status(404).json({
+        success: false,
+        message: '找不到對應的用戶'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: '申請已批准，用戶已升級為導師',
+      data: {
+        applicationId: application.id,
+        status: application.status,
+        reviewedAt: application.reviewedAt,
+        remarks: application.remarks
+      }
+    });
+
+  } catch (error) {
+    console.error('[❌] 批准申請失敗:', error);
+    res.status(500).json({
+      success: false,
+      message: '批准申請失敗',
+      error: error.message
+    });
+  }
+};
+
 // 3. 手動創建導師用戶
 const createTutorUser = async (req, res) => {
   try {
@@ -337,6 +440,7 @@ const getAllTutorApplications = async (req, res) => {
 module.exports = {
   submitTutorApplication,
   reviewTutorApplication,
+  approveTutorApplication,
   createTutorUser,
   getAllApplications,
   getAllTutorApplications

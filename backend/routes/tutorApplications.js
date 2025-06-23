@@ -5,6 +5,7 @@ const { verifyAdmin } = require('../middleware/adminMiddleware');
 const {
   submitTutorApplication,
   reviewTutorApplication,
+  approveTutorApplication,
   createTutorUser,
   getAllApplications,
   getAllTutorApplications
@@ -18,6 +19,9 @@ router.get('/', verifyToken, verifyAdmin, getAllTutorApplications);
 
 // 管理員審核申請
 router.put('/:id/review', verifyToken, verifyAdmin, reviewTutorApplication);
+
+// 管理員批准申請
+router.patch('/:id/approve', verifyToken, verifyAdmin, approveTutorApplication);
 
 // 管理員手動創建導師用戶
 router.post('/create', verifyToken, verifyAdmin, createTutorUser);
