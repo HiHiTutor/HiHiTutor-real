@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { toast } from 'sonner';
+import { toast } from 'react-hot-toast';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
@@ -357,6 +357,17 @@ export default function TutorDashboardPage() {
                 <p className="text-sm text-gray-500">
                   建議上傳正方形照片，大小不超過 2MB
                 </p>
+                {formData.avatar && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => router.push('/tutor/avatar-editor')}
+                    className="mt-2"
+                  >
+                    調整頭像位置
+                  </Button>
+                )}
               </div>
             </div>
 
