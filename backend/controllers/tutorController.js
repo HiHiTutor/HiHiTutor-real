@@ -232,6 +232,7 @@ const getTutorById = async (req, res) => {
       experience: tutor.tutorProfile?.teachingExperienceYears || 0,
       introduction: tutor.tutorProfile?.introduction || '',
       education: tutor.tutorProfile?.educationLevel || '',
+      qualifications: tutor.tutorProfile?.qualifications || [],
       hourlyRate: tutor.tutorProfile?.sessionRate || 0,
       availableTime: tutor.tutorProfile?.availableTime || [],
       examResults: tutor.tutorProfile?.examResults || '',
