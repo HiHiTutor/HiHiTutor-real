@@ -312,13 +312,13 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {cases.map((caseItem: Case) => (
-            routeType === 'tutor' ? (
-              <TutorCard key={caseItem.id} tutor={caseItem as any} />
-            ) : (
-              <CaseCard key={caseItem.id} caseData={caseItem as any} routeType={routeType} />
-            )
-          ))}
+          {cases.map((caseItem: Case) => {
+            if (routeType === 'tutor') {
+              return <TutorCard key={caseItem.id || caseItem.userId} tutor={caseItem as any} />;
+            } else {
+              return <CaseCard key={caseItem.id} caseData={caseItem as any} routeType={routeType} />;
+            }
+          })}
         </div>
       )}
 
