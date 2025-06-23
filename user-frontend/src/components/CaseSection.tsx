@@ -235,19 +235,8 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
           } else if (Array.isArray(data.data?.cases)) {
             rawCases = data.data.cases;
           } else if (Array.isArray(data.data?.tutors)) {
-            rawCases = data.data.tutors.map((tutor: any) => ({
-              ...tutor,
-              id: tutor.id,
-              avatarUrl: tutor.avatarUrl,
-              tutorId: tutor.id,
-              subjects: [tutor.subject],
-              teachingMethods: [],
-              experience: tutor.experience,
-              rating: tutor.rating || 0,
-              isVip: tutor.isVip || false,
-              isTop: tutor.isTop || false,
-              createdAt: new Date().toISOString()
-            }));
+            // Directly use the tutor data from the API without re-mapping
+            rawCases = data.data.tutors;
           } else if (Array.isArray(data.data)) {
             rawCases = data.data;
           }
