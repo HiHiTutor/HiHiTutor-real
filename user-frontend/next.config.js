@@ -18,16 +18,6 @@ const nextConfig = {
       'hi-hi-tutor-real-backend2.vercel.app',
       'hihitutor-uploads.s3.ap-southeast-2.amazonaws.com'
     ], // 允許從這些域名載入圖片
-  },
-  async rewrites() {
-    const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'https://hi-hi-tutor-real-backend2.vercel.app';
-    
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${apiBase}/api/:path*`,
-      }
-    ]
   }
 };
 

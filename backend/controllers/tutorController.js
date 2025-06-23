@@ -310,45 +310,50 @@ const getTutorProfile = async (req, res) => {
       role: req.user.role
     });
 
+    // 使用 userId 查找用戶
+    const user = await User.findOne({ userId: tokenUserId }).select('-password');
+    
+    if (!user) {
+      console.log('❌ 找不到用戶:', tokenUserId);
+      return res.status(404).json({
+        success: false,
+        message: '找不到用戶'
+      });
+    }
+
+    console.log('✅ 用戶存在:', { userId: tokenUserId, userName: user.name, userType: user.userType });
+
     // 檢查是否為導師
-    if (req.user.userType !== 'tutor') {
+    if (user.userType !== 'tutor') {
       return res.status(403).json({
         success: false,
         message: '只有導師才能使用此 API'
       });
     }
 
-    // 使用 userId 查找導師
-    const tutor = await User.findOne({ userId: tokenUserId }).select('-password');
-    
-    if (!tutor) {
-      console.log('❌ 找不到導師:', tokenUserId);
-      return res.status(404).json({
-        success: false,
-        message: '找不到導師'
-      });
-    }
+    console.log('✅ 導師 profile 獲取成功:', user.name);
 
-    if (tutor.userType !== 'tutor') {
-      return res.status(400).json({
-        success: false,
-        message: '該用戶不是導師'
-      });
-    }
-
-    console.log('✅ 導師 profile 獲取成功:', tutor.name);
-
-    // 回傳符合需求的格式
+    // 回傳符合前端期望的格式
     res.json({
-      success: true,
-      tutor: {
-        userId: tutor.userId,
-        name: tutor.name,
-        email: tutor.email,
-        phone: tutor.phone,
-        avatarUrl: tutor.avatar || tutor.tutorProfile?.avatarUrl,
-        userType: tutor.userType,
-        role: tutor.role
+      tutorId: user.tutorId || user._id,
+      name: user.name,
+      gender: user.tutorProfile?.gender || 'male',
+      birthDate: user.tutorProfile?.birthDate,
+      subjects: user.tutorProfile?.subjects || [],
+      teachingAreas: user.tutorProfile?.teachingAreas || [],
+      teachingMethods: user.tutorProfile?.teachingMethods || [],
+      experience: user.tutorProfile?.teachingExperienceYears || 0,
+      introduction: user.tutorProfile?.introduction || '',
+      education: user.tutorProfile?.educationLevel || '',
+      qualifications: user.tutorProfile?.documents || [],
+      hourlyRate: user.tutorProfile?.sessionRate || 0,
+      availableTime: user.tutorProfile?.availableTime || [],
+      avatar: user.avatar || user.tutorProfile?.avatarUrl || '',
+      examResults: user.tutorProfile?.examResults || '',
+      courseFeatures: user.tutorProfile?.courseFeatures || '',
+      documents: {
+        idCard: '',
+        educationCert: ''
       }
     });
   } catch (error) {

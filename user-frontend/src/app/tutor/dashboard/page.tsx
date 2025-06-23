@@ -16,6 +16,7 @@ import { CalendarIcon, Upload } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { tutorApi } from '@/services/api';
 
 // 科目分類
 const SUBJECT_CATEGORIES = {
@@ -158,15 +159,16 @@ export default function TutorDashboardPage() {
   const fetchTutorProfile = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/tutors/profile');
-      if (!response.ok) {
-        throw new Error('獲取資料失敗');
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('未登入');
       }
-      const data = await response.json();
+
+      const data = await tutorApi.getProfile();
       setFormData(data);
     } catch (error) {
       console.error('獲取資料失敗:', error);
-      toast.error('獲取資料失敗，請稍後再試');
+      toast.error(error instanceof Error ? error.message : '獲取資料失敗，請稍後再試');
     } finally {
       setLoading(false);
     }
@@ -176,21 +178,18 @@ export default function TutorDashboardPage() {
     e.preventDefault();
     try {
       setSaving(true);
-      const response = await fetch('/api/tutors/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('未登入');
+      }
 
-      if (!response.ok) throw new Error('更新導師資料失敗');
+      await tutorApi.updateProfile(formData);
       
       toast.success('導師資料已更新');
       router.push('/tutors/' + formData.tutorId);
     } catch (error) {
       console.error('Error updating tutor profile:', error);
-      toast.error('更新導師資料失敗');
+      toast.error(error instanceof Error ? error.message : '更新導師資料失敗');
     } finally {
       setSaving(false);
     }
@@ -203,24 +202,31 @@ export default function TutorDashboardPage() {
     try {
       setUploading(true);
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('avatar', file);
 
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData
-      });
+      // 從 localStorage 獲取 token
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('未登入');
+      }
 
-      if (!response.ok) throw new Error('上傳照片失敗');
-      
-      const data = await response.json();
+      // 從 localStorage 獲取 userId
+      const userStr = localStorage.getItem('user');
+      if (!userStr) {
+        throw new Error('找不到用戶資料');
+      }
+      const user = JSON.parse(userStr);
+      const userId = user.userId;
+
+      const data = await tutorApi.uploadAvatar(userId, file);
       setFormData(prev => ({
         ...prev,
-        avatar: data.url
+        avatar: data.avatarUrl
       }));
       toast.success('照片上傳成功');
     } catch (error) {
       console.error('Error uploading avatar:', error);
-      toast.error('上傳照片失敗');
+      toast.error(error instanceof Error ? error.message : '上傳照片失敗');
     } finally {
       setUploading(false);
     }
@@ -235,6 +241,7 @@ export default function TutorDashboardPage() {
       const formData = new FormData();
       formData.append('file', file);
 
+      // 使用 Next.js API 路由上傳文件
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData
@@ -280,22 +287,17 @@ export default function TutorDashboardPage() {
   const handleSectionSave = async (section: string, data: Partial<TutorProfile>) => {
     try {
       setSavingSection(section);
-      const response = await fetch('/api/tutors/profile', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error('更新失敗');
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('未登入');
       }
+
+      await tutorApi.updateProfile(data);
 
       toast.success('更新成功');
     } catch (error) {
       console.error('更新失敗:', error);
-      toast.error('更新失敗，請稍後再試');
+      toast.error(error instanceof Error ? error.message : '更新失敗，請稍後再試');
     } finally {
       setSavingSection(null);
     }

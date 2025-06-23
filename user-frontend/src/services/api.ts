@@ -122,6 +122,41 @@ export const tutorApi = {
   // 獲取推薦導師
   getRecommendedTutors: () => fetchApi('/tutors?featured=true&limit=8'),
 
+  // 獲取當前導師 profile
+  getProfile: () => fetchApi('/tutors/profile'),
+
+  // 更新導師 profile
+  updateProfile: (data: any) => 
+    fetchApi('/tutors/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    }),
+
+  // 上傳頭像
+  uploadAvatar: async (userId: string, file: File) => {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    
+    const token = localStorage.getItem('token');
+    const baseURL = process.env.NEXT_PUBLIC_API_BASE || 'https://hi-hi-tutor-real-backend2.vercel.app';
+    const url = `${baseURL}/api/users/${userId}/avatar`;
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: '無法解析回應' }));
+      throw new Error(errorData.message || '頭像上傳失敗');
+    }
+
+    return response.json();
+  },
+
   // 申請配對導師
   applyTutor: (tutorId: number, studentId: number) => 
     fetchApi(`/tutors/${tutorId}/apply`, {
