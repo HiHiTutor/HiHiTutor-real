@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { fetchApi } from '@/services/api';
 import CaseCard from '@/components/CaseCard';
+import TutorCard from '@/components/TutorCard';
 import SUBJECT_MAP from '@/constants/subjectOptions';
 
 // 科目映射表
@@ -177,6 +178,12 @@ interface Case {
   date?: string;
   createdAt?: string;
   avatarUrl?: string;
+  name?: string;
+  subject?: string;
+  education?: string;
+  isVip?: boolean;
+  isTop?: boolean;
+  rating?: number;
   // 其他可能欄位
   [key: string]: any;
 }
@@ -230,6 +237,8 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
           } else if (Array.isArray(data.data?.tutors)) {
             rawCases = data.data.tutors.map((tutor: any) => ({
               ...tutor,
+              id: tutor.id,
+              avatarUrl: tutor.avatarUrl,
               tutorId: tutor.id,
               subjects: [tutor.subject],
               teachingMethods: [],
@@ -313,30 +322,18 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
           <p>目前沒有{routeType === 'tutor' ? '導師' : '個案'}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {cases.map((caseItem) => (
-            <CaseCard
-              key={caseItem.id || caseItem.tutorId}
-              caseData={{
-                id: caseItem.id || caseItem.tutorId || '',
-                title: caseItem.title || caseItem.name || '',
-                subject: { label: caseItem.subjects?.[0] || '' },
-                region: { label: caseItem.region || caseItem.regions?.[0] || '' },
-                modes: (caseItem.modes || [caseItem.mode]).filter(Boolean) as string[],
-                experienceLevel: { label: caseItem.experience || '' },
-                lessonDetails: typeof caseItem.lessonDetails === 'string' 
-                  ? JSON.parse(caseItem.lessonDetails)
-                  : caseItem.lessonDetails,
-                createdAt: caseItem.createdAt || caseItem.date || new Date().toISOString(),
-                avatarUrl: caseItem.avatarUrl
-              }}
-              routeType={routeType}
-            />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {cases.map((caseItem: Case) => (
+            routeType === 'tutor' ? (
+              <TutorCard key={caseItem.id} tutor={caseItem as any} />
+            ) : (
+              <CaseCard key={caseItem.id} caseData={caseItem as any} />
+            )
           ))}
         </div>
       )}
 
-      <div className="mt-6 text-center">
+      <div className="mt-8 text-center">
         <Link
           href={linkUrl}
           className="inline-flex items-center text-blue-600 hover:text-blue-800"
