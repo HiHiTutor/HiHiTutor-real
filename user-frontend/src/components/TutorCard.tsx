@@ -24,8 +24,9 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
           <Image
             src={tutor.avatarUrl}
             alt={`${tutor.name} 的照片`}
-            fill
-            className="object-cover rounded-lg"
+            width={100}
+            height={100}
+            className="rounded-full object-cover mx-auto"
           />
         </div>
         <div className="flex justify-between items-center">
