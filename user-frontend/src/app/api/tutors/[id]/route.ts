@@ -9,12 +9,17 @@ export async function GET(
     const baseURL = process.env.NEXT_PUBLIC_API_BASE || 'https://hi-hi-tutor-real-backend2.vercel.app';
     
     console.log('🔍 代理導師詳情請求:', `${baseURL}/api/tutors/${id}`);
+    console.log('🌐 環境變數 NEXT_PUBLIC_API_BASE:', process.env.NEXT_PUBLIC_API_BASE);
+    console.log('🔗 使用的 baseURL:', baseURL);
     
     const response = await fetch(`${baseURL}/api/tutors/${id}`, {
       headers: {
         'Content-Type': 'application/json',
       },
     });
+
+    console.log('📊 後端響應狀態:', response.status);
+    console.log('📊 後端響應標頭:', Object.fromEntries(response.headers.entries()));
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ message: '無法解析回應' }));
