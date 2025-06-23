@@ -9,9 +9,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'react-hot-toast';
 
 interface Tutor {
-  tutorId: string;
+  id: string;
+  userId: string;
+  tutorId: string | null;
   name: string;
   avatar: string;
+  avatarOffsetX: number;
   subjects: string[];
   teachingAreas: string[];
   teachingMethods: string[];
@@ -22,6 +25,8 @@ interface Tutor {
   qualifications: string[];
   hourlyRate: number;
   availableTime: string[];
+  examResults: string[];
+  courseFeatures: string;
 }
 
 export default function TutorDetailPage() {
@@ -33,17 +38,29 @@ export default function TutorDetailPage() {
     const fetchTutorDetail = async () => {
       try {
         setLoading(true);
+        console.log('🔍 開始獲取導師詳情:', tutorId);
+        
         const response = await fetch(`/api/tutors/${tutorId}`);
-        if (!response.ok) throw new Error('獲取導師詳情失敗');
+        console.log('📊 API 響應狀態:', response.status);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('❌ API 錯誤:', errorText);
+          throw new Error('獲取導師詳情失敗');
+        }
         
         const result = await response.json();
+        console.log('📥 API 響應數據:', result);
+        
         if (result.success && result.data) {
+          console.log('✅ 設置導師數據:', result.data);
           setTutor(result.data);
         } else {
+          console.error('❌ API 響應格式錯誤:', result);
           throw new Error(result.message || '獲取導師詳情失敗');
         }
       } catch (error) {
-        console.error('Error fetching tutor detail:', error);
+        console.error('❌ 獲取導師詳情錯誤:', error);
         toast.error('獲取導師詳情失敗');
       } finally {
         setLoading(false);
