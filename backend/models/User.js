@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
   tutorId: {
     type: String,
     default: null, // 僅適用於 userType 為 'tutor'
+    sparse: true
   },
   name: {
     type: String,
