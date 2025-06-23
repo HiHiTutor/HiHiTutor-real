@@ -188,8 +188,7 @@ const getTutorById = async (req, res) => {
     if (id && id !== 'undefined') {
       tutor = await User.findOne({ 
         userId: id,
-        userType: 'tutor',
-        isActive: true 
+        userType: 'tutor'
       }).select('-password -refreshToken');
     }
     
@@ -197,8 +196,7 @@ const getTutorById = async (req, res) => {
     if (!tutor && id && id.length === 24) {
       tutor = await User.findOne({ 
         _id: id,
-        userType: 'tutor',
-        isActive: true 
+        userType: 'tutor'
       }).select('-password -refreshToken');
     }
     
@@ -206,8 +204,7 @@ const getTutorById = async (req, res) => {
     if (!tutor) {
       tutor = await User.findOne({ 
         tutorId: id,
-        userType: 'tutor',
-        isActive: true 
+        userType: 'tutor'
       }).select('-password -refreshToken');
     }
     
