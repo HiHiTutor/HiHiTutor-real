@@ -25,6 +25,29 @@ interface TutorCardProps {
   tutor: Tutor;
 }
 
+// Rating component to display stars
+const Rating = ({ rating }: { rating: number }) => {
+  if (!rating || rating <= 0) {
+    return null; // Don't show anything for 0 or no rating
+  }
+
+  const stars = [];
+  // Round to nearest 0.5 for half-star logic if needed in future
+  const roundedRating = Math.round(rating * 2) / 2;
+  const fullStars = Math.floor(roundedRating);
+
+  for (let i = 0; i < fullStars; i++) {
+    stars.push(<span key={`star-${i}`} className="text-yellow-400">⭐</span>);
+  }
+  
+  // Example for half star if you want it later
+  // if (roundedRating - fullStars === 0.5) {
+  //   stars.push(<span key="half-star">🌟</span>);
+  // }
+
+  return <div className="flex items-center">{stars}</div>;
+};
+
 const TutorCard = ({ tutor }: TutorCardProps) => {
   // 處理數據結構差異
   const displayName = tutor.name || '未指定';
@@ -50,12 +73,7 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
         />
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold">{displayName}</h3>
-          {tutor.rating && (
-            <div className="flex items-center">
-              <span className="text-yellow-400">⭐</span>
-              <span className="ml-1 text-sm">{tutor.rating}</span>
-            </div>
-          )}
+          <Rating rating={tutor.rating || 0} />
         </div>
         <p className="text-gray-600">{displaySubject}</p>
         <div className="text-sm text-gray-500">
