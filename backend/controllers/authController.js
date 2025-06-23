@@ -162,10 +162,12 @@ const loginUser = async (req, res) => {
       token,
       user: {
         id: user._id,
+        userId: user.userId,
         name: user.name,
         email: user.email,
         phone: user.phone,
-        role: user.userType
+        userType: user.userType,
+        role: user.role || 'user'
       },
       message: '登入成功'
     });

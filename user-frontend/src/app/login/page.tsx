@@ -21,11 +21,20 @@ export default function LoginPage() {
       const user = await authApi.login(identifier, password);
       localStorage.setItem('token', user.token);
       
-      const profileData = await authApi.getProfile();
-      console.log('獲取到的用戶資料:', profileData);
+      // 直接使用登入回應中的用戶資料，包含 userId
+      const userData = {
+        id: user.id,
+        userId: user.userId,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        userType: user.userType,
+        role: user.role
+      };
       
-      localStorage.setItem('user', JSON.stringify(profileData));
-      localStorage.setItem('userType', profileData.userType);
+      console.log('登入成功，用戶資料:', userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('userType', userData.userType);
       
       const loginEvent = new Event('login');
       window.dispatchEvent(loginEvent);
