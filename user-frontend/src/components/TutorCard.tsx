@@ -20,15 +20,27 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
   return (
     <Link href={`/tutors/${tutor.id}`}>
       <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
-        <div className="w-[100px] h-[100px] rounded-full overflow-hidden mx-auto mb-4">
-          <Image
-            src={tutor.avatarUrl}
-            alt={`${tutor.name} 的照片`}
-            width={100}
-            height={100}
-            className="object-cover"
-          />
-        </div>
+        {tutor.avatarUrl ? (
+          <div className="w-[100px] h-[100px] rounded-full overflow-hidden mx-auto mb-4">
+            <Image
+              src={tutor.avatarUrl}
+              alt={`${tutor.name} 的照片`}
+              width={100}
+              height={100}
+              className="object-cover"
+            />
+          </div>
+        ) : (
+          <div className="w-[100px] h-[100px] mx-auto rounded-full overflow-hidden mb-4">
+            <Image
+              src="/default.jpg"
+              width={100}
+              height={100}
+              className="object-cover"
+              alt={`${tutor.name} 的照片`}
+            />
+          </div>
+        )}
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold">{tutor.name}</h3>
           {tutor.rating && (
