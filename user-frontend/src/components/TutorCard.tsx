@@ -4,11 +4,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 interface Tutor {
-  id: number;
+  id: string;
   name: string;
   subject: string;
   experience: string;
-  avatarUrl: string;
+  education: string;
+  avatarUrl?: string;
   rating?: number;
 }
 
