@@ -106,6 +106,7 @@ const getAllTutors = async (req, res) => {
         
         const formattedTutors = allTutors.map(tutor => ({
           id: tutor._id,
+          userId: tutor.userId,
           name: tutor.name,
           subject: tutor.tutorProfile?.subjects?.[0] || '未指定',
           education: tutor.tutorProfile?.educationLevel || '未指定',
@@ -122,6 +123,7 @@ const getAllTutors = async (req, res) => {
 
       const formattedTutors = featuredTutors.map(tutor => ({
         id: tutor._id,
+        userId: tutor.userId,
         name: tutor.name,
         subject: tutor.subjects?.[0] || '未指定',
         education: tutor.tutorProfile?.education || '未指定',
@@ -153,6 +155,7 @@ const getAllTutors = async (req, res) => {
 
     const formattedTutors = tutors.map(tutor => ({
       id: tutor._id,
+      userId: tutor.userId,
       name: tutor.name,
       subject: tutor.tutorProfile?.subjects?.[0] || '未指定',
       education: tutor.tutorProfile?.educationLevel || '未指定',
@@ -333,10 +336,12 @@ const getTutors = async (req, res) => {
     const total = await User.countDocuments(query);
 
     res.json({
-      tutors,
-      total,
-      totalPages: Math.ceil(total / limit),
-      currentPage: parseInt(page)
+      data: {
+        tutors,
+        total,
+        totalPages: Math.ceil(total / limit),
+        currentPage: parseInt(page)
+      }
     });
   } catch (error) {
     console.error('Error in getTutors:', error);
