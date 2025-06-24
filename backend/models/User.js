@@ -87,6 +87,16 @@ const userSchema = new mongoose.Schema({
       }
     ]
   },
+  organizationDocuments: {
+    businessRegistration: {
+      type: String,
+      default: null
+    },
+    addressProof: {
+      type: String,
+      default: null
+    }
+  },
   tutorProfile: {
     displayPublic: {
       type: Boolean,

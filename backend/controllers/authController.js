@@ -183,8 +183,12 @@ const loginUser = async (req, res) => {
 // 用戶註冊
 const register = async (req, res) => {
   try {
-    console.log("📥 註冊收到資料：", req.body);
+    console.log("📥 註冊收到資料：", {
+      ...req.body,
+      password: '[HIDDEN]'
+    });
     console.log("📥 請求標頭：", req.headers);
+    console.log("📁 上傳的文件：", req.files);
 
     const { name, email, phone, password, userType, token } = req.body;
     const role = 'user'; // 統一預設 role 為 'user'
@@ -373,6 +377,60 @@ const register = async (req, res) => {
         hashedPassword: newUser.password,
         hashedPasswordLength: newUser.password.length
       });
+
+      // 如果是組織用戶，上傳文件到 S3
+      if (userType === 'organization' && req.files) {
+        try {
+          console.log('📁 開始上傳組織文件到 S3...');
+          const { PutObjectCommand } = require('@aws-sdk/client-s3');
+          const { s3Client, BUCKET_NAME } = require('../config/s3');
+          
+          const uploadedFiles = {};
+          
+          // 上傳商業登記證
+          if (req.files.businessRegistration && req.files.businessRegistration[0]) {
+            const businessFile = req.files.businessRegistration[0];
+            const businessKey = `uploads/organization-docs/${newUser._id}/business-registration-${Date.now()}-${businessFile.originalname}`;
+            
+            const businessCommand = new PutObjectCommand({
+              Bucket: BUCKET_NAME,
+              Key: businessKey,
+              Body: businessFile.buffer,
+              ContentType: businessFile.mimetype
+            });
+            
+            await s3Client.send(businessCommand);
+            uploadedFiles.businessRegistration = `https://${BUCKET_NAME}.s3.ap-southeast-2.amazonaws.com/${businessKey}`;
+            console.log('✅ 商業登記證上傳成功:', uploadedFiles.businessRegistration);
+          }
+          
+          // 上傳地址證明
+          if (req.files.addressProof && req.files.addressProof[0]) {
+            const addressFile = req.files.addressProof[0];
+            const addressKey = `uploads/organization-docs/${newUser._id}/address-proof-${Date.now()}-${addressFile.originalname}`;
+            
+            const addressCommand = new PutObjectCommand({
+              Bucket: BUCKET_NAME,
+              Key: addressKey,
+              Body: addressFile.buffer,
+              ContentType: addressFile.mimetype
+            });
+            
+            await s3Client.send(addressCommand);
+            uploadedFiles.addressProof = `https://${BUCKET_NAME}.s3.ap-southeast-2.amazonaws.com/${addressKey}`;
+            console.log('✅ 地址證明上傳成功:', uploadedFiles.addressProof);
+          }
+          
+          // 更新用戶資料，添加文件 URL
+          newUser.organizationDocuments = uploadedFiles;
+          await newUser.save();
+          console.log('✅ 組織文件 URL 已保存到用戶資料');
+          
+        } catch (uploadError) {
+          console.error('❌ 文件上傳失敗:', uploadError);
+          // 不阻止註冊流程，但記錄錯誤
+        }
+      }
 
       // 標記註冊令牌為已使用
       tokenData.isUsed = true;
