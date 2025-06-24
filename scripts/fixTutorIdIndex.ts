@@ -1,30 +1,66 @@
-import { MongoClient } from 'mongodb';
+// 修正 tutorId 索引問題
+// 1. 刪除 users collection 中既 tutorId_1 index（ignore 如果唔存在）
+// 2. 建立一個新 tutorId sparse + unique index
+// 3. 成功後自動退出程式
 
-const uri = process.env.MONGODB_URI || 'your-mongodb-uri'; // 可自動從 .env 拿值
-const client = new MongoClient(uri);
+import { MongoClient } from 'mongodb';
+import dotenv from 'dotenv';
+
+// 載入環境變數
+dotenv.config();
+
+const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/hihitutor';
 
 async function fixTutorIdIndex() {
+  const client = new MongoClient(uri);
+  
   try {
+    console.log('🔌 連接到 MongoDB...');
     await client.connect();
-    const db = client.db(); // 預設會取 .env 裡設定的資料庫
-    const users = db.collection('users');
-
-    // 嘗試移除舊的 tutorId index（如果存在）
+    console.log('✅ MongoDB 連接成功');
+    
+    const db = client.db();
+    const usersCollection = db.collection('users');
+    
+    // 檢查現有的索引
+    console.log('🔍 檢查現有索引...');
+    const indexes = await usersCollection.indexes();
+    console.log('現有索引:', indexes.map(idx => idx.name));
+    
+    // 1. 嘗試刪除舊的 tutorId_1 index（如果存在）
     try {
-      await users.dropIndex('tutorId_1');
-      console.log('✅ 移除舊有 tutorId_1 index');
+      await usersCollection.dropIndex('tutorId_1');
+      console.log('✅ 成功刪除舊的 tutorId_1 index');
     } catch (err: any) {
-      console.log('⚠️ tutorId_1 index 不存在或已移除：', err.message);
+      console.log('⚠️ tutorId_1 index 不存在或已刪除:', err.message);
     }
-
-    // 建立新的 sparse + unique index
-    await users.createIndex({ tutorId: 1 }, { unique: true, sparse: true });
-    console.log('✅ 建立 sparse + unique index 成功');
-  } catch (err) {
-    console.error('❌ 執行時出錯:', err);
+    
+    // 2. 建立新的 sparse + unique index
+    console.log('🔧 建立新的 sparse + unique index...');
+    await usersCollection.createIndex(
+      { tutorId: 1 },
+      { unique: true, sparse: true }
+    );
+    console.log('✅ 成功建立 tutorId sparse + unique index');
+    
+    // 驗證新索引
+    console.log('🔍 驗證新索引...');
+    const newIndexes = await usersCollection.indexes();
+    const tutorIdIndex = newIndexes.find(idx => idx.key && idx.key.tutorId);
+    console.log('新的 tutorId 索引:', tutorIdIndex);
+    
+    console.log('🎉 索引修正完成！');
+    
+  } catch (error) {
+    console.error('❌ 執行時發生錯誤:', error);
+    process.exit(1);
   } finally {
     await client.close();
+    console.log('🔌 MongoDB 連接已關閉');
+    // 3. 成功後自動退出程式
+    process.exit(0);
   }
 }
 
+// 執行修正
 fixTutorIdIndex(); 
