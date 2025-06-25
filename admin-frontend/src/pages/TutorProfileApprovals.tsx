@@ -413,10 +413,111 @@ const TutorProfileApprovals: React.FC = () => {
                                   </Typography>
                                 </Grid>
 
+                                {/* 修改摘要 */}
+                                <Grid item xs={12}>
+                                  <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                                    修改摘要
+                                  </Typography>
+                                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                    <Typography variant="body2" color="textSecondary">
+                                      更新時間: {new Date(tutor.updatedAt).toLocaleString('zh-TW')}
+                                    </Typography>
+                                    {tutor.profileStatus === 'pending' && (
+                                      <Typography variant="body2" color="warning.main">
+                                        ⚠️ 此導師資料正在等待審核
+                                      </Typography>
+                                    )}
+                                    {tutor.remarks && (
+                                      <Typography variant="body2" color="textSecondary">
+                                        備註: {tutor.remarks}
+                                      </Typography>
+                                    )}
+                                  </Box>
+                                </Grid>
+
+                                {/* 文件上傳信息 */}
+                                <Grid item xs={12}>
+                                  <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                                    文件上傳信息
+                                  </Typography>
+                                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                    {/* 上傳記錄 */}
+                                    {tutor.uploadLogs && tutor.uploadLogs.length > 0 ? (
+                                      <Box>
+                                        <Typography variant="body2" color="textSecondary" gutterBottom>
+                                          最近上傳的文件 ({tutor.uploadLogs.length} 個):
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                          {tutor.uploadLogs.map((log, index) => (
+                                            <Box key={log._id} sx={{ 
+                                              display: 'flex', 
+                                              alignItems: 'center', 
+                                              gap: 2,
+                                              p: 1,
+                                              border: '1px solid #e0e0e0',
+                                              borderRadius: 1,
+                                              backgroundColor: '#fafafa'
+                                            }}>
+                                              <Chip 
+                                                label={log.type === 'document' ? '文件' : log.type === 'image' ? '圖片' : log.type} 
+                                                size="small" 
+                                                color={log.type === 'document' ? 'primary' : 'secondary'}
+                                              />
+                                              <Typography variant="body2" color="textSecondary">
+                                                {new Date(log.createdAt).toLocaleString('zh-TW')}
+                                              </Typography>
+                                              <Button
+                                                size="small"
+                                                variant="outlined"
+                                                onClick={() => window.open(log.fileUrl, '_blank')}
+                                              >
+                                                查看文件
+                                              </Button>
+                                              <Typography variant="caption" color="textSecondary">
+                                                S3路徑: {log.fileUrl.split('/').slice(-3).join('/')}
+                                              </Typography>
+                                            </Box>
+                                          ))}
+                                        </Box>
+                                      </Box>
+                                    ) : (
+                                      <Typography variant="body2" color="textSecondary">
+                                        暫無上傳記錄
+                                      </Typography>
+                                    )}
+
+                                    {/* 文件類型統計 */}
+                                    {tutor.uploadLogs && tutor.uploadLogs.length > 0 && (
+                                      <Box>
+                                        <Typography variant="body2" color="textSecondary" gutterBottom>
+                                          文件類型統計:
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                          {(() => {
+                                            const typeCount = tutor.uploadLogs!.reduce((acc, log) => {
+                                              acc[log.type] = (acc[log.type] || 0) + 1;
+                                              return acc;
+                                            }, {} as Record<string, number>);
+                                            
+                                            return Object.entries(typeCount).map(([type, count]) => (
+                                              <Chip 
+                                                key={type}
+                                                label={`${type}: ${count}`} 
+                                                size="small" 
+                                                variant="outlined"
+                                              />
+                                            ));
+                                          })()}
+                                        </Box>
+                                      </Box>
+                                    )}
+                                  </Box>
+                                </Grid>
+
                                 {/* 文件顯示區域 */}
                                 <Grid item xs={12}>
                                   <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                                    上傳文件
+                                    已保存文件
                                   </Typography>
                                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                     {/* 頭像 */}
@@ -506,38 +607,8 @@ const TutorProfileApprovals: React.FC = () => {
                                      !tutor.documents?.educationCert && 
                                      (!tutor.tutorProfile?.documents || tutor.tutorProfile.documents.length === 0) && (
                                       <Typography variant="body2" color="textSecondary">
-                                        暫無上傳文件
+                                        暫無已保存文件
                                       </Typography>
-                                    )}
-
-                                    {/* 上傳記錄 */}
-                                    {tutor.uploadLogs && tutor.uploadLogs.length > 0 && (
-                                      <Box>
-                                        <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                                          上傳記錄
-                                        </Typography>
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                          {tutor.uploadLogs.map((log) => (
-                                            <Box key={log._id} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                              <Chip 
-                                                label={log.type === 'document' ? '文件' : log.type === 'image' ? '圖片' : '其他'} 
-                                                size="small" 
-                                                color={log.type === 'document' ? 'primary' : 'secondary'}
-                                              />
-                                              <Typography variant="body2" color="textSecondary">
-                                                {new Date(log.createdAt).toLocaleString('zh-TW')}
-                                              </Typography>
-                                              <Button
-                                                size="small"
-                                                variant="outlined"
-                                                onClick={() => window.open(log.fileUrl, '_blank')}
-                                              >
-                                                查看文件
-                                              </Button>
-                                            </Box>
-                                          ))}
-                                        </Box>
-                                      </Box>
                                     )}
                                   </Box>
                                 </Grid>
