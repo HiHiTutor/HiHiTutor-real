@@ -425,8 +425,8 @@ const getTutorProfile = async (req, res) => {
       examResults: user.tutorProfile?.examResults?.map(exam => `${exam.subject} ${exam.grade}`).join(', ') || '',
       courseFeatures: user.tutorProfile?.courseFeatures || '',
       documents: {
-        idCard: '',
-        educationCert: ''
+        idCard: user.documents?.idCard || '',
+        educationCert: user.documents?.educationCert || ''
       },
       profileStatus: user.profileStatus || 'approved',
       remarks: user.remarks || ''
@@ -530,6 +530,16 @@ const updateTutorProfile = async (req, res) => {
           url: ''
         }));
         updateObject['tutorProfile.documents'] = documents;
+      }
+    }
+
+    // 處理 documents - 身份證和學歷證書
+    if (updateData.documents !== undefined) {
+      if (updateData.documents.idCard !== undefined) {
+        updateObject['documents.idCard'] = updateData.documents.idCard;
+      }
+      if (updateData.documents.educationCert !== undefined) {
+        updateObject['documents.educationCert'] = updateData.documents.educationCert;
       }
     }
 

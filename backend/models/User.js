@@ -210,6 +210,16 @@ const userSchema = new mongoose.Schema({
   remarks: {
     type: String,
     default: ''
+  },
+  documents: {
+    idCard: {
+      type: String,
+      default: null
+    },
+    educationCert: {
+      type: String,
+      default: null
+    }
   }
 }, {
   timestamps: true
