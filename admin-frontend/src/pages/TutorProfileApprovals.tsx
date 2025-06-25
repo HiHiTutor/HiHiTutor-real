@@ -35,6 +35,7 @@ import {
   Visibility as VisibilityIcon,
 } from '@mui/icons-material';
 import api from '../services/api';
+import { viewFileWithSignedUrl } from '../utils/fileViewer';
 
 interface TutorProfile {
   _id: string;
@@ -484,7 +485,7 @@ const TutorProfileApprovals: React.FC = () => {
                                                 <Button
                                                   size="small"
                                                   variant="outlined"
-                                                  onClick={() => window.open(log.fileUrl, '_blank')}
+                                                  onClick={() => viewFileWithSignedUrl(log.fileUrl, `上傳文件 ${index + 1}`)}
                                                 >
                                                   查看文件
                                                 </Button>
@@ -556,7 +557,7 @@ const TutorProfileApprovals: React.FC = () => {
                                           <Button
                                             size="small"
                                             variant="outlined"
-                                            onClick={() => window.open(tutor.avatar, '_blank')}
+                                            onClick={() => tutor.avatar && viewFileWithSignedUrl(tutor.avatar, '個人照片')}
                                           >
                                             查看原圖
                                           </Button>
@@ -573,7 +574,7 @@ const TutorProfileApprovals: React.FC = () => {
                                         <Button
                                           size="small"
                                           variant="outlined"
-                                          onClick={() => window.open(tutor.documents!.idCard!, '_blank')}
+                                          onClick={() => tutor.documents?.idCard && viewFileWithSignedUrl(tutor.documents.idCard, '身份證')}
                                         >
                                           查看身份證
                                         </Button>
@@ -589,7 +590,7 @@ const TutorProfileApprovals: React.FC = () => {
                                         <Button
                                           size="small"
                                           variant="outlined"
-                                          onClick={() => window.open(tutor.documents!.educationCert!, '_blank')}
+                                          onClick={() => tutor.documents?.educationCert && viewFileWithSignedUrl(tutor.documents.educationCert, '學歷證明')}
                                         >
                                           查看學歷證明
                                         </Button>
@@ -608,7 +609,7 @@ const TutorProfileApprovals: React.FC = () => {
                                               key={index}
                                               size="small"
                                               variant="outlined"
-                                              onClick={() => window.open(doc.url, '_blank')}
+                                              onClick={() => viewFileWithSignedUrl(doc.url, doc.type)}
                                             >
                                               查看 {doc.type}
                                             </Button>

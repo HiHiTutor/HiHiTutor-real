@@ -32,6 +32,7 @@ import {
   Visibility as VisibilityIcon,
 } from '@mui/icons-material';
 import api from '../services/api';
+import { viewFileWithSignedUrl } from '../utils/fileViewer';
 
 interface TutorApplication {
   _id: string;
@@ -426,24 +427,21 @@ const TutorApplications: React.FC = () => {
                                   </Typography>
                                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                     {application.documents.map((doc, index) => (
-                                      <Link
+                                      <Button
                                         key={index}
-                                        href={doc}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                        variant="text"
+                                        startIcon={<LinkIcon />}
+                                        onClick={() => viewFileWithSignedUrl(doc, `文件 ${index + 1}`)}
                                         sx={{ 
-                                          display: 'flex', 
-                                          alignItems: 'center', 
-                                          gap: 1,
-                                          textDecoration: 'none',
+                                          justifyContent: 'flex-start',
+                                          textTransform: 'none',
                                           '&:hover': {
                                             textDecoration: 'underline'
                                           }
                                         }}
                                       >
-                                        <LinkIcon fontSize="small" />
                                         文件 {index + 1}
-                                      </Link>
+                                      </Button>
                                     ))}
                                   </Box>
                                   
