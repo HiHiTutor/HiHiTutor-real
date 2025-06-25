@@ -244,9 +244,18 @@ export default function TutorDashboardPage() {
       const formData = new FormData();
       formData.append('file', file);
 
+      // 從 localStorage 獲取 token
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('未登入');
+      }
+
       // 使用 Next.js API 路由上傳文件
       const response = await fetch('/api/upload', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         body: formData
       });
 
