@@ -427,7 +427,9 @@ const getTutorProfile = async (req, res) => {
       documents: {
         idCard: '',
         educationCert: ''
-      }
+      },
+      profileStatus: user.profileStatus || 'approved',
+      remarks: user.remarks || ''
     });
   } catch (error) {
     console.error('❌ 獲取導師 profile 錯誤:', error);
@@ -533,19 +535,23 @@ const updateTutorProfile = async (req, res) => {
 
     console.log('📝 更新對象:', updateObject);
 
-    // 更新導師資料
+    // 更新導師資料並設為待審核狀態
     const updatedTutor = await User.findByIdAndUpdate(
       userId,
-      { $set: updateObject },
+      { 
+        $set: updateObject,
+        profileStatus: 'pending',
+        remarks: ''
+      },
       { new: true }
     ).select('-password');
 
-    console.log('✅ 導師 profile 更新成功');
+    console.log('✅ 導師 profile 更新成功，狀態設為待審核');
 
     res.json({
       success: true,
       data: updatedTutor,
-      message: '導師資料更新成功'
+      message: '導師資料更新成功，已提交審核'
     });
   } catch (error) {
     console.error('❌ 更新導師 profile 錯誤:', error);

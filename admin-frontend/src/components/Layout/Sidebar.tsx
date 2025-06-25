@@ -28,6 +28,7 @@ const menuItems = [
   { text: 'Cases', icon: <DescriptionIcon />, path: '/cases' },
   { text: 'Statistics', icon: <BarChartIcon />, path: '/statistics' },
   { text: '導師申請審核', icon: <SchoolIcon />, path: '/tutor-applications' },
+  { text: '導師資料審批', icon: <SchoolIcon />, path: '/tutor-profile-approvals' },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ open }) => {

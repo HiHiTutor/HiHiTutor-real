@@ -201,6 +201,15 @@ const userSchema = new mongoose.Schema({
   totalReviews: {
     type: Number,
     default: 0
+  },
+  profileStatus: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'approved'
+  },
+  remarks: {
+    type: String,
+    default: ''
   }
 }, {
   timestamps: true

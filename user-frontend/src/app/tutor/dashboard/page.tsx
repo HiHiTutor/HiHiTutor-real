@@ -88,6 +88,8 @@ interface TutorProfile {
     idCard: string;
     educationCert: string;
   };
+  profileStatus?: 'pending' | 'approved' | 'rejected';
+  remarks?: string;
 }
 
 // 生成年份選項（18-65歲）
@@ -185,8 +187,9 @@ export default function TutorDashboardPage() {
 
       await tutorApi.updateProfile(formData);
       
-      toast.success('導師資料已更新');
-      router.push('/tutors/' + formData.tutorId);
+      toast.success('資料已提交審核，請等待管理員審批');
+      // 重新獲取資料以更新審批狀態
+      await fetchTutorProfile();
     } catch (error) {
       console.error('Error updating tutor profile:', error);
       toast.error(error instanceof Error ? error.message : '更新導師資料失敗');
@@ -294,7 +297,9 @@ export default function TutorDashboardPage() {
 
       await tutorApi.updateProfile(data);
 
-      toast.success('更新成功');
+      toast.success('資料已提交審核，請等待管理員審批');
+      // 重新獲取資料以更新審批狀態
+      await fetchTutorProfile();
     } catch (error) {
       console.error('更新失敗:', error);
       toast.error(error instanceof Error ? error.message : '更新失敗，請稍後再試');
@@ -309,6 +314,37 @@ export default function TutorDashboardPage() {
 
   return (
     <div className="container mx-auto py-8">
+      {/* 審批狀態顯示 */}
+      {formData.profileStatus && formData.profileStatus !== 'approved' && (
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              {formData.profileStatus === 'pending' ? (
+                <>
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
+                  <div>
+                    <h3 className="font-semibold text-yellow-700">資料審核中</h3>
+                    <p className="text-sm text-gray-600">
+                      您的資料已提交審核，請耐心等待管理員審批。審核通過後，您的資料將正式更新。
+                    </p>
+                  </div>
+                </>
+              ) : formData.profileStatus === 'rejected' ? (
+                <>
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <div>
+                    <h3 className="font-semibold text-red-700">資料被拒絕</h3>
+                    <p className="text-sm text-gray-600">
+                      {formData.remarks || '您的資料未通過審核，請檢查並重新提交。'}
+                    </p>
+                  </div>
+                </>
+              ) : null}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* 個人資料 */}
         <Card>
