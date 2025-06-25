@@ -10,6 +10,8 @@ const verifyToken = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || process.env.REACT_APP_JWT_SECRET);
     req.user = decoded;
+    req.userId = decoded.id || decoded._id;
+    console.log('🔐 JWT 驗證成功，設置 userId:', req.userId);
     next();
   } catch (err) {
     console.warn('JWT 驗證失敗:', err.message);
