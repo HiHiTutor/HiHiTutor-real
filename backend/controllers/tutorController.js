@@ -1,5 +1,6 @@
 const tutors = require('../data/tutors');
 const User = require('../models/User');
+const UploadLog = require('../models/UploadLog');
 
 // 回傳所有導師
 const getAllTutors = async (req, res) => {
@@ -403,7 +404,13 @@ const getTutorProfile = async (req, res) => {
       });
     }
 
+    // 獲取該用戶的所有上傳記錄
+    const uploadLogs = await UploadLog.find({ 
+      userId: user._id 
+    }).sort({ createdAt: -1 });
+
     console.log('✅ 導師 profile 獲取成功:', user.name);
+    console.log('📁 上傳記錄數量:', uploadLogs.length);
 
     // 回傳符合前端期望的格式
     res.json({
@@ -429,7 +436,13 @@ const getTutorProfile = async (req, res) => {
         educationCert: user.documents?.educationCert || ''
       },
       profileStatus: user.profileStatus || 'approved',
-      remarks: user.remarks || ''
+      remarks: user.remarks || '',
+      uploadLogs: uploadLogs.map(log => ({
+        _id: log._id,
+        fileUrl: log.fileUrl,
+        type: log.type,
+        createdAt: log.createdAt
+      }))
     });
   } catch (error) {
     console.error('❌ 獲取導師 profile 錯誤:', error);
