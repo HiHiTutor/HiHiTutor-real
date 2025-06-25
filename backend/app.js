@@ -179,6 +179,7 @@ app.use('/api/tutor-applications', tutorApplicationsRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/tutor-profiles', tutorProfilesRouter);
+app.use('/api/files', require('./routes/files'));
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
