@@ -58,6 +58,17 @@ interface TutorProfile {
     documents?: Array<{ type: string; url: string }>;
   };
   updatedAt: string;
+  avatar?: string;
+  documents?: {
+    idCard?: string;
+    educationCert?: string;
+  };
+  uploadLogs?: Array<{
+    _id: string;
+    fileUrl: string;
+    type: string;
+    createdAt: string;
+  }>;
 }
 
 const TutorProfileApprovals: React.FC = () => {
@@ -400,6 +411,135 @@ const TutorProfileApprovals: React.FC = () => {
                                   <Typography variant="body2">
                                     {tutor.tutorProfile?.introduction || '未填寫'}
                                   </Typography>
+                                </Grid>
+
+                                {/* 文件顯示區域 */}
+                                <Grid item xs={12}>
+                                  <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                                    上傳文件
+                                  </Typography>
+                                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                    {/* 頭像 */}
+                                    {tutor.avatar && (
+                                      <Box>
+                                        <Typography variant="body2" color="textSecondary" gutterBottom>
+                                          個人照片
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                          <img 
+                                            src={tutor.avatar} 
+                                            alt="個人照片" 
+                                            style={{ 
+                                              width: 60, 
+                                              height: 60, 
+                                              borderRadius: '50%', 
+                                              objectFit: 'cover' 
+                                            }} 
+                                          />
+                                          <Button
+                                            size="small"
+                                            variant="outlined"
+                                            onClick={() => window.open(tutor.avatar, '_blank')}
+                                          >
+                                            查看原圖
+                                          </Button>
+                                        </Box>
+                                      </Box>
+                                    )}
+
+                                    {/* 身份證 */}
+                                    {tutor.documents?.idCard && (
+                                      <Box>
+                                        <Typography variant="body2" color="textSecondary" gutterBottom>
+                                          身份證
+                                        </Typography>
+                                        <Button
+                                          size="small"
+                                          variant="outlined"
+                                          onClick={() => window.open(tutor.documents!.idCard!, '_blank')}
+                                        >
+                                          查看身份證
+                                        </Button>
+                                      </Box>
+                                    )}
+
+                                    {/* 學歷證明 */}
+                                    {tutor.documents?.educationCert && (
+                                      <Box>
+                                        <Typography variant="body2" color="textSecondary" gutterBottom>
+                                          學歷證明
+                                        </Typography>
+                                        <Button
+                                          size="small"
+                                          variant="outlined"
+                                          onClick={() => window.open(tutor.documents!.educationCert!, '_blank')}
+                                        >
+                                          查看學歷證明
+                                        </Button>
+                                      </Box>
+                                    )}
+
+                                    {/* 其他文件 */}
+                                    {tutor.tutorProfile?.documents && tutor.tutorProfile.documents.length > 0 && (
+                                      <Box>
+                                        <Typography variant="body2" color="textSecondary" gutterBottom>
+                                          其他文件
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                          {tutor.tutorProfile.documents.map((doc, index) => (
+                                            <Button
+                                              key={index}
+                                              size="small"
+                                              variant="outlined"
+                                              onClick={() => window.open(doc.url, '_blank')}
+                                            >
+                                              查看 {doc.type}
+                                            </Button>
+                                          ))}
+                                        </Box>
+                                      </Box>
+                                    )}
+
+                                    {/* 如果沒有任何文件 */}
+                                    {!tutor.avatar && 
+                                     !tutor.documents?.idCard && 
+                                     !tutor.documents?.educationCert && 
+                                     (!tutor.tutorProfile?.documents || tutor.tutorProfile.documents.length === 0) && (
+                                      <Typography variant="body2" color="textSecondary">
+                                        暫無上傳文件
+                                      </Typography>
+                                    )}
+
+                                    {/* 上傳記錄 */}
+                                    {tutor.uploadLogs && tutor.uploadLogs.length > 0 && (
+                                      <Box>
+                                        <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                                          上傳記錄
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                          {tutor.uploadLogs.map((log) => (
+                                            <Box key={log._id} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                              <Chip 
+                                                label={log.type === 'document' ? '文件' : log.type === 'image' ? '圖片' : '其他'} 
+                                                size="small" 
+                                                color={log.type === 'document' ? 'primary' : 'secondary'}
+                                              />
+                                              <Typography variant="body2" color="textSecondary">
+                                                {new Date(log.createdAt).toLocaleString('zh-TW')}
+                                              </Typography>
+                                              <Button
+                                                size="small"
+                                                variant="outlined"
+                                                onClick={() => window.open(log.fileUrl, '_blank')}
+                                              >
+                                                查看文件
+                                              </Button>
+                                            </Box>
+                                          ))}
+                                        </Box>
+                                      </Box>
+                                    )}
+                                  </Box>
                                 </Grid>
                               </Grid>
                             </CardContent>

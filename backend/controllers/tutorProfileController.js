@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const UploadLog = require('../models/UploadLog');
 
 // 獲取所有待審核的導師個人資料
 const getPendingTutorProfiles = async (req, res) => {
@@ -11,10 +12,34 @@ const getPendingTutorProfiles = async (req, res) => {
     }).select('-password -refreshToken');
     
     console.log(`✅ 找到 ${tutors.length} 個待審核導師`);
+
+    // 為每個導師獲取上傳記錄
+    const tutorsWithUploads = await Promise.all(
+      tutors.map(async (tutor) => {
+        try {
+          // 獲取該用戶的所有上傳記錄
+          const uploadLogs = await UploadLog.find({ 
+            userId: tutor._id 
+          }).sort({ createdAt: -1 });
+
+          // 將上傳記錄添加到導師資料中
+          const tutorData = tutor.toObject();
+          tutorData.uploadLogs = uploadLogs;
+
+          return tutorData;
+        } catch (error) {
+          console.error(`❌ 獲取導師 ${tutor.name} 的上傳記錄失敗:`, error);
+          // 如果獲取上傳記錄失敗，仍然返回導師資料
+          const tutorData = tutor.toObject();
+          tutorData.uploadLogs = [];
+          return tutorData;
+        }
+      })
+    );
     
     res.status(200).json({
       success: true,
-      data: tutors,
+      data: tutorsWithUploads,
       message: `找到 ${tutors.length} 個待審核導師`
     });
   } catch (error) {
