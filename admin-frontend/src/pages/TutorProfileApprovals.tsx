@@ -450,49 +450,57 @@ const TutorProfileApprovals: React.FC = () => {
                                   </Typography>
                                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                     {/* 上傳記錄 */}
-                                    {tutor.uploadLogs && tutor.uploadLogs.length > 0 ? (
-                                      <Box>
-                                        <Typography variant="body2" color="textSecondary" gutterBottom>
-                                          最近上傳的文件 ({tutor.uploadLogs.length} 個):
-                                        </Typography>
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                          {tutor.uploadLogs.map((log, index) => (
-                                            <Box key={log._id} sx={{ 
-                                              display: 'flex', 
-                                              alignItems: 'center', 
-                                              gap: 2,
-                                              p: 1,
-                                              border: '1px solid #e0e0e0',
-                                              borderRadius: 1,
-                                              backgroundColor: '#fafafa'
-                                            }}>
-                                              <Chip 
-                                                label={log.type === 'document' ? '文件' : log.type === 'image' ? '圖片' : log.type} 
-                                                size="small" 
-                                                color={log.type === 'document' ? 'primary' : 'secondary'}
-                                              />
-                                              <Typography variant="body2" color="textSecondary">
-                                                {new Date(log.createdAt).toLocaleString('zh-TW')}
-                                              </Typography>
-                                              <Button
-                                                size="small"
-                                                variant="outlined"
-                                                onClick={() => window.open(log.fileUrl, '_blank')}
-                                              >
-                                                查看文件
-                                              </Button>
-                                              <Typography variant="caption" color="textSecondary">
-                                                S3路徑: {log.fileUrl.split('/').slice(-3).join('/')}
-                                              </Typography>
-                                            </Box>
-                                          ))}
+                                    {(() => {
+                                      console.log(`🔍 渲染導師 ${tutor.name} 的 uploadLogs:`, {
+                                        hasUploadLogs: !!tutor.uploadLogs,
+                                        uploadLogsLength: tutor.uploadLogs?.length || 0,
+                                        uploadLogs: tutor.uploadLogs
+                                      });
+                                      
+                                      return tutor.uploadLogs && tutor.uploadLogs.length > 0 ? (
+                                        <Box>
+                                          <Typography variant="body2" color="textSecondary" gutterBottom>
+                                            最近上傳的文件 ({tutor.uploadLogs.length} 個):
+                                          </Typography>
+                                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                            {tutor.uploadLogs.map((log, index) => (
+                                              <Box key={log._id} sx={{ 
+                                                display: 'flex', 
+                                                alignItems: 'center', 
+                                                gap: 2,
+                                                p: 1,
+                                                border: '1px solid #e0e0e0',
+                                                borderRadius: 1,
+                                                backgroundColor: '#fafafa'
+                                              }}>
+                                                <Chip 
+                                                  label={log.type === 'document' ? '文件' : log.type === 'image' ? '圖片' : log.type} 
+                                                  size="small" 
+                                                  color={log.type === 'document' ? 'primary' : 'secondary'}
+                                                />
+                                                <Typography variant="body2" color="textSecondary">
+                                                  {new Date(log.createdAt).toLocaleString('zh-TW')}
+                                                </Typography>
+                                                <Button
+                                                  size="small"
+                                                  variant="outlined"
+                                                  onClick={() => window.open(log.fileUrl, '_blank')}
+                                                >
+                                                  查看文件
+                                                </Button>
+                                                <Typography variant="caption" color="textSecondary">
+                                                  S3路徑: {log.fileUrl.split('/').slice(-3).join('/')}
+                                                </Typography>
+                                              </Box>
+                                            ))}
+                                          </Box>
                                         </Box>
-                                      </Box>
-                                    ) : (
-                                      <Typography variant="body2" color="textSecondary">
-                                        暫無上傳記錄
-                                      </Typography>
-                                    )}
+                                      ) : (
+                                        <Typography variant="body2" color="textSecondary">
+                                          暫無上傳記錄
+                                        </Typography>
+                                      );
+                                    })()}
 
                                     {/* 文件類型統計 */}
                                     {tutor.uploadLogs && tutor.uploadLogs.length > 0 && (
