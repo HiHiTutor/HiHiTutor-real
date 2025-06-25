@@ -100,6 +100,14 @@ const TutorProfileApprovals: React.FC = () => {
       const response = await api.get('/tutor-profiles/pending');
       
       if (response.data.success) {
+        console.log('📥 接收到的導師數據:', response.data.data);
+        response.data.data.forEach((tutor: any, index: number) => {
+          console.log(`導師 ${index + 1} (${tutor.name}) uploadLogs:`, {
+            hasUploadLogs: !!tutor.uploadLogs,
+            uploadLogsLength: tutor.uploadLogs?.length || 0,
+            uploadLogs: tutor.uploadLogs
+          });
+        });
         setTutors(response.data.data);
       } else {
         throw new Error(response.data.message || '獲取資料失敗');
