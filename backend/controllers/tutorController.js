@@ -78,8 +78,8 @@ const testTutors = async (req, res) => {
 // 回傳所有導師
 const getAllTutors = async (req, res) => {
   try {
-    const { limit, featured, search, subjects, regions, modes } = req.query;
-    console.log('📝 查詢參數:', { limit, featured, search, subjects, regions, modes });
+    const { limit, featured, search, subjects, regions, modes, category } = req.query;
+    console.log('📝 查詢參數:', { limit, featured, search, subjects, regions, modes, category });
     
     // 定義 tutors 變數
     let tutors = [];
@@ -117,6 +117,15 @@ const getAllTutors = async (req, res) => {
             )
           );
           console.log(`- 科目過濾後剩餘導師: ${filteredMockTutors.length} 個`);
+        }
+        
+        // 分類過濾
+        if (category) {
+          console.log(`- 分類過濾: ${category}`);
+          // 根據分類過濾導師
+          // 這裡需要根據實際的 mock 數據結構來實現分類過濾
+          // 暫時先跳過分類過濾，因為 mock 數據中可能沒有明確的分類字段
+          console.log(`- 分類過濾後剩餘導師: ${filteredMockTutors.length} 個`);
         }
         
         // 精選導師過濾
@@ -251,6 +260,15 @@ const getAllTutors = async (req, res) => {
       console.log(`🔍 添加教學模式過濾: ${modeArray.join(', ')}`);
     }
     
+    // 添加分類過濾
+    if (category) {
+      console.log(`🔍 添加分類過濾: ${category}`);
+      // 根據分類過濾導師
+      // 這裡需要根據實際的數據庫結構來實現分類過濾
+      // 暫時先跳過分類過濾，因為數據庫中可能沒有明確的分類字段
+      console.log(`🔍 分類過濾: ${category} (暫時跳過)`);
+    }
+    
     // 如果是 featured 請求，添加精選條件
     if (featured === 'true') {
       console.log('🔍 查詢精選導師 (featured=true)');
@@ -330,6 +348,15 @@ const getAllTutors = async (req, res) => {
             )
           );
           console.log(`- 科目過濾後剩餘導師: ${filteredMockTutors.length} 個`);
+        }
+        
+        // 分類過濾
+        if (category) {
+          console.log(`- 分類過濾: ${category}`);
+          // 根據分類過濾導師
+          // 這裡需要根據實際的 mock 數據結構來實現分類過濾
+          // 暫時先跳過分類過濾，因為 mock 數據中可能沒有明確的分類字段
+          console.log(`- 分類過濾後剩餘導師: ${filteredMockTutors.length} 個`);
         }
         
         // 精選導師過濾
