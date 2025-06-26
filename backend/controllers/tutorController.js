@@ -78,8 +78,8 @@ const testTutors = async (req, res) => {
 // 回傳所有導師
 const getAllTutors = async (req, res) => {
   try {
-    const { limit, featured } = req.query;
-    console.log('📝 查詢參數:', { limit, featured });
+    const { limit, featured, search, subjects, regions, modes } = req.query;
+    console.log('📝 查詢參數:', { limit, featured, search, subjects, regions, modes });
     
     // 定義 tutors 變數
     let tutors = [];
@@ -96,9 +96,33 @@ const getAllTutors = async (req, res) => {
         
         // 過濾模擬數據
         let filteredMockTutors = mockTutors;
+        
+        // 搜尋過濾
+        if (search) {
+          const searchLower = search.toLowerCase();
+          filteredMockTutors = filteredMockTutors.filter(tutor => 
+            tutor.name.toLowerCase().includes(searchLower) ||
+            (tutor.subject && tutor.subject.toLowerCase().includes(searchLower)) ||
+            (tutor.education && tutor.education.toLowerCase().includes(searchLower))
+          );
+          console.log(`- 搜尋 "${search}" 後剩餘導師: ${filteredMockTutors.length} 個`);
+        }
+        
+        // 科目過濾
+        if (subjects) {
+          const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
+          filteredMockTutors = filteredMockTutors.filter(tutor => 
+            subjectArray.some(subject => 
+              tutor.subject && tutor.subject.toLowerCase().includes(subject.toLowerCase())
+            )
+          );
+          console.log(`- 科目過濾後剩餘導師: ${filteredMockTutors.length} 個`);
+        }
+        
+        // 精選導師過濾
         if (featured === 'true') {
-          filteredMockTutors = mockTutors.filter(tutor => tutor.isVip || tutor.isTop);
-          console.log(`- 模擬數據中符合 featured 條件的導師: ${filteredMockTutors.length} 個`);
+          filteredMockTutors = filteredMockTutors.filter(tutor => tutor.isVip || tutor.isTop);
+          console.log(`- 精選導師過濾後剩餘導師: ${filteredMockTutors.length} 個`);
         }
         
         // 排序和限制
@@ -196,19 +220,48 @@ const getAllTutors = async (req, res) => {
       status: 'active'
     };
     
-    // 如果是 featured 請求，先嘗試獲取置頂或 VIP 導師
+    // 添加搜尋條件
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { 'tutorProfile.subjects': { $regex: search, $options: 'i' } },
+        { 'tutorProfile.educationLevel': { $regex: search, $options: 'i' } }
+      ];
+      console.log(`🔍 添加搜尋條件: "${search}"`);
+    }
+    
+    // 添加科目過濾
+    if (subjects) {
+      const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
+      query['tutorProfile.subjects'] = { $in: subjectArray.map(s => new RegExp(s, 'i')) };
+      console.log(`🔍 添加科目過濾: ${subjectArray.join(', ')}`);
+    }
+    
+    // 添加地區過濾
+    if (regions) {
+      const regionArray = Array.isArray(regions) ? regions : regions.split(',');
+      query['tutorProfile.regions'] = { $in: regionArray.map(r => new RegExp(r, 'i')) };
+      console.log(`🔍 添加地區過濾: ${regionArray.join(', ')}`);
+    }
+    
+    // 添加教學模式過濾
+    if (modes) {
+      const modeArray = Array.isArray(modes) ? modes : modes.split(',');
+      query['tutorProfile.teachingModes'] = { $in: modeArray.map(m => new RegExp(m, 'i')) };
+      console.log(`🔍 添加教學模式過濾: ${modeArray.join(', ')}`);
+    }
+    
+    // 如果是 featured 請求，添加精選條件
     if (featured === 'true') {
       console.log('🔍 查詢精選導師 (featured=true)');
       
-      // 第一優先級：featured 導師
-      const featuredQuery = {
-        ...query,
-        $or: [{ isTop: true }, { isVip: true }]
-      };
+      // 添加精選條件
+      query.$or = query.$or || [];
+      query.$or.push({ isTop: true }, { isVip: true });
       
-      console.log('🔍 第一優先級查詢條件:', featuredQuery);
+      console.log('🔍 查詢條件:', query);
       
-      let tutors = await User.find(featuredQuery)
+      tutors = await User.find(query)
         .sort({ rating: -1, createdAt: -1 })
         .limit(parseInt(limit) || 15)
         .lean();
@@ -219,11 +272,9 @@ const getAllTutors = async (req, res) => {
       if (tutors.length === 0) {
         console.log('⚠️ 沒有精選導師，使用 fallback 查詢條件');
         
-        // 第二優先級：已審核的高評分導師
-        const fallbackQuery = {
-          ...query,
-          profileStatus: 'approved'
-        };
+        // 移除精選條件，使用基本查詢
+        const fallbackQuery = { ...query };
+        delete fallbackQuery.$or;
         
         console.log('🔍 Fallback 查詢條件:', fallbackQuery);
         
@@ -233,25 +284,11 @@ const getAllTutors = async (req, res) => {
           .lean();
         
         console.log(`✅ Fallback 查詢找到 ${tutors.length} 個導師`);
-        
-        // 如果還是沒有，使用最寬鬆的條件
-        if (tutors.length === 0) {
-          console.log('⚠️ Fallback 查詢也無結果，使用最寬鬆條件');
-          
-          const looseQuery = { userType: 'tutor' };
-          console.log('🔍 最寬鬆查詢條件:', looseQuery);
-          
-          tutors = await User.find(looseQuery)
-            .sort({ rating: -1, createdAt: -1 })
-            .limit(parseInt(limit) || 15)
-            .lean();
-          
-          console.log(`✅ 最寬鬆查詢找到 ${tutors.length} 個導師`);
-        }
       }
     } else {
       // 非 featured 請求，使用標準查詢
       console.log('🔍 查詢所有導師 (featured=false)');
+      console.log('🔍 查詢條件:', query);
       
       tutors = await User.find(query)
         .sort({ rating: -1, createdAt: -1 })
@@ -272,9 +309,33 @@ const getAllTutors = async (req, res) => {
         
         // 過濾模擬數據
         let filteredMockTutors = mockTutors;
+        
+        // 搜尋過濾
+        if (search) {
+          const searchLower = search.toLowerCase();
+          filteredMockTutors = filteredMockTutors.filter(tutor => 
+            tutor.name.toLowerCase().includes(searchLower) ||
+            (tutor.subject && tutor.subject.toLowerCase().includes(searchLower)) ||
+            (tutor.education && tutor.education.toLowerCase().includes(searchLower))
+          );
+          console.log(`- 搜尋 "${search}" 後剩餘導師: ${filteredMockTutors.length} 個`);
+        }
+        
+        // 科目過濾
+        if (subjects) {
+          const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
+          filteredMockTutors = filteredMockTutors.filter(tutor => 
+            subjectArray.some(subject => 
+              tutor.subject && tutor.subject.toLowerCase().includes(subject.toLowerCase())
+            )
+          );
+          console.log(`- 科目過濾後剩餘導師: ${filteredMockTutors.length} 個`);
+        }
+        
+        // 精選導師過濾
         if (featured === 'true') {
-          filteredMockTutors = mockTutors.filter(tutor => tutor.isVip || tutor.isTop);
-          console.log(`- 模擬數據中符合 featured 條件的導師: ${filteredMockTutors.length} 個`);
+          filteredMockTutors = filteredMockTutors.filter(tutor => tutor.isVip || tutor.isTop);
+          console.log(`- 精選導師過濾後剩餘導師: ${filteredMockTutors.length} 個`);
         }
         
         // 排序和限制
