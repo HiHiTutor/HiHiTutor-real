@@ -93,17 +93,10 @@ const getAllTutors = async (req, res) => {
       // 如果沒有置頂或 VIP 導師，則返回所有導師
       if (featuredTutors.length === 0) {
         console.log('⚠️ 沒有置頂或 VIP 導師，返回所有導師');
-        const allTutors = await User.aggregate([
-          { $match: query },
-          {
-            $addFields: {
-              // 生成隨機數用於評分相同時的排序
-              randomSort: { $rand: {} }
-            }
-          },
-          { $sort: { rating: -1, randomSort: 1 } },  // 先按評分降序，評分相同則按隨機數升序
-          { $limit: parseInt(limit) || 15 }
-        ]);
+        const allTutors = await User.find(query)
+          .sort({ rating: -1, createdAt: -1 })
+          .limit(parseInt(limit) || 15)
+          .lean();
         
         const formattedTutors = allTutors.map(tutor => ({
           id: tutor._id,
@@ -140,17 +133,10 @@ const getAllTutors = async (req, res) => {
     }
     
     // 非 featured 請求，返回所有導師
-    const tutors = await User.aggregate([
-      { $match: query },
-      {
-        $addFields: {
-          // 生成隨機數用於評分相同時的排序
-          randomSort: { $rand: {} }
-        }
-      },
-      { $sort: { rating: -1, randomSort: 1 } },  // 先按評分降序，評分相同則按隨機數升序
-      { $limit: parseInt(limit) || 15 }
-    ]);
+    const tutors = await User.find(query)
+      .sort({ rating: -1, createdAt: -1 })
+      .limit(parseInt(limit) || 15)
+      .lean();
     
     console.log(`✅ 從 MongoDB 找到 ${tutors.length} 個導師`);
 
