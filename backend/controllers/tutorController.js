@@ -98,46 +98,83 @@ const getAllTutors = async (req, res) => {
     
     console.log('✅ MongoDB 連接正常，開始查詢導師資料');
     
-    let query = { userType: 'tutor' };
+    // 基本查詢條件
+    let query = { 
+      userType: 'tutor',
+      isActive: true,
+      status: 'active'
+    };
     
-    // 如果是 featured 請求，獲取置頂或 VIP 導師
+    // 如果是 featured 請求，先嘗試獲取置頂或 VIP 導師
     if (featured === 'true') {
-      query.$or = [{ isTop: true }, { isVip: true }];
       console.log('🔍 查詢精選導師 (featured=true)');
-    }
-    
-    console.log('🔍 MongoDB 查詢條件:', query);
-    
-    // 使用簡單的 find 查詢
-    let tutors = [];
-    try {
+      
+      // 第一優先級：featured 導師
+      const featuredQuery = {
+        ...query,
+        $or: [{ isTop: true }, { isVip: true }]
+      };
+      
+      console.log('🔍 第一優先級查詢條件:', featuredQuery);
+      
+      let tutors = await User.find(featuredQuery)
+        .sort({ rating: -1, createdAt: -1 })
+        .limit(parseInt(limit) || 15)
+        .lean();
+      
+      console.log(`✅ 從 MongoDB 找到 ${tutors.length} 個精選導師`);
+      
+      // 如果沒有精選導師，使用 fallback 查詢
+      if (tutors.length === 0) {
+        console.log('⚠️ 沒有精選導師，使用 fallback 查詢條件');
+        
+        // 第二優先級：已審核的高評分導師
+        const fallbackQuery = {
+          ...query,
+          profileStatus: 'approved'
+        };
+        
+        console.log('🔍 Fallback 查詢條件:', fallbackQuery);
+        
+        tutors = await User.find(fallbackQuery)
+          .sort({ rating: -1, createdAt: -1 })
+          .limit(parseInt(limit) || 15)
+          .lean();
+        
+        console.log(`✅ Fallback 查詢找到 ${tutors.length} 個導師`);
+        
+        // 如果還是沒有，使用最寬鬆的條件
+        if (tutors.length === 0) {
+          console.log('⚠️ Fallback 查詢也無結果，使用最寬鬆條件');
+          
+          const looseQuery = { userType: 'tutor' };
+          console.log('🔍 最寬鬆查詢條件:', looseQuery);
+          
+          tutors = await User.find(looseQuery)
+            .sort({ rating: -1, createdAt: -1 })
+            .limit(parseInt(limit) || 15)
+            .lean();
+          
+          console.log(`✅ 最寬鬆查詢找到 ${tutors.length} 個導師`);
+        }
+      }
+    } else {
+      // 非 featured 請求，使用標準查詢
+      console.log('🔍 查詢所有導師 (featured=false)');
+      
       tutors = await User.find(query)
         .sort({ rating: -1, createdAt: -1 })
         .limit(parseInt(limit) || 15)
         .lean();
       
       console.log(`✅ 從 MongoDB 找到 ${tutors.length} 個導師`);
-    } catch (dbError) {
-      console.error('❌ 數據庫查詢錯誤:', {
-        message: dbError.message,
-        code: dbError.code,
-        name: dbError.name,
-        stack: dbError.stack
-      });
-      
-      // 如果是數據庫錯誤，返回錯誤訊息
-      return res.status(500).json({
-        success: false,
-        message: 'Database query failed',
-        error: dbError.message
-      });
     }
     
     // 如果數據庫中沒有導師數據，使用模擬數據
     if (tutors.length === 0) {
       console.log('⚠️ 數據庫中沒有導師數據，使用模擬數據');
       console.log('- 可能原因: 數據庫中沒有 userType=tutor 的用戶');
-      console.log('- 或者 featured=true 但沒有 isTop=true 或 isVip=true 的導師');
+      console.log('- 或者所有導師都不符合查詢條件');
       
       try {
         const mockTutors = require('../data/tutors');
@@ -181,11 +218,11 @@ const getAllTutors = async (req, res) => {
       id: tutor._id,
       userId: tutor.userId,
       name: tutor.name,
-      subjects: tutor.subjects || [],
-      education: tutor.education || '未指定',
-      experience: tutor.experience || '未指定',
+      subjects: tutor.subjects || tutor.tutorProfile?.subjects || [],
+      education: tutor.education || tutor.tutorProfile?.educationLevel || '未指定',
+      experience: tutor.experience || tutor.tutorProfile?.teachingExperienceYears || '未指定',
       rating: tutor.rating || 0,
-      avatarUrl: tutor.avatar || `/avatars/teacher${Math.floor(Math.random() * 6) + 1}.png`,
+      avatarUrl: tutor.avatar || tutor.tutorProfile?.avatarUrl || `/avatars/teacher${Math.floor(Math.random() * 6) + 1}.png`,
       isVip: tutor.isVip || false,
       isTop: tutor.isTop || false
     }));

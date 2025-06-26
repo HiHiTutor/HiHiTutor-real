@@ -198,6 +198,14 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  isTop: {
+    type: Boolean,
+    default: false
+  },
+  isVip: {
+    type: Boolean,
+    default: false
+  },
   totalReviews: {
     type: Number,
     default: 0
