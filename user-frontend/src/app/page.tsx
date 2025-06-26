@@ -36,13 +36,36 @@ export default function Home() {
     
     // 將搜尋條件轉換為 URL 參數
     const searchParams = new URLSearchParams();
-    Object.entries(rest).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
-        searchParams.append(key, value.join(','));
-      } else if (value !== undefined && value !== '') {
-        searchParams.append(key, String(value));
+    
+    // 處理不同的參數名稱映射
+    if (rest.category) {
+      searchParams.append('category', rest.category);
+    }
+    if (rest.subCategory) {
+      searchParams.append('subCategory', rest.subCategory);
+    }
+    if (rest.region) {
+      searchParams.append('region', rest.region);
+    }
+    if (rest.mode && Array.isArray(rest.mode)) {
+      rest.mode.forEach((mode: string) => searchParams.append('mode', mode));
+    }
+    if (rest.search) {
+      searchParams.append('search', rest.search);
+    }
+    
+    // 對於導師頁面，需要額外的參數映射
+    if (target === "tutors") {
+      if (rest.subCategory) {
+        searchParams.append('subjects', rest.subCategory);
       }
-    });
+      if (rest.region) {
+        searchParams.append('regions', rest.region);
+      }
+      if (rest.mode && Array.isArray(rest.mode)) {
+        rest.mode.forEach((mode: string) => searchParams.append('modes', mode));
+      }
+    }
 
     // 跳轉到目標頁面，並帶上搜尋參數
     router.push(`/${target}?${searchParams.toString()}`);
@@ -64,13 +87,36 @@ function HomeContent() {
     
     // 將搜尋條件轉換為 URL 參數
     const searchParams = new URLSearchParams();
-    Object.entries(rest).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
-        searchParams.append(key, value.join(','));
-      } else if (value !== undefined && value !== '') {
-        searchParams.append(key, String(value));
+    
+    // 處理不同的參數名稱映射
+    if (rest.category) {
+      searchParams.append('category', rest.category);
+    }
+    if (rest.subCategory) {
+      searchParams.append('subCategory', rest.subCategory);
+    }
+    if (rest.region) {
+      searchParams.append('region', rest.region);
+    }
+    if (rest.mode && Array.isArray(rest.mode)) {
+      rest.mode.forEach((mode: string) => searchParams.append('mode', mode));
+    }
+    if (rest.search) {
+      searchParams.append('search', rest.search);
+    }
+    
+    // 對於導師頁面，需要額外的參數映射
+    if (target === "tutors") {
+      if (rest.subCategory) {
+        searchParams.append('subjects', rest.subCategory);
       }
-    });
+      if (rest.region) {
+        searchParams.append('regions', rest.region);
+      }
+      if (rest.mode && Array.isArray(rest.mode)) {
+        rest.mode.forEach((mode: string) => searchParams.append('modes', mode));
+      }
+    }
 
     // 跳轉到目標頁面，並帶上搜尋參數
     router.push(`/${target}?${searchParams.toString()}`);

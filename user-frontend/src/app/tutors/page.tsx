@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -43,6 +44,7 @@ interface TutorsResponse {
 
 export default function TutorsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
@@ -197,8 +199,27 @@ export default function TutorsPage() {
   };
 
   useEffect(() => {
+    // 從 URL 參數中讀取搜尋條件
+    const search = searchParams.get('search');
+    const subjects = searchParams.get('subjects');
+    const regions = searchParams.get('regions');
+    const modes = searchParams.get('modes');
+    
+    if (search) {
+      setSearchQuery(search);
+    }
+    if (subjects) {
+      setSelectedSubjects(subjects.split(','));
+    }
+    if (regions) {
+      setSelectedAreas(regions.split(','));
+    }
+    if (modes) {
+      setSelectedMethods(modes.split(','));
+    }
+    
     fetchTutors();
-  }, [currentPage]);
+  }, [currentPage, searchParams]);
 
   const handleSearch = () => {
     setCurrentPage(1);
