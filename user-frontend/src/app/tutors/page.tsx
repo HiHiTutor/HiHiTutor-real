@@ -28,6 +28,8 @@ interface Tutor {
   rating?: number;
   isVip?: boolean;
   isTop?: boolean;
+  region?: string;
+  teachingModes?: string[];
 }
 
 interface TutorsResponse {
@@ -275,6 +277,168 @@ function TutorsPageContent() {
     return tutor.avatarUrl || `/avatars/teacher${Math.floor(Math.random() * 6) + 1}.png`;
   };
 
+  // 科目編碼到用戶友好標籤的映射
+  const getSubjectLabel = (subjectCode: string) => {
+    const subjectMap: { [key: string]: string } = {
+      // 幼兒教育
+      'early-childhood-chinese': '幼兒中文',
+      'early-childhood-english': '幼兒英文',
+      'early-childhood-math': '幼兒數學',
+      'early-childhood-phonics': '拼音／注音',
+      'early-childhood-logic': '邏輯思維訓練',
+      'early-childhood-interview': '面試技巧訓練',
+      'early-childhood-homework': '幼稚園功課輔導',
+      
+      // 小學教育
+      'primary-chinese': '小學中文',
+      'primary-english': '小學英文',
+      'primary-math': '小學數學',
+      'primary-general': '小學常識',
+      'primary-mandarin': '小學普通話',
+      'primary-stem': '小學常識／STEM',
+      'primary-all': '小學全科補習',
+      
+      // 中學教育
+      'secondary-chinese': '中學中文',
+      'secondary-english': '中學英文',
+      'secondary-math': '中學數學',
+      'secondary-ls': '中學通識教育',
+      'secondary-physics': '中學物理',
+      'secondary-chemistry': '中學化學',
+      'secondary-biology': '中學生物',
+      'secondary-economics': '中學經濟',
+      'secondary-geography': '中學地理',
+      'secondary-history': '中學歷史',
+      'secondary-chinese-history': '中學中國歷史',
+      'secondary-bafs': '中學BAFS',
+      'secondary-ict': '中學ICT',
+      'secondary-integrated-science': '中學綜合科學',
+      'secondary-dse': '中學DSE專科補習',
+      'secondary-all': '中學全科補習',
+      
+      // 興趣班
+      'art': '繪畫',
+      'music': '音樂',
+      'dance': '跳舞／舞蹈',
+      'drama': '戲劇／演講',
+      'programming': '編程／STEM',
+      'foreign-language': '外語',
+      'magic-chess': '魔術／棋藝',
+      'photography': '攝影／影片剪接',
+      
+      // 大專補習
+      'uni-liberal': '大學通識',
+      'uni-math': '大學統計與數學',
+      'uni-economics': '經濟學',
+      'uni-it': '資訊科技',
+      'uni-business': '商科',
+      'uni-engineering': '工程科目',
+      'uni-thesis': '論文指導',
+      
+      // 成人教育
+      'business-english': '商務英文',
+      'conversation': '生活英語會話',
+      'chinese-language': '廣東話／普通話',
+      'second-language': '興趣／第二語言',
+      'computer-skills': '電腦技能',
+      'exam-prep': '考試準備'
+    };
+    
+    return subjectMap[subjectCode] || subjectCode;
+  };
+
+  // 地區編碼到用戶友好標籤的映射
+  const getRegionLabel = (regionCode: string) => {
+    const regionMap: { [key: string]: string } = {
+      // 香港島
+      'central': '中環',
+      'sheung-wan': '上環',
+      'sai-wan': '西環',
+      'sai-ying-pun': '西營盤',
+      'shek-tong-tsui': '石塘咀',
+      'wan-chai': '灣仔',
+      'causeway-bay': '銅鑼灣',
+      'admiralty': '金鐘',
+      'happy-valley': '跑馬地',
+      'tin-hau': '天后',
+      'tai-hang': '大坑',
+      'north-point': '北角',
+      'quarry-bay': '鰂魚涌',
+      'taikoo': '太古',
+      'sai-wan-ho': '西灣河',
+      'shau-kei-wan': '筲箕灣',
+      'chai-wan': '柴灣',
+      'heng-fa-chuen': '杏花邨',
+      
+      // 九龍
+      'tsim-sha-tsui': '尖沙咀',
+      'jordan': '佐敦',
+      'yau-ma-tei': '油麻地',
+      'mong-kok': '旺角',
+      'prince-edward': '太子',
+      'sham-shui-po': '深水埗',
+      'cheung-sha-wan': '長沙灣',
+      'hung-hom': '紅磡',
+      'to-kwa-wan': '土瓜灣',
+      'ho-man-tin': '何文田',
+      'kowloon-tong': '九龍塘',
+      'san-po-kong': '新蒲崗',
+      'diamond-hill': '鑽石山',
+      'lok-fu': '樂富',
+      'tsz-wan-shan': '慈雲山',
+      'ngau-tau-kok': '牛頭角',
+      'lam-tin': '藍田',
+      'kwun-tong': '觀塘',
+      'yau-tong': '油塘',
+      
+      // 新界
+      'sha-tin': '沙田',
+      'ma-on-shan': '馬鞍山',
+      'tai-wai': '大圍',
+      'fo-tan': '火炭',
+      'tai-po': '大埔',
+      'tai-wo': '太和',
+      'fan-ling': '粉嶺',
+      'sheung-shui': '上水',
+      'tseung-kwan-o': '將軍澳',
+      'hang-hau': '坑口',
+      'po-lam': '寶琳',
+      'lohas-park': '康城',
+      'tuen-mun': '屯門',
+      'siu-hong': '兆康',
+      'yuen-long': '元朗',
+      'long-ping': '朗屏',
+      'tin-shui-wai': '天水圍',
+      'tsuen-wan': '荃灣',
+      'kwai-fong': '葵芳',
+      'kwai-chung': '葵涌',
+      'tsing-yi': '青衣',
+      
+      // 離島
+      'tung-chung': '東涌',
+      'mui-wo': '梅窩',
+      'tai-o': '大澳',
+      'ping-chau': '坪洲',
+      'cheung-chau': '長洲',
+      'lamma-island': '南丫島',
+      'discovery-bay': '愉景灣',
+      'pui-o': '貝澳'
+    };
+    
+    return regionMap[regionCode] || regionCode;
+  };
+
+  // 教學模式編碼到用戶友好標籤的映射
+  const getTeachingModeLabel = (modeCode: string) => {
+    const modeMap: { [key: string]: string } = {
+      'in-person': '面授',
+      'online': '網上',
+      'both': '混合'
+    };
+    
+    return modeMap[modeCode] || modeCode;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -402,7 +566,7 @@ function TutorsPageContent() {
                       <div className="flex flex-wrap gap-1">
                         {getTutorSubjects(tutor).slice(0, 3).map((subject) => (
                           <Badge key={subject} variant="secondary" className="text-xs">
-                            {subject}
+                            {getSubjectLabel(subject)}
                           </Badge>
                         ))}
                         {getTutorSubjects(tutor).length > 3 && (
@@ -415,6 +579,20 @@ function TutorsPageContent() {
                     
                     <div className="text-sm text-gray-600">
                       <span className="font-medium">教學經驗:</span> {getTutorExperience(tutor)}
+                    </div>
+                    
+                    {/* 地區和教學模式 */}
+                    <div className="text-sm text-gray-600 space-y-1">
+                      {tutor.region && (
+                        <div>
+                          <span className="font-medium">教學地區:</span> {getRegionLabel(tutor.region)}
+                        </div>
+                      )}
+                      {tutor.teachingModes && tutor.teachingModes.length > 0 && (
+                        <div>
+                          <span className="font-medium">教學模式:</span> {tutor.teachingModes.map(mode => getTeachingModeLabel(mode)).join('、')}
+                        </div>
+                      )}
                     </div>
                     
                     <Button className="w-full" size="sm">
