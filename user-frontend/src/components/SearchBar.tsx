@@ -11,7 +11,7 @@ const SearchBar = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      const target = searchType === 'tutor' ? 'tutors' : 'find-tutor-cases';
+      const target = searchType === 'tutor' ? 'tutors' : 'find-student-cases';
       router.push(`/${target}?search=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
