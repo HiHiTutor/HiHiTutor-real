@@ -81,6 +81,15 @@ const getAllTutors = async (req, res) => {
     const { limit, featured } = req.query;
     console.log('📝 查詢參數:', { limit, featured });
     
+    // 檢查 MongoDB 連接狀態
+    if (mongoose.connection.readyState !== 1) {
+      console.log('⚠️ MongoDB 未連接，當前狀態:', mongoose.connection.readyState);
+      return res.status(503).json({ 
+        message: 'Database not ready', 
+        mongoState: mongoose.connection.readyState 
+      });
+    }
+    
     let query = { userType: 'tutor' };
     
     // 如果是 featured 請求，獲取置頂或 VIP 導師

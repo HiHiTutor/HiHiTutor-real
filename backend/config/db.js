@@ -31,7 +31,7 @@ const connectDB = async () => {
       retryWrites: true,
       retryReads: true,
       bufferMaxEntries: 0,
-      bufferCommands: false
+      bufferCommands: true
     };
 
     console.log('🔗 Attempting MongoDB connection with options:', {
