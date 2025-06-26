@@ -81,6 +81,13 @@ function TutorsPageContent() {
       if (selectedSubjects.length > 0) params.append('subjects', selectedSubjects.join(','));
       if (selectedAreas.length > 0) params.append('regions', selectedAreas.join(','));
       if (selectedMethods.length > 0) params.append('modes', selectedMethods.join(','));
+      
+      // 添加分類參數
+      const category = searchParams.get('category');
+      if (category) {
+        params.append('category', category);
+      }
+      
       params.append('page', currentPage.toString());
       params.append('limit', '12');
 
@@ -219,6 +226,7 @@ function TutorsPageContent() {
     const subjects = searchParams.get('subjects');
     const regions = searchParams.get('regions');
     const modes = searchParams.get('modes');
+    const category = searchParams.get('category');
     
     if (search) {
       setSearchQuery(search);
@@ -231,6 +239,11 @@ function TutorsPageContent() {
     }
     if (modes) {
       setSelectedMethods(modes.split(','));
+    }
+    if (category) {
+      console.log('📝 檢測到分類參數:', category);
+      // 這裡可以根據分類設置相應的科目
+      // 例如：early-childhood -> 幼兒教育相關科目
     }
     
     fetchTutors();
