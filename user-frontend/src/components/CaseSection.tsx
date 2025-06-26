@@ -255,11 +255,11 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
         
         console.log(`📊 原始資料數量: ${rawCases.length}`);
         
-        // 過濾並排序（只要有 createdAt 或 date 就顯示）
+        // 過濾並排序（只要有 id 或 name 就顯示）
         const validCases = rawCases.filter(case_ => 
           case_ && 
           typeof case_ === 'object' && 
-          (case_.createdAt || case_.date || case_.tutorId || case_.id)
+          (case_.id || case_.userId || case_.name || case_.createdAt || case_.date || case_.tutorId)
         );
         
         console.log(`✅ 有效資料數量: ${validCases.length}`);
