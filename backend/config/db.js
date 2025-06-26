@@ -8,9 +8,14 @@ const connectDB = async () => {
     console.log('📋 Environment Check:');
     console.log('- NODE_ENV:', process.env.NODE_ENV);
     console.log('- MONGODB_URI exists:', !!process.env.MONGODB_URI);
+    
+    // 新增 DEBUG log 來顯示 MONGODB_URI（遮蔽密碼）
     if (process.env.MONGODB_URI) {
-      console.log('- MONGODB_URI starts with:', process.env.MONGODB_URI.substring(0, 20) + '...');
-      console.log('- MONGODB_URI length:', process.env.MONGODB_URI.length);
+      const uri = process.env.MONGODB_URI;
+      const maskedUri = uri.replace(/(mongodb\+srv?:\/\/[^:]+:)[^@]+(@.*)/, '$1[PASSWORD]$2');
+      console.log('[DEBUG] MONGODB_URI =', maskedUri);
+      console.log('- MONGODB_URI starts with:', uri.substring(0, 20) + '...');
+      console.log('- MONGODB_URI length:', uri.length);
     } else {
       console.error('❌ MONGODB_URI is missing!');
       throw new Error('MONGODB_URI environment variable is required');
@@ -19,10 +24,10 @@ const connectDB = async () => {
     const options = {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 30000, // 增加服務器選擇超時
-      socketTimeoutMS: 45000, // 增加 socket 超時
-      connectTimeoutMS: 30000, // 增加連接超時
-      maxPoolSize: 50, // 增加連接池大小
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 45000,
+      connectTimeoutMS: 30000,
+      maxPoolSize: 50,
       retryWrites: true,
       retryReads: true
     };
