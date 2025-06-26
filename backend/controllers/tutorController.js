@@ -384,17 +384,57 @@ const getTutorById = async (req, res) => {
     // 檢查 MongoDB 連接狀態
     if (mongoose.connection.readyState !== 1) {
       console.log('⚠️ MongoDB 未連接，當前狀態:', mongoose.connection.readyState);
-      return res.status(503).json({ 
-        success: false,
-        message: 'Database not ready', 
-        error: 'MongoDB connection is not established',
-        mongoState: mongoose.connection.readyState,
-        mongoStateDescription: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState] || 'unknown',
-        suggestion: 'Please try again later or contact support'
-      });
+      console.log('- 使用 mock 數據作為 fallback');
+      
+      // 使用 mock 數據
+      try {
+        const mockTutors = require('../data/tutors');
+        const mockTutor = mockTutors.find(tutor => tutor.id == id); // 使用 == 來比較數字和字串
+        
+        if (!mockTutor) {
+          console.log('❌ 在 mock 數據中找不到導師:', id);
+          return res.status(404).json({ 
+            success: false,
+            message: '找不到該導師',
+            source: 'mock'
+          });
+        }
+        
+        console.log('✅ 在 mock 數據中找到導師:', mockTutor.name);
+        
+        // 格式化 mock 數據以符合 API 格式
+        const formattedTutor = {
+          id: mockTutor.id,
+          userId: mockTutor.id,
+          name: mockTutor.name,
+          subjects: mockTutor.subject ? [mockTutor.subject] : ['數學', '英文', '中文'],
+          education: mockTutor.education,
+          experience: mockTutor.experience,
+          rating: mockTutor.rating,
+          avatar: mockTutor.avatarUrl,
+          isVip: mockTutor.isVip,
+          isTop: mockTutor.isTop,
+          createdAt: new Date().toISOString(),
+          date: new Date().toISOString()
+        };
+        
+        return res.json({
+          success: true,
+          data: formattedTutor,
+          source: 'mock',
+          mongoState: mongoose.connection.readyState
+        });
+      } catch (mockError) {
+        console.error('❌ 載入 mock 數據失敗:', mockError);
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to load data',
+          error: mockError.message
+        });
+      }
     }
     
-    // 嘗試多種方式查找導師
+    // MongoDB 連接正常，嘗試多種方式查找導師
     let tutor = null;
     
     // 1. 先嘗試用 userId 查找
@@ -421,15 +461,58 @@ const getTutorById = async (req, res) => {
       }).select('-password -refreshToken');
     }
     
+    // 4. 如果 MongoDB 中找不到，fallback 到 mock 數據
     if (!tutor) {
-      console.log('❌ 找不到導師:', id);
-      return res.status(404).json({ 
-        success: false,
-        message: '找不到該導師' 
-      });
+      console.log('⚠️ MongoDB 中找不到導師，嘗試 mock 數據:', id);
+      
+      try {
+        const mockTutors = require('../data/tutors');
+        const mockTutor = mockTutors.find(tutor => tutor.id == id); // 使用 == 來比較數字和字串
+        
+        if (!mockTutor) {
+          console.log('❌ 在 mock 數據中也找不到導師:', id);
+          return res.status(404).json({ 
+            success: false,
+            message: '找不到該導師',
+            source: 'both'
+          });
+        }
+        
+        console.log('✅ 在 mock 數據中找到導師:', mockTutor.name);
+        
+        // 格式化 mock 數據以符合 API 格式
+        const formattedTutor = {
+          id: mockTutor.id,
+          userId: mockTutor.id,
+          name: mockTutor.name,
+          subjects: mockTutor.subject ? [mockTutor.subject] : ['數學', '英文', '中文'],
+          education: mockTutor.education,
+          experience: mockTutor.experience,
+          rating: mockTutor.rating,
+          avatar: mockTutor.avatarUrl,
+          isVip: mockTutor.isVip,
+          isTop: mockTutor.isTop,
+          createdAt: new Date().toISOString(),
+          date: new Date().toISOString()
+        };
+        
+        return res.json({
+          success: true,
+          data: formattedTutor,
+          source: 'mock-fallback',
+          mongoState: mongoose.connection.readyState
+        });
+      } catch (mockError) {
+        console.error('❌ 載入 mock 數據失敗:', mockError);
+        return res.status(404).json({ 
+          success: false,
+          message: '找不到該導師',
+          source: 'error'
+        });
+      }
     }
     
-    console.log('✅ 找到導師:', tutor.name);
+    console.log('✅ 在 MongoDB 中找到導師:', tutor.name);
     
     // 回傳導師公開資料
     const publicProfile = {
@@ -455,7 +538,8 @@ const getTutorById = async (req, res) => {
     
     res.json({
       success: true,
-      data: publicProfile
+      data: publicProfile,
+      source: 'mongodb'
     });
   } catch (error) {
     console.error('❌ 獲取導師詳情錯誤:', {
