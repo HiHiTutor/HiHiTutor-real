@@ -5,16 +5,28 @@ const baseURL = process.env.NEXT_PUBLIC_API_BASE || 'https://hi-hi-tutor-real-ba
 console.log('🌐 API baseURL:', baseURL);
 
 // 通用 API 請求函數
-export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
+export const fetchApi = async (endpoint: string, options: RequestInit = {}, params?: Record<string, any>) => {
   try {
     // 確保 endpoint 以 / 開頭
     const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     
     // 構建完整的 URL
-    const url = `${baseURL}/api${normalizedEndpoint}`;
+    let url = `${baseURL}/api${normalizedEndpoint}`;
+    
+    // 如果有查詢參數，添加到 URL
+    if (params && Object.keys(params).length > 0) {
+      const searchParams = new URLSearchParams();
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          searchParams.append(key, String(value));
+        }
+      });
+      url += `?${searchParams.toString()}`;
+    }
     
     console.log('🚀 發送 API 請求:', url);
     console.log('📦 請求參數:', options);
+    console.log('🔍 查詢參數:', params);
 
     const token = localStorage.getItem('token');
     const headers = {
@@ -114,13 +126,13 @@ export const authApi = {
 // 導師相關 API
 export const tutorApi = {
   // 獲取所有導師
-  getAllTutors: () => fetchApi('/tutors'),
+  getAllTutors: (params?: Record<string, any>) => fetchApi('/tutors', {}, params),
   
   // 獲取單個導師詳情
   getTutorById: (id: string) => fetchApi(`/tutors/${id}`),
   
   // 獲取推薦導師
-  getRecommendedTutors: () => fetchApi('/tutors?featured=true&limit=8'),
+  getRecommendedTutors: () => fetchApi('/tutors', {}, { featured: true, limit: 8 }),
 
   // 獲取當前導師 profile
   getProfile: () => fetchApi('/tutors/profile'),
@@ -168,16 +180,16 @@ export const tutorApi = {
 // 個案相關 API
 export const caseApi = {
   // 獲取所有找導師的個案
-  getAllTutorCases: () => fetchApi('/tutor-cases'),
+  getAllTutorCases: (params?: Record<string, any>) => fetchApi('/tutor-cases', {}, params),
   
   // 獲取所有找學生的個案
-  getAllStudentCases: () => fetchApi('/find-tutor-cases'),
+  getAllStudentCases: (params?: Record<string, any>) => fetchApi('/find-tutor-cases', {}, params),
   
   // 獲取最新/推薦的找學生個案
-  getRecommendedStudentCases: () => fetchApi('/find-tutor-cases?featured=true&limit=8&sort=latest'),
+  getRecommendedStudentCases: () => fetchApi('/find-tutor-cases', {}, { featured: true, limit: 8, sort: 'latest' }),
   
   // 獲取推薦的找導師個案
-  getRecommendedTutorCases: () => fetchApi('/tutor-cases?featured=true&limit=8'),
+  getRecommendedTutorCases: () => fetchApi('/tutor-cases', {}, { featured: true, limit: 8 }),
   
   // 獲取單一個案詳情（通用方法）
   getCaseById: (id: string) => fetchApi(`/cases/${id}`),
