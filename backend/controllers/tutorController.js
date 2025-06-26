@@ -200,7 +200,9 @@ const getAllTutors = async (req, res) => {
           rating: tutor.rating,
           avatar: tutor.avatarUrl,
           isVip: tutor.isVip,
-          isTop: tutor.isTop
+          isTop: tutor.isTop,
+          createdAt: new Date().toISOString(),
+          date: new Date().toISOString()
         }));
         
         console.log(`✅ 使用模擬數據，找到 ${tutors.length} 個導師`);
@@ -224,7 +226,9 @@ const getAllTutors = async (req, res) => {
       rating: tutor.rating || 0,
       avatarUrl: tutor.avatar || tutor.tutorProfile?.avatarUrl || `/avatars/teacher${Math.floor(Math.random() * 6) + 1}.png`,
       isVip: tutor.isVip || false,
-      isTop: tutor.isTop || false
+      isTop: tutor.isTop || false,
+      createdAt: tutor.createdAt || new Date().toISOString(),
+      date: tutor.createdAt || new Date().toISOString()
     }));
 
     console.log(`📤 返回 ${formattedTutors.length} 個導師數據`);
