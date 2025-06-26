@@ -54,7 +54,7 @@ const Navbar = () => {
         </div>
         {/* 主選單置中，統一間距與字體大小 */}
         <nav className="flex-1 flex justify-center space-x-6 text-sm text-gray-700">
-          <Link href="/find-student-cases">
+          <Link href="/tutors">
             <button className="bg-yellow-400 text-white px-4 py-2 rounded-md hover:bg-yellow-500 transition">
               導師列表
             </button>
