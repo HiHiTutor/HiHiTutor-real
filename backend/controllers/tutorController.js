@@ -102,7 +102,7 @@ const getAllTutors = async (req, res) => {
         filteredMockTutors.sort((a, b) => b.rating - a.rating);
         filteredMockTutors = filteredMockTutors.slice(0, parseInt(limit) || 15);
         
-        let tutors = filteredMockTutors.map(tutor => ({
+        let mappedTutors = filteredMockTutors.map(tutor => ({
           _id: tutor.id,
           userId: tutor.id,
           name: tutor.name,
@@ -117,7 +117,7 @@ const getAllTutors = async (req, res) => {
           date: new Date().toISOString()
         }));
         
-        const formattedTutors = tutors.map(tutor => {
+        const formattedTutors = mappedTutors.map(tutor => {
           // 處理 subjects 陣列
           let subjects = [];
           if (tutor.subjects && Array.isArray(tutor.subjects)) {
