@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import CaseFilterBar from '@/components/CaseFilterBar';
 import LoadMoreButton from '@/components/LoadMoreButton';
 import CaseCard from '@/components/CaseCard';
-import { tutorApi } from '@/services/api';
+import { caseApi } from '@/services/api';
 import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 
 // 定義分類選項的類型
@@ -77,19 +77,27 @@ function FindStudentCasesPageContent() {
     const fetchAllCases = async () => {
       try {
         setLoading(true);
-        console.log("🔍 正在獲取導師資料...");
+        console.log("🔍 正在獲取學生個案資料...");
         
-        // 獲取導師資料
-        const result = await tutorApi.getAllTutors();
-        console.log("📦 成功獲取導師資料：", result);
-        const allCases = (result.data?.tutors || []).sort((a: any, b: any) => 
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-        
-        setAllCases(allCases);
-        console.log("✅ 已保存導師資料到 allCases");
+        // 從 localStorage 獲取當前用戶 ID
+        const token = localStorage.getItem('token');
+        let studentId = '';
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            studentId = payload.id;
+          } catch (e) {
+            console.error('❌ Error parsing token:', e);
+          }
+        }
+
+        const result = await caseApi.getAllStudentCases();
+        console.log("📦 成功獲取學生個案：", result);
+        const sorted = (result.data?.cases || []).sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        setAllCases(sorted);
+        console.log("✅ 已保存學生個案資料到 allCases");
       } catch (error) {
-        console.error('❌ 獲取導師資料時發生錯誤：', error);
+        console.error('❌ 獲取學生個案時發生錯誤：', error);
         setAllCases([]);
       } finally {
         setLoading(false);
