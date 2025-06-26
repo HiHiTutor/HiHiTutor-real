@@ -196,6 +196,7 @@ interface CaseSectionProps {
   bgColor?: string;
   icon?: React.ReactNode;
   routeType?: 'student' | 'tutor';
+  queryParams?: Record<string, any>;
 }
 
 // 預算顯示組件
@@ -210,7 +211,7 @@ const BudgetDisplay = ({ budget }: { budget: any }) => {
   return <span>{`${min} - ${max}/小時`}</span>;
 };
 
-const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400', bgColor = 'bg-blue-50', icon, routeType }: CaseSectionProps) => {
+const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400', bgColor = 'bg-blue-50', icon, routeType, queryParams }: CaseSectionProps) => {
   const [cases, setCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -222,25 +223,37 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
     const fetchCases = async () => {
       try {
         setLoading(true);
-        const data = await fetchApi(fetchUrl);
+        console.log(`🔍 正在獲取${routeType === 'tutor' ? '導師' : '個案'}資料...`, { fetchUrl, queryParams });
+        
+        // 使用 fetchApi 並傳遞查詢參數
+        const data = await fetchApi(fetchUrl, {}, queryParams);
+        console.log(`📦 成功獲取${routeType === 'tutor' ? '導師' : '個案'}資料：`, data);
         
         // 處理不同格式的回應
         let rawCases: Case[] = [];
         
         if (Array.isArray(data)) {
           rawCases = data;
+          console.log('📋 從陣列回應中獲取資料');
         } else if (data && typeof data === 'object') {
           if (Array.isArray(data.cases)) {
             rawCases = data.cases;
+            console.log('📋 從 data.cases 中獲取資料');
           } else if (Array.isArray(data.data?.cases)) {
             rawCases = data.data.cases;
+            console.log('📋 從 data.data.cases 中獲取資料');
           } else if (Array.isArray(data.data?.tutors)) {
-            // Directly use the tutor data from the API without re-mapping
             rawCases = data.data.tutors;
+            console.log('📋 從 data.data.tutors 中獲取資料');
           } else if (Array.isArray(data.data)) {
             rawCases = data.data;
+            console.log('📋 從 data.data 中獲取資料');
+          } else {
+            console.warn('⚠️ 無法識別回應格式:', data);
           }
         }
+        
+        console.log(`📊 原始資料數量: ${rawCases.length}`);
         
         // 過濾並排序（只要有 createdAt 或 date 就顯示）
         const validCases = rawCases.filter(case_ => 
@@ -248,6 +261,16 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
           typeof case_ === 'object' && 
           (case_.createdAt || case_.date || case_.tutorId || case_.id)
         );
+        
+        console.log(`✅ 有效資料數量: ${validCases.length}`);
+        
+        if (validCases.length === 0) {
+          console.warn('⚠️ 沒有有效的資料，可能的原因：');
+          console.warn('- API 回應格式不正確');
+          console.warn('- 資料庫中沒有相關資料');
+          console.warn('- 查詢參數過濾過於嚴格');
+          console.warn('原始回應:', data);
+        }
 
         // 排序：VIP置頂好評 > VIP置頂 > 置頂好評 > 置頂 > 好評 > 其他
         const getSortScore = (c: any) => [
@@ -269,9 +292,10 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
         if (isMounted) {
           setCases(sorted);
           setError(null);
+          console.log(`🎉 成功載入 ${sorted.length} 個${routeType === 'tutor' ? '導師' : '個案'}`);
         }
       } catch (err) {
-        console.error('Error fetching cases:', err);
+        console.error(`❌ 獲取${routeType === 'tutor' ? '導師' : '個案'}資料時發生錯誤：`, err);
         if (isMounted) {
           setError('載入失敗，請稍後再試');
           setCases([]);
@@ -288,7 +312,7 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
     return () => {
       isMounted = false;
     };
-  }, [fetchUrl]);
+  }, [fetchUrl, queryParams, routeType]);
 
   return (
     <div className="py-8">

@@ -28,36 +28,6 @@ interface Tutor {
 }
 
 export default function Home() {
-  const [tutors, setTutors] = useState<Tutor[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchTutors = async () => {
-      try {
-        setLoading(true);
-        console.log("🔍 正在獲取導師資料...");
-        const result = await tutorApi.getRecommendedTutors();
-        console.log("📦 成功獲取導師資料：", result);
-        const sortedTutors = (result.data?.tutors || []).sort((a: Tutor, b: Tutor) => {
-          // 先比較 VIP 狀態
-          if (a.isVip !== b.isVip) return b.isVip ? 1 : -1;
-          // 再比較置頂狀態
-          if (a.isTop !== b.isTop) return b.isTop ? 1 : -1;
-          // 最後比較評分
-          return b.rating - a.rating;
-        });
-        setTutors(sortedTutors.slice(0, 8)); // 只取前8個
-      } catch (error) {
-        console.error('❌ 獲取導師資料時發生錯誤：', error);
-        setTutors([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTutors();
-  }, []);
-
   const router = useRouter();
 
   const handleSearch = (query: any) => {
@@ -78,18 +48,14 @@ export default function Home() {
     router.push(`/${target}?${searchParams.toString()}`);
   };
 
-  if (loading) {
-    return <div className="container mx-auto py-8 text-center">載入中...</div>;
-  }
-
   return (
     <Suspense>
-      <HomeContent tutors={tutors} loading={loading} />
+      <HomeContent />
     </Suspense>
   );
 }
 
-function HomeContent({ tutors, loading }: { tutors: Tutor[], loading: boolean }) {
+function HomeContent() {
   const router = useRouter();
 
   const handleSearch = (query: any) => {
@@ -141,13 +107,14 @@ function HomeContent({ tutors, loading }: { tutors: Tutor[], loading: boolean })
           </div>
           <div className="relative px-4 sm:px-6 lg:px-8">
             <CaseSection 
-              title="導師列表"
-              fetchUrl="/tutors?featured=true&limit=8"
+              title="推薦導師"
+              fetchUrl="/tutors"
               linkUrl="/tutors"
               borderColor="border-yellow-200"
               bgColor="bg-yellow-50"
               icon="👩‍🏫"
               routeType="tutor"
+              queryParams={{ featured: true, limit: 8 }}
             />
           </div>
         </div>
@@ -176,12 +143,13 @@ function HomeContent({ tutors, loading }: { tutors: Tutor[], loading: boolean })
           <div className="relative px-4 sm:px-6 lg:px-8">
             <CaseSection 
               title="補習個案"
-              fetchUrl="/find-tutor-cases?limit=8"
+              fetchUrl="/find-tutor-cases"
               linkUrl="/find-tutor-cases"
               borderColor="border-blue-200"
               bgColor="bg-blue-50"
               icon="📄"
               routeType="student"
+              queryParams={{ limit: 8 }}
             />
           </div>
         </div>
