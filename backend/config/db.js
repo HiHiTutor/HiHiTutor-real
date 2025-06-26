@@ -24,12 +24,14 @@ const connectDB = async () => {
     const options = {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 30000,
-      socketTimeoutMS: 45000,
-      connectTimeoutMS: 30000,
-      maxPoolSize: 50,
+      serverSelectionTimeoutMS: 60000,
+      socketTimeoutMS: 60000,
+      connectTimeoutMS: 60000,
+      maxPoolSize: 10,
       retryWrites: true,
-      retryReads: true
+      retryReads: true,
+      bufferMaxEntries: 0,
+      bufferCommands: false
     };
 
     console.log('🔗 Attempting MongoDB connection with options:', {
