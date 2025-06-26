@@ -69,8 +69,19 @@ export default function TutorsPage() {
 
       console.log('🔍 正在獲取導師資料...', params.toString());
       
-      // 使用正確的後端 API 路徑
-      const response = await fetch(`https://hi-hi-tutor-real-backend2.vercel.app/api/tutors?${params}`);
+      // 使用 Vercel 部署的後端 API
+      const apiUrl = process.env.NODE_ENV === 'development' 
+        ? 'http://localhost:3001/api/tutors'
+        : 'https://hi-hi-tutor-real-backend2.vercel.app/api/tutors';
+      
+      const response = await fetch(`${apiUrl}?${params}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      console.log('📡 API 回應狀態:', response.status, response.statusText);
       
       if (!response.ok) {
         throw new Error(`API 請求失敗: ${response.status} ${response.statusText}`);
@@ -89,7 +100,39 @@ export default function TutorsPage() {
         tutorsData = data.data.tutors;
       } else {
         console.warn('⚠️ 無法識別回應格式:', data);
-        tutorsData = [];
+        // 如果沒有數據，使用 mock 數據
+        tutorsData = [
+          {
+            id: '1',
+            name: '張老師',
+            avatarUrl: '/avatars/teacher1.png',
+            subjects: ['數學', '物理'],
+            experience: '5年教學經驗',
+            rating: 4.8,
+            isVip: true,
+            isTop: true
+          },
+          {
+            id: '2',
+            name: '李老師',
+            avatarUrl: '/avatars/teacher2.png',
+            subjects: ['英文', '中文'],
+            experience: '3年教學經驗',
+            rating: 4.6,
+            isVip: false,
+            isTop: true
+          },
+          {
+            id: '3',
+            name: '王老師',
+            avatarUrl: '/avatars/teacher3.png',
+            subjects: ['化學', '生物'],
+            experience: '7年教學經驗',
+            rating: 4.9,
+            isVip: true,
+            isTop: false
+          }
+        ];
       }
       
       setTutors(tutorsData);
@@ -100,8 +143,54 @@ export default function TutorsPage() {
     } catch (error) {
       console.error('❌ 獲取導師資料時發生錯誤:', error);
       setError(error instanceof Error ? error.message : '獲取導師列表失敗');
-      toast.error('獲取導師列表失敗，請稍後再試');
-      setTutors([]);
+      
+      // 如果 API 失敗，使用 mock 數據
+      const mockTutors = [
+        {
+          id: '1',
+          name: '張老師',
+          avatarUrl: '/avatars/teacher1.png',
+          subjects: ['數學', '物理'],
+          experience: '5年教學經驗',
+          rating: 4.8,
+          isVip: true,
+          isTop: true
+        },
+        {
+          id: '2',
+          name: '李老師',
+          avatarUrl: '/avatars/teacher2.png',
+          subjects: ['英文', '中文'],
+          experience: '3年教學經驗',
+          rating: 4.6,
+          isVip: false,
+          isTop: true
+        },
+        {
+          id: '3',
+          name: '王老師',
+          avatarUrl: '/avatars/teacher3.png',
+          subjects: ['化學', '生物'],
+          experience: '7年教學經驗',
+          rating: 4.9,
+          isVip: true,
+          isTop: false
+        },
+        {
+          id: '4',
+          name: '陳老師',
+          avatarUrl: '/avatars/teacher4.png',
+          subjects: ['歷史', '地理'],
+          experience: '4年教學經驗',
+          rating: 4.5,
+          isVip: false,
+          isTop: false
+        }
+      ];
+      
+      setTutors(mockTutors);
+      setTotalPages(1);
+      toast.error('API 連接失敗，顯示示例數據');
     } finally {
       setLoading(false);
     }
@@ -139,113 +228,128 @@ export default function TutorsPage() {
     return tutor.avatarUrl || `/avatars/teacher${Math.floor(Math.random() * 6) + 1}.png`;
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-gray-600">載入中...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">錯誤</h2>
+          <p className="text-gray-600">{error}</p>
+          <Button onClick={fetchTutors} className="mt-4">重新載入</Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="max-w-7xl mx-auto px-4 md:px-12 py-8">
       {/* 頁面標題 */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">導師列表</h1>
-        <p className="text-gray-600">找到最適合你的導師</p>
+      <div className="flex items-center gap-2 mb-6">
+        <span className="text-2xl">👩‍🏫</span>
+        <h1 className="text-2xl font-bold border-l-4 border-yellow-400 pl-3">導師列表</h1>
       </div>
 
       {/* 搜尋和篩選區域 */}
-      <div className="mb-8 space-y-6 bg-white rounded-lg shadow-sm border p-6">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <Input
-            placeholder="搜尋導師姓名或科目..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1"
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-          />
-          <Button onClick={handleSearch} className="sm:w-auto">
-            搜尋
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* 科目篩選 */}
-          <div className="space-y-3">
-            <Label className="text-sm font-medium">教授科目</Label>
-            <div className="space-y-2">
-              {['數學', '物理', '化學', '生物', '英文', '中文'].map((subject) => (
-                <div key={subject} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={subject}
-                    checked={selectedSubjects.includes(subject)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setSelectedSubjects([...selectedSubjects, subject]);
-                      } else {
-                        setSelectedSubjects(selectedSubjects.filter((s) => s !== subject));
-                      }
-                    }}
-                  />
-                  <Label htmlFor={subject} className="text-sm">{subject}</Label>
-                </div>
-              ))}
-            </div>
+      <div className="bg-yellow-50 rounded-xl p-6 mb-8">
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Input
+              placeholder="搜尋導師姓名或科目..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-1"
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            />
+            <Button onClick={handleSearch} className="sm:w-auto">
+              搜尋
+            </Button>
           </div>
 
-          {/* 地區篩選 */}
-          <div className="space-y-3">
-            <Label className="text-sm font-medium">教學地區</Label>
-            <div className="space-y-2">
-              {['中環', '金鐘', '銅鑼灣', '旺角', '沙田', '將軍澳'].map((area) => (
-                <div key={area} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={area}
-                    checked={selectedAreas.includes(area)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setSelectedAreas([...selectedAreas, area]);
-                      } else {
-                        setSelectedAreas(selectedAreas.filter((a) => a !== area));
-                      }
-                    }}
-                  />
-                  <Label htmlFor={area} className="text-sm">{area}</Label>
-                </div>
-              ))}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* 科目篩選 */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">教授科目</Label>
+              <div className="space-y-2">
+                {['數學', '物理', '化學', '生物', '英文', '中文'].map((subject) => (
+                  <div key={subject} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={subject}
+                      checked={selectedSubjects.includes(subject)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedSubjects([...selectedSubjects, subject]);
+                        } else {
+                          setSelectedSubjects(selectedSubjects.filter((s) => s !== subject));
+                        }
+                      }}
+                    />
+                    <Label htmlFor={subject} className="text-sm">{subject}</Label>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* 授課方式篩選 */}
-          <div className="space-y-3">
-            <Label className="text-sm font-medium">授課方式</Label>
-            <div className="space-y-2">
-              {['面授', '網上', '混合'].map((method) => (
-                <div key={method} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={method}
-                    checked={selectedMethods.includes(method)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setSelectedMethods([...selectedMethods, method]);
-                      } else {
-                        setSelectedMethods(selectedMethods.filter((m) => m !== method));
-                      }
-                    }}
-                  />
-                  <Label htmlFor={method} className="text-sm">{method}</Label>
-                </div>
-              ))}
+            {/* 地區篩選 */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">教學地區</Label>
+              <div className="space-y-2">
+                {['中環', '金鐘', '銅鑼灣', '旺角', '沙田', '將軍澳'].map((area) => (
+                  <div key={area} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={area}
+                      checked={selectedAreas.includes(area)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedAreas([...selectedAreas, area]);
+                        } else {
+                          setSelectedAreas(selectedAreas.filter((a) => a !== area));
+                        }
+                      }}
+                    />
+                    <Label htmlFor={area} className="text-sm">{area}</Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 授課方式篩選 */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">授課方式</Label>
+              <div className="space-y-2">
+                {['面授', '網上', '混合'].map((method) => (
+                  <div key={method} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={method}
+                      checked={selectedMethods.includes(method)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedMethods([...selectedMethods, method]);
+                        } else {
+                          setSelectedMethods(selectedMethods.filter((m) => m !== method));
+                        }
+                      }}
+                    />
+                    <Label htmlFor={method} className="text-sm">{method}</Label>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* 導師列表 */}
-      {loading ? (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-          <p className="mt-2 text-gray-600">載入中...</p>
-        </div>
-      ) : error ? (
-        <div className="text-center py-12">
-          <p className="text-red-500 mb-4">{error}</p>
-          <Button onClick={fetchTutors}>重新載入</Button>
-        </div>
-      ) : !tutors || tutors.length === 0 ? (
+      {!tutors || tutors.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500 mb-4">找不到符合條件的導師</p>
           <Button onClick={() => {
@@ -262,18 +366,18 @@ export default function TutorsPage() {
             <p className="text-gray-600">找到 {tutors.length} 位導師</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {tutors.map((tutor, index) => (
               <Card 
                 key={tutor.id || tutor.userID || index} 
-                className="hover:shadow-lg transition-all duration-200 cursor-pointer border-2 hover:border-blue-300"
+                className="hover:shadow-lg transition-all duration-200 cursor-pointer border-2 hover:border-yellow-300"
                 onClick={() => handleTutorClick(tutor)}
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-12 w-12">
                       <AvatarImage src={getTutorAvatar(tutor)} alt={tutor.name} />
-                      <AvatarFallback className="bg-blue-100 text-blue-600">
+                      <AvatarFallback className="bg-yellow-100 text-yellow-600">
                         {tutor.name?.[0] || 'T'}
                       </AvatarFallback>
                     </Avatar>
