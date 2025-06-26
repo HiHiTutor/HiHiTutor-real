@@ -85,15 +85,69 @@ const getAllTutors = async (req, res) => {
     if (mongoose.connection.readyState !== 1) {
       console.log('⚠️ MongoDB 未連接，當前狀態:', mongoose.connection.readyState);
       console.log('- 連接狀態說明: 0=disconnected, 1=connected, 2=connecting, 3=disconnecting');
+      console.log('- 使用 mock 數據作為 fallback');
       
-      // 返回友好的錯誤訊息
-      return res.status(503).json({ 
-        success: false,
-        message: 'Database not ready', 
-        error: 'MongoDB connection is not established',
-        mongoState: mongoose.connection.readyState,
-        mongoStateDescription: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState] || 'unknown'
-      });
+      // 使用 mock 數據而不是返回錯誤
+      try {
+        const mockTutors = require('../data/tutors');
+        
+        // 過濾模擬數據
+        let filteredMockTutors = mockTutors;
+        if (featured === 'true') {
+          filteredMockTutors = mockTutors.filter(tutor => tutor.isVip || tutor.isTop);
+          console.log(`- 模擬數據中符合 featured 條件的導師: ${filteredMockTutors.length} 個`);
+        }
+        
+        // 排序和限制
+        filteredMockTutors.sort((a, b) => b.rating - a.rating);
+        filteredMockTutors = filteredMockTutors.slice(0, parseInt(limit) || 15);
+        
+        const tutors = filteredMockTutors.map(tutor => ({
+          _id: tutor.id,
+          userId: tutor.id,
+          name: tutor.name,
+          subjects: [tutor.subject],
+          education: tutor.education,
+          experience: tutor.experience,
+          rating: tutor.rating,
+          avatar: tutor.avatarUrl,
+          isVip: tutor.isVip,
+          isTop: tutor.isTop,
+          createdAt: new Date().toISOString(),
+          date: new Date().toISOString()
+        }));
+        
+        const formattedTutors = tutors.map(tutor => ({
+          id: tutor._id,
+          userId: tutor.userId,
+          name: tutor.name,
+          subjects: tutor.subjects || [],
+          education: tutor.education || '未指定',
+          experience: tutor.experience || '未指定',
+          rating: tutor.rating || 0,
+          avatarUrl: tutor.avatar || `/avatars/teacher${Math.floor(Math.random() * 6) + 1}.png`,
+          isVip: tutor.isVip || false,
+          isTop: tutor.isTop || false,
+          createdAt: tutor.createdAt,
+          date: tutor.date
+        }));
+
+        console.log(`📤 返回 ${formattedTutors.length} 個 mock 導師數據`);
+        return res.json({ 
+          success: true,
+          data: { tutors: formattedTutors },
+          source: 'mock',
+          mongoState: mongoose.connection.readyState,
+          mongoStateDescription: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState] || 'unknown'
+        });
+      } catch (mockError) {
+        console.error('❌ 載入 mock 數據失敗:', mockError);
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to load data',
+          error: mockError.message
+        });
+      }
     }
     
     console.log('✅ MongoDB 連接正常，開始查詢導師資料');
@@ -266,7 +320,9 @@ const getTutorById = async (req, res) => {
         success: false,
         message: 'Database not ready', 
         error: 'MongoDB connection is not established',
-        mongoState: mongoose.connection.readyState
+        mongoState: mongoose.connection.readyState,
+        mongoStateDescription: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState] || 'unknown',
+        suggestion: 'Please try again later or contact support'
       });
     }
     
@@ -362,7 +418,9 @@ const getTutorByTutorId = async (req, res) => {
         success: false,
         message: 'Database not ready', 
         error: 'MongoDB connection is not established',
-        mongoState: mongoose.connection.readyState
+        mongoState: mongoose.connection.readyState,
+        mongoStateDescription: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState] || 'unknown',
+        suggestion: 'Please try again later or contact support'
       });
     }
     
