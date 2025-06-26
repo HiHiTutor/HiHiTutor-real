@@ -102,7 +102,7 @@ const getAllTutors = async (req, res) => {
         filteredMockTutors.sort((a, b) => b.rating - a.rating);
         filteredMockTutors = filteredMockTutors.slice(0, parseInt(limit) || 15);
         
-        tutors = filteredMockTutors.map(tutor => ({
+        let tutors = filteredMockTutors.map(tutor => ({
           _id: tutor.id,
           userId: tutor.id,
           name: tutor.name,
