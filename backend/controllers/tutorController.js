@@ -102,11 +102,11 @@ const getAllTutors = async (req, res) => {
         filteredMockTutors.sort((a, b) => b.rating - a.rating);
         filteredMockTutors = filteredMockTutors.slice(0, parseInt(limit) || 15);
         
-        const tutors = filteredMockTutors.map(tutor => ({
+        tutors = filteredMockTutors.map(tutor => ({
           _id: tutor.id,
           userId: tutor.id,
           name: tutor.name,
-          subjects: [tutor.subject],
+          subjects: tutor.subject ? [tutor.subject] : ['數學', '英文', '中文'],
           education: tutor.education,
           experience: tutor.experience,
           rating: tutor.rating,
@@ -117,20 +117,54 @@ const getAllTutors = async (req, res) => {
           date: new Date().toISOString()
         }));
         
-        const formattedTutors = tutors.map(tutor => ({
-          id: tutor._id,
-          userId: tutor.userId,
-          name: tutor.name,
-          subjects: tutor.subjects || [],
-          education: tutor.education || '未指定',
-          experience: tutor.experience || '未指定',
-          rating: tutor.rating || 0,
-          avatarUrl: tutor.avatar || `/avatars/teacher${Math.floor(Math.random() * 6) + 1}.png`,
-          isVip: tutor.isVip || false,
-          isTop: tutor.isTop || false,
-          createdAt: tutor.createdAt,
-          date: tutor.date
-        }));
+        const formattedTutors = tutors.map(tutor => {
+          // 處理 subjects 陣列
+          let subjects = [];
+          if (tutor.subjects && Array.isArray(tutor.subjects)) {
+            subjects = tutor.subjects;
+          } else if (tutor.tutorProfile?.subjects && Array.isArray(tutor.tutorProfile.subjects)) {
+            subjects = tutor.tutorProfile.subjects;
+          } else if (tutor.subject) {
+            subjects = [tutor.subject];
+          } else {
+            // 如果沒有科目資料，提供預設科目
+            subjects = ['數學', '英文', '中文'];
+          }
+
+          // 處理頭像 URL
+          let avatarUrl = '';
+          if (tutor.avatarUrl) {
+            avatarUrl = tutor.avatarUrl;
+          } else if (tutor.avatar) {
+            avatarUrl = tutor.avatar;
+          } else if (tutor.tutorProfile?.avatarUrl) {
+            avatarUrl = tutor.tutorProfile.avatarUrl;
+          } else {
+            // 如果沒有頭像，使用預設頭像
+            avatarUrl = `/avatars/teacher${Math.floor(Math.random() * 6) + 1}.png`;
+          }
+
+          // 確保頭像 URL 是完整的
+          if (avatarUrl && !avatarUrl.startsWith('http') && !avatarUrl.startsWith('data:')) {
+            // 如果是相對路徑，添加基礎 URL
+            avatarUrl = `https://hi-hi-tutor-real-backend2.vercel.app${avatarUrl}`;
+          }
+
+          return {
+            id: tutor._id || tutor.id,
+            userId: tutor.userId || tutor.id,
+            name: tutor.name || '未命名導師',
+            subjects: subjects,
+            education: tutor.education || tutor.tutorProfile?.educationLevel || '未指定',
+            experience: tutor.experience || tutor.tutorProfile?.teachingExperienceYears || '未指定',
+            rating: tutor.rating || 4.5,
+            avatarUrl: avatarUrl,
+            isVip: tutor.isVip || false,
+            isTop: tutor.isTop || false,
+            createdAt: tutor.createdAt || new Date().toISOString(),
+            date: tutor.createdAt || new Date().toISOString()
+          };
+        });
 
         console.log(`📤 返回 ${formattedTutors.length} 個 mock 導師數據`);
         return res.json({ 
@@ -248,7 +282,7 @@ const getAllTutors = async (req, res) => {
           _id: tutor.id,
           userId: tutor.id,
           name: tutor.name,
-          subjects: [tutor.subject],
+          subjects: tutor.subject ? [tutor.subject] : ['數學', '英文', '中文'],
           education: tutor.education,
           experience: tutor.experience,
           rating: tutor.rating,
@@ -270,20 +304,54 @@ const getAllTutors = async (req, res) => {
       }
     }
 
-    const formattedTutors = tutors.map(tutor => ({
-      id: tutor._id,
-      userId: tutor.userId,
-      name: tutor.name,
-      subjects: tutor.subjects || tutor.tutorProfile?.subjects || [],
-      education: tutor.education || tutor.tutorProfile?.educationLevel || '未指定',
-      experience: tutor.experience || tutor.tutorProfile?.teachingExperienceYears || '未指定',
-      rating: tutor.rating || 0,
-      avatarUrl: tutor.avatar || tutor.tutorProfile?.avatarUrl || `/avatars/teacher${Math.floor(Math.random() * 6) + 1}.png`,
-      isVip: tutor.isVip || false,
-      isTop: tutor.isTop || false,
-      createdAt: tutor.createdAt || new Date().toISOString(),
-      date: tutor.createdAt || new Date().toISOString()
-    }));
+    const formattedTutors = tutors.map(tutor => {
+      // 處理 subjects 陣列
+      let subjects = [];
+      if (tutor.subjects && Array.isArray(tutor.subjects)) {
+        subjects = tutor.subjects;
+      } else if (tutor.tutorProfile?.subjects && Array.isArray(tutor.tutorProfile.subjects)) {
+        subjects = tutor.tutorProfile.subjects;
+      } else if (tutor.subject) {
+        subjects = [tutor.subject];
+      } else {
+        // 如果沒有科目資料，提供預設科目
+        subjects = ['數學', '英文', '中文'];
+      }
+
+      // 處理頭像 URL
+      let avatarUrl = '';
+      if (tutor.avatarUrl) {
+        avatarUrl = tutor.avatarUrl;
+      } else if (tutor.avatar) {
+        avatarUrl = tutor.avatar;
+      } else if (tutor.tutorProfile?.avatarUrl) {
+        avatarUrl = tutor.tutorProfile.avatarUrl;
+      } else {
+        // 如果沒有頭像，使用預設頭像
+        avatarUrl = `/avatars/teacher${Math.floor(Math.random() * 6) + 1}.png`;
+      }
+
+      // 確保頭像 URL 是完整的
+      if (avatarUrl && !avatarUrl.startsWith('http') && !avatarUrl.startsWith('data:')) {
+        // 如果是相對路徑，添加基礎 URL
+        avatarUrl = `https://hi-hi-tutor-real-backend2.vercel.app${avatarUrl}`;
+      }
+
+      return {
+        id: tutor._id || tutor.id,
+        userId: tutor.userId || tutor.id,
+        name: tutor.name || '未命名導師',
+        subjects: subjects,
+        education: tutor.education || tutor.tutorProfile?.educationLevel || '未指定',
+        experience: tutor.experience || tutor.tutorProfile?.teachingExperienceYears || '未指定',
+        rating: tutor.rating || 4.5,
+        avatarUrl: avatarUrl,
+        isVip: tutor.isVip || false,
+        isTop: tutor.isTop || false,
+        createdAt: tutor.createdAt || new Date().toISOString(),
+        date: tutor.createdAt || new Date().toISOString()
+      };
+    });
 
     console.log(`📤 返回 ${formattedTutors.length} 個導師數據`);
     res.json({ 
