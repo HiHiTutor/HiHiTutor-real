@@ -10,12 +10,10 @@ const connectDB = require('./config/db');
 
 // Import routes
 const tutorCasesRouter = require('./routes/tutorCases');
-const studentCasesRouter = require('./routes/studentCases');
 const categoriesRouter = require('./routes/categories');
 const tutorsRouter = require('./routes/tutors');
 const casesRouter = require('./routes/cases');
 const findTutorCases = require('./routes/findTutorCases');
-const findStudentCases = require('./routes/findStudentCases');
 const articlesRoutes = require('./routes/articles');
 const contactRoutes = require('./routes/contact');
 const faqRoutes = require('./routes/faq');
@@ -166,8 +164,6 @@ app.use('/api/admin-management', require('./routes/admin'));
 app.use('/api/categories', categoriesRouter);
 app.use('/api/tutors', tutorsRouter);
 app.use('/api/cases', casesRouter);
-app.use('/api/find-student-cases', findStudentCases);
-app.use('/api/student-cases', findStudentCases);
 app.use('/api/find-tutor-cases', findTutorCases);
 app.use('/api/tutor-cases', tutorCasesRouter);
 app.use('/api/user', userRouter);
@@ -298,9 +294,7 @@ console.log('- GET /api/auth/profile');
 console.log('- GET /api/categories');
 console.log('- GET /api/tutors');
 console.log('- GET /api/tutors/recommended');
-console.log('- GET /api/find-student-cases');
 console.log('- GET /api/find-tutor-cases');
-console.log('- GET /api/find-student-cases?featured=true&limit=8');
 console.log('- GET /api/find-tutor-cases?featured=true&limit=8');
 
 const PORT = process.env.PORT || 3001;
