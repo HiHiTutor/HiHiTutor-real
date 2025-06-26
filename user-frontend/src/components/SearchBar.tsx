@@ -11,8 +11,8 @@ const SearchBar = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      const target = searchType === 'tutor' ? 'find-tutor-cases' : 'find-student-cases';
-      router.push(`/${target}?q=${encodeURIComponent(searchQuery.trim())}`);
+      const target = searchType === 'tutor' ? 'tutors' : 'find-tutor-cases';
+      router.push(`/${target}?search=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
 
@@ -31,7 +31,7 @@ const SearchBar = () => {
                   onChange={(e) => setSearchType(e.target.value)}
                   className="w-4 h-4 text-yellow-400"
                 />
-                <span className="text-sm font-medium">導師個案</span>
+                <span className="text-sm font-medium">尋導師</span>
               </label>
               <label className="flex items-center gap-2">
                 <input
@@ -42,7 +42,7 @@ const SearchBar = () => {
                   onChange={(e) => setSearchType(e.target.value)}
                   className="w-4 h-4 text-yellow-400"
                 />
-                <span className="text-sm font-medium">學生個案</span>
+                <span className="text-sm font-medium">招學生</span>
               </label>
             </div>
           </div>
