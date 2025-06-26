@@ -100,20 +100,51 @@ const getAllTutors = async (req, res) => {
     console.log('🔍 MongoDB 查詢條件:', query);
     
     // 使用簡單的 find 查詢
-    const tutors = await User.find(query)
+    let tutors = await User.find(query)
       .sort({ rating: -1, createdAt: -1 })
       .limit(parseInt(limit) || 15)
       .lean();
     
     console.log(`✅ 從 MongoDB 找到 ${tutors.length} 個導師`);
+    
+    // 如果數據庫中沒有導師數據，使用模擬數據
+    if (tutors.length === 0) {
+      console.log('⚠️ 數據庫中沒有導師數據，使用模擬數據');
+      const mockTutors = require('../data/tutors');
+      
+      // 過濾模擬數據
+      let filteredMockTutors = mockTutors;
+      if (featured === 'true') {
+        filteredMockTutors = mockTutors.filter(tutor => tutor.isVip || tutor.isTop);
+      }
+      
+      // 排序和限制
+      filteredMockTutors.sort((a, b) => b.rating - a.rating);
+      filteredMockTutors = filteredMockTutors.slice(0, parseInt(limit) || 15);
+      
+      tutors = filteredMockTutors.map(tutor => ({
+        _id: tutor.id,
+        userId: tutor.id,
+        name: tutor.name,
+        subjects: [tutor.subject],
+        education: tutor.education,
+        experience: tutor.experience,
+        rating: tutor.rating,
+        avatar: tutor.avatarUrl,
+        isVip: tutor.isVip,
+        isTop: tutor.isTop
+      }));
+      
+      console.log(`✅ 使用模擬數據，找到 ${tutors.length} 個導師`);
+    }
 
     const formattedTutors = tutors.map(tutor => ({
       id: tutor._id,
       userId: tutor.userId,
       name: tutor.name,
-      subjects: tutor.tutorProfile?.subjects || [],
-      education: tutor.tutorProfile?.educationLevel || '未指定',
-      experience: tutor.tutorProfile?.teachingExperienceYears ? `${tutor.tutorProfile.teachingExperienceYears}年教學經驗` : '未指定',
+      subjects: tutor.subjects || [],
+      education: tutor.education || '未指定',
+      experience: tutor.experience || '未指定',
       rating: tutor.rating || 0,
       avatarUrl: tutor.avatar || `/avatars/teacher${Math.floor(Math.random() * 6) + 1}.png`,
       isVip: tutor.isVip || false,
