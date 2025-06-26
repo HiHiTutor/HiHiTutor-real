@@ -1,6 +1,79 @@
 const tutors = require('../data/tutors');
 const User = require('../models/User');
 const UploadLog = require('../models/UploadLog');
+const mongoose = require('mongoose');
+
+// 測試端點 - 檢查 MongoDB 連接和 User 模型
+const testTutors = async (req, res) => {
+  try {
+    console.log('🧪 測試導師 API');
+    
+    const diagnostics = {
+      timestamp: new Date().toISOString(),
+      environment: {
+        NODE_ENV: process.env.NODE_ENV,
+        hasMongoUri: !!process.env.MONGODB_URI,
+        mongoUriLength: process.env.MONGODB_URI ? process.env.MONGODB_URI.length : 0,
+        mongoUriStart: process.env.MONGODB_URI ? process.env.MONGODB_URI.substring(0, 20) + '...' : 'N/A'
+      },
+      mongoose: {
+        connectionState: mongoose.connection.readyState,
+        connectionStates: {
+          0: 'disconnected',
+          1: 'connected', 
+          2: 'connecting',
+          3: 'disconnecting'
+        },
+        currentState: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState] || 'unknown'
+      }
+    };
+
+    // 嘗試簡單的數據庫操作
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const count = await User.countDocuments({ userType: 'tutor' });
+        diagnostics.database = {
+          connected: true,
+          tutorCount: count
+        };
+        
+        // 嘗試獲取一個導師
+        const sampleTutor = await User.findOne({ userType: 'tutor' }).lean();
+        if (sampleTutor) {
+          diagnostics.sampleTutor = {
+            id: sampleTutor._id,
+            name: sampleTutor.name,
+            userType: sampleTutor.userType,
+            hasTutorProfile: !!sampleTutor.tutorProfile
+          };
+        }
+      } catch (dbError) {
+        diagnostics.database = {
+          connected: false,
+          error: dbError.message
+        };
+      }
+    } else {
+      diagnostics.database = {
+        connected: false,
+        reason: 'MongoDB not connected'
+      };
+    }
+
+    res.json({
+      success: true,
+      message: 'Tutor API test endpoint working',
+      diagnostics
+    });
+  } catch (error) {
+    console.error('❌ Test endpoint error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Test endpoint failed',
+      error: error.message
+    });
+  }
+};
 
 // 回傳所有導師
 const getAllTutors = async (req, res) => {
@@ -9,130 +82,15 @@ const getAllTutors = async (req, res) => {
     console.log('📝 查詢參數:', { limit, featured });
     
     let query = { userType: 'tutor' };
-    let featuredQuery = { ...query, $or: [{ isTop: true }, { isVip: true }] };
     
-    // 如果是 featured 請求，先嘗試獲取置頂或 VIP 導師
+    // 如果是 featured 請求，獲取置頂或 VIP 導師
     if (featured === 'true') {
-      const featuredTutors = await User.aggregate([
-        { $match: featuredQuery },
-        {
-          $addFields: {
-            // 計算排序分數
-            sortScore: {
-              $add: [
-                // VIP置頂 + 高評分 = 10000 + 評分
-                { $multiply: [
-                  { $cond: [
-                    { $and: [
-                      { $eq: ['$isVip', true] },
-                      { $eq: ['$isTop', true] }
-                    ]},
-                    10000,
-                    0
-                  ]},
-                  1
-                ]},
-                // VIP置頂 = 5000
-                { $multiply: [
-                  { $cond: [
-                    { $and: [
-                      { $eq: ['$isVip', true] },
-                      { $eq: ['$isTop', true] }
-                    ]},
-                    5000,
-                    0
-                  ]},
-                  1
-                ]},
-                // 置頂 + 高評分 = 2000 + 評分
-                { $multiply: [
-                  { $cond: [
-                    { $and: [
-                      { $eq: ['$isVip', false] },
-                      { $eq: ['$isTop', true] }
-                    ]},
-                    2000,
-                    0
-                  ]},
-                  1
-                ]},
-                // 置頂 = 1000
-                { $multiply: [
-                  { $cond: [
-                    { $and: [
-                      { $eq: ['$isVip', false] },
-                      { $eq: ['$isTop', true] }
-                    ]},
-                    1000,
-                    0
-                  ]},
-                  1
-                ]},
-                // 普通tutor + 高評分 = 100 + 評分
-                { $multiply: [
-                  { $cond: [
-                    { $and: [
-                      { $eq: ['$isVip', false] },
-                      { $eq: ['$isTop', false] }
-                    ]},
-                    100,
-                    0
-                  ]},
-                  1
-                ]},
-                // 評分
-                { $multiply: [{ $ifNull: ['$rating', 0] }, 10] }
-              ]
-            }
-          }
-        },
-        { $sort: { sortScore: -1 } },
-        { $limit: parseInt(limit) || 15 }
-      ]);
-
-      // 如果沒有置頂或 VIP 導師，則返回所有導師
-      if (featuredTutors.length === 0) {
-        console.log('⚠️ 沒有置頂或 VIP 導師，返回所有導師');
-        const allTutors = await User.find(query)
-          .sort({ rating: -1, createdAt: -1 })
-          .limit(parseInt(limit) || 15)
-          .lean();
-        
-        const formattedTutors = allTutors.map(tutor => ({
-          id: tutor._id,
-          userId: tutor.userId,
-          name: tutor.name,
-          subjects: tutor.tutorProfile?.subjects || [],
-          education: tutor.tutorProfile?.educationLevel || '未指定',
-          experience: tutor.tutorProfile?.teachingExperienceYears ? `${tutor.tutorProfile.teachingExperienceYears}年教學經驗` : '未指定',
-          rating: tutor.rating || 0,
-          avatarUrl: tutor.avatar || `/avatars/teacher${Math.floor(Math.random() * 6) + 1}.png`,
-          isVip: tutor.isVip || false,
-          isTop: tutor.isTop || false
-        }));
-
-        console.log('📤 返回所有導師數據');
-        return res.json({ data: { tutors: formattedTutors } });
-      }
-
-      const formattedTutors = featuredTutors.map(tutor => ({
-        id: tutor._id,
-        userId: tutor.userId,
-        name: tutor.name,
-        subjects: tutor.tutorProfile?.subjects || [],
-        education: tutor.tutorProfile?.education || '未指定',
-        experience: tutor.tutorProfile?.experience || '未指定',
-        rating: tutor.rating || 0,
-        avatarUrl: tutor.avatar || `/avatars/teacher${Math.floor(Math.random() * 6) + 1}.png`,
-        isVip: tutor.isVip || false,
-        isTop: tutor.isTop || false
-      }));
-
-      console.log('📤 返回置頂或 VIP 導師數據');
-      return res.json({ data: { tutors: formattedTutors } });
+      query.$or = [{ isTop: true }, { isVip: true }];
     }
     
-    // 非 featured 請求，返回所有導師
+    console.log('🔍 MongoDB 查詢條件:', query);
+    
+    // 使用簡單的 find 查詢
     const tutors = await User.find(query)
       .sort({ rating: -1, createdAt: -1 })
       .limit(parseInt(limit) || 15)
@@ -153,7 +111,7 @@ const getAllTutors = async (req, res) => {
       isTop: tutor.isTop || false
     }));
 
-    console.log('📤 返回所有導師數據');
+    console.log('📤 返回導師數據');
     res.json({ data: { tutors: formattedTutors } });
   } catch (error) {
     console.error('❌ 獲取導師數據時出錯:', error);
@@ -579,5 +537,6 @@ module.exports = {
   getTutors,
   getTutorDetail,
   getTutorProfile,
-  updateTutorProfile
+  updateTutorProfile,
+  testTutors
 }; 

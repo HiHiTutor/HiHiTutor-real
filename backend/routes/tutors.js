@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { getAllTutors, getTutorById, getTutorByTutorId, getTutorProfile, updateTutorProfile } = require('../controllers/tutorController');
+const { getAllTutors, getTutorById, getTutorByTutorId, getTutorProfile, updateTutorProfile, testTutors } = require('../controllers/tutorController');
 const { verifyToken } = require('../middleware/authMiddleware');
+
+// 測試端點
+router.get('/test', testTutors);
 
 // 需要認證的 API (放在前面，避免與 /:id 衝突)
 router.get('/profile', verifyToken, getTutorProfile);
