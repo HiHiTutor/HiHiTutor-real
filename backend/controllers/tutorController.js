@@ -102,7 +102,7 @@ const getAllTutors = async (req, res) => {
         filteredMockTutors.sort((a, b) => b.rating - a.rating);
         filteredMockTutors = filteredMockTutors.slice(0, parseInt(limit) || 15);
         
-        let mappedTutors = filteredMockTutors.map(tutor => ({
+        const mappedTutors = filteredMockTutors.map(tutor => ({
           _id: tutor.id,
           userId: tutor.id,
           name: tutor.name,
@@ -117,13 +117,14 @@ const getAllTutors = async (req, res) => {
           date: new Date().toISOString()
         }));
         
+        console.log(`✅ 使用模擬數據，找到 ${mappedTutors.length} 個導師`);
+        
+        // 直接格式化並返回 mock 數據
         const formattedTutors = mappedTutors.map(tutor => {
           // 處理 subjects 陣列
           let subjects = [];
           if (tutor.subjects && Array.isArray(tutor.subjects)) {
             subjects = tutor.subjects;
-          } else if (tutor.tutorProfile?.subjects && Array.isArray(tutor.tutorProfile.subjects)) {
-            subjects = tutor.tutorProfile.subjects;
           } else if (tutor.subject) {
             subjects = [tutor.subject];
           } else {
@@ -133,12 +134,8 @@ const getAllTutors = async (req, res) => {
 
           // 處理頭像 URL
           let avatarUrl = '';
-          if (tutor.avatarUrl) {
-            avatarUrl = tutor.avatarUrl;
-          } else if (tutor.avatar) {
+          if (tutor.avatar) {
             avatarUrl = tutor.avatar;
-          } else if (tutor.tutorProfile?.avatarUrl) {
-            avatarUrl = tutor.tutorProfile.avatarUrl;
           } else {
             // 如果沒有頭像，使用預設頭像
             avatarUrl = `/avatars/teacher${Math.floor(Math.random() * 6) + 1}.png`;
@@ -155,8 +152,8 @@ const getAllTutors = async (req, res) => {
             userId: tutor.userId || tutor.id,
             name: tutor.name || '未命名導師',
             subjects: subjects,
-            education: tutor.education || tutor.tutorProfile?.educationLevel || '未指定',
-            experience: tutor.experience || tutor.tutorProfile?.teachingExperienceYears || '未指定',
+            education: tutor.education || '未指定',
+            experience: tutor.experience || '未指定',
             rating: tutor.rating || 4.5,
             avatarUrl: avatarUrl,
             isVip: tutor.isVip || false,
