@@ -592,7 +592,7 @@ const getTutors = async (req, res) => {
     console.log('📊 排序條件:', sort);
 
     // 執行查詢
-    const tutors = await User.find(query)
+    const tutorResults = await User.find(query)
       .select('userId tutorId name avatar subjects teachingAreas teachingMethods experience rating introduction')
       .sort(sort)
       .skip((page - 1) * limit)
@@ -601,12 +601,12 @@ const getTutors = async (req, res) => {
     // 獲取總數
     const total = await User.countDocuments(query);
 
-    console.log(`✅ 找到 ${tutors.length} 個導師，總共 ${total} 個`);
+    console.log(`✅ 找到 ${tutorResults.length} 個導師，總共 ${total} 個`);
 
     res.json({
       success: true,
       data: {
-        tutors,
+        tutors: tutorResults,
         total,
         totalPages: Math.ceil(total / limit),
         currentPage: parseInt(page)
