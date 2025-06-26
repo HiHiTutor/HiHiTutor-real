@@ -2,16 +2,14 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { Star } from 'lucide-react';
+import CaseFilterBar from '@/components/CaseFilterBar';
 
 interface Tutor {
   id?: string;
@@ -310,91 +308,26 @@ function TutorsPageContent() {
 
       {/* 搜尋和篩選區域 */}
       <div className="bg-yellow-50 rounded-xl p-6 mb-8">
-        <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Input
-              placeholder="搜尋導師姓名或科目..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1"
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            />
-            <Button onClick={handleSearch} className="sm:w-auto">
-              搜尋
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* 科目篩選 */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">教授科目</Label>
-              <div className="space-y-2">
-                {['數學', '物理', '化學', '生物', '英文', '中文'].map((subject) => (
-                  <div key={subject} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={subject}
-                      checked={selectedSubjects.includes(subject)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setSelectedSubjects([...selectedSubjects, subject]);
-                        } else {
-                          setSelectedSubjects(selectedSubjects.filter((s) => s !== subject));
-                        }
-                      }}
-                    />
-                    <Label htmlFor={subject} className="text-sm">{subject}</Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* 地區篩選 */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">教學地區</Label>
-              <div className="space-y-2">
-                {['中環', '金鐘', '銅鑼灣', '旺角', '沙田', '將軍澳'].map((area) => (
-                  <div key={area} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={area}
-                      checked={selectedAreas.includes(area)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setSelectedAreas([...selectedAreas, area]);
-                        } else {
-                          setSelectedAreas(selectedAreas.filter((a) => a !== area));
-                        }
-                      }}
-                    />
-                    <Label htmlFor={area} className="text-sm">{area}</Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* 授課方式篩選 */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">授課方式</Label>
-              <div className="space-y-2">
-                {['面授', '網上', '混合'].map((method) => (
-                  <div key={method} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={method}
-                      checked={selectedMethods.includes(method)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setSelectedMethods([...selectedMethods, method]);
-                        } else {
-                          setSelectedMethods(selectedMethods.filter((m) => m !== method));
-                        }
-                      }}
-                    />
-                    <Label htmlFor={method} className="text-sm">{method}</Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
+        <CaseFilterBar
+          onFilter={(filters) => {
+            console.log('🔍 篩選條件:', filters);
+            // 處理篩選邏輯
+            if (filters.search) {
+              setSearchQuery(filters.search);
+            }
+            if (filters.subCategory) {
+              setSelectedSubjects([filters.subCategory]);
+            }
+            if (filters.regions && filters.regions.length > 0) {
+              setSelectedAreas(filters.regions);
+            }
+            if (filters.mode && filters.mode.length > 0) {
+              setSelectedMethods(filters.mode);
+            }
+            handleSearch();
+          }}
+          fetchUrl="/tutors"
+        />
       </div>
 
       {/* 導師列表 */}
