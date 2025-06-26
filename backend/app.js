@@ -6,6 +6,29 @@ const morgan = require('morgan');
 const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
+
+// 早期檢查 MONGODB_URI
+console.log('🔍 檢查環境變數...');
+console.log('- NODE_ENV:', process.env.NODE_ENV);
+console.log('- VERCEL:', process.env.VERCEL);
+console.log('- MONGODB_URI exists:', !!process.env.MONGODB_URI);
+
+if (!process.env.MONGODB_URI) {
+  console.error('❌ MONGODB_URI 未定義！');
+  console.error('請在 Vercel 環境變數中設定 MONGODB_URI');
+  console.error('或在本地 .env 文件中設定 MONGODB_URI');
+  
+  // 在 Vercel 環境中不要立即退出，讓應用繼續運行但會失敗
+  if (process.env.VERCEL !== '1') {
+    process.exit(1);
+  }
+} else {
+  console.log('✅ MONGODB_URI 已設定');
+  // 遮蔽密碼顯示 URI 開頭
+  const maskedUri = process.env.MONGODB_URI.replace(/(mongodb\+srv?:\/\/[^:]+:)[^@]+(@.*)/, '$1[PASSWORD]$2');
+  console.log('- MONGODB_URI:', maskedUri);
+}
+
 const connectDB = require('./config/db');
 
 // Import routes

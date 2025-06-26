@@ -84,58 +84,97 @@ const getAllTutors = async (req, res) => {
     // 檢查 MongoDB 連接狀態
     if (mongoose.connection.readyState !== 1) {
       console.log('⚠️ MongoDB 未連接，當前狀態:', mongoose.connection.readyState);
+      console.log('- 連接狀態說明: 0=disconnected, 1=connected, 2=connecting, 3=disconnecting');
+      
+      // 返回友好的錯誤訊息
       return res.status(503).json({ 
+        success: false,
         message: 'Database not ready', 
-        mongoState: mongoose.connection.readyState 
+        error: 'MongoDB connection is not established',
+        mongoState: mongoose.connection.readyState,
+        mongoStateDescription: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState] || 'unknown'
       });
     }
+    
+    console.log('✅ MongoDB 連接正常，開始查詢導師資料');
     
     let query = { userType: 'tutor' };
     
     // 如果是 featured 請求，獲取置頂或 VIP 導師
     if (featured === 'true') {
       query.$or = [{ isTop: true }, { isVip: true }];
+      console.log('🔍 查詢精選導師 (featured=true)');
     }
     
     console.log('🔍 MongoDB 查詢條件:', query);
     
     // 使用簡單的 find 查詢
-    let tutors = await User.find(query)
-      .sort({ rating: -1, createdAt: -1 })
-      .limit(parseInt(limit) || 15)
-      .lean();
-    
-    console.log(`✅ 從 MongoDB 找到 ${tutors.length} 個導師`);
+    let tutors = [];
+    try {
+      tutors = await User.find(query)
+        .sort({ rating: -1, createdAt: -1 })
+        .limit(parseInt(limit) || 15)
+        .lean();
+      
+      console.log(`✅ 從 MongoDB 找到 ${tutors.length} 個導師`);
+    } catch (dbError) {
+      console.error('❌ 數據庫查詢錯誤:', {
+        message: dbError.message,
+        code: dbError.code,
+        name: dbError.name,
+        stack: dbError.stack
+      });
+      
+      // 如果是數據庫錯誤，返回錯誤訊息
+      return res.status(500).json({
+        success: false,
+        message: 'Database query failed',
+        error: dbError.message
+      });
+    }
     
     // 如果數據庫中沒有導師數據，使用模擬數據
     if (tutors.length === 0) {
       console.log('⚠️ 數據庫中沒有導師數據，使用模擬數據');
-      const mockTutors = require('../data/tutors');
+      console.log('- 可能原因: 數據庫中沒有 userType=tutor 的用戶');
+      console.log('- 或者 featured=true 但沒有 isTop=true 或 isVip=true 的導師');
       
-      // 過濾模擬數據
-      let filteredMockTutors = mockTutors;
-      if (featured === 'true') {
-        filteredMockTutors = mockTutors.filter(tutor => tutor.isVip || tutor.isTop);
+      try {
+        const mockTutors = require('../data/tutors');
+        
+        // 過濾模擬數據
+        let filteredMockTutors = mockTutors;
+        if (featured === 'true') {
+          filteredMockTutors = mockTutors.filter(tutor => tutor.isVip || tutor.isTop);
+          console.log(`- 模擬數據中符合 featured 條件的導師: ${filteredMockTutors.length} 個`);
+        }
+        
+        // 排序和限制
+        filteredMockTutors.sort((a, b) => b.rating - a.rating);
+        filteredMockTutors = filteredMockTutors.slice(0, parseInt(limit) || 15);
+        
+        tutors = filteredMockTutors.map(tutor => ({
+          _id: tutor.id,
+          userId: tutor.id,
+          name: tutor.name,
+          subjects: [tutor.subject],
+          education: tutor.education,
+          experience: tutor.experience,
+          rating: tutor.rating,
+          avatar: tutor.avatarUrl,
+          isVip: tutor.isVip,
+          isTop: tutor.isTop
+        }));
+        
+        console.log(`✅ 使用模擬數據，找到 ${tutors.length} 個導師`);
+      } catch (mockError) {
+        console.error('❌ 載入模擬數據失敗:', mockError);
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to load mock data',
+          error: mockError.message
+        });
       }
-      
-      // 排序和限制
-      filteredMockTutors.sort((a, b) => b.rating - a.rating);
-      filteredMockTutors = filteredMockTutors.slice(0, parseInt(limit) || 15);
-      
-      tutors = filteredMockTutors.map(tutor => ({
-        _id: tutor.id,
-        userId: tutor.id,
-        name: tutor.name,
-        subjects: [tutor.subject],
-        education: tutor.education,
-        experience: tutor.experience,
-        rating: tutor.rating,
-        avatar: tutor.avatarUrl,
-        isVip: tutor.isVip,
-        isTop: tutor.isTop
-      }));
-      
-      console.log(`✅ 使用模擬數據，找到 ${tutors.length} 個導師`);
     }
 
     const formattedTutors = tutors.map(tutor => ({
@@ -151,11 +190,24 @@ const getAllTutors = async (req, res) => {
       isTop: tutor.isTop || false
     }));
 
-    console.log('📤 返回導師數據');
-    res.json({ data: { tutors: formattedTutors } });
+    console.log(`📤 返回 ${formattedTutors.length} 個導師數據`);
+    res.json({ 
+      success: true,
+      data: { tutors: formattedTutors },
+      source: tutors.length === 0 ? 'mock' : 'database'
+    });
   } catch (error) {
-    console.error('❌ 獲取導師數據時出錯:', error);
-    res.status(500).json({ message: 'Error fetching tutors' });
+    console.error('❌ 獲取導師數據時出錯:', {
+      message: error.message,
+      code: error.code,
+      name: error.name,
+      stack: error.stack
+    });
+    res.status(500).json({ 
+      success: false,
+      message: 'Error fetching tutors',
+      error: error.message
+    });
   }
 };
 
@@ -165,6 +217,17 @@ const getTutorById = async (req, res) => {
     const { id } = req.params;
     
     console.log('🔍 查找導師:', id);
+    
+    // 檢查 MongoDB 連接狀態
+    if (mongoose.connection.readyState !== 1) {
+      console.log('⚠️ MongoDB 未連接，當前狀態:', mongoose.connection.readyState);
+      return res.status(503).json({ 
+        success: false,
+        message: 'Database not ready', 
+        error: 'MongoDB connection is not established',
+        mongoState: mongoose.connection.readyState
+      });
+    }
     
     // 嘗試多種方式查找導師
     let tutor = null;
@@ -230,10 +293,16 @@ const getTutorById = async (req, res) => {
       data: publicProfile
     });
   } catch (error) {
-    console.error('❌ 獲取導師詳情錯誤:', error);
+    console.error('❌ 獲取導師詳情錯誤:', {
+      message: error.message,
+      code: error.code,
+      name: error.name,
+      stack: error.stack
+    });
     res.status(500).json({ 
       success: false,
-      message: '獲取導師詳情失敗' 
+      message: '獲取導師詳情失敗',
+      error: error.message
     });
   }
 };
@@ -242,10 +311,31 @@ const getTutorById = async (req, res) => {
 const getTutorByTutorId = async (req, res) => {
   try {
     const { tutorId } = req.params;
+    
+    console.log('🔍 根據 tutorId 查找導師:', tutorId);
+    
+    // 檢查 MongoDB 連接狀態
+    if (mongoose.connection.readyState !== 1) {
+      console.log('⚠️ MongoDB 未連接，當前狀態:', mongoose.connection.readyState);
+      return res.status(503).json({ 
+        success: false,
+        message: 'Database not ready', 
+        error: 'MongoDB connection is not established',
+        mongoState: mongoose.connection.readyState
+      });
+    }
+    
     const user = await User.findOne({ tutorId });
     if (!user || user.userType !== 'tutor') {
-      return res.status(404).json({ success: false, message: '找不到導師' });
+      console.log('❌ 找不到導師:', tutorId);
+      return res.status(404).json({ 
+        success: false, 
+        message: '找不到導師' 
+      });
     }
+    
+    console.log('✅ 找到導師:', user.name);
+    
     // 只回傳公開資料
     const publicProfile = {
       tutorId: user.tutorId,
@@ -257,7 +347,17 @@ const getTutorByTutorId = async (req, res) => {
     };
     res.json({ success: true, data: publicProfile });
   } catch (error) {
-    res.status(500).json({ success: false, message: '伺服器錯誤' });
+    console.error('❌ 獲取導師 profile 錯誤:', {
+      message: error.message,
+      code: error.code,
+      name: error.name,
+      stack: error.stack
+    });
+    res.status(500).json({ 
+      success: false, 
+      message: '伺服器錯誤',
+      error: error.message
+    });
   }
 };
 
@@ -274,6 +374,19 @@ const getTutors = async (req, res) => {
       sortBy = 'rating',
       sortOrder = 'desc'
     } = req.query;
+
+    console.log('🔍 獲取導師列表，查詢參數:', { page, limit, search, subjects, areas, methods, sortBy, sortOrder });
+
+    // 檢查 MongoDB 連接狀態
+    if (mongoose.connection.readyState !== 1) {
+      console.log('⚠️ MongoDB 未連接，當前狀態:', mongoose.connection.readyState);
+      return res.status(503).json({ 
+        success: false,
+        message: 'Database not ready', 
+        error: 'MongoDB connection is not established',
+        mongoState: mongoose.connection.readyState
+      });
+    }
 
     // 構建查詢條件
     const query = {
@@ -308,6 +421,9 @@ const getTutors = async (req, res) => {
     const sort = {};
     sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
 
+    console.log('🔍 查詢條件:', query);
+    console.log('📊 排序條件:', sort);
+
     // 執行查詢
     const tutors = await User.find(query)
       .select('userId tutorId name avatar subjects teachingAreas teachingMethods experience rating introduction')
@@ -318,7 +434,10 @@ const getTutors = async (req, res) => {
     // 獲取總數
     const total = await User.countDocuments(query);
 
+    console.log(`✅ 找到 ${tutors.length} 個導師，總共 ${total} 個`);
+
     res.json({
+      success: true,
       data: {
         tutors,
         total,
@@ -327,8 +446,17 @@ const getTutors = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error in getTutors:', error);
-    res.status(500).json({ message: '獲取導師列表失敗' });
+    console.error('❌ 獲取導師列表錯誤:', {
+      message: error.message,
+      code: error.code,
+      name: error.name,
+      stack: error.stack
+    });
+    res.status(500).json({ 
+      success: false,
+      message: '獲取導師列表失敗',
+      error: error.message
+    });
   }
 };
 
@@ -337,6 +465,19 @@ const getTutorDetail = async (req, res) => {
   try {
     const { tutorId } = req.params;
 
+    console.log('🔍 獲取導師詳情:', tutorId);
+
+    // 檢查 MongoDB 連接狀態
+    if (mongoose.connection.readyState !== 1) {
+      console.log('⚠️ MongoDB 未連接，當前狀態:', mongoose.connection.readyState);
+      return res.status(503).json({ 
+        success: false,
+        message: 'Database not ready', 
+        error: 'MongoDB connection is not established',
+        mongoState: mongoose.connection.readyState
+      });
+    }
+
     const tutor = await User.findOne({
       tutorId,
       userType: 'tutor',
@@ -344,13 +485,31 @@ const getTutorDetail = async (req, res) => {
     }).select('-password -refreshToken');
 
     if (!tutor) {
-      return res.status(404).json({ message: '找不到該導師' });
+      console.log('❌ 找不到導師:', tutorId);
+      return res.status(404).json({ 
+        success: false,
+        message: '找不到該導師' 
+      });
     }
 
-    res.json(tutor);
+    console.log('✅ 找到導師:', tutor.name);
+
+    res.json({
+      success: true,
+      data: tutor
+    });
   } catch (error) {
-    console.error('Error in getTutorDetail:', error);
-    res.status(500).json({ message: '獲取導師詳情失敗' });
+    console.error('❌ 獲取導師詳情錯誤:', {
+      message: error.message,
+      code: error.code,
+      name: error.name,
+      stack: error.stack
+    });
+    res.status(500).json({ 
+      success: false,
+      message: '獲取導師詳情失敗',
+      error: error.message
+    });
   }
 };
 
@@ -366,6 +525,17 @@ const getTutorProfile = async (req, res) => {
       userType: req.user.userType,
       role: req.user.role
     });
+
+    // 檢查 MongoDB 連接狀態
+    if (mongoose.connection.readyState !== 1) {
+      console.log('⚠️ MongoDB 未連接，當前狀態:', mongoose.connection.readyState);
+      return res.status(503).json({ 
+        success: false,
+        message: 'Database not ready', 
+        error: 'MongoDB connection is not established',
+        mongoState: mongoose.connection.readyState
+      });
+    }
 
     // 使用 userId 查找用戶
     const user = await User.findOne({ userId: tokenUserId }).select('-password');
@@ -429,7 +599,12 @@ const getTutorProfile = async (req, res) => {
       }))
     });
   } catch (error) {
-    console.error('❌ 獲取導師 profile 錯誤:', error);
+    console.error('❌ 獲取導師 profile 錯誤:', {
+      message: error.message,
+      code: error.code,
+      name: error.name,
+      stack: error.stack
+    });
     res.status(500).json({
       success: false,
       message: '獲取導師 profile 失敗',
@@ -445,6 +620,17 @@ const updateTutorProfile = async (req, res) => {
     const updateData = req.body;
     
     console.log('🔍 更新導師 profile:', userId, updateData);
+
+    // 檢查 MongoDB 連接狀態
+    if (mongoose.connection.readyState !== 1) {
+      console.log('⚠️ MongoDB 未連接，當前狀態:', mongoose.connection.readyState);
+      return res.status(503).json({ 
+        success: false,
+        message: 'Database not ready', 
+        error: 'MongoDB connection is not established',
+        mongoState: mongoose.connection.readyState
+      });
+    }
 
     // 檢查導師是否存在
     const tutor = await User.findById(userId);
