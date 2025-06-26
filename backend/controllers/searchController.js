@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const TutorCase = require('../models/TutorCase');
 
 // 搜尋導師與個案
 const search = async (req, res) => {
@@ -19,17 +20,16 @@ const search = async (req, res) => {
       isActive: true,
       $or: [
         { name: { $regex: query, $options: 'i' } },
-        { subjects: { $regex: query, $options: 'i' } },
-        { 'tutorProfile.experience': { $regex: query, $options: 'i' } },
-        { 'tutorProfile.education': { $regex: query, $options: 'i' } }
+        { 'tutorProfile.subjects': { $regex: query, $options: 'i' } },
+        { 'tutorProfile.introduction': { $regex: query, $options: 'i' } }
       ]
-    }).limit(10);
+    });
 
     // 格式化導師數據以匹配前端期望的結構
     const formattedTutors = matchedTutors.map(tutor => ({
       id: tutor._id.toString(),
       name: tutor.name || '未指定',
-      subject: tutor.subjects?.[0] || '未指定',
+      subject: tutor.tutorProfile?.subjects?.[0] || '未指定',
       education: tutor.tutorProfile?.education || '未指定',
       experience: tutor.tutorProfile?.experience || '未指定',
       rating: tutor.rating || 0,
@@ -38,14 +38,45 @@ const search = async (req, res) => {
       isTop: tutor.isTop || false
     }));
     
-    // 搜尋個案 - 暫時返回空數組，因為個案搜尋邏輯需要另外實現
-    const matchedCases = [];
+    // 搜尋導師個案
+    const matchedCases = await TutorCase.find({
+      isApproved: true,
+      $or: [
+        { title: { $regex: query, $options: 'i' } },
+        { description: { $regex: query, $options: 'i' } },
+        { subjects: { $regex: query, $options: 'i' } },
+        { regions: { $regex: query, $options: 'i' } }
+      ]
+    }).populate('student', 'name avatar');
+
+    // 格式化個案數據
+    const formattedCases = matchedCases.map(caseItem => ({
+      id: caseItem._id.toString(),
+      title: caseItem.title,
+      description: caseItem.description,
+      subject: caseItem.subject,
+      subjects: caseItem.subjects,
+      regions: caseItem.regions,
+      mode: caseItem.mode,
+      modes: caseItem.modes,
+      lessonDetails: caseItem.lessonDetails,
+      experience: caseItem.experience,
+      status: caseItem.status,
+      featured: caseItem.featured,
+      student: caseItem.student ? {
+        id: caseItem.student._id.toString(),
+        name: caseItem.student.name,
+        avatar: caseItem.student.avatar
+      } : null,
+      createdAt: caseItem.createdAt,
+      updatedAt: caseItem.updatedAt
+    }));
     
-    console.log(`🔍 搜尋結果: 找到 ${formattedTutors.length} 個導師`);
+    console.log(`🔍 搜尋結果: 找到 ${formattedTutors.length} 個導師, ${formattedCases.length} 個個案`);
     
     res.json({
       tutors: formattedTutors,
-      cases: matchedCases
+      cases: formattedCases
     });
   } catch (error) {
     console.error('❌ 搜尋時發生錯誤:', error);

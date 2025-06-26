@@ -30,6 +30,7 @@ const tutorApplicationsRouter = require('./routes/tutorApplications');
 const uploadRouter = require('./routes/upload');
 const usersRouter = require('./routes/users');
 const tutorProfilesRouter = require('./routes/tutorProfiles');
+const searchRoutes = require('./routes/search');
 
 const app = express();
 
@@ -180,6 +181,7 @@ app.use('/api/upload', uploadRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/tutor-profiles', tutorProfilesRouter);
 app.use('/api/files', require('./routes/files'));
+app.use('/api/search', searchRoutes);
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
