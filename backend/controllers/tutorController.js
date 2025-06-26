@@ -81,6 +81,9 @@ const getAllTutors = async (req, res) => {
     const { limit, featured } = req.query;
     console.log('📝 查詢參數:', { limit, featured });
     
+    // 定義 tutors 變數
+    let tutors = [];
+    
     // 檢查 MongoDB 連接狀態
     if (mongoose.connection.readyState !== 1) {
       console.log('⚠️ MongoDB 未連接，當前狀態:', mongoose.connection.readyState);
@@ -119,8 +122,11 @@ const getAllTutors = async (req, res) => {
         
         console.log(`✅ 使用模擬數據，找到 ${mappedTutors.length} 個導師`);
         
+        // 將 mappedTutors 賦值給 tutors 變數
+        tutors = mappedTutors;
+
         // 直接格式化並返回 mock 數據
-        const formattedTutors = mappedTutors.map(tutor => {
+        const formattedTutors = tutors.map(tutor => {
           // 處理 subjects 陣列
           let subjects = [];
           if (tutor.subjects && Array.isArray(tutor.subjects)) {
