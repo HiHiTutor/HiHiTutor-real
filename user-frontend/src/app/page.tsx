@@ -32,7 +32,7 @@ export default function Home() {
 
   const handleSearch = (query: any) => {
     const { type, ...rest } = query;
-    const target = type === "find-tutor-cases" ? "find-tutor-cases" : "find-student-cases";
+    const target = type === "tutors" ? "tutors" : "find-student-cases";
     
     // 將搜尋條件轉換為 URL 參數
     const searchParams = new URLSearchParams();
@@ -60,7 +60,7 @@ function HomeContent() {
 
   const handleSearch = (query: any) => {
     const { type, ...rest } = query;
-    const target = type === "find-tutor-cases" ? "find-tutor-cases" : "find-student-cases";
+    const target = type === "tutors" ? "tutors" : "find-student-cases";
     
     // 將搜尋條件轉換為 URL 參數
     const searchParams = new URLSearchParams();

@@ -59,7 +59,7 @@ const Navbar = () => {
               導師列表
             </button>
           </Link>
-          <Link href="/find-tutor-cases">
+          <Link href="/find-student-cases">
             <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">
               補習個案
             </button>
