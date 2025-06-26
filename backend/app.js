@@ -167,6 +167,7 @@ app.use('/api/categories', categoriesRouter);
 app.use('/api/tutors', tutorsRouter);
 app.use('/api/cases', casesRouter);
 app.use('/api/find-student-cases', findStudentCases);
+app.use('/api/student-cases', studentCasesRouter);
 app.use('/api/find-tutor-cases', findTutorCases);
 app.use('/api/tutor-cases', tutorCasesRouter);
 app.use('/api/user', userRouter);
