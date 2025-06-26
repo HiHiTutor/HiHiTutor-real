@@ -164,7 +164,7 @@ app.use('/api/admin-management', require('./routes/admin'));
 app.use('/api/categories', categoriesRouter);
 app.use('/api/tutors', tutorsRouter);
 app.use('/api/cases', casesRouter);
-app.use('/api/find-student-cases', findTutorCases);
+app.use('/api/find-tutor-cases', findTutorCases);
 app.use('/api/tutor-cases', tutorCasesRouter);
 app.use('/api/user', userRouter);
 app.use('/api/applications', applicationRouter);
@@ -294,8 +294,8 @@ console.log('- GET /api/auth/profile');
 console.log('- GET /api/categories');
 console.log('- GET /api/tutors');
 console.log('- GET /api/tutors/recommended');
-console.log('- GET /api/find-student-cases');
-console.log('- GET /api/find-student-cases?featured=true&limit=8');
+console.log('- GET /api/find-tutor-cases');
+console.log('- GET /api/find-tutor-cases?featured=true&limit=8');
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
