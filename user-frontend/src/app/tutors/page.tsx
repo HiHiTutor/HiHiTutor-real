@@ -310,20 +310,36 @@ function TutorsPageContent() {
       <div className="bg-yellow-50 rounded-xl p-6 mb-8">
         <CaseFilterBar
           onFilter={(filters) => {
-            console.log('🔍 篩選條件:', filters);
-            // 處理篩選邏輯
+            console.log('�� 篩選條件:', filters);
+            
+            // 構建新的 URL 參數
+            const newSearchParams = new URLSearchParams();
+            
             if (filters.search) {
               setSearchQuery(filters.search);
+              newSearchParams.append('search', filters.search);
+            }
+            if (filters.category) {
+              newSearchParams.append('category', filters.category);
             }
             if (filters.subCategory) {
               setSelectedSubjects([filters.subCategory]);
+              newSearchParams.append('subjects', filters.subCategory);
             }
             if (filters.regions && filters.regions.length > 0) {
               setSelectedAreas(filters.regions);
+              newSearchParams.append('regions', filters.regions.join(','));
             }
             if (filters.mode && filters.mode.length > 0) {
               setSelectedMethods(filters.mode);
+              newSearchParams.append('modes', filters.mode.join(','));
             }
+            
+            // 更新 URL
+            const newUrl = `/tutors?${newSearchParams.toString()}`;
+            router.push(newUrl);
+            
+            // 執行搜尋
             handleSearch();
           }}
           fetchUrl="/tutors"
