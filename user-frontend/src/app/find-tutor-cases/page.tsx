@@ -134,6 +134,7 @@ function FindTutorCasesPageContent() {
     const category = searchParams.get('category');
     const subCategory = searchParams.getAll('subCategory');
     const region = searchParams.getAll('region');
+    const modes = searchParams.getAll('modes');
     const priceMin = searchParams.get('priceMin');
     const priceMax = searchParams.get('priceMax');
 
@@ -141,6 +142,7 @@ function FindTutorCasesPageContent() {
       category,
       subCategory,
       region,
+      modes,
       priceMin,
       priceMax
     });
@@ -195,6 +197,20 @@ function FindTutorCasesPageContent() {
         );
         if (!hasMatchingRegion) {
           console.log("❌ 地區不匹配：", { caseRegion: item.region, filterRegion: region });
+          return false;
+        }
+      }
+      
+      // 教學模式篩選
+      if (modes.length > 0) {
+        const itemModes = Array.isArray(item.modes) ? item.modes : [item.mode];
+        const hasMatchingMode = modes.some((filterMode: string) => 
+          itemModes.some((itemMode: string) => 
+            String(itemMode).toLowerCase().includes(filterMode.toLowerCase())
+          )
+        );
+        if (!hasMatchingMode) {
+          console.log("❌ 教學模式不匹配：", { caseModes: itemModes, filterModes: modes });
           return false;
         }
       }
