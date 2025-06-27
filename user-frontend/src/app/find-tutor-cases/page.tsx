@@ -434,7 +434,7 @@ function FindTutorCasesPageContent() {
                   : caseItem.lessonDetails,
                 createdAt: caseItem.createdAt || caseItem.date,
               }}
-              routeType="tutor"
+              routeType="student"
             />
           ))}
         </div>
