@@ -47,24 +47,22 @@ export default function Home() {
     if (rest.subjects && Array.isArray(rest.subjects) && rest.subjects.length > 0) {
       rest.subjects.forEach((subject: string) => searchParams.append('subjects', subject));
     }
-    if (rest.region) {
-      searchParams.append('region', rest.region);
-    }
-    if (rest.mode && Array.isArray(rest.mode)) {
-      rest.mode.forEach((mode: string) => searchParams.append('mode', mode));
-    }
     if (rest.search) {
       searchParams.append('search', rest.search);
     }
     
-    // 對於導師頁面，需要額外的參數映射
-    if (target === "tutors") {
-      if (rest.region) {
-        searchParams.append('regions', rest.region);
-      }
-      if (rest.mode && Array.isArray(rest.mode)) {
-        rest.mode.forEach((mode: string) => searchParams.append('modes', mode));
-      }
+    // 處理教學模式參數
+    if (rest.modes && Array.isArray(rest.modes) && rest.modes.length > 0) {
+      rest.modes.forEach((mode: string) => searchParams.append('modes', mode));
+    } else if (rest.mode && Array.isArray(rest.mode) && rest.mode.length > 0) {
+      rest.mode.forEach((mode: string) => searchParams.append('modes', mode));
+    }
+    
+    // 處理地區參數
+    if (rest.regions && Array.isArray(rest.regions) && rest.regions.length > 0) {
+      rest.regions.forEach((region: string) => searchParams.append('regions', region));
+    } else if (rest.region) {
+      searchParams.append('regions', rest.region);
     }
 
     // 跳轉到目標頁面，並帶上搜尋參數
@@ -98,24 +96,22 @@ function HomeContent() {
     if (rest.subjects && Array.isArray(rest.subjects) && rest.subjects.length > 0) {
       rest.subjects.forEach((subject: string) => searchParams.append('subjects', subject));
     }
-    if (rest.region) {
-      searchParams.append('region', rest.region);
-    }
-    if (rest.mode && Array.isArray(rest.mode)) {
-      rest.mode.forEach((mode: string) => searchParams.append('mode', mode));
-    }
     if (rest.search) {
       searchParams.append('search', rest.search);
     }
     
-    // 對於導師頁面，需要額外的參數映射
-    if (target === "tutors") {
-      if (rest.region) {
-        searchParams.append('regions', rest.region);
-      }
-      if (rest.mode && Array.isArray(rest.mode)) {
-        rest.mode.forEach((mode: string) => searchParams.append('modes', mode));
-      }
+    // 處理教學模式參數
+    if (rest.modes && Array.isArray(rest.modes) && rest.modes.length > 0) {
+      rest.modes.forEach((mode: string) => searchParams.append('modes', mode));
+    } else if (rest.mode && Array.isArray(rest.mode) && rest.mode.length > 0) {
+      rest.mode.forEach((mode: string) => searchParams.append('modes', mode));
+    }
+    
+    // 處理地區參數
+    if (rest.regions && Array.isArray(rest.regions) && rest.regions.length > 0) {
+      rest.regions.forEach((region: string) => searchParams.append('regions', region));
+    } else if (rest.region) {
+      searchParams.append('regions', rest.region);
     }
 
     // 跳轉到目標頁面，並帶上搜尋參數

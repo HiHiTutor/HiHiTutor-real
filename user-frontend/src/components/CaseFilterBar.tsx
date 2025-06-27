@@ -158,13 +158,42 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
   };
 
   const handleFilter = () => {
+    const params = new URLSearchParams();
+    
+    // 添加基本參數
+    if (filters.target) params.append('target', filters.target);
+    if (filters.category) params.append('category', filters.category);
+    if (filters.subCategory) params.append('subCategory', filters.subCategory);
+    
+    // 添加科目參數（支持多個）
+    filters.subjects.forEach(subject => {
+      params.append('subjects', subject);
+    });
+    
+    // 添加教學模式參數（支持多個）
+    filters.mode.forEach(mode => {
+      params.append('modes', mode);
+    });
+    
+    // 添加地區參數（支持多個）
+    filters.regions.forEach(region => {
+      params.append('regions', region);
+    });
+    
+    // 構建 URL
+    const url = `${fetchUrl}?${params.toString()}`;
+    
+    // 導航到新 URL
+    window.location.href = url;
+    
+    // 調用回調函數
     onFilter?.({
       type: filters.target === 'find-tutor' ? 'tutors' : 'find-student-cases',
       category: filters.category,
       subCategory: filters.subCategory || '',
       subjects: filters.subjects,
-      region: filters.regions[0] || '',
-      mode: filters.mode
+      regions: filters.regions,
+      modes: filters.mode
     });
   };
 
