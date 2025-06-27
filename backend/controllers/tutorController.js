@@ -267,6 +267,31 @@ const getAllTutors = async (req, res) => {
           console.log(`- 教學模式過濾後剩餘導師: ${filteredMockTutors.length} 個`);
         }
         
+        // 地區過濾
+        if (regions) {
+          const regionArray = Array.isArray(regions) ? regions : regions.split(',');
+          console.log(`- 地區過濾條件: ${regionArray.join(', ')}`);
+          
+          filteredMockTutors = filteredMockTutors.filter(tutor => {
+            // 檢查 tutor.regions 數組
+            if (tutor.regions && Array.isArray(tutor.regions)) {
+              const hasMatchingRegion = regionArray.some(filterRegion => 
+                tutor.regions.some(tutorRegion => 
+                  tutorRegion.toLowerCase() === filterRegion.toLowerCase()
+                )
+              );
+              if (hasMatchingRegion) {
+                console.log(`- 導師 ${tutor.name} 匹配地區: ${tutor.regions.join(', ')}`);
+                return true;
+              }
+            }
+            
+            return false;
+          });
+          
+          console.log(`- 地區過濾後剩餘導師: ${filteredMockTutors.length} 個`);
+        }
+        
         // 排序和限制
         filteredMockTutors.sort((a, b) => b.rating - a.rating);
         filteredMockTutors = filteredMockTutors.slice(0, parseInt(limit) || 15);
@@ -283,7 +308,9 @@ const getAllTutors = async (req, res) => {
           isVip: tutor.isVip,
           isTop: tutor.isTop,
           createdAt: new Date().toISOString(),
-          date: new Date().toISOString()
+          date: new Date().toISOString(),
+          teachingModes: tutor.teachingModes || [],
+          regions: tutor.regions || []
         }));
         
         console.log(`✅ 使用模擬數據，找到 ${mappedTutors.length} 個導師`);
@@ -571,6 +598,31 @@ const getAllTutors = async (req, res) => {
           console.log(`- 教學模式過濾後剩餘導師: ${filteredMockTutors.length} 個`);
         }
         
+        // 地區過濾
+        if (regions) {
+          const regionArray = Array.isArray(regions) ? regions : regions.split(',');
+          console.log(`- 地區過濾條件: ${regionArray.join(', ')}`);
+          
+          filteredMockTutors = filteredMockTutors.filter(tutor => {
+            // 檢查 tutor.regions 數組
+            if (tutor.regions && Array.isArray(tutor.regions)) {
+              const hasMatchingRegion = regionArray.some(filterRegion => 
+                tutor.regions.some(tutorRegion => 
+                  tutorRegion.toLowerCase() === filterRegion.toLowerCase()
+                )
+              );
+              if (hasMatchingRegion) {
+                console.log(`- 導師 ${tutor.name} 匹配地區: ${tutor.regions.join(', ')}`);
+                return true;
+              }
+            }
+            
+            return false;
+          });
+          
+          console.log(`- 地區過濾後剩餘導師: ${filteredMockTutors.length} 個`);
+        }
+        
         // 排序和限制
         filteredMockTutors.sort((a, b) => b.rating - a.rating);
         filteredMockTutors = filteredMockTutors.slice(0, parseInt(limit) || 15);
@@ -587,7 +639,9 @@ const getAllTutors = async (req, res) => {
           isVip: tutor.isVip,
           isTop: tutor.isTop,
           createdAt: new Date().toISOString(),
-          date: new Date().toISOString()
+          date: new Date().toISOString(),
+          teachingModes: tutor.teachingModes || [],
+          regions: tutor.regions || []
         }));
         
         console.log(`✅ 使用模擬數據，找到 ${tutors.length} 個導師`);
@@ -647,7 +701,8 @@ const getAllTutors = async (req, res) => {
         isTop: tutor.isTop || false,
         createdAt: tutor.createdAt || new Date().toISOString(),
         date: tutor.createdAt || new Date().toISOString(),
-        teachingModes: tutor.teachingModes || []
+        teachingModes: tutor.teachingModes || [],
+        regions: tutor.regions || []
       };
     });
 

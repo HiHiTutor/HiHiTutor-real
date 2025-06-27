@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const StudentCase = require('../models/StudentCase');
+const TutorCase = require('../models/TutorCase');
 
-// 獲取所有學生個案（顯示在 find-tutor-cases 頁面）
+// 獲取所有導師個案（顯示在 find-tutor-cases 頁面）
 router.get('/', async (req, res) => {
   try {
-    const cases = await StudentCase.find()
+    const cases = await TutorCase.find()
       .sort({ createdAt: -1 });
     res.json({
       success: true,
@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error getting student cases:', error);
+    console.error('Error getting tutor cases:', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error'
@@ -22,17 +22,17 @@ router.get('/', async (req, res) => {
   }
 });
 
-// 創建學生個案（學生發布找導師的個案）
+// 創建導師個案（導師發布找學生的個案）
 router.post('/', async (req, res) => {
   try {
-    const newCase = new StudentCase(req.body);
+    const newCase = new TutorCase(req.body);
     await newCase.save();
     res.json({
       success: true,
       data: newCase
     });
   } catch (error) {
-    console.error('Error creating student case:', error);
+    console.error('Error creating tutor case:', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error'

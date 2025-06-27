@@ -12,7 +12,7 @@ const tutors = [
     isTop: true,
     region: "central",
     regions: ["central"],
-    teachingModes: ["in-person", "online"]
+    teachingModes: ["one-on-one", "small-group"]
   },
   {
     id: 2,
@@ -42,7 +42,7 @@ const tutors = [
     isTop: true,
     region: "mong-kok",
     regions: ["mong-kok"],
-    teachingModes: ["in-person", "both"]
+    teachingModes: ["one-on-one", "online"]
   },
   {
     id: 4,
@@ -57,7 +57,7 @@ const tutors = [
     isTop: true,
     region: "sha-tin",
     regions: ["sha-tin"],
-    teachingModes: ["in-person"]
+    teachingModes: ["large-center"]
   },
   {
     id: 5,
@@ -72,7 +72,7 @@ const tutors = [
     isTop: false,
     region: "tseung-kwan-o",
     regions: ["tseung-kwan-o"],
-    teachingModes: ["both"]
+    teachingModes: ["one-on-one", "online"]
   },
   {
     id: 6,
@@ -87,7 +87,7 @@ const tutors = [
     isTop: true,
     region: "admiralty",
     regions: ["admiralty"],
-    teachingModes: ["in-person", "online"]
+    teachingModes: ["small-group", "online"]
   },
   {
     id: 7,
@@ -117,7 +117,7 @@ const tutors = [
     isTop: true,
     region: "tsim-sha-tsui",
     regions: ["tsim-sha-tsui"],
-    teachingModes: ["in-person"]
+    teachingModes: ["large-center"]
   },
   {
     id: 9,
@@ -132,7 +132,7 @@ const tutors = [
     isTop: true,
     region: "kowloon-tong",
     regions: ["kowloon-tong"],
-    teachingModes: ["both"]
+    teachingModes: ["one-on-one", "small-group", "online"]
   },
   {
     id: 10,
@@ -147,7 +147,7 @@ const tutors = [
     isTop: false,
     region: "quarry-bay",
     regions: ["quarry-bay"],
-    teachingModes: ["in-person", "online"]
+    teachingModes: ["one-on-one", "online"]
   },
   {
     id: 11,
@@ -177,7 +177,7 @@ const tutors = [
     isTop: true,
     region: "yuen-long",
     regions: ["yuen-long"],
-    teachingModes: ["in-person"]
+    teachingModes: ["small-group"]
   },
   {
     id: 13,
@@ -192,52 +192,52 @@ const tutors = [
     isTop: false,
     region: "tuen-mun",
     regions: ["tuen-mun"],
-    teachingModes: ["both"]
+    teachingModes: ["one-on-one", "online"]
   },
   {
     id: 14,
     name: "黃小偉",
     subject: "early-childhood-chinese",
     subjects: ["early-childhood-chinese"],
-    education: "國立陽明大學化學系",
-    experience: "6年教學經驗",
-    rating: 4.8,
-    avatarUrl: "https://randomuser.me/api/portraits/men/52.jpg",
+    education: "國立台灣師範大學中文系",
+    experience: "4年教學經驗",
+    rating: 4.6,
+    avatarUrl: "https://randomuser.me/api/portraits/men/45.jpg",
     isVip: false,
     isTop: true,
-    region: "tsuen-wan",
-    regions: ["tsuen-wan"],
-    teachingModes: ["in-person", "online"]
+    region: "fanling",
+    regions: ["fanling"],
+    teachingModes: ["small-group"]
   },
   {
     id: 15,
-    name: "吳小芳",
+    name: "陳小美",
     subject: "early-childhood-english",
     subjects: ["early-childhood-english"],
-    education: "國立台灣大學生物系",
-    experience: "4年教學經驗",
-    rating: 4.9,
-    avatarUrl: "https://randomuser.me/api/portraits/women/48.jpg",
+    education: "國立政治大學英文系",
+    experience: "5年教學經驗",
+    rating: 4.8,
+    avatarUrl: "https://randomuser.me/api/portraits/women/52.jpg",
     isVip: true,
-    isTop: true,
-    region: "kwai-fong",
-    regions: ["kwai-fong"],
-    teachingModes: ["online"]
+    isTop: false,
+    region: "sheung-shui",
+    regions: ["sheung-shui"],
+    teachingModes: ["one-on-one", "small-group", "online"]
   },
   {
     id: 16,
-    name: "陳小雅",
-    subject: "early-childhood-phonics",
-    subjects: ["early-childhood-phonics"],
-    education: "國立台灣師範大學幼兒教育系",
-    experience: "5年教學經驗",
-    rating: 4.8,
-    avatarUrl: "https://randomuser.me/api/portraits/women/25.jpg",
-    isVip: true,
-    isTop: false,
-    region: "central",
-    regions: ["central"],
-    teachingModes: ["in-person", "online"]
+    name: "李小龍",
+    subject: "primary-chinese",
+    subjects: ["primary-chinese"],
+    education: "國立台灣師範大學中文系",
+    experience: "6年教學經驗",
+    rating: 4.9,
+    avatarUrl: "https://randomuser.me/api/portraits/men/38.jpg",
+    isVip: false,
+    isTop: true,
+    region: "ma-on-shan",
+    regions: ["ma-on-shan"],
+    teachingModes: ["large-center"]
   },
   {
     id: 17,

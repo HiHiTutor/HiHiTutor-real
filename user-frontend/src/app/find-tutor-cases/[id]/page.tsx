@@ -149,7 +149,7 @@ export default function FindTutorCaseDetailPage() {
     <section className="px-4 py-8 max-w-screen-xl mx-auto">
       <div className="flex items-center gap-2 mb-6">
         <span className="text-2xl">📝</span>
-        <h2 className="text-2xl font-bold border-l-4 border-blue-400 pl-3">學生個案詳情</h2>
+        <h2 className="text-2xl font-bold border-l-4 border-blue-400 pl-3">補習個案</h2>
       </div>
       <div className="bg-blue-100 border border-blue-300 rounded-xl p-8">
         <p className="text-gray-600">個案 ID：{getCaseId()}</p>
@@ -162,7 +162,7 @@ export default function FindTutorCaseDetailPage() {
         <div>
           <button
             onClick={handleApply}
-            className="mt-4 py-2 px-4 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
+            className="mt-4 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
           >
             申請此個案
           </button>
