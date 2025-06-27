@@ -266,14 +266,28 @@ function FindTutorCasesPageContent() {
         }
       }
 
-      // 科目篩選
+      // 科目篩選 - 只顯示完全匹配選擇科目的個案
       if (filters.subjects && filters.subjects.length > 0) {
         const itemSubjects = Array.isArray(item.subjects) ? item.subjects : [];
-        const hasMatchingSubject = filters.subjects.some((subject: string) => 
+        
+        // 檢查個案的科目是否完全包含在選擇的科目中
+        const hasAllMatchingSubjects = itemSubjects.every((subject: string) => 
+          filters.subjects.includes(subject)
+        );
+        
+        // 檢查選擇的科目是否完全包含在個案的科目中
+        const allSelectedSubjectsMatch = filters.subjects.every((subject: string) => 
           itemSubjects.includes(subject)
         );
-        if (!hasMatchingSubject) {
-          console.log("❌ 科目不匹配：", { caseSubjects: itemSubjects, filterSubjects: filters.subjects });
+        
+        // 只有當兩者完全匹配時才顯示
+        if (!hasAllMatchingSubjects || !allSelectedSubjectsMatch) {
+          console.log("❌ 科目不完全匹配：", { 
+            caseSubjects: itemSubjects, 
+            filterSubjects: filters.subjects,
+            hasAllMatchingSubjects,
+            allSelectedSubjectsMatch
+          });
           return false;
         }
       }

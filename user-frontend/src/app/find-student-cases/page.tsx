@@ -117,6 +117,7 @@ function FindStudentCasesPageContent() {
     const category = searchParams.get('category');
     const subCategory = searchParams.get('subCategory');
     const subject = searchParams.get('subject');
+    const subjects = searchParams.getAll('subjects'); // 獲取多個科目參數
     const region = searchParams.get('region');
     const mode = searchParams.get('mode');
 
@@ -125,6 +126,7 @@ function FindStudentCasesPageContent() {
       category,
       subCategory,
       subject,
+      subjects,
       region,
       mode
     });
@@ -244,6 +246,33 @@ function FindStudentCasesPageContent() {
               });
             }
           }
+        }
+      }
+      
+      // 科目篩選 - 處理多個科目的精確匹配
+      if (subjects && subjects.length > 0) {
+        const itemSubjects = Array.isArray(item.subjects) ? item.subjects.map(s => String(s).toLowerCase()) : [];
+        const filterSubjects = subjects.map(s => String(s).toLowerCase());
+        
+        // 檢查個案的科目是否完全包含在選擇的科目中
+        const hasAllMatchingSubjects = itemSubjects.every((subject: string) => 
+          filterSubjects.includes(subject)
+        );
+        
+        // 檢查選擇的科目是否完全包含在個案的科目中
+        const allSelectedSubjectsMatch = filterSubjects.every((subject: string) => 
+          itemSubjects.includes(subject)
+        );
+        
+        // 只有當兩者完全匹配時才顯示
+        if (!hasAllMatchingSubjects || !allSelectedSubjectsMatch) {
+          console.log("❌ 科目不完全匹配：", { 
+            caseSubjects: itemSubjects, 
+            filterSubjects: filterSubjects,
+            hasAllMatchingSubjects,
+            allSelectedSubjectsMatch
+          });
+          return false;
         }
       }
       
