@@ -192,11 +192,44 @@ function FindTutorCasesPageContent() {
       
       // 地區篩選
       if (region.length > 0) {
-        const hasMatchingRegion = region.some((r: string) => 
-          item.region?.includes(r)
-        );
+        // 處理個案的地區資料，確保是陣列格式
+        const caseRegions = Array.isArray(item.regions) ? item.regions : 
+                           Array.isArray(item.region) ? item.region : 
+                           item.region ? [item.region] : [];
+        
+        // 檢查是否有匹配的地區
+        const hasMatchingRegion = region.some((filterRegion: string) => {
+          return caseRegions.some((caseRegion: string) => {
+            // 標準化地區值進行比較
+            const normalizedFilterRegion = filterRegion.toLowerCase().trim();
+            const normalizedCaseRegion = caseRegion.toLowerCase().trim();
+            
+            // 直接匹配
+            if (normalizedFilterRegion === normalizedCaseRegion) {
+              return true;
+            }
+            
+            // 處理中文地區名稱映射
+            const regionMapping: { [key: string]: string[] } = {
+              'kowloon': ['九龍', 'kowloon'],
+              'hong-kong-island': ['香港島', 'hong-kong-island'],
+              'new-territories': ['新界', 'new-territories'],
+              'islands': ['離島', 'islands'],
+              'all-hong-kong': ['全港', 'all-hong-kong', '香港', 'hong-kong']
+            };
+            
+            // 檢查映射
+            const mappedRegions = regionMapping[normalizedFilterRegion] || [];
+            return mappedRegions.includes(normalizedCaseRegion);
+          });
+        });
+        
         if (!hasMatchingRegion) {
-          console.log("❌ 地區不匹配：", { caseRegion: item.region, filterRegion: region });
+          console.log("❌ 地區不匹配：", { 
+            caseRegions, 
+            filterRegion: region,
+            originalCaseRegion: item.region || item.regions 
+          });
           return false;
         }
       }
@@ -309,11 +342,44 @@ function FindTutorCasesPageContent() {
       
       // 地區篩選
       if (filters.region?.length > 0) {
-        const hasMatchingRegion = filters.region.some((region: string) => 
-          item.region?.includes(region)
-        );
+        // 處理個案的地區資料，確保是陣列格式
+        const caseRegions = Array.isArray(item.regions) ? item.regions : 
+                           Array.isArray(item.region) ? item.region : 
+                           item.region ? [item.region] : [];
+        
+        // 檢查是否有匹配的地區
+        const hasMatchingRegion = filters.region.some((filterRegion: string) => {
+          return caseRegions.some((caseRegion: string) => {
+            // 標準化地區值進行比較
+            const normalizedFilterRegion = filterRegion.toLowerCase().trim();
+            const normalizedCaseRegion = caseRegion.toLowerCase().trim();
+            
+            // 直接匹配
+            if (normalizedFilterRegion === normalizedCaseRegion) {
+              return true;
+            }
+            
+            // 處理中文地區名稱映射
+            const regionMapping: { [key: string]: string[] } = {
+              'kowloon': ['九龍', 'kowloon'],
+              'hong-kong-island': ['香港島', 'hong-kong-island'],
+              'new-territories': ['新界', 'new-territories'],
+              'islands': ['離島', 'islands'],
+              'all-hong-kong': ['全港', 'all-hong-kong', '香港', 'hong-kong']
+            };
+            
+            // 檢查映射
+            const mappedRegions = regionMapping[normalizedFilterRegion] || [];
+            return mappedRegions.includes(normalizedCaseRegion);
+          });
+        });
+        
         if (!hasMatchingRegion) {
-          console.log("❌ 地區不匹配：", { caseRegion: item.region, filterRegion: filters.region });
+          console.log("❌ 地區不匹配：", { 
+            caseRegions, 
+            filterRegion: filters.region,
+            originalCaseRegion: item.region || item.regions 
+          });
           return false;
         }
       }

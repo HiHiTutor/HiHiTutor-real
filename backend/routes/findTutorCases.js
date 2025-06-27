@@ -155,6 +155,21 @@ router.get('/', async (req, res) => {
       }
     }
 
+    // 地區搜尋
+    if (req.query.region) {
+      const regionArray = Array.isArray(req.query.region) ? req.query.region : [req.query.region];
+      
+      // 支援多種地區資料結構
+      query.$or = [
+        // 檢查 regions 陣列
+        { regions: { $in: regionArray } },
+        // 檢查 region 單一值
+        { region: { $in: regionArray } },
+        // 檢查 region 是否為陣列
+        { region: { $elemMatch: { $in: regionArray } } }
+      ];
+    }
+
     console.log('🔍 Running MongoDB query:', query);
 
     const cases = await TutorCase.find(query)
@@ -395,7 +410,17 @@ router.get('/search', async (req, res) => {
 
     // 地區搜尋
     if (region) {
-      query.region = region;
+      const regionArray = Array.isArray(region) ? region : [region];
+      
+      // 支援多種地區資料結構
+      query.$or = [
+        // 檢查 regions 陣列
+        { regions: { $in: regionArray } },
+        // 檢查 region 單一值
+        { region: { $in: regionArray } },
+        // 檢查 region 是否為陣列
+        { region: { $elemMatch: { $in: regionArray } } }
+      ];
     }
 
     // 價格範圍
