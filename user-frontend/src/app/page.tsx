@@ -44,6 +44,9 @@ export default function Home() {
     if (rest.subCategory) {
       searchParams.append('subCategory', rest.subCategory);
     }
+    if (rest.subjects && Array.isArray(rest.subjects) && rest.subjects.length > 0) {
+      rest.subjects.forEach((subject: string) => searchParams.append('subjects', subject));
+    }
     if (rest.region) {
       searchParams.append('region', rest.region);
     }
@@ -56,9 +59,6 @@ export default function Home() {
     
     // 對於導師頁面，需要額外的參數映射
     if (target === "tutors") {
-      if (rest.subCategory) {
-        searchParams.append('subjects', rest.subCategory);
-      }
       if (rest.region) {
         searchParams.append('regions', rest.region);
       }
@@ -95,6 +95,9 @@ function HomeContent() {
     if (rest.subCategory) {
       searchParams.append('subCategory', rest.subCategory);
     }
+    if (rest.subjects && Array.isArray(rest.subjects) && rest.subjects.length > 0) {
+      rest.subjects.forEach((subject: string) => searchParams.append('subjects', subject));
+    }
     if (rest.region) {
       searchParams.append('region', rest.region);
     }
@@ -107,9 +110,6 @@ function HomeContent() {
     
     // 對於導師頁面，需要額外的參數映射
     if (target === "tutors") {
-      if (rest.subCategory) {
-        searchParams.append('subjects', rest.subCategory);
-      }
       if (rest.region) {
         searchParams.append('regions', rest.region);
       }
