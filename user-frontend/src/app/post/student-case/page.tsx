@@ -25,8 +25,8 @@ const formSchema = z.object({
   title: z.string().min(1, '請輸入標題'),
   description: z.string().optional(),
   category: z.string().min(1, '請選擇類別'),
-  subCategory: z.string().min(1, '請選擇子類別'),
-  subjects: z.array(z.string()).min(1, '請選擇科目'),
+  subCategory: z.string().optional(),
+  subjects: z.array(z.string()).optional(),
   modes: z.array(z.string()).min(1, '請選擇教學模式'),
   regions: z.array(z.string()).optional(),
   subRegions: z.array(z.string()).optional(),
@@ -37,6 +37,16 @@ const formSchema = z.object({
   }),
   weeklyLessons: z.coerce.number().min(1, '請輸入每週堂數'),
   startDate: z.date()
+}).refine((data) => {
+  // 如果是中小學教育，則子分類和科目都是必填
+  if (data.category === 'primary-secondary') {
+    return (data.subCategory && data.subCategory.length > 0) && 
+           (data.subjects && data.subjects.length > 0);
+  }
+  return true;
+}, {
+  message: "中小學教育必須選擇子分類和科目",
+  path: ["subCategory"] // 錯誤顯示在子分類欄位
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -69,8 +79,8 @@ export default function PostStudentCase() {
         title: data.title,
         description: data.description || '',
         category: data.category,
-        subCategory: data.subCategory,
-        subjects: data.subjects,
+        subCategory: data.subCategory || '',
+        subjects: data.subjects || [],
         modes: data.modes,
         regions: data.regions || [],
         subRegions: data.subRegions || [],
@@ -219,33 +229,36 @@ export default function PostStudentCase() {
               </div>
             )}
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                科目
-              </label>
-              <div className="grid grid-cols-2 gap-4">
-                {(selectedSubCategoryData?.subjects || selectedCategoryData?.subjects || []).map(subject => (
-                  <div key={subject.value} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={subject.value}
-                      checked={watch('subjects').includes(subject.value)}
-                      onCheckedChange={(checked) => {
-                        handleSubjectChange(subject.value);
-                      }}
-                    />
-                    <label
-                      htmlFor={subject.value}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      {subject.label}
-                    </label>
-                  </div>
-                ))}
+            {/* 只有中小學教育且有選擇子分類時才顯示科目選擇 */}
+            {selectedCategory === 'primary-secondary' && selectedSubCategory && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  科目
+                </label>
+                <div className="grid grid-cols-2 gap-4">
+                  {(selectedSubCategoryData?.subjects || []).map(subject => (
+                    <div key={subject.value} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={subject.value}
+                        checked={(watch('subjects') || []).includes(subject.value)}
+                        onCheckedChange={(checked) => {
+                          handleSubjectChange(subject.value);
+                        }}
+                      />
+                      <label
+                        htmlFor={subject.value}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        {subject.label}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                {errors.subjects && (
+                  <p className="mt-1 text-sm text-red-600">{errors.subjects.message as string}</p>
+                )}
               </div>
-              {errors.subjects && (
-                <p className="mt-1 text-sm text-red-600">{errors.subjects.message as string}</p>
-              )}
-            </div>
+            )}
 
             <div className="space-y-2">
               <Label>教學模式</Label>
