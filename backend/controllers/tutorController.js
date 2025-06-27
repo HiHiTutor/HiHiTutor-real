@@ -2,6 +2,76 @@ const tutors = require('../data/tutors');
 const User = require('../models/User');
 const UploadLog = require('../models/UploadLog');
 const mongoose = require('mongoose');
+const TutorCase = require('../models/TutorCase');
+
+// 根據分類獲取對應的科目列表
+const getCategorySubjects = (category) => {
+  const categoryMap = {
+    'early-childhood': [
+      'early-childhood-chinese',
+      'early-childhood-english', 
+      'early-childhood-math',
+      'early-childhood-phonics',
+      'early-childhood-logic',
+      'early-childhood-interview',
+      'early-childhood-homework'
+    ],
+    'primary-secondary': [
+      'primary-chinese',
+      'primary-english',
+      'primary-math',
+      'primary-general',
+      'primary-mandarin',
+      'primary-stem',
+      'primary-all',
+      'secondary-chinese',
+      'secondary-english',
+      'secondary-math',
+      'secondary-ls',
+      'secondary-physics',
+      'secondary-chemistry',
+      'secondary-biology',
+      'secondary-economics',
+      'secondary-geography',
+      'secondary-history',
+      'secondary-chinese-history',
+      'secondary-bafs',
+      'secondary-ict',
+      'secondary-integrated-science',
+      'secondary-dse',
+      'secondary-all'
+    ],
+    'interest': [
+      'art',
+      'music',
+      'dance',
+      'drama',
+      'programming',
+      'foreign-language',
+      'magic-chess',
+      'photography'
+    ],
+    'tertiary': [
+      'uni-liberal',
+      'uni-math',
+      'uni-economics',
+      'uni-it',
+      'uni-business',
+      'uni-engineering',
+      'uni-thesis'
+    ],
+    'adult': [
+      'business-english',
+      'conversation',
+      'chinese-language',
+      'second-language',
+      'computer-skills',
+      'exam-prep'
+    ]
+  };
+  
+  return categoryMap[category] || [];
+};
 
 // 測試端點 - 檢查 MongoDB 連接和 User 模型
 const testTutors = async (req, res) => {
@@ -122,10 +192,22 @@ const getAllTutors = async (req, res) => {
         // 分類過濾
         if (category) {
           console.log(`- 分類過濾: ${category}`);
-          // 根據分類過濾導師
-          // 這裡需要根據實際的 mock 數據結構來實現分類過濾
-          // 暫時先跳過分類過濾，因為 mock 數據中可能沒有明確的分類字段
-          console.log(`- 分類過濾後剩餘導師: ${filteredMockTutors.length} 個`);
+          // 根據分類獲取對應的科目列表
+          const categorySubjects = getCategorySubjects(category);
+          if (categorySubjects && categorySubjects.length > 0) {
+            filteredMockTutors = filteredMockTutors.filter(tutor => 
+              categorySubjects.some(subject => 
+                tutor.subject && tutor.subject.toLowerCase().includes(subject.toLowerCase()) ||
+                (tutor.subjects && tutor.subjects.some(tutorSubject => 
+                  tutorSubject.toLowerCase().includes(subject.toLowerCase())
+                ))
+              )
+            );
+            console.log(`- 分類過濾科目: ${categorySubjects.join(', ')}`);
+            console.log(`- 分類過濾後剩餘導師: ${filteredMockTutors.length} 個`);
+          } else {
+            console.log(`⚠️ 未找到分類 ${category} 對應的科目`);
+          }
         }
         
         // 精選導師過濾
@@ -263,10 +345,20 @@ const getAllTutors = async (req, res) => {
     // 添加分類過濾
     if (category) {
       console.log(`🔍 添加分類過濾: ${category}`);
-      // 根據分類過濾導師
-      // 這裡需要根據實際的數據庫結構來實現分類過濾
-      // 暫時先跳過分類過濾，因為數據庫中可能沒有明確的分類字段
-      console.log(`🔍 分類過濾: ${category} (暫時跳過)`);
+      
+      // 根據分類獲取對應的科目列表
+      const categorySubjects = getCategorySubjects(category);
+      if (categorySubjects && categorySubjects.length > 0) {
+        // 使用 $or 查詢來匹配任何一個科目
+        query.$or = query.$or || [];
+        query.$or.push(
+          { 'tutorProfile.subjects': { $in: categorySubjects } },
+          { subjects: { $in: categorySubjects } }
+        );
+        console.log(`🔍 分類過濾科目: ${categorySubjects.join(', ')}`);
+      } else {
+        console.log(`⚠️ 未找到分類 ${category} 對應的科目`);
+      }
     }
     
     // 如果是 featured 請求，添加精選條件
@@ -353,10 +445,22 @@ const getAllTutors = async (req, res) => {
         // 分類過濾
         if (category) {
           console.log(`- 分類過濾: ${category}`);
-          // 根據分類過濾導師
-          // 這裡需要根據實際的 mock 數據結構來實現分類過濾
-          // 暫時先跳過分類過濾，因為 mock 數據中可能沒有明確的分類字段
-          console.log(`- 分類過濾後剩餘導師: ${filteredMockTutors.length} 個`);
+          // 根據分類獲取對應的科目列表
+          const categorySubjects = getCategorySubjects(category);
+          if (categorySubjects && categorySubjects.length > 0) {
+            filteredMockTutors = filteredMockTutors.filter(tutor => 
+              categorySubjects.some(subject => 
+                tutor.subject && tutor.subject.toLowerCase().includes(subject.toLowerCase()) ||
+                (tutor.subjects && tutor.subjects.some(tutorSubject => 
+                  tutorSubject.toLowerCase().includes(subject.toLowerCase())
+                ))
+              )
+            );
+            console.log(`- 分類過濾科目: ${categorySubjects.join(', ')}`);
+            console.log(`- 分類過濾後剩餘導師: ${filteredMockTutors.length} 個`);
+          } else {
+            console.log(`⚠️ 未找到分類 ${category} 對應的科目`);
+          }
         }
         
         // 精選導師過濾
