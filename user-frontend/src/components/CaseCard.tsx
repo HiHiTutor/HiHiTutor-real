@@ -126,7 +126,7 @@ export default function CaseCard({ caseData, routeType = 'tutor', borderColor }:
   return (
     <div 
       className={`rounded-xl border ${borderColor || colorScheme.border} ${colorScheme.hover} p-4 transition-all cursor-pointer ${colorScheme.bg}`}
-      onClick={() => router.push(`/${routeType}-cases/${caseData.id}`)}
+      onClick={() => router.push(`/find-${routeType}-cases/${caseData.id}`)}
     >
       {/* 導師照片 */}
       {routeType === 'tutor' && caseData.avatarUrl && (
