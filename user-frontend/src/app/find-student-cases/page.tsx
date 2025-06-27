@@ -299,7 +299,11 @@ function FindStudentCasesPageContent() {
     if (filters.search) params.set('search', filters.search);
     if (filters.category) params.set('category', filters.category);
     if (filters.subCategory) params.set('subCategory', filters.subCategory);
-    if (filters.subjects?.[0]) params.set('subject', filters.subjects[0]);
+    if (filters.subjects && filters.subjects.length > 0) {
+      filters.subjects.forEach((subject: string) => {
+        params.append('subjects', subject);
+      });
+    }
     if (filters.region) params.set('region', filters.region);
     if (filters.mode) params.set('mode', filters.mode);
     

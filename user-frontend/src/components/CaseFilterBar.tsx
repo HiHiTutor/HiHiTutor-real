@@ -167,6 +167,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
       type: filters.target === 'find-tutor' ? 'tutors' : 'find-student-cases',
       category: filters.category,
       subCategory: filters.subCategory || '',
+      subjects: filters.subjects,
       region: filters.regions[0] || '',
       mode: filters.mode
     });

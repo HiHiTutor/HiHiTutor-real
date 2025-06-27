@@ -265,6 +265,18 @@ function FindTutorCasesPageContent() {
           return false;
         }
       }
+
+      // 科目篩選
+      if (filters.subjects && filters.subjects.length > 0) {
+        const itemSubjects = Array.isArray(item.subjects) ? item.subjects : [];
+        const hasMatchingSubject = filters.subjects.some((subject: string) => 
+          itemSubjects.includes(subject)
+        );
+        if (!hasMatchingSubject) {
+          console.log("❌ 科目不匹配：", { caseSubjects: itemSubjects, filterSubjects: filters.subjects });
+          return false;
+        }
+      }
       
       // 地區篩選
       if (filters.region?.length > 0) {
