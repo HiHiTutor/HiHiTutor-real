@@ -207,12 +207,18 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
     const category = CATEGORY_OPTIONS.find(c => c.value === filters.category);
     if (!category) return [];
 
+    // 如果有子分類且選擇了子分類
     if (category.subCategories && filters.subCategory) {
       const subCategory = category.subCategories.find(sc => sc.value === filters.subCategory);
       return subCategory?.subjects || [];
     }
 
-    return category.subjects || [];
+    // 如果沒有子分類但有科目（如幼兒教育），直接返回科目
+    if (category.subjects) {
+      return category.subjects;
+    }
+
+    return [];
   };
 
   const handleSubCategoryChange = (value: string) => {
@@ -305,7 +311,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
                 className="w-full px-3 py-2 border rounded-md"
               >
                 <option value="">全部</option>
-                {CATEGORY_OPTIONS.find(c => c.value === filters.category)?.subCategories?.map(option => (
+                {getSubOptions().map(option => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
@@ -315,7 +321,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
           )}
 
           {/* 科目選擇 */}
-          {shouldShowSubjects() && (
+          {filters.category && (shouldShowSubjects() || getCategorySubjects().length > 0) && (
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">科目</label>
               <div className="flex flex-wrap gap-2">
