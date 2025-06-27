@@ -225,25 +225,26 @@ function TutorsPageContent() {
   useEffect(() => {
     // 從 URL 參數中讀取搜尋條件
     const search = searchParams.get('search');
-    const subjects = searchParams.get('subjects');
-    const regions = searchParams.get('regions');
-    const modes = searchParams.get('modes');
+    const subjects = searchParams.getAll('subjects'); // 使用 getAll 獲取多個 subjects 參數
+    const regions = searchParams.getAll('regions'); // 使用 getAll 獲取多個 regions 參數
+    const modes = searchParams.getAll('modes'); // 使用 getAll 獲取多個 modes 參數
     const category = searchParams.get('category');
     
     if (search) {
       setSearchQuery(search);
     }
-    if (subjects) {
-      setSelectedSubjects(subjects.split(','));
+    if (subjects && subjects.length > 0) {
+      setSelectedSubjects(subjects);
     }
-    if (regions) {
-      setSelectedAreas(regions.split(','));
+    if (regions && regions.length > 0) {
+      setSelectedAreas(regions);
     }
-    if (modes) {
-      setSelectedMethods(modes.split(','));
+    if (modes && modes.length > 0) {
+      setSelectedMethods(modes);
     }
     if (category) {
       console.log('📝 檢測到分類參數:', category);
+      console.log('📝 檢測到科目參數:', subjects);
       // 這裡可以根據分類設置相應的科目
       // 例如：early-childhood -> 幼兒教育相關科目
     }
