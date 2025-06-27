@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { Star } from 'lucide-react';
 import CaseFilterBar from '@/components/CaseFilterBar';
+import { getTeachingModeLabel } from '@/constants/teachingModeOptions';
 
 interface Tutor {
   id?: string;
@@ -452,17 +453,6 @@ function TutorsPageContent() {
     };
     
     return regionMap[regionCode] || regionCode;
-  };
-
-  // 教學模式編碼到用戶友好標籤的映射
-  const getTeachingModeLabel = (modeCode: string) => {
-    const modeMap: { [key: string]: string } = {
-      'in-person': '面授',
-      'online': '網上',
-      'both': '混合'
-    };
-    
-    return modeMap[modeCode] || modeCode;
   };
 
   if (loading) {

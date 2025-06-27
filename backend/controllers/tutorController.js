@@ -3,6 +3,7 @@ const User = require('../models/User');
 const UploadLog = require('../models/UploadLog');
 const mongoose = require('mongoose');
 const TutorCase = require('../models/TutorCase');
+const { getTeachingModeLabel } = require('../constants/teachingModeOptions');
 
 // 根據分類獲取對應的科目列表
 const getCategorySubjects = (category) => {

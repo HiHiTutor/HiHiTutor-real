@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect, Fragment } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Listbox, Transition } from '@headlessui/react';
 import { ChevronUpDownIcon, CheckIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { Select } from '@headlessui/react';
 import CATEGORY_OPTIONS from '@/constants/categoryOptions';
-import { REGION_OPTIONS } from '@/constants/regionOptions';
+import REGION_OPTIONS from '@/constants/regionOptions';
 import { SUBJECT_MAP } from '@/constants/subjectOptions';
+import { TEACHING_MODE_OPTIONS } from '@/constants/teachingModeOptions';
 
 interface FilterState {
   target: string;
@@ -24,12 +25,6 @@ interface FilterState {
 const TARGET_OPTIONS = [
   { value: 'find-tutor', label: '尋導師' },
   { value: 'find-student', label: '招學生' }
-];
-
-export const TEACHING_MODE_OPTIONS = [
-  { value: 'online', label: '線上' },
-  { value: 'in-person', label: '面授' },
-  { value: 'both', label: '兩者皆可' }
 ];
 
 interface RegionOption {
