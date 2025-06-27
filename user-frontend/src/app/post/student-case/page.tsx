@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils';
 import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 import { REGION_OPTIONS } from '@/constants/regionOptions';
 import { Label } from '@/components/ui/label';
+import { TEACHING_MODE_OPTIONS } from '@/constants/teachingModeOptions';
 
 const formSchema = z.object({
   title: z.string().min(1, '請輸入標題'),
@@ -263,32 +264,43 @@ export default function PostStudentCase() {
             <div className="space-y-2">
               <Label>教學模式</Label>
               <div className="flex gap-4">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="online"
-                    checked={selectedModes.includes('online')}
-                    onCheckedChange={() => handleModeChange('online')}
-                  />
-                  <label
-                    htmlFor="online"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    網課
-                  </label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="in-person"
-                    checked={selectedModes.includes('in-person')}
-                    onCheckedChange={() => handleModeChange('in-person')}
-                  />
-                  <label
-                    htmlFor="in-person"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    面授
-                  </label>
-                </div>
+                {TEACHING_MODE_OPTIONS.map(mode => (
+                  <div key={mode.value} className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={mode.value}
+                        checked={selectedModes.includes(mode.value)}
+                        onCheckedChange={() => handleModeChange(mode.value)}
+                      />
+                      <label
+                        htmlFor={mode.value}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        {mode.label}
+                      </label>
+                    </div>
+                    {/* 顯示面授子分類 */}
+                    {mode.value === 'in-person' && selectedModes.includes('in-person') && (
+                      <div className="ml-4 space-y-1">
+                        {mode.subCategories.map(subMode => (
+                          <div key={subMode.value} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={subMode.value}
+                              checked={selectedModes.includes(subMode.value)}
+                              onCheckedChange={() => handleModeChange(subMode.value)}
+                            />
+                            <label
+                              htmlFor={subMode.value}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                              {subMode.label}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
               {errors.modes && (
                 <p className="text-sm text-red-500">{errors.modes.message}</p>

@@ -1,4 +1,5 @@
 import { formatDate } from '@/utils/date';
+import { getTeachingModeLabel } from '@/constants/teachingModeOptions';
 
 interface StudentCase {
   id: string;
@@ -24,7 +25,7 @@ export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps
         {caseData.title || '未命名個案'}
       </h3>
       <p className="text-sm text-gray-700">地點：{caseData.region}</p>
-      <p className="text-sm text-gray-700">教學模式：{caseData.mode}</p>
+      <p className="text-sm text-gray-700">教學模式：{getTeachingModeLabel(caseData.mode)}</p>
       <p className="text-sm text-gray-700">經驗要求：{caseData.experience}</p>
       <p className="text-sm text-gray-700">
         價格：{caseData.budget.min} - {caseData.budget.max}

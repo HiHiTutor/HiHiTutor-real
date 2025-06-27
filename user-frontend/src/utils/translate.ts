@@ -1,4 +1,5 @@
 import { SUBJECT_MAP } from '@/constants/subjectOptions';
+import { getTeachingModeLabel } from '@/constants/teachingModeOptions';
 
 // 地區映射
 export const REGION_MAP: { [key: string]: string } = {
@@ -121,7 +122,10 @@ export const SUBREGION_MAP: Record<string, string> = {
 // 教學模式映射
 export const MODE_MAP: { [key: string]: string } = {
   'online': '網課',
-  'in-person': '面授'
+  'in-person': '面授',
+  'one-on-one': '一對一',
+  'small-group': '小班教學',
+  'large-center': '大型補習社'
 };
 
 // 獲取地區完整名稱

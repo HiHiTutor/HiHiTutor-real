@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { getTeachingModeLabel } from '@/constants/teachingModeOptions';
 
 interface TutorCase {
   id: string;
@@ -87,7 +88,7 @@ export default function TutorCaseDetail() {
                 <p><span className="font-medium">子類別：</span>{caseData.subCategory || '未指定'}</p>
                 <p><span className="font-medium">科目：</span>{caseData.subjects?.join(', ') || '未指定'}</p>
                 <p><span className="font-medium">地區：</span>{caseData.regions?.join(', ') || '未指定'}</p>
-                <p><span className="font-medium">教學模式：</span>{caseData.mode || '未指定'}</p>
+                <p><span className="font-medium">教學模式：</span>{getTeachingModeLabel(caseData.mode) || '未指定'}</p>
               </div>
             </div>
 

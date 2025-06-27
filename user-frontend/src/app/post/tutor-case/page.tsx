@@ -6,6 +6,7 @@ import TagCheckbox from '@/components/TagCheckbox';
 import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 import REGION_OPTIONS from '@/constants/regionOptions';
 import { caseApi } from '@/services/api';
+import { TEACHING_MODE_OPTIONS } from '@/constants/teachingModeOptions';
 
 export default function TutorCasePage() {
   const router = useRouter();
@@ -294,18 +295,30 @@ export default function TutorCasePage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">教學模式（可多選）</label>
               <div className="flex flex-wrap gap-2">
-                <TagCheckbox
-                  label="面授"
-                  value="in-person"
-                  isSelected={formData.modes.includes('in-person')}
-                  onToggle={(value) => handleToggle('modes', value)}
-                />
-                <TagCheckbox
-                  label="網課"
-                  value="online"
-                  isSelected={formData.modes.includes('online')}
-                  onToggle={(value) => handleToggle('modes', value)}
-                />
+                {TEACHING_MODE_OPTIONS.map(mode => (
+                  <div key={mode.value} className="space-y-2">
+                    <TagCheckbox
+                      label={mode.label}
+                      value={mode.value}
+                      isSelected={formData.modes.includes(mode.value)}
+                      onToggle={(value) => handleToggle('modes', value)}
+                    />
+                    {/* 顯示面授子分類 */}
+                    {mode.value === 'in-person' && formData.modes.includes('in-person') && (
+                      <div className="ml-4 space-y-1">
+                        {mode.subCategories.map(subMode => (
+                          <TagCheckbox
+                            key={subMode.value}
+                            label={subMode.label}
+                            value={subMode.value}
+                            isSelected={formData.modes.includes(subMode.value)}
+                            onToggle={(value) => handleToggle('modes', value)}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
 

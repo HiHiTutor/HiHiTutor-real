@@ -8,7 +8,7 @@ import { Select } from '@headlessui/react';
 import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 import REGION_OPTIONS from '@/constants/regionOptions';
 import { SUBJECT_MAP } from '@/constants/subjectOptions';
-import { TEACHING_MODE_OPTIONS } from '@/constants/teachingModeOptions';
+import { TEACHING_MODE_OPTIONS, shouldShowRegionForMode } from '@/constants/teachingModeOptions';
 
 interface FilterState {
   target: string;
@@ -337,25 +337,72 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
             </div>
           )}
 
-          {/* 地區選擇 */}
+          {/* 教學模式選擇 */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">地區</label>
-            <select
-              value={filters.regions[0] || ''}
-              onChange={(e) => handleRegionChange(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md"
-            >
-              <option value="">全部</option>
-              {REGION_OPTIONS.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+            <label className="block text-sm font-medium text-gray-700">教學模式</label>
+            <div className="space-y-2">
+              {/* 大分類選擇 */}
+              <div className="flex flex-wrap gap-2">
+                {TEACHING_MODE_OPTIONS.map(mode => (
+                  <button
+                    key={mode.value}
+                    onClick={() => handleModeChange(mode.value)}
+                    className={`px-3 py-1 rounded-full text-sm ${
+                      filters.mode.includes(mode.value)
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-100 text-gray-700'
+                    }`}
+                  >
+                    {mode.label}
+                  </button>
+                ))}
+              </div>
+              
+              {/* 面授子分類選擇 */}
+              {filters.mode.includes('in-person') && (
+                <div className="ml-4 space-y-2">
+                  <label className="block text-xs font-medium text-gray-600">面授類型</label>
+                  <div className="flex flex-wrap gap-2">
+                    {TEACHING_MODE_OPTIONS.find(m => m.value === 'in-person')?.subCategories.map(subMode => (
+                      <button
+                        key={subMode.value}
+                        onClick={() => handleModeChange(subMode.value)}
+                        className={`px-2 py-1 rounded-full text-xs ${
+                          filters.mode.includes(subMode.value)
+                            ? 'bg-green-500 text-white'
+                            : 'bg-gray-50 text-gray-600'
+                        }`}
+                      >
+                        {subMode.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* 子地區選擇 */}
-          {filters.regions.length > 0 && (
+          {/* 地區選擇 - 只在選擇面授相關模式時顯示 */}
+          {filters.mode.some(mode => shouldShowRegionForMode(mode)) && (
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">地區</label>
+              <select
+                value={filters.regions[0] || ''}
+                onChange={(e) => handleRegionChange(e.target.value)}
+                className="w-full px-3 py-2 border rounded-md"
+              >
+                <option value="">全部</option>
+                {REGION_OPTIONS.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* 子地區選擇 - 只在選擇面授相關模式且有地區時顯示 */}
+          {filters.mode.some(mode => shouldShowRegionForMode(mode)) && filters.regions.length > 0 && (
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">子地區</label>
               <select
@@ -372,26 +419,6 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
               </select>
             </div>
           )}
-
-          {/* 教學模式選擇 */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">教學模式</label>
-            <div className="flex flex-wrap gap-2">
-              {TEACHING_MODE_OPTIONS.map(mode => (
-                <button
-                  key={mode.value}
-                  onClick={() => handleModeChange(mode.value)}
-                  className={`px-3 py-1 rounded-full text-sm ${
-                    filters.mode.includes(mode.value)
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-gray-100 text-gray-700'
-                  }`}
-                >
-                  {mode.label}
-                </button>
-              ))}
-            </div>
-          </div>
 
           {/* 預算範圍 */}
           <div className="space-y-2">
