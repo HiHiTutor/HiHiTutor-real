@@ -241,6 +241,31 @@ const getAllTutors = async (req, res) => {
           console.log(`- 精選導師過濾後剩餘導師: ${filteredMockTutors.length} 個`);
         }
         
+        // 教學模式過濾
+        if (modes) {
+          const modeArray = Array.isArray(modes) ? modes : modes.split(',');
+          console.log(`- 教學模式過濾條件: ${modeArray.join(', ')}`);
+          
+          filteredMockTutors = filteredMockTutors.filter(tutor => {
+            // 檢查 tutor.teachingModes 數組
+            if (tutor.teachingModes && Array.isArray(tutor.teachingModes)) {
+              const hasMatchingMode = modeArray.some(filterMode => 
+                tutor.teachingModes.some(tutorMode => 
+                  tutorMode.toLowerCase() === filterMode.toLowerCase()
+                )
+              );
+              if (hasMatchingMode) {
+                console.log(`- 導師 ${tutor.name} 匹配教學模式: ${tutor.teachingModes.join(', ')}`);
+                return true;
+              }
+            }
+            
+            return false;
+          });
+          
+          console.log(`- 教學模式過濾後剩餘導師: ${filteredMockTutors.length} 個`);
+        }
+        
         // 排序和限制
         filteredMockTutors.sort((a, b) => b.rating - a.rating);
         filteredMockTutors = filteredMockTutors.slice(0, parseInt(limit) || 15);
@@ -305,7 +330,8 @@ const getAllTutors = async (req, res) => {
             isVip: tutor.isVip || false,
             isTop: tutor.isTop || false,
             createdAt: tutor.createdAt || new Date().toISOString(),
-            date: tutor.createdAt || new Date().toISOString()
+            date: tutor.createdAt || new Date().toISOString(),
+            teachingModes: tutor.teachingModes || []
           };
         });
 
@@ -519,6 +545,31 @@ const getAllTutors = async (req, res) => {
           console.log(`- 精選導師過濾後剩餘導師: ${filteredMockTutors.length} 個`);
         }
         
+        // 教學模式過濾
+        if (modes) {
+          const modeArray = Array.isArray(modes) ? modes : modes.split(',');
+          console.log(`- 教學模式過濾條件: ${modeArray.join(', ')}`);
+          
+          filteredMockTutors = filteredMockTutors.filter(tutor => {
+            // 檢查 tutor.teachingModes 數組
+            if (tutor.teachingModes && Array.isArray(tutor.teachingModes)) {
+              const hasMatchingMode = modeArray.some(filterMode => 
+                tutor.teachingModes.some(tutorMode => 
+                  tutorMode.toLowerCase() === filterMode.toLowerCase()
+                )
+              );
+              if (hasMatchingMode) {
+                console.log(`- 導師 ${tutor.name} 匹配教學模式: ${tutor.teachingModes.join(', ')}`);
+                return true;
+              }
+            }
+            
+            return false;
+          });
+          
+          console.log(`- 教學模式過濾後剩餘導師: ${filteredMockTutors.length} 個`);
+        }
+        
         // 排序和限制
         filteredMockTutors.sort((a, b) => b.rating - a.rating);
         filteredMockTutors = filteredMockTutors.slice(0, parseInt(limit) || 15);
@@ -594,7 +645,8 @@ const getAllTutors = async (req, res) => {
         isVip: tutor.isVip || false,
         isTop: tutor.isTop || false,
         createdAt: tutor.createdAt || new Date().toISOString(),
-        date: tutor.createdAt || new Date().toISOString()
+        date: tutor.createdAt || new Date().toISOString(),
+        teachingModes: tutor.teachingModes || []
       };
     });
 
