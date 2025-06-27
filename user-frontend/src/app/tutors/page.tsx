@@ -78,7 +78,9 @@ function TutorsPageContent() {
       // 構建查詢參數
       const params = new URLSearchParams();
       if (searchQuery) params.append('search', searchQuery);
-      if (selectedSubjects.length > 0) params.append('subjects', selectedSubjects.join(','));
+      if (selectedSubjects.length > 0) {
+        selectedSubjects.forEach(subject => params.append('subjects', subject));
+      }
       if (selectedAreas.length > 0) params.append('regions', selectedAreas.join(','));
       if (selectedMethods.length > 0) params.append('modes', selectedMethods.join(','));
       
