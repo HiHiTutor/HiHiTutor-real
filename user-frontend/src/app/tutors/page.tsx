@@ -79,12 +79,18 @@ function TutorsPageContent() {
       const params = new URLSearchParams();
       if (searchQuery) params.append('search', searchQuery);
       
+      // 直接從 URL 參數讀取科目，而不是依賴 selectedSubjects 狀態
+      const subjectsFromUrl = searchParams.getAll('subjects');
+      console.log('🔍 subjectsFromUrl:', subjectsFromUrl);
       console.log('🔍 selectedSubjects:', selectedSubjects);
       console.log('🔍 selectedSubjects.length:', selectedSubjects.length);
       
-      if (selectedSubjects.length > 0) {
-        selectedSubjects.forEach(subject => params.append('subjects', subject));
+      if (subjectsFromUrl.length > 0) {
+        subjectsFromUrl.forEach(subject => params.append('subjects', subject));
         console.log('🔍 已添加科目參數到 API 請求');
+      } else if (selectedSubjects.length > 0) {
+        selectedSubjects.forEach(subject => params.append('subjects', subject));
+        console.log('🔍 已添加科目參數到 API 請求 (從 selectedSubjects)');
       } else {
         console.log('🔍 沒有選擇的科目，跳過科目參數');
       }
