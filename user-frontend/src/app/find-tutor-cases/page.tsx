@@ -7,7 +7,6 @@ import LoadMoreButton from '@/components/LoadMoreButton';
 import CaseCard from '@/components/CaseCard';
 import { caseApi } from '@/services/api';
 import CATEGORY_OPTIONS from '@/constants/categoryOptions';
-import { tutorApi } from '@/services/api';
 
 // 定義分類選項的類型
 interface CategoryOption {
@@ -104,19 +103,19 @@ function FindTutorCasesPageContent() {
     const fetchAllCases = async () => {
       try {
         setLoading(true);
-        console.log("🔍 正在獲取導師資料...");
+        console.log("🔍 正在獲取導師個案資料...");
         
-        // 獲取導師資料
-        const result = await tutorApi.getAllTutors();
-        console.log("📦 成功獲取導師資料：", result);
-        const allCases = (result.data?.tutors || []).sort((a: any, b: any) => 
+        // 獲取導師個案資料（導師搵學生的個案）
+        const result = await caseApi.getAllTutorCases();
+        console.log("📦 成功獲取導師個案資料：", result);
+        const allCases = (result.data?.cases || []).sort((a: any, b: any) => 
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         
         setAllCases(allCases);
-        console.log("✅ 已保存導師資料到 allCases");
+        console.log("✅ 已保存導師個案資料到 allCases");
       } catch (error) {
-        console.error('❌ 獲取導師資料時發生錯誤：', error);
+        console.error('❌ 獲取導師個案資料時發生錯誤：', error);
         setAllCases([]);
       } finally {
         setLoading(false);
