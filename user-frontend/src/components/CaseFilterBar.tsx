@@ -204,21 +204,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
   };
 
   const getCategorySubjects = () => {
-    const category = CATEGORY_OPTIONS.find(c => c.value === filters.category);
-    if (!category) return [];
-
-    // 如果有子分類且選擇了子分類
-    if (category.subCategories && filters.subCategory) {
-      const subCategory = category.subCategories.find(sc => sc.value === filters.subCategory);
-      return subCategory?.subjects || [];
-    }
-
-    // 如果沒有子分類但有科目（如幼兒教育），直接返回科目
-    if (category.subjects) {
-      return category.subjects;
-    }
-
-    return [];
+    return getSubjectOptions();
   };
 
   const handleSubCategoryChange = (value: string) => {
@@ -238,11 +224,6 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
     if (category.subCategories) {
       return category.subCategories;
     }
-    
-    // 如果沒有子分類但有科目，將科目作為子分類返回
-    if (category.subjects) {
-      return category.subjects;
-    }
 
     return [];
   };
@@ -250,16 +231,34 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
   // 獲取選定子分類的科目
   const getSubjectOptions = () => {
     const category = CATEGORY_OPTIONS.find(c => c.value === filters.category);
-    if (!category || !category.subCategories) return [];
+    if (!category) return [];
 
-    const subCategory = category.subCategories.find(sub => sub.value === filters.subCategory);
-    return subCategory?.subjects || [];
+    // 如果有子分類且選擇了子分類
+    if (category.subCategories && filters.subCategory) {
+      const subCategory = category.subCategories.find(sub => sub.value === filters.subCategory);
+      return subCategory?.subjects || [];
+    }
+
+    // 如果沒有子分類但有科目，直接返回科目
+    if (category.subjects) {
+      return category.subjects;
+    }
+
+    return [];
   };
 
   // 判斷是否應該顯示科目選擇
   const shouldShowSubjects = () => {
     const category = CATEGORY_OPTIONS.find(c => c.value === filters.category);
-    return category?.subCategories && filters.subCategory;
+    if (!category) return false;
+
+    // 如果有子分類，需要選擇子分類後才顯示科目
+    if (category.subCategories) {
+      return filters.subCategory && filters.subCategory.length > 0;
+    }
+
+    // 如果沒有子分類但有科目，直接顯示科目
+    return category.subjects && category.subjects.length > 0;
   };
 
   return (
@@ -302,7 +301,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
           </div>
 
           {/* 子分類選擇 */}
-          {filters.category && (
+          {filters.category && getSubOptions().length > 0 && (
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">子分類</label>
               <select
@@ -321,7 +320,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
           )}
 
           {/* 科目選擇 */}
-          {filters.category && (shouldShowSubjects() || getCategorySubjects().length > 0) && (
+          {shouldShowSubjects() && (
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">科目</label>
               <div className="flex flex-wrap gap-2">
