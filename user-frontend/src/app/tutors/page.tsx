@@ -78,9 +78,17 @@ function TutorsPageContent() {
       // 構建查詢參數
       const params = new URLSearchParams();
       if (searchQuery) params.append('search', searchQuery);
+      
+      console.log('🔍 selectedSubjects:', selectedSubjects);
+      console.log('🔍 selectedSubjects.length:', selectedSubjects.length);
+      
       if (selectedSubjects.length > 0) {
         selectedSubjects.forEach(subject => params.append('subjects', subject));
+        console.log('🔍 已添加科目參數到 API 請求');
+      } else {
+        console.log('🔍 沒有選擇的科目，跳過科目參數');
       }
+      
       if (selectedAreas.length > 0) params.append('regions', selectedAreas.join(','));
       if (selectedMethods.length > 0) params.append('modes', selectedMethods.join(','));
       
@@ -99,6 +107,8 @@ function TutorsPageContent() {
       const apiUrl = process.env.NODE_ENV === 'development' 
         ? 'http://localhost:3001/api/tutors'
         : 'https://hi-hi-tutor-real-backend2.vercel.app/api/tutors';
+      
+      console.log('🔍 完整 API URL:', `${apiUrl}?${params}`);
       
       const response = await fetch(`${apiUrl}?${params}`, {
         method: 'GET',
@@ -235,6 +245,10 @@ function TutorsPageContent() {
     }
     if (subjects && subjects.length > 0) {
       setSelectedSubjects(subjects);
+      console.log('🔍 設置 selectedSubjects:', subjects);
+    } else {
+      console.log('🔍 沒有從 URL 讀取到科目參數');
+      setSelectedSubjects([]); // 清空科目選擇
     }
     if (regions && regions.length > 0) {
       setSelectedAreas(regions);
@@ -249,7 +263,10 @@ function TutorsPageContent() {
       // 例如：early-childhood -> 幼兒教育相關科目
     }
     
-    fetchTutors();
+    // 延遲執行 fetchTutors，確保狀態已經更新
+    setTimeout(() => {
+      fetchTutors();
+    }, 0);
   }, [currentPage, searchParams]);
 
   const handleSearch = () => {
