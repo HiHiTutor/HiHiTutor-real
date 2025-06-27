@@ -474,7 +474,7 @@ function TutorsPageContent() {
       <div className="bg-yellow-50 rounded-xl p-6 mb-8">
         <CaseFilterBar
           onFilter={(filters) => {
-            console.log('�� 篩選條件:', filters);
+            console.log(' 篩選條件:', filters);
             
             // 構建新的 URL 參數
             const newSearchParams = new URLSearchParams();
@@ -487,8 +487,11 @@ function TutorsPageContent() {
               newSearchParams.append('category', filters.category);
             }
             if (filters.subCategory) {
-              setSelectedSubjects([filters.subCategory]);
-              newSearchParams.append('subjects', filters.subCategory);
+              newSearchParams.append('subCategory', filters.subCategory);
+            }
+            if (filters.subjects && filters.subjects.length > 0) {
+              setSelectedSubjects(filters.subjects);
+              newSearchParams.append('subjects', filters.subjects.join(','));
             }
             if (filters.regions && filters.regions.length > 0) {
               setSelectedAreas(filters.regions);
