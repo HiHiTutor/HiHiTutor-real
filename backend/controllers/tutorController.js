@@ -181,11 +181,36 @@ const getAllTutors = async (req, res) => {
         // 科目過濾
         if (subjects) {
           const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
-          filteredMockTutors = filteredMockTutors.filter(tutor => 
-            subjectArray.some(subject => 
-              tutor.subject && tutor.subject.toLowerCase().includes(subject.toLowerCase())
-            )
-          );
+          console.log(`- 科目過濾條件: ${subjectArray.join(', ')}`);
+          
+          filteredMockTutors = filteredMockTutors.filter(tutor => {
+            // 檢查 tutor.subjects 數組
+            if (tutor.subjects && Array.isArray(tutor.subjects)) {
+              const hasMatchingSubject = subjectArray.some(filterSubject => 
+                tutor.subjects.some(tutorSubject => 
+                  tutorSubject.toLowerCase() === filterSubject.toLowerCase()
+                )
+              );
+              if (hasMatchingSubject) {
+                console.log(`- 導師 ${tutor.name} 匹配科目: ${tutor.subjects.join(', ')}`);
+                return true;
+              }
+            }
+            
+            // 檢查 tutor.subject 單個科目
+            if (tutor.subject) {
+              const hasMatchingSubject = subjectArray.some(filterSubject => 
+                tutor.subject.toLowerCase() === filterSubject.toLowerCase()
+              );
+              if (hasMatchingSubject) {
+                console.log(`- 導師 ${tutor.name} 匹配科目: ${tutor.subject}`);
+                return true;
+              }
+            }
+            
+            return false;
+          });
+          
           console.log(`- 科目過濾後剩餘導師: ${filteredMockTutors.length} 個`);
         }
         
@@ -434,11 +459,36 @@ const getAllTutors = async (req, res) => {
         // 科目過濾
         if (subjects) {
           const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
-          filteredMockTutors = filteredMockTutors.filter(tutor => 
-            subjectArray.some(subject => 
-              tutor.subject && tutor.subject.toLowerCase().includes(subject.toLowerCase())
-            )
-          );
+          console.log(`- 科目過濾條件: ${subjectArray.join(', ')}`);
+          
+          filteredMockTutors = filteredMockTutors.filter(tutor => {
+            // 檢查 tutor.subjects 數組
+            if (tutor.subjects && Array.isArray(tutor.subjects)) {
+              const hasMatchingSubject = subjectArray.some(filterSubject => 
+                tutor.subjects.some(tutorSubject => 
+                  tutorSubject.toLowerCase() === filterSubject.toLowerCase()
+                )
+              );
+              if (hasMatchingSubject) {
+                console.log(`- 導師 ${tutor.name} 匹配科目: ${tutor.subjects.join(', ')}`);
+                return true;
+              }
+            }
+            
+            // 檢查 tutor.subject 單個科目
+            if (tutor.subject) {
+              const hasMatchingSubject = subjectArray.some(filterSubject => 
+                tutor.subject.toLowerCase() === filterSubject.toLowerCase()
+              );
+              if (hasMatchingSubject) {
+                console.log(`- 導師 ${tutor.name} 匹配科目: ${tutor.subject}`);
+                return true;
+              }
+            }
+            
+            return false;
+          });
+          
           console.log(`- 科目過濾後剩餘導師: ${filteredMockTutors.length} 個`);
         }
         
