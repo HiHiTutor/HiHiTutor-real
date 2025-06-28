@@ -6,7 +6,8 @@ const s3 = new S3Client({ region: 'ap-southeast-2' });
 
 exports.getSignedFileUrl = async (req, res) => {
   try {
-    const { filename } = req.params;
+    // 使用 req.params[0] 來獲取包含路徑的文件名
+    const filename = req.params[0];
     
     // 解碼 filename，處理中文路徑和空格
     const decodedKey = decodeURIComponent(filename);
