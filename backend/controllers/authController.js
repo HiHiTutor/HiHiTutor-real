@@ -551,62 +551,147 @@ const getCurrentUser = async (req, res) => {
 };
 
 // 忘記密碼（支援 email 或電話）
-const forgotPassword = (req, res) => {
-  const { account } = req.body;
-  if (!account) {
-    return res.status(400).json({ message: '請提供 email 或電話號碼' });
+const forgotPassword = async (req, res) => {
+  try {
+    const { account } = req.body;
+    
+    if (!account) {
+      return res.status(400).json({ 
+        success: false,
+        message: '請提供 email 或電話號碼' 
+      });
+    }
+
+    // 檢查是否為 email 或電話
+    const isEmail = account.includes('@');
+    const isPhone = /^[5689]\d{7}$/.test(account);
+
+    if (!isEmail && !isPhone) {
+      return res.status(400).json({ 
+        success: false,
+        message: '格式錯誤，請輸入正確 email 或電話' 
+      });
+    }
+
+    // 查找用戶
+    const user = await User.findOne({
+      $or: [
+        { email: account },
+        { phone: account }
+      ]
+    });
+
+    if (!user) {
+      return res.status(404).json({ 
+        success: false,
+        message: '找不到該帳戶' 
+      });
+    }
+
+    // 生成重設密碼 token
+    const resetToken = require('crypto').randomBytes(20).toString('hex');
+    const expiresAt = new Date(Date.now() + 3600000); // 1小時後過期
+
+    // 保存重設 token 到數據庫
+    await RegisterToken.create({
+      token: resetToken,
+      phone: user.phone,
+      email: user.email,
+      expiresAt,
+      isUsed: false,
+      type: 'password-reset'
+    });
+
+    // TODO: 實際發送重設密碼連結的邏輯
+    // 這裡先模擬發送成功
+    console.log(`📧 模擬發送重設密碼連結：https://hi-hi-tutor-real.vercel.app/reset-password?token=${resetToken}`);
+
+    return res.status(200).json({ 
+      success: true,
+      message: '密碼重設連結已發送到您的信箱或手機，請查收。',
+      token: process.env.NODE_ENV === 'development' ? resetToken : undefined // 在開發環境中返回 token
+    });
+  } catch (error) {
+    console.error('忘記密碼處理失敗:', error);
+    return res.status(500).json({
+      success: false,
+      message: '處理忘記密碼請求時發生錯誤'
+    });
   }
-
-  const users = loadUsers();
-
-  const isEmail = account.includes('@');
-  const isPhone = /^\d{8}$/.test(account);
-
-  let user;
-  if (isEmail) {
-    user = users.find((u) => u.email === account);
-  } else if (isPhone) {
-    user = users.find((u) => u.phone === account);
-  } else {
-    return res.status(400).json({ message: '格式錯誤，請輸入正確 email 或電話' });
-  }
-
-  if (!user) {
-    return res.status(404).json({ message: '找不到該帳戶' });
-  }
-
-  const token = crypto.randomBytes(20).toString('hex');
-  user.resetToken = token;
-  saveUsers(users);
-
-  console.log(`模擬寄送連結：http://localhost:3000/reset-password?token=${token}`);
-
-  res.json({
-    message: '密碼重設連結已發送（模擬）',
-    token: token
-  });
 };
 
 // 重設密碼
-const resetPassword = (req, res) => {
-  const { token, password } = req.body;
+const resetPassword = async (req, res) => {
+  try {
+    const { token, password } = req.body;
 
-  if (!token || !password) {
-    return res.status(400).json({ message: '請提供 token 及新密碼' });
+    if (!token || !password) {
+      return res.status(400).json({ 
+        success: false,
+        message: '請提供 token 及新密碼' 
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ 
+        success: false,
+        message: '密碼長度必須至少為6個字符' 
+      });
+    }
+
+    // 查找重設 token
+    const resetTokenData = await RegisterToken.findOne({
+      token,
+      type: 'password-reset',
+      isUsed: false,
+      expiresAt: { $gt: new Date() }
+    });
+
+    if (!resetTokenData) {
+      return res.status(400).json({ 
+        success: false,
+        message: '無效或過期的 token' 
+      });
+    }
+
+    // 查找用戶
+    const user = await User.findOne({
+      $or: [
+        { email: resetTokenData.email },
+        { phone: resetTokenData.phone }
+      ]
+    });
+
+    if (!user) {
+      return res.status(404).json({ 
+        success: false,
+        message: '找不到用戶' 
+      });
+    }
+
+    // 加密新密碼
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // 更新用戶密碼
+    await User.findByIdAndUpdate(user._id, {
+      $set: { password: hashedPassword }
+    });
+
+    // 標記 token 為已使用
+    resetTokenData.isUsed = true;
+    await resetTokenData.save();
+
+    return res.status(200).json({ 
+      success: true,
+      message: '密碼重設成功' 
+    });
+  } catch (error) {
+    console.error('重設密碼失敗:', error);
+    return res.status(500).json({
+      success: false,
+      message: '重設密碼時發生錯誤'
+    });
   }
-
-  const users = loadUsers();
-  const user = users.find((u) => u.resetToken === token);
-
-  if (!user) {
-    return res.status(400).json({ message: '無效或過期的 token' });
-  }
-
-  user.password = password;
-  delete user.resetToken;
-  saveUsers(users);
-
-  res.json({ message: '密碼重設成功' });
 };
 
 // 新增：取得完整 user 資料

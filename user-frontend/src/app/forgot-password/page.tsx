@@ -19,7 +19,7 @@ export default function ForgotPassword() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ identifier }),
+        body: JSON.stringify({ account: identifier }),
       });
 
       const data = await response.json();
