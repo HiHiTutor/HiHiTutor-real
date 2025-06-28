@@ -152,10 +152,34 @@ const getAllTutors = async (req, res) => {
     const { limit, featured, search, subjects, regions, modes, category } = req.query;
     console.log('📝 查詢參數:', { limit, featured, search, subjects, regions, modes, category });
     
+    // 等待 MongoDB 連接就緒
+    console.log('🔍 檢查 MongoDB 連接狀態...');
+    let mongoState = mongoose.connection.readyState;
+    console.log('- 初始狀態:', mongoState, '(', ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoState], ')');
+    
+    // 如果正在連接中，等待連接完成
+    if (mongoState === 2) {
+      console.log('⏳ MongoDB 正在連接中，等待連接完成...');
+      let waitCount = 0;
+      const maxWait = 30; // 最多等待 30 次 (15 秒)
+      
+      while (mongoState === 2 && waitCount < maxWait) {
+        await new Promise(resolve => setTimeout(resolve, 500)); // 等待 500ms
+        mongoState = mongoose.connection.readyState;
+        waitCount++;
+        console.log(`- 等待中... (${waitCount}/${maxWait}) 狀態: ${mongoState}`);
+      }
+      
+      if (mongoState === 1) {
+        console.log('✅ MongoDB 連接成功！');
+      } else {
+        console.log('⚠️ MongoDB 連接超時，當前狀態:', mongoState);
+      }
+    }
+    
     // 定義 tutors 變數
     let tutors = [];
     let source = 'database';
-    let mongoState = mongoose.connection.readyState;
     
     // 檢查 MongoDB 連接狀態
     console.log('🔍 MongoDB 連接狀態檢查:');
