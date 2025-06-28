@@ -75,8 +75,7 @@ const uploadToS3 = async (req, res) => {
       Bucket: BUCKET_NAME,
       Key: key,
       Body: req.file.buffer,
-      ContentType: req.file.mimetype,
-      ACL: 'public-read'
+      ContentType: req.file.mimetype
     });
 
     await s3Client.send(command);
