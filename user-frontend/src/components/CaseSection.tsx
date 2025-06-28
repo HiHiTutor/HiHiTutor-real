@@ -236,9 +236,17 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
           rawCases = data;
           console.log('📋 從陣列回應中獲取資料');
         } else if (data && typeof data === 'object') {
+          // 檢查 MongoDB 連接狀態
+          if (data.mongoState === 2) {
+            console.warn('⚠️ MongoDB 正在連接中，資料可能不完整');
+          }
+          
           if (Array.isArray(data.cases)) {
             rawCases = data.cases;
             console.log('📋 從 data.cases 中獲取資料');
+          } else if (Array.isArray(data.tutors)) {
+            rawCases = data.tutors;
+            console.log('📋 從 data.tutors 中獲取資料');
           } else if (Array.isArray(data.data?.cases)) {
             rawCases = data.data.cases;
             console.log('📋 從 data.data.cases 中獲取資料');
