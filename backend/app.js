@@ -202,6 +202,7 @@ app.use('/api/users', usersRouter);
 app.use('/api/tutor-profiles', tutorProfilesRouter);
 app.use('/api/files', require('./routes/files'));
 app.use('/api/search', searchRoutes);
+app.use('/api/debug', require('./routes/debug'));
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
