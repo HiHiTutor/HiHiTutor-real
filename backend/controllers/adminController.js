@@ -708,10 +708,15 @@ const updatePromotionLevel = async (req, res) => {
 const getSubjectStats = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
+    
+    // 設置默認日期範圍（如果沒有提供）
+    const defaultStartDate = new Date();
+    defaultStartDate.setMonth(defaultStartDate.getMonth() - 1); // 默認查詢過去一個月
+    
     const dateMatch = {
       createdAt: {
-        $gte: new Date(startDate),
-        $lte: new Date(endDate),
+        $gte: startDate ? new Date(startDate) : defaultStartDate,
+        $lte: endDate ? new Date(endDate) : new Date(),
       },
     };
 
