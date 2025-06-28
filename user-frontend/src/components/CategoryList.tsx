@@ -112,11 +112,11 @@ const CategoryList: React.FC = () => {
 
   // 分類對應跳轉路徑
   const categoryLinks: Record<string, string> = {
-    'early-childhood': '/find-student-cases?category=early-childhood',
-    'primary-secondary': '/find-student-cases?category=primary-secondary',
-    'interest': '/find-student-cases?category=interest',
-    'tertiary': '/find-student-cases?category=tertiary',
-    'adult': '/find-student-cases?category=adult',
+    'early-childhood': '/tutors?target=find-tutor&category=early-childhood',
+    'primary-secondary': '/tutors?target=find-tutor&category=primary-secondary',
+    'interest': '/tutors?target=find-tutor&category=interest',
+    'tertiary': '/tutors?target=find-tutor&category=tertiary',
+    'adult': '/tutors?target=find-tutor&category=adult',
   };
 
   return (
