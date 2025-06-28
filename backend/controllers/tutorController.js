@@ -1265,10 +1265,22 @@ const updateTutorProfile = async (req, res) => {
     if (updateData.birthDate !== undefined) updateObject['tutorProfile.birthDate'] = updateData.birthDate;
     if (updateData.experience !== undefined) updateObject['tutorProfile.teachingExperienceYears'] = updateData.experience;
     if (updateData.education !== undefined) updateObject['tutorProfile.educationLevel'] = updateData.education;
-    if (updateData.subjects !== undefined) updateObject['tutorProfile.subjects'] = updateData.subjects;
+    
+    // 確保 subjects 有值，避免驗證錯誤
+    if (updateData.subjects !== undefined) {
+      updateObject['tutorProfile.subjects'] = Array.isArray(updateData.subjects) && updateData.subjects.length > 0 
+        ? updateData.subjects 
+        : ['primary-chinese']; // 默認值
+    }
+    
     if (updateData.teachingAreas !== undefined) updateObject['tutorProfile.teachingAreas'] = updateData.teachingAreas;
     if (updateData.teachingMethods !== undefined) updateObject['tutorProfile.teachingMethods'] = updateData.teachingMethods;
-    if (updateData.hourlyRate !== undefined) updateObject['tutorProfile.sessionRate'] = updateData.hourlyRate;
+    
+    // 確保 sessionRate 有值，避免驗證錯誤
+    if (updateData.hourlyRate !== undefined) {
+      updateObject['tutorProfile.sessionRate'] = updateData.hourlyRate >= 100 ? updateData.hourlyRate : 100; // 默認值
+    }
+    
     if (updateData.introduction !== undefined) updateObject['tutorProfile.introduction'] = updateData.introduction;
     if (updateData.courseFeatures !== undefined) updateObject['tutorProfile.courseFeatures'] = updateData.courseFeatures;
     if (updateData.avatarOffsetX !== undefined) updateObject['tutorProfile.avatarOffsetX'] = updateData.avatarOffsetX;

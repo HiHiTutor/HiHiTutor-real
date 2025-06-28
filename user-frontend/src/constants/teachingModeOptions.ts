@@ -42,25 +42,25 @@ export const TEACHING_MODE_MAP: { [key: string]: string } = {
 };
 
 // 獲取教學模式標籤
-export const getTeachingModeLabel = (modeCode: string): string => {
+export function getTeachingModeLabel(modeCode: string): string {
   return TEACHING_MODE_MAP[modeCode] || modeCode;
-};
+}
 
 // 獲取教學模式代碼
-export const getTeachingModeCode = (modeLabel: string): string => {
+export function getTeachingModeCode(modeLabel: string): string {
   return TEACHING_MODE_MAP[modeLabel] || modeLabel;
-};
+}
 
 // 驗證教學模式是否有效
-export const isValidTeachingMode = (mode: string): boolean => {
+export function isValidTeachingMode(mode: string): boolean {
   return TEACHING_MODE_OPTIONS.some(option => 
     option.value === mode || 
     option.subCategories.some(sub => sub.value === mode)
   );
-};
+}
 
 // 獲取教學模式的大分類
-export const getTeachingModeCategory = (modeCode: string): string | null => {
+export function getTeachingModeCategory(modeCode: string): string | null {
   for (const option of TEACHING_MODE_OPTIONS) {
     if (option.value === modeCode) {
       return option.value;
@@ -70,10 +70,12 @@ export const getTeachingModeCategory = (modeCode: string): string | null => {
     }
   }
   return null;
-};
+}
 
 // 檢查是否需要顯示地區選項
-export const shouldShowRegionForMode = (modeCode: string): boolean => {
+export function shouldShowRegionForMode(modeCode: string): boolean {
   return modeCode === 'in-person' || 
          ['one-on-one', 'small-group', 'large-center'].includes(modeCode);
-}; 
+}
+
+export default TEACHING_MODE_OPTIONS; 

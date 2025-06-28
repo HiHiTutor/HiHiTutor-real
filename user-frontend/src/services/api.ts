@@ -134,15 +134,51 @@ export const tutorApi = {
   // 獲取推薦導師
   getRecommendedTutors: () => fetchApi('/tutors', {}, { featured: true, limit: 8 }),
 
-  // 獲取當前導師 profile
-  getProfile: () => fetchApi('/tutors/profile'),
+  // 獲取當前導師 profile - 使用前端 API 路由
+  getProfile: async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('未登入');
+    }
 
-  // 更新導師 profile
-  updateProfile: (data: any) => 
-    fetchApi('/tutors/profile', {
+    const response = await fetch('/api/tutors/profile', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: '無法解析回應' }));
+      throw new Error(errorData.message || '獲取導師資料失敗');
+    }
+
+    return response.json();
+  },
+
+  // 更新導師 profile - 使用前端 API 路由
+  updateProfile: async (data: any) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('未登入');
+    }
+
+    const response = await fetch('/api/tutors/profile', {
       method: 'PUT',
-      body: JSON.stringify(data)
-    }),
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: '無法解析回應' }));
+      throw new Error(errorData.message || '更新導師資料失敗');
+    }
+
+    return response.json();
+  },
 
   // 上傳頭像
   uploadAvatar: async (userId: string, file: File) => {

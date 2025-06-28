@@ -17,30 +17,9 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { tutorApi } from '@/services/api';
-
-// 科目分類
-const SUBJECT_CATEGORIES = {
-  '數學': ['DSE 數學', 'IB 數學', 'A-Level 數學', '小學數學'],
-  '物理': ['DSE 物理', 'IB 物理', 'A-Level 物理'],
-  '化學': ['DSE 化學', 'IB 化學', 'A-Level 化學'],
-  '生物': ['DSE 生物', 'IB 生物', 'A-Level 生物'],
-  '英文': ['DSE 英文', 'IB 英文', 'A-Level 英文', 'IELTS', 'TOEFL'],
-  '中文': ['DSE 中文', 'IB 中文', 'A-Level 中文', '普通話']
-};
-
-// 地區分類
-const AREA_CATEGORIES = {
-  '港島': ['中環', '金鐘', '銅鑼灣', '灣仔', '北角', '太古'],
-  '九龍': ['旺角', '油麻地', '佐敦', '尖沙咀', '紅磡', '黃大仙'],
-  '新界': ['沙田', '大埔', '將軍澳', '荃灣', '元朗', '屯門']
-};
-
-// 授課方式
-const TEACHING_METHODS = [
-  { value: 'face-to-face', label: '面授' },
-  { value: 'online', label: '網上' },
-  { value: 'mixed', label: '混合' }
-];
+import CATEGORY_OPTIONS from '@/constants/categoryOptions';
+import REGION_OPTIONS from '@/constants/regionOptions';
+import TEACHING_MODE_OPTIONS from '@/constants/teachingModeOptions';
 
 // 可授課時間
 const AVAILABLE_TIMES = [
@@ -561,33 +540,62 @@ export default function TutorDashboardPage() {
             <div className="space-y-2">
               <Label>教授科目</Label>
               <div className="grid grid-cols-2 gap-4">
-                {Object.entries(SUBJECT_CATEGORIES).map(([category, subjects]) => (
-                  <div key={category} className="flex items-center space-x-2">
-                    <div className="font-medium">{category}</div>
-                    <div className="space-y-2">
-                      {subjects.map((subject) => (
-                        <div key={subject} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={subject}
-                            checked={formData.subjects.includes(subject)}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                setFormData({
-                                  ...formData,
-                                  subjects: [...formData.subjects, subject]
-                                });
-                              } else {
-                                setFormData({
-                                  ...formData,
-                                  subjects: formData.subjects.filter((s) => s !== subject)
-                                });
-                              }
-                            }}
-                          />
-                          <Label htmlFor={subject}>{subject}</Label>
-                        </div>
-                      ))}
-                    </div>
+                {CATEGORY_OPTIONS.map((category) => (
+                  <div key={category.value} className="space-y-2">
+                    <div className="font-medium">{category.label}</div>
+                    {category.subjects && category.subjects.map((subject) => (
+                      <div key={subject.value} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={subject.value}
+                          checked={formData.subjects.includes(subject.value)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setFormData(prev => ({
+                                ...prev,
+                                subjects: [...prev.subjects, subject.value]
+                              }));
+                            } else {
+                              setFormData(prev => ({
+                                ...prev,
+                                subjects: prev.subjects.filter(s => s !== subject.value)
+                              }));
+                            }
+                          }}
+                        />
+                        <Label htmlFor={subject.value} className="text-sm">
+                          {subject.label}
+                        </Label>
+                      </div>
+                    ))}
+                    {category.subCategories && category.subCategories.map((subCategory) => (
+                      <div key={subCategory.value} className="ml-4 space-y-1">
+                        <div className="font-medium text-sm">{subCategory.label}</div>
+                        {subCategory.subjects.map((subject) => (
+                          <div key={subject.value} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={subject.value}
+                              checked={formData.subjects.includes(subject.value)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    subjects: [...prev.subjects, subject.value]
+                                  }));
+                                } else {
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    subjects: prev.subjects.filter(s => s !== subject.value)
+                                  }));
+                                }
+                              }}
+                            />
+                            <Label htmlFor={subject.value} className="text-sm">
+                              {subject.label}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>
@@ -606,36 +614,36 @@ export default function TutorDashboardPage() {
             </div>
 
             {/* 上堂地區 */}
-            <div className="space-y-2">
+            <div className="space-y-4">
               <Label>上堂地區</Label>
               <div className="grid grid-cols-2 gap-4">
-                {Object.entries(AREA_CATEGORIES).map(([category, areas]) => (
-                  <div key={category} className="flex items-center space-x-2">
-                    <div className="font-medium">{category}</div>
-                    <div className="space-y-2">
-                      {areas.map((area) => (
-                        <div key={area} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={area}
-                            checked={formData.teachingAreas.includes(area)}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                setFormData({
-                                  ...formData,
-                                  teachingAreas: [...formData.teachingAreas, area]
-                                });
-                              } else {
-                                setFormData({
-                                  ...formData,
-                                  teachingAreas: formData.teachingAreas.filter((a) => a !== area)
-                                });
-                              }
-                            }}
-                          />
-                          <Label htmlFor={area}>{area}</Label>
-                        </div>
-                      ))}
-                    </div>
+                {REGION_OPTIONS.map((region) => (
+                  <div key={region.value} className="space-y-2">
+                    <div className="font-medium">{region.label}</div>
+                    {region.regions.map((area) => (
+                      <div key={area.value} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={area.value}
+                          checked={formData.teachingAreas.includes(area.value)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setFormData(prev => ({
+                                ...prev,
+                                teachingAreas: [...prev.teachingAreas, area.value]
+                              }));
+                            } else {
+                              setFormData(prev => ({
+                                ...prev,
+                                teachingAreas: prev.teachingAreas.filter(a => a !== area.value)
+                              }));
+                            }
+                          }}
+                        />
+                        <Label htmlFor={area.value} className="text-sm">
+                          {area.label}
+                        </Label>
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>
@@ -671,25 +679,25 @@ export default function TutorDashboardPage() {
             </div>
 
             {/* 上堂形式 */}
-            <div className="space-y-2">
+            <div className="space-y-4">
               <Label>上堂形式</Label>
               <div className="grid grid-cols-2 gap-4">
-                {TEACHING_METHODS.map((method) => (
+                {TEACHING_MODE_OPTIONS.map((method) => (
                   <div key={method.value} className="flex items-center space-x-2">
                     <Checkbox
                       id={method.value}
                       checked={formData.teachingMethods.includes(method.value)}
                       onCheckedChange={(checked) => {
                         if (checked) {
-                          setFormData({
-                            ...formData,
-                            teachingMethods: [...formData.teachingMethods, method.value]
-                          });
+                          setFormData(prev => ({
+                            ...prev,
+                            teachingMethods: [...prev.teachingMethods, method.value]
+                          }));
                         } else {
-                          setFormData({
-                            ...formData,
-                            teachingMethods: formData.teachingMethods.filter((m) => m !== method.value)
-                          });
+                          setFormData(prev => ({
+                            ...prev,
+                            teachingMethods: prev.teachingMethods.filter(m => m !== method.value)
+                          }));
                         }
                       }}
                     />
