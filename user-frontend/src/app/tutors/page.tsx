@@ -106,7 +106,8 @@ function TutorsPageContent() {
       }
       
       params.append('page', currentPage.toString());
-      params.append('limit', '12');
+      // 移除分頁限制，一次顯示所有導師
+      // params.append('limit', '12');
 
       console.log('🔍 正在獲取導師資料...', params.toString());
       
@@ -622,29 +623,6 @@ function TutorsPageContent() {
               </Card>
             ))}
           </div>
-
-          {/* 分頁 */}
-          {totalPages > 1 && (
-            <div className="flex justify-center gap-2 mt-8">
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-              >
-                上一頁
-              </Button>
-              <span className="flex items-center px-4 text-sm text-gray-600">
-                第 {currentPage} 頁，共 {totalPages} 頁
-              </span>
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-              >
-                下一頁
-              </Button>
-            </div>
-          )}
         </>
       )}
     </div>
