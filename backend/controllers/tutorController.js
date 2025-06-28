@@ -284,10 +284,18 @@ const getAllTutors = async (req, res) => {
                 tutors = [];
               }
             } else {
-              // 如果沒有科目過濾，使用分類的科目
-              query['tutorProfile.subjects'] = { 
-                $in: categorySubjects.map(subject => new RegExp(subject, 'i'))
-              };
+              // 如果沒有科目過濾，使用分類的科目進行模糊匹配
+              const categoryConditions = categorySubjects.map(subject => ({
+                'tutorProfile.subjects': { $regex: subject, $options: 'i' }
+              }));
+              
+              // 如果已經有 $or 條件，合併它們
+              if (query.$or) {
+                query.$or = [...query.$or, ...categoryConditions];
+              } else {
+                query.$or = categoryConditions;
+              }
+              
               console.log(`🔍 使用分類科目過濾: ${categorySubjects.join(', ')}`);
             }
           } else {
@@ -715,10 +723,18 @@ const getAllTutors = async (req, res) => {
                   tutors = [];
                 }
               } else {
-                // 如果沒有科目過濾，使用分類的科目
-                query['tutorProfile.subjects'] = { 
-                  $in: categorySubjects.map(subject => new RegExp(subject, 'i'))
-                };
+                // 如果沒有科目過濾，使用分類的科目進行模糊匹配
+                const categoryConditions = categorySubjects.map(subject => ({
+                  'tutorProfile.subjects': { $regex: subject, $options: 'i' }
+                }));
+                
+                // 如果已經有 $or 條件，合併它們
+                if (query.$or) {
+                  query.$or = [...query.$or, ...categoryConditions];
+                } else {
+                  query.$or = categoryConditions;
+                }
+                
                 console.log(`🔍 使用分類科目過濾: ${categorySubjects.join(', ')}`);
               }
             } else {
