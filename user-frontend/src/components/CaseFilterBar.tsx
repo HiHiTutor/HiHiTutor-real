@@ -180,8 +180,19 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
       params.append('regions', region);
     });
     
+    // 根據目標選擇正確的 URL
+    let targetUrl;
+    if (filters.target === 'find-tutor') {
+      targetUrl = '/tutors';
+    } else if (filters.target === 'find-student') {
+      targetUrl = '/find-student-cases';
+    } else {
+      // 如果沒有選擇目標，使用傳入的 fetchUrl
+      targetUrl = fetchUrl;
+    }
+    
     // 構建 URL
-    const url = `${fetchUrl}?${params.toString()}`;
+    const url = `${targetUrl}?${params.toString()}`;
     
     // 導航到新 URL
     window.location.href = url;
