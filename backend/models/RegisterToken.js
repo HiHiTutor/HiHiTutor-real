@@ -12,7 +12,16 @@ const registerTokenSchema = new mongoose.Schema({
   },
   code: {
     type: String,
-    required: true
+    required: false
+  },
+  email: {
+    type: String,
+    required: false
+  },
+  type: {
+    type: String,
+    enum: ['verification', 'password-reset'],
+    default: 'verification'
   },
   isUsed: {
     type: Boolean,
