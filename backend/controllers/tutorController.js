@@ -255,26 +255,124 @@ const getAllTutors = async (req, res) => {
           }
         }
         
-        // 精選導師過濾
+        // 精選導師過濾 - 實現加權隨機選擇
         if (featured === 'true') {
-          console.log('🎯 查詢精選導師 (featured=true)');
-          // 如果已經有搜尋條件，需要重新構建 $or 條件
-          if (query.$or) {
-            // 保留原有的搜尋條件，並添加精選條件
-            const searchConditions = query.$or;
+          console.log('🎯 查詢精選導師 (featured=true) - 加權隨機選擇');
+          
+          try {
+            // 分別查詢不同類型的導師
+            const vipTutors = await User.find({ 
+              userType: 'tutor',
+              isActive: true,
+              status: 'active',
+              isVip: true 
+            }).select('name email avatar tutorProfile rating isVip isTop createdAt');
+            
+            const topTutors = await User.find({ 
+              userType: 'tutor',
+              isActive: true,
+              status: 'active',
+              isTop: true,
+              isVip: false  // 排除 VIP，避免重複
+            }).select('name email avatar tutorProfile rating isVip isTop createdAt');
+            
+            const regularTutors = await User.find({ 
+              userType: 'tutor',
+              isActive: true,
+              status: 'active',
+              isVip: false,
+              isTop: false
+            }).select('name email avatar tutorProfile rating isVip isTop createdAt');
+            
+            console.log(`📊 找到導師數量:`);
+            console.log(`- VIP 導師: ${vipTutors.length} 個`);
+            console.log(`- 置頂導師: ${topTutors.length} 個`);
+            console.log(`- 普通導師: ${regularTutors.length} 個`);
+            
+            // 加權隨機選擇邏輯
+            const targetCount = parseInt(limit) || 8;
+            const selectedTutors = [];
+            
+            // 計算各類型導師的目標數量
+            const vipCount = Math.ceil(targetCount * 0.5);  // 50% VIP
+            const topCount = Math.ceil(targetCount * 0.3);  // 30% 置頂
+            const regularCount = targetCount - vipCount - topCount;  // 剩餘給普通導師
+            
+            console.log(`🎲 目標分配:`);
+            console.log(`- VIP: ${vipCount} 個`);
+            console.log(`- 置頂: ${topCount} 個`);
+            console.log(`- 普通: ${regularCount} 個`);
+            
+            // 隨機選擇 VIP 導師
+            if (vipTutors.length > 0) {
+              const shuffledVip = vipTutors.sort(() => Math.random() - 0.5);
+              const selectedVip = shuffledVip.slice(0, Math.min(vipCount, vipTutors.length));
+              selectedTutors.push(...selectedVip);
+              console.log(`✅ 選擇了 ${selectedVip.length} 個 VIP 導師`);
+            }
+            
+            // 隨機選擇置頂導師
+            if (topTutors.length > 0) {
+              const shuffledTop = topTutors.sort(() => Math.random() - 0.5);
+              const selectedTop = shuffledTop.slice(0, Math.min(topCount, topTutors.length));
+              selectedTutors.push(...selectedTop);
+              console.log(`✅ 選擇了 ${selectedTop.length} 個置頂導師`);
+            }
+            
+            // 隨機選擇普通導師
+            if (regularTutors.length > 0) {
+              const shuffledRegular = regularTutors.sort(() => Math.random() - 0.5);
+              const selectedRegular = shuffledRegular.slice(0, Math.min(regularCount, regularTutors.length));
+              selectedTutors.push(...selectedRegular);
+              console.log(`✅ 選擇了 ${selectedRegular.length} 個普通導師`);
+            }
+            
+            // 如果還不夠目標數量，從剩餘導師中隨機補充
+            if (selectedTutors.length < targetCount) {
+              const remainingTutors = [...vipTutors, ...topTutors, ...regularTutors]
+                .filter(tutor => !selectedTutors.some(selected => selected._id.toString() === tutor._id.toString()));
+              
+              if (remainingTutors.length > 0) {
+                const shuffledRemaining = remainingTutors.sort(() => Math.random() - 0.5);
+                const needed = targetCount - selectedTutors.length;
+                const additional = shuffledRemaining.slice(0, Math.min(needed, remainingTutors.length));
+                selectedTutors.push(...additional);
+                console.log(`✅ 補充了 ${additional.length} 個導師`);
+              }
+            }
+            
+            // 最終隨機排序
+            const finalShuffled = selectedTutors.sort(() => Math.random() - 0.5);
+            
+            console.log(`🎉 最終選擇了 ${finalShuffled.length} 個導師`);
+            
+            // 格式化結果
+            tutors = finalShuffled.map(tutor => ({
+              _id: tutor._id,
+              userId: tutor._id,
+              name: tutor.name,
+              subjects: tutor.tutorProfile?.subjects || [],
+              education: tutor.tutorProfile?.educationLevel || '',
+              experience: `${tutor.tutorProfile?.teachingExperienceYears || 0}年教學經驗`,
+              rating: tutor.rating || 0,
+              avatar: tutor.avatar || tutor.tutorProfile?.avatarUrl || '',
+              isVip: tutor.isVip || false,
+              isTop: tutor.isTop || false,
+              createdAt: tutor.createdAt,
+              date: tutor.createdAt,
+              teachingModes: tutor.tutorProfile?.teachingMethods || [],
+              regions: tutor.tutorProfile?.teachingAreas || []
+            }));
+            
+          } catch (weightedError) {
+            console.error('❌ 加權隨機選擇失敗:', weightedError.message);
+            // 如果加權選擇失敗，回退到原來的邏輯
             query.$or = [
-              ...searchConditions,
               { isVip: true },
               { isTop: true }
             ];
-          } else {
-            // 沒有搜尋條件，直接添加精選條件
-            query.$or = [
-              { isVip: true },
-              { isTop: true }
-            ];
+            console.log('🔄 回退到原來的查詢邏輯');
           }
-          console.log('🔍 精選導師查詢條件:', JSON.stringify(query.$or, null, 2));
         }
         
         // 教學模式過濾
@@ -360,61 +458,60 @@ const getAllTutors = async (req, res) => {
       try {
         const User = require('../models/User');
         
-        // 構建查詢條件
-        let query = { 
-          userType: 'tutor',
-          isActive: true,
-          status: 'active'
-        };
-        
-        // 搜尋過濾
-        if (search) {
-          query.$or = [
-            { name: { $regex: search, $options: 'i' } },
-            { 'tutorProfile.subjects': { $regex: search, $options: 'i' } },
-            { 'tutorProfile.educationLevel': { $regex: search, $options: 'i' } }
-          ];
-        }
-        
-        // 科目過濾
-        if (subjects) {
-          const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
-          query['tutorProfile.subjects'] = { $in: subjectArray };
-        }
-        
-        // 精選導師過濾
+        // 如果已經在加權隨機選擇中處理了 featured 查詢，跳過這裡
         if (featured === 'true') {
-          query.$or = query.$or || [];
-          query.$or.push({ isVip: true }, { isTop: true });
+          console.log('🔄 跳過原來的查詢邏輯，因為已經在加權隨機選擇中處理');
+        } else {
+          // 構建查詢條件
+          let query = { 
+            userType: 'tutor',
+            isActive: true,
+            status: 'active'
+          };
+          
+          // 搜尋過濾
+          if (search) {
+            query.$or = [
+              { name: { $regex: search, $options: 'i' } },
+              { 'tutorProfile.subjects': { $regex: search, $options: 'i' } },
+              { 'tutorProfile.educationLevel': { $regex: search, $options: 'i' } }
+            ];
+          }
+          
+          // 科目過濾
+          if (subjects) {
+            const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
+            query['tutorProfile.subjects'] = { $in: subjectArray };
+          }
+          
+          console.log('🔍 查詢條件:', JSON.stringify(query, null, 2));
+          
+          // 執行查詢
+          const dbTutors = await User.find(query)
+            .select('name email avatar tutorProfile rating isVip isTop createdAt')
+            .sort({ rating: -1, createdAt: -1 })
+            .limit(parseInt(limit) || 50);
+          
+          console.log(`✅ 從資料庫找到 ${dbTutors.length} 位導師`);
+          
+          // 格式化資料庫結果
+          tutors = dbTutors.map(tutor => ({
+            _id: tutor._id,
+            userId: tutor._id,
+            name: tutor.name,
+            subjects: tutor.tutorProfile?.subjects || [],
+            education: tutor.tutorProfile?.educationLevel || '',
+            experience: `${tutor.tutorProfile?.teachingExperienceYears || 0}年教學經驗`,
+            rating: tutor.rating || 0,
+            avatar: tutor.avatar || tutor.tutorProfile?.avatarUrl || '',
+            isVip: tutor.isVip || false,
+            isTop: tutor.isTop || false,
+            createdAt: tutor.createdAt,
+            date: tutor.createdAt,
+            teachingModes: tutor.tutorProfile?.teachingMethods || [],
+            regions: tutor.tutorProfile?.teachingAreas || []
+          }));
         }
-        
-        console.log('🔍 查詢條件:', JSON.stringify(query, null, 2));
-        
-        // 執行查詢
-        const dbTutors = await User.find(query)
-          .select('name email avatar tutorProfile rating isVip isTop createdAt')
-          .sort({ rating: -1, createdAt: -1 })
-          .limit(parseInt(limit) || 50);
-        
-        console.log(`✅ 從資料庫找到 ${dbTutors.length} 位導師`);
-        
-        // 格式化資料庫結果
-        tutors = dbTutors.map(tutor => ({
-          _id: tutor._id,
-          userId: tutor._id,
-          name: tutor.name,
-          subjects: tutor.tutorProfile?.subjects || [],
-          education: tutor.tutorProfile?.educationLevel || '',
-          experience: `${tutor.tutorProfile?.teachingExperienceYears || 0}年教學經驗`,
-          rating: tutor.rating || 0,
-          avatar: tutor.avatar || tutor.tutorProfile?.avatarUrl || '',
-          isVip: tutor.isVip || false,
-          isTop: tutor.isTop || false,
-          createdAt: tutor.createdAt,
-          date: tutor.createdAt,
-          teachingModes: tutor.tutorProfile?.teachingMethods || [],
-          regions: tutor.tutorProfile?.teachingAreas || []
-        }));
         
       } catch (dbError) {
         console.error('❌ 資料庫查詢失敗:', dbError.message);
