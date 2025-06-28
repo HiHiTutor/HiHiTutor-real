@@ -260,20 +260,36 @@ const getAllTutors = async (req, res) => {
         
         // 分類過濾
         if (category) {
-          console.log(`- 分類過濾: ${category}`);
+          console.log(`🎯 分類過濾: ${category}`);
           // 根據分類獲取對應的科目列表
           const categorySubjects = getCategorySubjects(category);
           if (categorySubjects && categorySubjects.length > 0) {
-            filteredMockTutors = filteredMockTutors.filter(tutor => 
-              categorySubjects.some(subject => 
-                tutor.subject && tutor.subject.toLowerCase().includes(subject.toLowerCase()) ||
-                (tutor.subjects && tutor.subjects.some(tutorSubject => 
-                  tutorSubject.toLowerCase().includes(subject.toLowerCase())
-                ))
-              )
-            );
-            console.log(`- 分類過濾科目: ${categorySubjects.join(', ')}`);
-            console.log(`- 分類過濾後剩餘導師: ${filteredMockTutors.length} 個`);
+            console.log(`📚 分類對應的科目: ${categorySubjects.join(', ')}`);
+            
+            // 如果已經有科目過濾，則取交集
+            if (subjects) {
+              const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
+              const intersection = subjectArray.filter(subject => 
+                categorySubjects.some(catSubject => 
+                  subject.toLowerCase().includes(catSubject.toLowerCase()) ||
+                  catSubject.toLowerCase().includes(subject.toLowerCase())
+                )
+              );
+              if (intersection.length > 0) {
+                query['tutorProfile.subjects'] = { $in: intersection };
+                console.log(`🔍 科目交集: ${intersection.join(', ')}`);
+              } else {
+                // 如果沒有交集，返回空結果
+                console.log('⚠️ 分類與科目沒有交集，返回空結果');
+                tutors = [];
+              }
+            } else {
+              // 如果沒有科目過濾，使用分類的科目
+              query['tutorProfile.subjects'] = { 
+                $in: categorySubjects.map(subject => new RegExp(subject, 'i'))
+              };
+              console.log(`🔍 使用分類科目過濾: ${categorySubjects.join(', ')}`);
+            }
           } else {
             console.log(`⚠️ 未找到分類 ${category} 對應的科目`);
           }
@@ -671,6 +687,43 @@ const getAllTutors = async (req, res) => {
           if (subjects) {
             const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
             query['tutorProfile.subjects'] = { $in: subjectArray };
+          }
+          
+          // 分類過濾
+          if (category) {
+            console.log(`🎯 分類過濾: ${category}`);
+            // 根據分類獲取對應的科目列表
+            const categorySubjects = getCategorySubjects(category);
+            if (categorySubjects && categorySubjects.length > 0) {
+              console.log(`📚 分類對應的科目: ${categorySubjects.join(', ')}`);
+              
+              // 如果已經有科目過濾，則取交集
+              if (subjects) {
+                const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
+                const intersection = subjectArray.filter(subject => 
+                  categorySubjects.some(catSubject => 
+                    subject.toLowerCase().includes(catSubject.toLowerCase()) ||
+                    catSubject.toLowerCase().includes(subject.toLowerCase())
+                  )
+                );
+                if (intersection.length > 0) {
+                  query['tutorProfile.subjects'] = { $in: intersection };
+                  console.log(`🔍 科目交集: ${intersection.join(', ')}`);
+                } else {
+                  // 如果沒有交集，返回空結果
+                  console.log('⚠️ 分類與科目沒有交集，返回空結果');
+                  tutors = [];
+                }
+              } else {
+                // 如果沒有科目過濾，使用分類的科目
+                query['tutorProfile.subjects'] = { 
+                  $in: categorySubjects.map(subject => new RegExp(subject, 'i'))
+                };
+                console.log(`🔍 使用分類科目過濾: ${categorySubjects.join(', ')}`);
+              }
+            } else {
+              console.log(`⚠️ 未找到分類 ${category} 對應的科目`);
+            }
           }
           
           console.log('🔍 查詢條件:', JSON.stringify(query, null, 2));
