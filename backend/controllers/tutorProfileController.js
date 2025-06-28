@@ -117,28 +117,13 @@ const rejectTutorProfile = async (req, res) => {
     const { id } = req.params;
     const { remarks } = req.body;
     
-    console.log('❌ 拒絕導師個人資料:', { id, remarks });
+    console.log('❌ 拒絕導師個人資料:', { id, remarks, body: req.body });
     
-    const tutor = await User.findById(id);
-    
-    if (!tutor) {
-      return res.status(404).json({ 
-        success: false,
-        error: '找不到導師' 
-      });
-    }
-    
-    if (tutor.userType !== 'tutor') {
+    // 驗證必要參數
+    if (!id) {
       return res.status(400).json({ 
         success: false,
-        error: '該用戶不是導師' 
-      });
-    }
-    
-    if (tutor.profileStatus !== 'pending') {
-      return res.status(400).json({ 
-        success: false,
-        error: '該導師資料不在待審核狀態' 
+        error: '缺少導師 ID' 
       });
     }
     
@@ -146,17 +131,49 @@ const rejectTutorProfile = async (req, res) => {
     if (!remarks || remarks.trim() === '') {
       return res.status(400).json({ 
         success: false,
-        error: '拒絕時必須提供原因' 
+        error: '拒絕時必須提供原因',
+        message: '請填寫拒絕原因'
+      });
+    }
+    
+    const tutor = await User.findById(id);
+    
+    if (!tutor) {
+      return res.status(404).json({ 
+        success: false,
+        error: '找不到導師',
+        message: '找不到指定的導師資料'
+      });
+    }
+    
+    if (tutor.userType !== 'tutor') {
+      return res.status(400).json({ 
+        success: false,
+        error: '該用戶不是導師',
+        message: '只能拒絕導師類型的用戶'
+      });
+    }
+    
+    if (tutor.profileStatus !== 'pending') {
+      return res.status(400).json({ 
+        success: false,
+        error: '該導師資料不在待審核狀態',
+        message: `該導師資料狀態為 ${tutor.profileStatus}，無法拒絕`
       });
     }
     
     // 更新狀態為已拒絕
     tutor.profileStatus = 'rejected';
-    tutor.remarks = remarks;
+    tutor.remarks = remarks.trim();
     
     await tutor.save();
     
-    console.log('❌ 導師個人資料已拒絕:', tutor.name);
+    console.log('❌ 導師個人資料已拒絕:', {
+      tutorId: tutor._id,
+      tutorName: tutor.name,
+      profileStatus: tutor.profileStatus,
+      remarks: tutor.remarks
+    });
     
     res.status(200).json({ 
       success: true,
