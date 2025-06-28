@@ -256,11 +256,17 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
         console.log(`📊 原始資料數量: ${rawCases.length}`);
         
         // 過濾並排序（只要有 id 或 name 就顯示）
-        const validCases = rawCases.filter(case_ => 
-          case_ && 
-          typeof case_ === 'object' && 
-          (case_.id || case_.userId || case_.name || case_.createdAt || case_.date || case_.tutorId)
-        );
+        const validCases = rawCases.filter(case_ => {
+          const isValid = case_ && 
+            typeof case_ === 'object' && 
+            (case_.id || case_.userId || case_.name || case_.createdAt || case_.date || case_.tutorId);
+          
+          if (!isValid) {
+            console.log('❌ 過濾掉的資料:', case_);
+          }
+          
+          return isValid;
+        });
         
         console.log(`✅ 有效資料數量: ${validCases.length}`);
         
@@ -270,6 +276,7 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
           console.warn('- 資料庫中沒有相關資料');
           console.warn('- 查詢參數過濾過於嚴格');
           console.warn('原始回應:', data);
+          console.warn('原始資料陣列:', rawCases);
         }
 
         // 排序：VIP置頂好評 > VIP置頂 > 置頂好評 > 置頂 > 好評 > 其他
