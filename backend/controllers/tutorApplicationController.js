@@ -152,13 +152,43 @@ const reviewTutorApplication = async (req, res) => {
         });
       }
 
-      // 將 userType 改為 "tutor"，將 tutorProfile.applicationStatus 改為 "approved"
+      // 生成唯一的 tutorId
+      const generateTutorId = async () => {
+        const lastTutor = await User.findOne({ tutorId: { $exists: true } }).sort({ tutorId: -1 });
+        let prefix = 'AA';
+        let number = 1;
+        if (lastTutor && lastTutor.tutorId) {
+          prefix = lastTutor.tutorId.slice(0, 2);
+          number = parseInt(lastTutor.tutorId.slice(2), 10) + 1;
+          if (number > 9999) {
+            const firstChar = prefix.charCodeAt(0);
+            const secondChar = prefix.charCodeAt(1);
+            if (secondChar < 90) { // 'Z'
+              prefix = String.fromCharCode(firstChar, secondChar + 1);
+            } else if (firstChar < 90) {
+              prefix = String.fromCharCode(firstChar + 1, 65); // 65 = 'A'
+            } else {
+              throw new Error('tutorId 已達上限');
+            }
+            number = 1;
+          }
+        }
+        return `${prefix}${number.toString().padStart(4, '0')}`;
+      };
+
+      const tutorId = await generateTutorId();
+      console.log('[🎓] 生成的 tutorId:', tutorId);
+
+      // 將 userType 改為 "tutor"，將 tutorProfile.applicationStatus 改為 "approved"，並設置 tutorId
       const updatedUser = await User.findByIdAndUpdate(
         userId,
         {
           $set: {
             userType: 'tutor',
-            'tutorProfile.applicationStatus': 'approved'
+            tutorId: tutorId,
+            'tutorProfile.applicationStatus': 'approved',
+            profileStatus: 'approved',
+            remarks: remarks || '審核通過'
           }
         },
         { 
@@ -170,6 +200,7 @@ const reviewTutorApplication = async (req, res) => {
       if (updatedUser) {
         console.log('[✅] 用戶升級成功:', {
           userId: updatedUser._id,
+          tutorId: updatedUser.tutorId,
           userType: updatedUser.userType,
           applicationStatus: updatedUser.tutorProfile?.applicationStatus
         });
@@ -292,13 +323,43 @@ const approveTutorApplication = async (req, res) => {
       });
     }
 
-    // 將 userType 改為 "tutor"，將 tutorProfile.applicationStatus 改為 "approved"
+    // 生成唯一的 tutorId
+    const generateTutorId = async () => {
+      const lastTutor = await User.findOne({ tutorId: { $exists: true } }).sort({ tutorId: -1 });
+      let prefix = 'AA';
+      let number = 1;
+      if (lastTutor && lastTutor.tutorId) {
+        prefix = lastTutor.tutorId.slice(0, 2);
+        number = parseInt(lastTutor.tutorId.slice(2), 10) + 1;
+        if (number > 9999) {
+          const firstChar = prefix.charCodeAt(0);
+          const secondChar = prefix.charCodeAt(1);
+          if (secondChar < 90) { // 'Z'
+            prefix = String.fromCharCode(firstChar, secondChar + 1);
+          } else if (firstChar < 90) {
+            prefix = String.fromCharCode(firstChar + 1, 65); // 65 = 'A'
+          } else {
+            throw new Error('tutorId 已達上限');
+          }
+          number = 1;
+        }
+      }
+      return `${prefix}${number.toString().padStart(4, '0')}`;
+    };
+
+    const tutorId = await generateTutorId();
+    console.log('[🎓] 生成的 tutorId:', tutorId);
+
+    // 將 userType 改為 "tutor"，將 tutorProfile.applicationStatus 改為 "approved"，並設置 tutorId
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
         $set: {
           userType: 'tutor',
-          'tutorProfile.applicationStatus': 'approved'
+          tutorId: tutorId,
+          'tutorProfile.applicationStatus': 'approved',
+          profileStatus: 'approved',
+          remarks: remarks || '審核通過'
         }
       },
       { 
@@ -310,6 +371,7 @@ const approveTutorApplication = async (req, res) => {
     if (updatedUser) {
       console.log('[✅] 用戶升級成功:', {
         userId: updatedUser._id,
+        tutorId: updatedUser.tutorId,
         userType: updatedUser.userType,
         applicationStatus: updatedUser.tutorProfile?.applicationStatus
       });
@@ -326,6 +388,7 @@ const approveTutorApplication = async (req, res) => {
       message: '申請已批准，用戶已升級為導師',
       data: {
         applicationId: application.id,
+        tutorId: tutorId,
         status: application.status,
         reviewedAt: application.reviewedAt,
         remarks: application.remarks
