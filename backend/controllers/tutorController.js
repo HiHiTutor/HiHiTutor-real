@@ -289,6 +289,43 @@ const getAllTutors = async (req, res) => {
             console.log(`- 置頂導師: ${topTutors.length} 個`);
             console.log(`- 普通導師: ${regularTutors.length} 個`);
             
+            // 詳細顯示每個導師嘅狀態
+            if (vipTutors.length > 0) {
+              console.log('👑 VIP 導師列表:');
+              vipTutors.forEach(tutor => {
+                console.log(`  - ${tutor.name} (isVip: ${tutor.isVip}, isTop: ${tutor.isTop}, status: ${tutor.status || 'N/A'})`);
+              });
+            }
+            
+            if (topTutors.length > 0) {
+              console.log('⭐ 置頂導師列表:');
+              topTutors.forEach(tutor => {
+                console.log(`  - ${tutor.name} (isVip: ${tutor.isVip}, isTop: ${tutor.isTop}, status: ${tutor.status || 'N/A'})`);
+              });
+            }
+            
+            if (regularTutors.length > 0) {
+              console.log('📚 普通導師列表 (前5個):');
+              regularTutors.slice(0, 5).forEach(tutor => {
+                console.log(`  - ${tutor.name} (isVip: ${tutor.isVip}, isTop: ${tutor.isTop}, status: ${tutor.status || 'N/A'})`);
+              });
+            }
+            
+            // 檢查所有導師嘅狀態
+            const allTutors = await User.find({ userType: 'tutor' }).select('name isVip isTop isActive status');
+            console.log(`🔍 資料庫中所有導師狀態檢查:`);
+            console.log(`- 總導師數: ${allTutors.length}`);
+            console.log(`- isActive: true 的導師: ${allTutors.filter(t => t.isActive === true).length}`);
+            console.log(`- status: 'active' 的導師: ${allTutors.filter(t => t.status === 'active').length}`);
+            console.log(`- isVip: true 的導師: ${allTutors.filter(t => t.isVip === true).length}`);
+            console.log(`- isTop: true 的導師: ${allTutors.filter(t => t.isTop === true).length}`);
+            
+            // 顯示所有導師嘅詳細狀態
+            console.log('📋 所有導師詳細狀態:');
+            allTutors.forEach(tutor => {
+              console.log(`  - ${tutor.name}: isActive=${tutor.isActive}, status=${tutor.status}, isVip=${tutor.isVip}, isTop=${tutor.isTop}`);
+            });
+            
             // 加權隨機選擇邏輯
             const targetCount = parseInt(limit) || 8;
             const selectedTutors = [];
