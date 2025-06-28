@@ -257,8 +257,24 @@ const getAllTutors = async (req, res) => {
         
         // 精選導師過濾
         if (featured === 'true') {
-          filteredMockTutors = filteredMockTutors.filter(tutor => tutor.isVip || tutor.isTop);
-          console.log(`- 精選導師過濾後剩餘導師: ${filteredMockTutors.length} 個`);
+          console.log('🎯 查詢精選導師 (featured=true)');
+          // 如果已經有搜尋條件，需要重新構建 $or 條件
+          if (query.$or) {
+            // 保留原有的搜尋條件，並添加精選條件
+            const searchConditions = query.$or;
+            query.$or = [
+              ...searchConditions,
+              { isVip: true },
+              { isTop: true }
+            ];
+          } else {
+            // 沒有搜尋條件，直接添加精選條件
+            query.$or = [
+              { isVip: true },
+              { isTop: true }
+            ];
+          }
+          console.log('🔍 精選導師查詢條件:', JSON.stringify(query.$or, null, 2));
         }
         
         // 教學模式過濾
