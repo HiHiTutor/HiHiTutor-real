@@ -253,6 +253,11 @@ export default function EditProfilePage() {
         updateData.password = formData.newPassword;
       }
 
+      // 如果電話號碼有更改且有驗證碼，加入驗證碼
+      if (formData.phone !== user?.phone && verificationToken) {
+        updateData.token = verificationToken;
+      }
+
       const res = await fetch(`${API_BASE}/api/auth/profile`, {
         method: 'PUT',
         headers: {
