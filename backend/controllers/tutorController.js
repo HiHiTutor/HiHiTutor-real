@@ -154,15 +154,34 @@ const getAllTutors = async (req, res) => {
     
     // 定義 tutors 變數
     let tutors = [];
+    let source = 'database';
+    let mongoState = mongoose.connection.readyState;
     
     // 檢查 MongoDB 連接狀態
-    if (mongoose.connection.readyState !== 1) {
-      console.log('⚠️ MongoDB 未連接，當前狀態:', mongoose.connection.readyState);
-      console.log('- 連接狀態說明: 0=disconnected, 1=connected, 2=connecting, 3=disconnecting');
-      console.log('- 使用 mock 數據作為 fallback');
+    console.log('🔍 MongoDB 連接狀態檢查:');
+    console.log('- 當前狀態:', mongoState);
+    console.log('- 狀態說明: 0=disconnected, 1=connected, 2=connecting, 3=disconnecting');
+    
+    if (mongoState !== 1) {
+      console.log('⚠️ MongoDB 未連接，嘗試重新連接...');
       
-      // 使用 mock 數據而不是返回錯誤
       try {
+        // 嘗試重新連接
+        await mongoose.connect(process.env.MONGODB_URI, {
+          useNewUrlParser: true,
+          useUnifiedTopology: true,
+          serverSelectionTimeoutMS: 10000,
+          socketTimeoutMS: 10000,
+          connectTimeoutMS: 10000
+        });
+        console.log('✅ MongoDB 重新連接成功');
+        mongoState = mongoose.connection.readyState;
+      } catch (reconnectError) {
+        console.error('❌ MongoDB 重新連接失敗:', reconnectError.message);
+        console.log('⚠️ 使用 mock 數據作為 fallback');
+        source = 'mock';
+        
+        // 使用 mock 數據作為 fallback
         const mockTutors = require('../data/tutors');
         
         // 過濾模擬數據
@@ -314,320 +333,81 @@ const getAllTutors = async (req, res) => {
         }));
         
         console.log(`✅ 使用模擬數據，找到 ${mappedTutors.length} 個導師`);
-        
-        // 將 mappedTutors 賦值給 tutors 變數
         tutors = mappedTutors;
-
-        // 直接格式化並返回 mock 數據
-        const formattedTutors = tutors.map(tutor => {
-          // 處理 subjects 陣列
-          let subjects = [];
-          if (tutor.subjects && Array.isArray(tutor.subjects)) {
-            subjects = tutor.subjects;
-          } else if (tutor.subject) {
-            subjects = [tutor.subject];
-          } else {
-            // 如果沒有科目資料，提供預設科目
-            subjects = ['數學', '英文', '中文'];
-          }
-
-          // 處理頭像 URL
-          let avatarUrl = '';
-          if (tutor.avatar) {
-            avatarUrl = tutor.avatar;
-          } else {
-            // 如果沒有頭像，使用預設頭像
-            avatarUrl = `/avatars/teacher${Math.floor(Math.random() * 6) + 1}.png`;
-          }
-
-          // 確保頭像 URL 是完整的
-          if (avatarUrl && !avatarUrl.startsWith('http') && !avatarUrl.startsWith('data:')) {
-            // 如果是相對路徑，添加基礎 URL
-            avatarUrl = `https://hi-hi-tutor-real-backend2.vercel.app${avatarUrl}`;
-          }
-
-          return {
-            id: tutor._id || tutor.id,
-            userId: tutor.userId || tutor.id,
-            name: tutor.name || '未命名導師',
-            subjects: subjects,
-            education: tutor.education || '未指定',
-            experience: tutor.experience || '未指定',
-            rating: tutor.rating || 4.5,
-            avatarUrl: avatarUrl,
-            isVip: tutor.isVip || false,
-            isTop: tutor.isTop || false,
-            createdAt: tutor.createdAt || new Date().toISOString(),
-            date: tutor.createdAt || new Date().toISOString(),
-            teachingModes: tutor.teachingModes || []
-          };
-        });
-
-        console.log(`📤 返回 ${formattedTutors.length} 個 mock 導師數據`);
-        return res.json({ 
-          success: true,
-          data: { tutors: formattedTutors },
-          source: 'mock',
-          mongoState: mongoose.connection.readyState,
-          mongoStateDescription: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState] || 'unknown'
-        });
-      } catch (mockError) {
-        console.error('❌ 載入 mock 數據失敗:', mockError);
-        return res.status(500).json({
-          success: false,
-          message: 'Failed to load data',
-          error: mockError.message
-        });
       }
     }
     
-    console.log('✅ MongoDB 連接正常，開始查詢導師資料');
-    
-    // 基本查詢條件
-    let query = { 
-      userType: 'tutor',
-      isActive: true,
-      status: 'active'
-    };
-    
-    // 添加搜尋條件
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { 'tutorProfile.subjects': { $regex: search, $options: 'i' } },
-        { 'tutorProfile.educationLevel': { $regex: search, $options: 'i' } }
-      ];
-      console.log(`🔍 添加搜尋條件: "${search}"`);
-    }
-    
-    // 添加科目過濾
-    if (subjects) {
-      const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
-      query['tutorProfile.subjects'] = { $in: subjectArray.map(s => new RegExp(s, 'i')) };
-      console.log(`🔍 添加科目過濾: ${subjectArray.join(', ')}`);
-    }
-    
-    // 添加地區過濾
-    if (regions) {
-      const regionArray = Array.isArray(regions) ? regions : regions.split(',');
-      query['tutorProfile.regions'] = { $in: regionArray.map(r => new RegExp(r, 'i')) };
-      console.log(`🔍 添加地區過濾: ${regionArray.join(', ')}`);
-    }
-    
-    // 添加教學模式過濾
-    if (modes) {
-      const modeArray = Array.isArray(modes) ? modes : modes.split(',');
-      query['tutorProfile.teachingModes'] = { $in: modeArray.map(m => new RegExp(m, 'i')) };
-      console.log(`🔍 添加教學模式過濾: ${modeArray.join(', ')}`);
-    }
-    
-    // 添加分類過濾
-    if (category) {
-      console.log(`🔍 添加分類過濾: ${category}`);
-      
-      // 根據分類獲取對應的科目列表
-      const categorySubjects = getCategorySubjects(category);
-      if (categorySubjects && categorySubjects.length > 0) {
-        // 使用 $or 查詢來匹配任何一個科目
-        query.$or = query.$or || [];
-        query.$or.push(
-          { 'tutorProfile.subjects': { $in: categorySubjects } },
-          { subjects: { $in: categorySubjects } }
-        );
-        console.log(`🔍 分類過濾科目: ${categorySubjects.join(', ')}`);
-      } else {
-        console.log(`⚠️ 未找到分類 ${category} 對應的科目`);
-      }
-    }
-    
-    // 如果是 featured 請求，添加精選條件
-    if (featured === 'true') {
-      console.log('🔍 查詢精選導師 (featured=true)');
-      
-      // 添加精選條件
-      query.$or = query.$or || [];
-      query.$or.push({ isTop: true }, { isVip: true });
-      
-      console.log('🔍 查詢條件:', query);
-      
-      tutors = await User.find(query)
-        .sort({ rating: -1, createdAt: -1 })
-        .limit(parseInt(limit) || 15)
-        .lean();
-      
-      console.log(`✅ 從 MongoDB 找到 ${tutors.length} 個精選導師`);
-      
-      // 如果沒有精選導師，使用 fallback 查詢
-      if (tutors.length === 0) {
-        console.log('⚠️ 沒有精選導師，使用 fallback 查詢條件');
-        
-        // 移除精選條件，使用基本查詢
-        const fallbackQuery = { ...query };
-        delete fallbackQuery.$or;
-        
-        console.log('🔍 Fallback 查詢條件:', fallbackQuery);
-        
-        tutors = await User.find(fallbackQuery)
-          .sort({ rating: -1, createdAt: -1 })
-          .limit(parseInt(limit) || 15)
-          .lean();
-        
-        console.log(`✅ Fallback 查詢找到 ${tutors.length} 個導師`);
-      }
-    } else {
-      // 非 featured 請求，使用標準查詢
-      console.log('🔍 查詢所有導師 (featured=false)');
-      console.log('🔍 查詢條件:', query);
-      
-      tutors = await User.find(query)
-        .sort({ rating: -1, createdAt: -1 })
-        .limit(parseInt(limit) || 15)
-        .lean();
-      
-      console.log(`✅ 從 MongoDB 找到 ${tutors.length} 個導師`);
-    }
-    
-    // 如果數據庫中沒有導師數據，使用模擬數據
-    if (tutors.length === 0) {
-      console.log('⚠️ 數據庫中沒有導師數據，使用模擬數據');
-      console.log('- 可能原因: 數據庫中沒有 userType=tutor 的用戶');
-      console.log('- 或者所有導師都不符合查詢條件');
+    // 如果 MongoDB 連接成功，從資料庫查詢
+    if (mongoState === 1 && tutors.length === 0) {
+      console.log('✅ 從資料庫查詢導師資料...');
       
       try {
-        const mockTutors = require('../data/tutors');
+        const User = require('../models/User');
         
-        // 過濾模擬數據
-        let filteredMockTutors = mockTutors;
+        // 構建查詢條件
+        let query = { 
+          userType: 'tutor',
+          isActive: true,
+          status: 'active'
+        };
         
         // 搜尋過濾
         if (search) {
-          const searchLower = search.toLowerCase();
-          filteredMockTutors = filteredMockTutors.filter(tutor => 
-            tutor.name.toLowerCase().includes(searchLower) ||
-            (tutor.subject && tutor.subject.toLowerCase().includes(searchLower)) ||
-            (tutor.education && tutor.education.toLowerCase().includes(searchLower))
-          );
-          console.log(`- 搜尋 "${search}" 後剩餘導師: ${filteredMockTutors.length} 個`);
+          query.$or = [
+            { name: { $regex: search, $options: 'i' } },
+            { 'tutorProfile.subjects': { $regex: search, $options: 'i' } },
+            { 'tutorProfile.educationLevel': { $regex: search, $options: 'i' } }
+          ];
         }
         
         // 科目過濾
         if (subjects) {
           const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
-          console.log(`- 科目過濾條件: ${subjectArray.join(', ')}`);
-          
-          filteredMockTutors = filteredMockTutors.filter(tutor => {
-            // 檢查 tutor.subjects 數組
-            if (tutor.subjects && Array.isArray(tutor.subjects)) {
-              const hasMatchingSubject = subjectArray.some(filterSubject => 
-                tutor.subjects.some(tutorSubject => 
-                  tutorSubject.toLowerCase() === filterSubject.toLowerCase()
-                )
-              );
-              if (hasMatchingSubject) {
-                console.log(`- 導師 ${tutor.name} 匹配科目: ${tutor.subjects.join(', ')}`);
-                return true;
-              }
-            }
-            
-            // 檢查 tutor.subject 單個科目
-            if (tutor.subject) {
-              const hasMatchingSubject = subjectArray.some(filterSubject => 
-                tutor.subject.toLowerCase() === filterSubject.toLowerCase()
-              );
-              if (hasMatchingSubject) {
-                console.log(`- 導師 ${tutor.name} 匹配科目: ${tutor.subject}`);
-                return true;
-              }
-            }
-            
-            return false;
-          });
-          
-          console.log(`- 科目過濾後剩餘導師: ${filteredMockTutors.length} 個`);
-        }
-        
-        // 分類過濾
-        if (category) {
-          console.log(`- 分類過濾: ${category}`);
-          // 根據分類獲取對應的科目列表
-          const categorySubjects = getCategorySubjects(category);
-          if (categorySubjects && categorySubjects.length > 0) {
-            filteredMockTutors = filteredMockTutors.filter(tutor => 
-              categorySubjects.some(subject => 
-                tutor.subject && tutor.subject.toLowerCase().includes(subject.toLowerCase()) ||
-                (tutor.subjects && tutor.subjects.some(tutorSubject => 
-                  tutorSubject.toLowerCase().includes(subject.toLowerCase())
-                ))
-              )
-            );
-            console.log(`- 分類過濾科目: ${categorySubjects.join(', ')}`);
-            console.log(`- 分類過濾後剩餘導師: ${filteredMockTutors.length} 個`);
-          } else {
-            console.log(`⚠️ 未找到分類 ${category} 對應的科目`);
-          }
+          query['tutorProfile.subjects'] = { $in: subjectArray };
         }
         
         // 精選導師過濾
         if (featured === 'true') {
-          filteredMockTutors = filteredMockTutors.filter(tutor => tutor.isVip || tutor.isTop);
-          console.log(`- 精選導師過濾後剩餘導師: ${filteredMockTutors.length} 個`);
+          query.$or = query.$or || [];
+          query.$or.push({ isVip: true }, { isTop: true });
         }
         
-        // 教學模式過濾
-        if (modes) {
-          const modeArray = Array.isArray(modes) ? modes : modes.split(',');
-          console.log(`- 教學模式過濾條件: ${modeArray.join(', ')}`);
-          
-          filteredMockTutors = filteredMockTutors.filter(tutor => {
-            // 檢查 tutor.teachingModes 數組
-            if (tutor.teachingModes && Array.isArray(tutor.teachingModes)) {
-              const hasMatchingMode = modeArray.some(filterMode => 
-                tutor.teachingModes.some(tutorMode => 
-                  tutorMode.toLowerCase() === filterMode.toLowerCase()
-                )
-              );
-              if (hasMatchingMode) {
-                console.log(`- 導師 ${tutor.name} 匹配教學模式: ${tutor.teachingModes.join(', ')}`);
-                return true;
-              }
-            }
-            
-            return false;
-          });
-          
-          console.log(`- 教學模式過濾後剩餘導師: ${filteredMockTutors.length} 個`);
-        }
+        console.log('🔍 查詢條件:', JSON.stringify(query, null, 2));
         
-        // 地區過濾
-        if (regions) {
-          const regionArray = Array.isArray(regions) ? regions : regions.split(',');
-          console.log(`- 地區過濾條件: ${regionArray.join(', ')}`);
-          
-          filteredMockTutors = filteredMockTutors.filter(tutor => {
-            // 檢查 tutor.regions 數組
-            if (tutor.regions && Array.isArray(tutor.regions)) {
-              const hasMatchingRegion = regionArray.some(filterRegion => 
-                tutor.regions.some(tutorRegion => 
-                  tutorRegion.toLowerCase() === filterRegion.toLowerCase()
-                )
-              );
-              if (hasMatchingRegion) {
-                console.log(`- 導師 ${tutor.name} 匹配地區: ${tutor.regions.join(', ')}`);
-                return true;
-              }
-            }
-            
-            return false;
-          });
-          
-          console.log(`- 地區過濾後剩餘導師: ${filteredMockTutors.length} 個`);
-        }
+        // 執行查詢
+        const dbTutors = await User.find(query)
+          .select('name email avatar tutorProfile rating isVip isTop createdAt')
+          .sort({ rating: -1, createdAt: -1 })
+          .limit(parseInt(limit) || 50);
         
-        // 排序和限制
-        filteredMockTutors.sort((a, b) => b.rating - a.rating);
-        filteredMockTutors = filteredMockTutors.slice(0, parseInt(limit) || 15);
+        console.log(`✅ 從資料庫找到 ${dbTutors.length} 位導師`);
         
-        tutors = filteredMockTutors.map(tutor => ({
+        // 格式化資料庫結果
+        tutors = dbTutors.map(tutor => ({
+          _id: tutor._id,
+          userId: tutor._id,
+          name: tutor.name,
+          subjects: tutor.tutorProfile?.subjects || [],
+          education: tutor.tutorProfile?.educationLevel || '',
+          experience: `${tutor.tutorProfile?.teachingExperienceYears || 0}年教學經驗`,
+          rating: tutor.rating || 0,
+          avatar: tutor.avatar || tutor.tutorProfile?.avatarUrl || '',
+          isVip: tutor.isVip || false,
+          isTop: tutor.isTop || false,
+          createdAt: tutor.createdAt,
+          date: tutor.createdAt,
+          teachingModes: tutor.tutorProfile?.teachingMethods || [],
+          regions: tutor.tutorProfile?.teachingAreas || []
+        }));
+        
+      } catch (dbError) {
+        console.error('❌ 資料庫查詢失敗:', dbError.message);
+        source = 'mock';
+        mongoState = 0;
+        
+        // 如果資料庫查詢失敗，使用 mock 資料
+        const mockTutors = require('../data/tutors');
+        tutors = mockTutors.slice(0, parseInt(limit) || 15).map(tutor => ({
           _id: tutor.id,
           userId: tutor.id,
           name: tutor.name,
@@ -643,25 +423,15 @@ const getAllTutors = async (req, res) => {
           teachingModes: tutor.teachingModes || [],
           regions: tutor.regions || []
         }));
-        
-        console.log(`✅ 使用模擬數據，找到 ${tutors.length} 個導師`);
-      } catch (mockError) {
-        console.error('❌ 載入模擬數據失敗:', mockError);
-        return res.status(500).json({
-          success: false,
-          message: 'Failed to load mock data',
-          error: mockError.message
-        });
       }
     }
-
+    
+    // 格式化最終結果
     const formattedTutors = tutors.map(tutor => {
       // 處理 subjects 陣列
       let subjects = [];
       if (tutor.subjects && Array.isArray(tutor.subjects)) {
         subjects = tutor.subjects;
-      } else if (tutor.tutorProfile?.subjects && Array.isArray(tutor.tutorProfile.subjects)) {
-        subjects = tutor.tutorProfile.subjects;
       } else if (tutor.subject) {
         subjects = [tutor.subject];
       } else {
@@ -671,12 +441,8 @@ const getAllTutors = async (req, res) => {
 
       // 處理頭像 URL
       let avatarUrl = '';
-      if (tutor.avatarUrl) {
-        avatarUrl = tutor.avatarUrl;
-      } else if (tutor.avatar) {
+      if (tutor.avatar) {
         avatarUrl = tutor.avatar;
-      } else if (tutor.tutorProfile?.avatarUrl) {
-        avatarUrl = tutor.tutorProfile.avatarUrl;
       } else {
         // 如果沒有頭像，使用預設頭像
         avatarUrl = `/avatars/teacher${Math.floor(Math.random() * 6) + 1}.png`;
@@ -689,20 +455,20 @@ const getAllTutors = async (req, res) => {
       }
 
       return {
-        id: tutor._id || tutor.id,
-        userId: tutor.userId || tutor.id,
-        name: tutor.name || '未命名導師',
+        id: tutor._id,
+        userId: tutor.userId,
+        name: tutor.name,
         subjects: subjects,
-        education: tutor.education || tutor.tutorProfile?.educationLevel || '未指定',
-        experience: tutor.experience || tutor.tutorProfile?.teachingExperienceYears || '未指定',
-        rating: tutor.rating || 4.5,
+        education: tutor.education,
+        experience: tutor.experience,
+        rating: tutor.rating,
         avatarUrl: avatarUrl,
-        isVip: tutor.isVip || false,
-        isTop: tutor.isTop || false,
-        createdAt: tutor.createdAt || new Date().toISOString(),
-        date: tutor.createdAt || new Date().toISOString(),
-        teachingModes: tutor.teachingModes || [],
-        regions: tutor.regions || []
+        isVip: tutor.isVip,
+        isTop: tutor.isTop,
+        createdAt: tutor.createdAt,
+        date: tutor.createdAt,
+        teachingModes: tutor.teachingModes,
+        regions: tutor.regions
       };
     });
 
@@ -710,7 +476,9 @@ const getAllTutors = async (req, res) => {
     res.json({ 
       success: true,
       data: { tutors: formattedTutors },
-      source: tutors.length === 0 ? 'mock' : 'database'
+      source: source,
+      mongoState: mongoState,
+      mongoStateDescription: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoState] || 'unknown'
     });
   } catch (error) {
     console.error('❌ 獲取導師數據時出錯:', {
