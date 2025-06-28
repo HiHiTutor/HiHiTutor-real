@@ -834,7 +834,7 @@ const verifyCode = async (req, res) => {
 const updateUserProfile = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { name, email, phone, token } = req.body;
+    const { name, email, phone, token, password } = req.body;
 
     // 獲取當前用戶
     const user = await User.findById(userId);
@@ -892,6 +892,21 @@ const updateUserProfile = async (req, res) => {
     if (name) updates.name = name;
     if (email) updates.email = email;
     if (phone) updates.phone = phone;
+    
+    // 處理密碼更新
+    if (password) {
+      // 驗證密碼長度
+      if (password.length < 6) {
+        return res.status(400).json({
+          success: false,
+          message: '密碼長度必須至少為6個字符'
+        });
+      }
+      
+      // 加密新密碼
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updates.password = hashedPassword;
+    }
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
