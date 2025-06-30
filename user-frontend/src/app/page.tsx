@@ -129,6 +129,15 @@ function HomeContent() {
           <div className="absolute bottom-0 right-0 w-64 h-64 bg-pink-400 rounded-full mix-blend-multiply filter blur-xl transform translate-x-1/2 translate-y-1/2"></div>
         </div>
         <div className="relative">
+          {/* 手機版主頁上方按鈕區域 */}
+          <div className="flex justify-between items-center mb-4 md:hidden">
+            <Link href="/tutors">
+              <button className="bg-yellow-400 text-white px-4 py-2 rounded-md font-semibold shadow hover:bg-yellow-500 transition">推薦導師</button>
+            </Link>
+            <Link href="/find-tutor-cases">
+              <button className="bg-blue-500 text-white px-4 py-2 rounded-md font-semibold shadow hover:bg-blue-600 transition">補習個案</button>
+            </Link>
+          </div>
           <HeroSection />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <CaseFilterBar

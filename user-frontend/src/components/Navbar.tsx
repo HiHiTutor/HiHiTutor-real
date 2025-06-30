@@ -54,29 +54,36 @@ const Navbar = () => {
           </Link>
         </div>
         {/* 桌面選單+右側按鈕 */}
-        <div className="flex-1 flex justify-center md:space-x-6 text-sm text-gray-700 md:flex md:items-center md:justify-center max-md:hidden">
-          <nav className="flex space-x-6 items-center">
+        <div className="flex-1 flex justify-center items-center">
+          <nav className="flex space-x-4 items-center justify-center">
             <Link href="/" className="hover:text-primary">主頁</Link>
             <Link href="/tutors" className="bg-yellow-400 text-white px-3 py-1 rounded-md hover:bg-yellow-500 transition">推薦導師</Link>
             <Link href="/find-tutor-cases" className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 transition">補習個案</Link>
             <Link href="/articles" className="hover:text-primary">教育專欄</Link>
             <Link href="/faq" className="hover:text-primary">常見問題</Link>
-        </nav>
+          </nav>
         </div>
-        {/* 桌面右側行動按鈕 */}
+        {/* 桌面右側用戶icon+名+下拉 */}
         <div className="md:flex items-center gap-2 ml-auto z-10 relative max-md:hidden">
           {isLoggedIn && user && (
-            <div className="relative">
+            <div className="relative flex items-center gap-2">
+              {/* Tutor 顯示頭像，Student 不顯示 */}
+              {user.userType === 'tutor' && (
+                <img
+                  src={user.avatarUrl || user.avatar || '/avatars/default.png'}
+                  alt="avatar"
+                  className="w-8 h-8 rounded-full object-cover border"
+                />
+              )}
               <button
                 className="bg-gray-100 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-200 transition flex items-center"
                 onClick={() => setDropdownOpen((v) => !v)}
               >
-                <span className="max-sm:hidden max-[700px]:hidden">{user.name}</span>
-                <span className="sm:hidden max-[700px]:block">{user.name.length > 3 ? user.name.substring(0, 3) + '...' : user.name}</span>
+                <span>{user.name}</span>
                 <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
               </button>
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-44 bg-white border rounded-md shadow-lg z-50">
+                <div className="absolute left-0 top-full mt-2 w-44 bg-white border rounded-md shadow-lg z-50">
                   {(user?.userType === 'tutor' || user?.userType === 'organization') && (
                     <Link href="/tutor/dashboard" className="block px-4 py-2 hover:bg-gray-100">我的導師介面</Link>
                   )}
@@ -105,33 +112,28 @@ const Navbar = () => {
             </div>
           )}
         </div>
-        
-        {/* 手機版合併用戶信息與漢堡選單按鈕 */}
+        {/* 手機版icon+名+三合一 */}
         <div className="md:hidden flex items-center gap-2 ml-auto">
           {isLoggedIn && user ? (
             <div className="relative flex items-center gap-2">
-              {/* 用戶信息按鈕 */}
+              {user.userType === 'tutor' && (
+                <img
+                  src={user.avatarUrl || user.avatar || '/avatars/default.png'}
+                  alt="avatar"
+                  className="w-6 h-6 rounded-full object-cover border"
+                />
+              )}
               <button
-                className="flex items-center gap-2 bg-gray-100 text-gray-800 px-2 py-1 rounded-md hover:bg-gray-200 transition text-sm"
+                className="flex items-center gap-1 bg-gray-100 text-gray-800 px-2 py-1 rounded-md hover:bg-gray-200 transition text-sm"
                 onClick={() => setDropdownOpen((v) => !v)}
               >
-                {/* Tutor 顯示頭像，Student 不顯示 */}
-                {user.userType === 'tutor' && (
-                  <img
-                    src={user.avatarUrl || user.avatar || '/avatars/default.png'}
-                    alt="avatar"
-                    className="w-6 h-6 rounded-full object-cover border"
-                  />
-                )}
-                <span className="max-w-[80px] truncate">
-                  {user.name}
-                </span>
+                <span className="max-w-[80px] truncate">{user.name}</span>
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-32 bg-white border rounded-md shadow-lg z-50 text-sm">
+                <div className="absolute left-0 top-full mt-2 w-32 bg-white border rounded-md shadow-lg z-50 text-sm">
                   {(user?.userType === 'tutor' || user?.userType === 'organization') && (
                     <Link href="/tutor/dashboard" className="block px-3 py-2 hover:bg-gray-100">我的導師介面</Link>
                   )}
@@ -147,8 +149,6 @@ const Navbar = () => {
                   >登出</button>
                 </div>
               )}
-              
-              {/* 漢堡選單按鈕 */}
               <button
                 className="p-2"
                 aria-label="Open menu"
@@ -175,8 +175,6 @@ const Navbar = () => {
                   <button className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition">註冊</button>
                 </Link>
               </div>
-              
-              {/* 漢堡選單按鈕 */}
               <button
                 className="p-2"
                 aria-label="Open menu"
