@@ -62,7 +62,7 @@ const Navbar = () => {
             <Link href="/recommendations" className="hover:text-primary">導師推薦</Link>
             <Link href="/articles" className="hover:text-primary">教育專欄</Link>
             <Link href="/faq" className="hover:text-primary">常見問題</Link>
-          </nav>
+        </nav>
         </div>
         {/* 桌面右側行動按鈕 */}
         <div className="md:flex items-center gap-2 ml-auto z-10 relative max-md:hidden">
@@ -152,7 +152,7 @@ const Navbar = () => {
               <>
                 <div className="flex flex-col items-center space-y-2 mt-4">
                   <img
-                    src="/avatars/default.png"
+                    src={user.avatarUrl || user.avatar || '/avatars/default.png'}
                     alt="avatar"
                     className="w-16 h-16 rounded-full object-cover border"
                   />
