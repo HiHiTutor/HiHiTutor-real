@@ -47,23 +47,21 @@ export default function Navbar() {
           <Link href="/recommendations" onClick={() => setMenuOpen(false)}>導師推薦</Link>
           <Link href="/articles" onClick={() => setMenuOpen(false)}>教育專欄</Link>
           <Link href="/faq" onClick={() => setMenuOpen(false)}>常見問題</Link>
-          {/* 登入／註冊按鈕 */}
-          <div className="flex flex-col items-center space-y-2 mt-2 w-full">
-            <Link
-              href="/login"
-              className="bg-blue-500 text-white px-4 py-2 rounded w-4/5 text-center"
-              onClick={() => setMenuOpen(false)}
-            >
-              用戶登入
-            </Link>
-            <Link
-              href="/register"
-              className="bg-green-500 text-white px-4 py-2 rounded w-4/5 text-center"
-              onClick={() => setMenuOpen(false)}
-            >
-              註冊用戶
-            </Link>
-          </div>
+          {/* ✅ 加入登入與註冊按鈕 */}
+          <Link
+            href="/login"
+            className="bg-blue-500 text-white px-4 py-2 rounded text-center"
+            onClick={() => setMenuOpen(false)}
+          >
+            用戶登入
+          </Link>
+          <Link
+            href="/register"
+            className="bg-green-500 text-white px-4 py-2 rounded text-center"
+            onClick={() => setMenuOpen(false)}
+          >
+            註冊用戶
+          </Link>
         </div>
       )}
     </nav>
