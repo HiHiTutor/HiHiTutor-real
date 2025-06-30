@@ -6,90 +6,31 @@ import Link from 'next/link';
 import { fetchApi } from '@/services/api';
 import CaseCard from '@/components/CaseCard';
 import TutorCard from '@/components/TutorCard';
-import SUBJECT_MAP from '@/constants/subjectOptions';
-
-// 科目映射表
-const subjectMap: { [key: string]: string } = {
-  // 幼兒教育
-  'early-childhood-chinese': '中文',
-  'early-childhood-english': '英文',
-  'early-childhood-math': '數學',
-  
-  // 小學教育
-  'primary-chinese': '中文',
-  'primary-english': '英文',
-  'primary-math': '數學',
-  'primary-general': '常識／科學',
-  'primary-stem': '常識／STEM',
-  
-  // 中學教育
-  'secondary-chinese': '中文',
-  'secondary-english': '英文',
-  'secondary-math': '數學',
-  'secondary-ls': '通識教育',
-  'secondary-humanities': '綜合人文／社會',
-  'secondary-economics': '經濟／商業',
-  'secondary-computer': '電腦科學／ICT',
-  'secondary-dse': 'DSE 專科補習',
-  'secondary-all': '全科',
-  
-  // 大學本科
-  'undergraduate-calculus': '微積分',
-  'undergraduate-economics': '經濟學',
-  'undergraduate-statistics': '統計學',
-  'undergraduate-accounting': '會計',
-  'undergraduate-programming': '編程',
-  'undergraduate-language': '語言',
-  
-  // 研究生
-  'postgraduate-thesis': '論文寫作',
-  'postgraduate-research': '研究設計',
-  'postgraduate-spss': 'SPSS',
-  'postgraduate-presentation': '簡報技巧',
-  
-  // 興趣班
-  'interest-music': '音樂',
-  'interest-art': '畫畫',
-  'interest-programming': '編程',
-  'interest-language': '語言',
-  
-  // 成人教育
-  'adult-business': '商業寫作',
-  'adult-language': '語言進修',
-  'adult-workplace': '職場技能'
-};
+import { getSubjectName } from '@/utils/translate';
 
 // 地區映射表
 const regionMap: { [key: string]: string } = {
   // 香港島
-  'hong-kong-island': '香港島',
-  'central-western': '中上環',
+  'central': '中環',
+  'sheung-wan': '上環',
+  'sai-wan': '西環',
   'sai-ying-pun': '西營盤',
   'shek-tong-tsui': '石塘咀',
   'wan-chai': '灣仔',
-  'admiralty': '金鐘',
   'causeway-bay': '銅鑼灣',
+  'admiralty': '金鐘',
   'happy-valley': '跑馬地',
   'tin-hau': '天后',
   'tai-hang': '大坑',
   'north-point': '北角',
-  'fortress-hill': '炮台山',
-  'braemar-hill': '北角半山',
   'quarry-bay': '鰂魚涌',
-  'taikoo': '太古城',
+  'taikoo': '太古',
   'sai-wan-ho': '西灣河',
   'shau-kei-wan': '筲箕灣',
-  'heng-fa-chuen': '杏花邨',
   'chai-wan': '柴灣',
-  'siu-sai-wan': '小西灣',
-  'shek-o': '石澳',
-  'aberdeen': '香港仔',
-  'ap-lei-chau': '鴨脷洲',
-  'wong-chuk-hang': '黃竹坑',
-  'southern': '南區',
+  'heng-fa-chuen': '杏花邨',
   
   // 九龍
-  'kowloon': '九龍',
   'tsim-sha-tsui': '尖沙咀',
   'jordan': '佐敦',
   'yau-ma-tei': '油麻地',
@@ -109,44 +50,41 @@ const regionMap: { [key: string]: string } = {
   'lam-tin': '藍田',
   'kwun-tong': '觀塘',
   'yau-tong': '油塘',
-  'kowloon-city': '九龍城',
-  'wong-tai-sin': '黃大仙',
   
   // 新界
-  'new-territories': '新界',
-  'tsuen-wan': '荃灣',
-  'kwai-chung': '葵涌',
-  'kwai-fong': '葵芳',
-  'tsing-yi': '青衣',
-  'tuen-mun': '屯門',
-  'yuen-long': '元朗',
-  'tin-shui-wai': '天水圍',
-  'sheung-shui': '上水',
-  'fan-ling': '粉嶺',
-  'tai-wo': '太和',
-  'tai-po': '大埔',
-  'ma-on-shan': '馬鞍山',
   'sha-tin': '沙田',
+  'ma-on-shan': '馬鞍山',
+  'tai-wai': '大圍',
   'fo-tan': '火炭',
+  'tai-po': '大埔',
+  'tai-wo': '太和',
+  'fan-ling': '粉嶺',
+  'sheung-shui': '上水',
   'tseung-kwan-o': '將軍澳',
-  'sai-kung': '西貢',
-  'clear-water-bay': '清水灣',
   'hang-hau': '坑口',
-  'tiu-keng-leng': '調景嶺',
+  'po-lam': '寶琳',
+  'lohas-park': '康城',
+  'tuen-mun': '屯門',
+  'siu-hong': '兆康',
+  'yuen-long': '元朗',
   'long-ping': '朗屏',
+  'tin-shui-wai': '天水圍',
+  'tsuen-wan': '荃灣',
+  'kwai-fong': '葵芳',
+  'kwai-chung': '葵涌',
+  'tsing-yi': '青衣',
   'kam-sheung-road': '錦上路',
-  'shek-mun': '石門',
+  'sai-kung': '西貢',
   
   // 離島
-  'islands': '離島',
   'tung-chung': '東涌',
-  'sunny-bay': '欣澳',
   'mui-wo': '梅窩',
-  'discovery-bay': '愉景灣',
+  'tai-o': '大澳',
+  'ping-chau': '坪洲',
   'cheung-chau': '長洲',
   'lamma-island': '南丫島',
-  'ping-chau': '坪洲',
-  'tai-o': '大澳'
+  'discovery-bay': '愉景灣',
+  'pui-o': '貝澳'
 };
 
 // 授課模式映射

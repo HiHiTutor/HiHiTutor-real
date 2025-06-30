@@ -129,15 +129,51 @@ export const MODE_MAP: { [key: string]: string } = {
 };
 
 // 獲取地區完整名稱
-export const getRegionName = (region: string): string => REGION_MAP[region] || '';
+export const getRegionName = (region: string): string => {
+  return REGION_MAP[region] || region || '未指定地區';
+};
 
-// 獲取科目中文名稱
+// 獲取科目中文名稱 - 增強版，支援 fallback
 export function getSubjectName(subject: string): string {
-  return SUBJECT_MAP[subject] || subject;
+  if (!subject) return '未指定科目';
+  
+  // 先從 SUBJECT_MAP 查找
+  const mappedName = SUBJECT_MAP[subject];
+  if (mappedName) {
+    return mappedName;
+  }
+  
+  // 如果找不到，嘗試一些常見的 fallback 處理
+  const fallbackMap: { [key: string]: string } = {
+    'math': '數學',
+    'english': '英文',
+    'chinese': '中文',
+    'physics': '物理',
+    'chemistry': '化學',
+    'biology': '生物',
+    'economics': '經濟',
+    'geography': '地理',
+    'history': '歷史',
+    'music': '音樂',
+    'art': '美術',
+    'pe': '體育',
+    'computer': '電腦',
+    'programming': '編程'
+  };
+  
+  // 檢查是否包含這些關鍵字
+  for (const [key, value] of Object.entries(fallbackMap)) {
+    if (subject.toLowerCase().includes(key)) {
+      return value;
+    }
+  }
+  
+  // 最後的 fallback：返回原值或預設值
+  return subject || '未定義科目';
 }
 
 export function getSubjectNames(subjects: string[]): string {
-  if (!subjects || subjects.length === 0) return '未指定';
+  if (!subjects || subjects.length === 0) return '未指定科目';
   return subjects.map(getSubjectName).join('、');
 }
 
