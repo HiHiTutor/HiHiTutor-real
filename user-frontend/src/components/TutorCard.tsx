@@ -9,6 +9,7 @@ import { getSubjectName } from '@/utils/translate';
 interface Tutor {
   id: string;
   userId?: string;
+  tutorId?: string;
   name: string;
   subject?: string;
   subjects?: string[];
@@ -43,8 +44,8 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
   const displayAvatar = tutor.avatarUrl || tutor.avatar || '/avatars/default.png';
   const avatarOffsetX = tutor.avatarOffsetX || 50; // 預設置中
   
-  // 使用 userId 作為導航 ID，如果沒有則使用 id
-  const navigationId = tutor.userId || tutor.id;
+  // 使用 tutorId 作為導航 ID，如果沒有則使用 userId 或 id
+  const navigationId = tutor.tutorId || tutor.userId || tutor.id;
 
   return (
     <Link href={`/tutors/${navigationId}`}>

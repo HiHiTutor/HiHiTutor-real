@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getAllTutors, getTutorById, getTutorByTutorId, getTutorProfile, updateTutorProfile, testTutors } = require('../controllers/tutorController');
+const { getAllTutors, getTutorByTutorId, getTutorProfile, updateTutorProfile, testTutors } = require('../controllers/tutorController');
 const { verifyToken } = require('../middleware/authMiddleware');
 
 // 測試端點
@@ -10,9 +10,8 @@ router.get('/test', testTutors);
 router.get('/profile', verifyToken, getTutorProfile);
 router.put('/profile', verifyToken, updateTutorProfile);
 
-// 公開 API
+// 公開 API - 只允許用 tutorId 查詢
 router.get('/', getAllTutors);
 router.get('/detail/:tutorId', getTutorByTutorId);
-router.get('/:id', getTutorById);
 
 module.exports = router; 

@@ -153,11 +153,23 @@ const TutorProfileApprovals: React.FC = () => {
 
   const handleReject = async (tutorId: string, remarks: string) => {
     try {
+      // 前端驗證
+      if (!tutorId) {
+        throw new Error('缺少導師 ID');
+      }
+      
+      if (!remarks || remarks.trim() === '') {
+        throw new Error('請填寫拒絕原因');
+      }
+      
       setReviewing(tutorId);
       
-      const response = await api.patch(`/tutor-profiles/${tutorId}/reject`, {
-        remarks
-      });
+      const requestData = { remarks: remarks.trim() };
+      console.log('🔄 發送拒絕請求:', { tutorId, requestData });
+      
+      const response = await api.patch(`/tutor-profiles/${tutorId}/reject`, requestData);
+
+      console.log('✅ 拒絕請求成功:', response.data);
 
       if (response.data.success) {
         setSnackbar({
@@ -168,13 +180,31 @@ const TutorProfileApprovals: React.FC = () => {
         setRejectDialog({ open: false, tutorId: null, remarks: '' });
         await fetchPendingTutorProfiles();
       } else {
-        throw new Error(response.data.message || '拒絕失敗');
+        throw new Error(response.data.message || response.data.error || '拒絕失敗');
       }
     } catch (error: any) {
-      console.error('拒絕失敗:', error);
+      console.error('❌ 拒絕失敗詳細錯誤:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        url: error.config?.url,
+        method: error.config?.method
+      });
+      
+      let errorMessage = '拒絕失敗';
+      
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       setSnackbar({
         open: true,
-        message: error.response?.data?.message || error.message || '拒絕失敗',
+        message: errorMessage,
         severity: 'error',
       });
     } finally {
@@ -655,14 +685,26 @@ const TutorProfileApprovals: React.FC = () => {
             multiline
             rows={4}
             value={rejectDialog.remarks}
-            onChange={(e) => setRejectDialog({ ...rejectDialog, remarks: e.target.value })}
+            onChange={(e) => {
+              const newRemarks = e.target.value;
+              console.log('📝 更新拒絕原因:', newRemarks);
+              setRejectDialog({ ...rejectDialog, remarks: newRemarks });
+            }}
             placeholder="請說明拒絕原因..."
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={closeRejectDialog}>取消</Button>
           <Button
-            onClick={() => handleReject(rejectDialog.tutorId!, rejectDialog.remarks)}
+            onClick={() => {
+              console.log('🔘 點擊拒絕按鈕:', {
+                tutorId: rejectDialog.tutorId,
+                remarks: rejectDialog.remarks,
+                remarksLength: rejectDialog.remarks.length,
+                remarksTrimmed: rejectDialog.remarks.trim()
+              });
+              handleReject(rejectDialog.tutorId!, rejectDialog.remarks);
+            }}
             color="error"
             disabled={!rejectDialog.remarks.trim() || reviewing === rejectDialog.tutorId}
           >

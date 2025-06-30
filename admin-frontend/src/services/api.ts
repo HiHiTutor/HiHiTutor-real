@@ -66,13 +66,17 @@ api.interceptors.response.use(
         url: error.config?.url,
         method: error.config?.method,
         status: error.response?.status,
+        statusText: error.response?.statusText,
         data: error.response?.data,
-        message: error.message
+        message: error.message,
+        headers: error.response?.headers
       });
     } else {
       console.error('❌ Network Error:', {
         url: error.config?.url,
-        message: error.message
+        method: error.config?.method,
+        message: error.message,
+        code: error.code
       });
     }
 

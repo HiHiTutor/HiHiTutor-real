@@ -16,6 +16,7 @@ import { getSubjectName, getRegionName } from '@/utils/translate';
 interface Tutor {
   id?: string;
   userID?: string;
+  tutorId?: string;
   name: string;
   avatarUrl?: string;
   tutorProfile?: {
@@ -284,7 +285,7 @@ function TutorsPageContent() {
   };
 
   const handleTutorClick = (tutor: Tutor) => {
-    const tutorId = tutor.id || tutor.userID;
+    const tutorId = tutor.tutorId || tutor.id || tutor.userID;
     if (tutorId) {
       router.push(`/tutors/${tutorId}`);
     }

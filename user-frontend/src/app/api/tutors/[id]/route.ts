@@ -8,11 +8,11 @@ export async function GET(
     const { id } = params;
     const baseURL = process.env.NEXT_PUBLIC_API_BASE || 'https://hi-hi-tutor-real-backend2.vercel.app';
     
-    console.log('🔍 代理導師詳情請求:', `${baseURL}/api/tutors/${id}`);
+    console.log('🔍 代理導師詳情請求:', `${baseURL}/api/tutors/detail/${id}`);
     console.log('🌐 環境變數 NEXT_PUBLIC_API_BASE:', process.env.NEXT_PUBLIC_API_BASE);
     console.log('🔗 使用的 baseURL:', baseURL);
     
-    const response = await fetch(`${baseURL}/api/tutors/${id}`, {
+    const response = await fetch(`${baseURL}/api/tutors/detail/${id}`, {
       headers: {
         'Content-Type': 'application/json',
       },

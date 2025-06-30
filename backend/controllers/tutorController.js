@@ -866,188 +866,6 @@ const getAllTutors = async (req, res) => {
   }
 };
 
-// 根據 ID 回傳特定導師
-const getTutorById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    
-    console.log('🔍 查找導師:', id);
-    
-    // 檢查 MongoDB 連接狀態
-    if (mongoose.connection.readyState !== 1) {
-      console.log('⚠️ MongoDB 未連接，當前狀態:', mongoose.connection.readyState);
-      console.log('- 使用 mock 數據作為 fallback');
-      
-      // 使用 mock 數據
-      try {
-        const mockTutors = require('../data/tutors');
-        const mockTutor = mockTutors.find(tutor => tutor.id == id); // 使用 == 來比較數字和字串
-        
-        if (!mockTutor) {
-          console.log('❌ 在 mock 數據中找不到導師:', id);
-          return res.status(404).json({ 
-            success: false,
-            message: '找不到該導師',
-            source: 'mock'
-          });
-        }
-        
-        console.log('✅ 在 mock 數據中找到導師:', mockTutor.name);
-        
-        // 格式化 mock 數據以符合 API 格式
-        const formattedTutor = {
-          id: mockTutor.id,
-          userId: mockTutor.id,
-          name: mockTutor.name,
-          subjects: mockTutor.subject ? [mockTutor.subject] : ['數學', '英文', '中文'],
-          education: mockTutor.education,
-          experience: mockTutor.experience,
-          rating: mockTutor.rating,
-          avatar: mockTutor.avatarUrl,
-          isVip: mockTutor.isVip,
-          isTop: mockTutor.isTop,
-          createdAt: new Date().toISOString(),
-          date: new Date().toISOString()
-        };
-        
-        return res.json({
-          success: true,
-          data: formattedTutor,
-          source: 'mock',
-          mongoState: mongoose.connection.readyState
-        });
-      } catch (mockError) {
-        console.error('❌ 載入 mock 數據失敗:', mockError);
-        return res.status(500).json({
-          success: false,
-          message: 'Failed to load data',
-          error: mockError.message
-        });
-      }
-    }
-    
-    // MongoDB 連接正常，嘗試多種方式查找導師
-    let tutor = null;
-    
-    // 1. 先嘗試用 userId 查找
-    if (id && id !== 'undefined') {
-      tutor = await User.findOne({ 
-        userId: id,
-        userType: 'tutor'
-      }).select('-password -refreshToken');
-    }
-    
-    // 2. 如果找不到，嘗試用 MongoDB _id 查找
-    if (!tutor && id && id.length === 24) {
-      tutor = await User.findOne({ 
-        _id: id,
-        userType: 'tutor'
-      }).select('-password -refreshToken');
-    }
-    
-    // 3. 如果還是找不到，嘗試用 tutorId 查找
-    if (!tutor) {
-      tutor = await User.findOne({ 
-        tutorId: id,
-        userType: 'tutor'
-      }).select('-password -refreshToken');
-    }
-    
-    // 4. 如果 MongoDB 中找不到，fallback 到 mock 數據
-    if (!tutor) {
-      console.log('⚠️ MongoDB 中找不到導師，嘗試 mock 數據:', id);
-      
-      try {
-        const mockTutors = require('../data/tutors');
-        const mockTutor = mockTutors.find(tutor => tutor.id == id); // 使用 == 來比較數字和字串
-        
-        if (!mockTutor) {
-          console.log('❌ 在 mock 數據中也找不到導師:', id);
-          return res.status(404).json({ 
-            success: false,
-            message: '找不到該導師',
-            source: 'both'
-          });
-        }
-        
-        console.log('✅ 在 mock 數據中找到導師:', mockTutor.name);
-        
-        // 格式化 mock 數據以符合 API 格式
-        const formattedTutor = {
-          id: mockTutor.id,
-          userId: mockTutor.id,
-          name: mockTutor.name,
-          subjects: mockTutor.subject ? [mockTutor.subject] : ['數學', '英文', '中文'],
-          education: mockTutor.education,
-          experience: mockTutor.experience,
-          rating: mockTutor.rating,
-          avatar: mockTutor.avatarUrl,
-          isVip: mockTutor.isVip,
-          isTop: mockTutor.isTop,
-          createdAt: new Date().toISOString(),
-          date: new Date().toISOString()
-        };
-        
-        return res.json({
-          success: true,
-          data: formattedTutor,
-          source: 'mock-fallback',
-          mongoState: mongoose.connection.readyState
-        });
-      } catch (mockError) {
-        console.error('❌ 載入 mock 數據失敗:', mockError);
-        return res.status(404).json({ 
-          success: false,
-          message: '找不到該導師',
-          source: 'error'
-        });
-      }
-    }
-    
-    console.log('✅ 在 MongoDB 中找到導師:', tutor.name);
-    
-    // 回傳導師公開資料
-    const publicProfile = {
-      id: tutor._id,
-      userId: tutor.userId,
-      tutorId: tutor.tutorId,
-      name: tutor.name,
-      avatar: tutor.avatar || tutor.tutorProfile?.avatarUrl || '',
-      avatarOffsetX: tutor.tutorProfile?.avatarOffsetX || 50,
-      subjects: tutor.tutorProfile?.subjects || [],
-      teachingAreas: tutor.tutorProfile?.teachingAreas || [],
-      teachingMethods: tutor.tutorProfile?.teachingMethods || [],
-      experience: tutor.tutorProfile?.teachingExperienceYears || 0,
-      introduction: tutor.tutorProfile?.introduction || '',
-      education: tutor.tutorProfile?.educationLevel || '',
-      qualifications: tutor.tutorProfile?.documents?.map(doc => doc.type) || [],
-      hourlyRate: tutor.tutorProfile?.sessionRate || 0,
-      availableTime: tutor.tutorProfile?.availableTime?.map(time => `${time.day} ${time.time}`.trim()) || [],
-      examResults: tutor.tutorProfile?.examResults?.map(exam => `${exam.subject} ${exam.grade}`) || [],
-      courseFeatures: tutor.tutorProfile?.courseFeatures || '',
-      rating: tutor.rating || 0
-    };
-    
-    res.json({
-      success: true,
-      data: publicProfile,
-      source: 'mongodb'
-    });
-  } catch (error) {
-    console.error('❌ 獲取導師詳情錯誤:', {
-      message: error.message,
-      code: error.code,
-      name: error.name,
-      stack: error.stack
-    });
-    res.status(500).json({ 
-      success: false,
-      message: '獲取導師詳情失敗',
-      error: error.message
-    });
-  }
-};
-
 // 根據 tutorId 回傳導師公開 profile
 const getTutorByTutorId = async (req, res) => {
   try {
@@ -1068,8 +886,13 @@ const getTutorByTutorId = async (req, res) => {
       });
     }
     
-    const user = await User.findOne({ tutorId });
-    if (!user || user.userType !== 'tutor') {
+    const user = await User.findOne({ 
+      tutorId,
+      userType: 'tutor',
+      isActive: true
+    }).select('-password -refreshToken');
+    
+    if (!user) {
       console.log('❌ 找不到導師:', tutorId);
       return res.status(404).json({ 
         success: false, 
@@ -1079,16 +902,33 @@ const getTutorByTutorId = async (req, res) => {
     
     console.log('✅ 找到導師:', user.name);
     
-    // 只回傳公開資料
+    // 回傳完整的導師公開資料
     const publicProfile = {
+      id: user._id,
+      userId: user.userId,
       tutorId: user.tutorId,
-      education: user.tutorProfile?.education,
-      experience: user.tutorProfile?.experience,
-      specialties: user.tutorProfile?.specialties,
-      introduction: user.tutorProfile?.introduction,
-      // 其他你想公開的欄位
+      name: user.name,
+      avatar: user.avatar || user.tutorProfile?.avatarUrl || '',
+      avatarOffsetX: user.tutorProfile?.avatarOffsetX || 50,
+      subjects: user.tutorProfile?.subjects || [],
+      teachingAreas: user.tutorProfile?.teachingAreas || [],
+      teachingMethods: user.tutorProfile?.teachingMethods || [],
+      experience: user.tutorProfile?.teachingExperienceYears || 0,
+      introduction: user.tutorProfile?.introduction || '',
+      education: user.tutorProfile?.educationLevel || '',
+      qualifications: user.tutorProfile?.documents?.map(doc => doc.type) || [],
+      hourlyRate: user.tutorProfile?.sessionRate || 0,
+      availableTime: user.tutorProfile?.availableTime?.map(time => `${time.day} ${time.time}`.trim()) || [],
+      examResults: user.tutorProfile?.examResults?.map(exam => `${exam.subject} ${exam.grade}`) || [],
+      courseFeatures: user.tutorProfile?.courseFeatures || '',
+      rating: user.rating || 0
     };
-    res.json({ success: true, data: publicProfile });
+    
+    res.json({
+      success: true,
+      data: publicProfile,
+      source: 'mongodb'
+    });
   } catch (error) {
     console.error('❌ 獲取導師 profile 錯誤:', {
       message: error.message,
@@ -1513,7 +1353,6 @@ const updateTutorProfile = async (req, res) => {
 
 module.exports = {
   getAllTutors,
-  getTutorById,
   getTutorByTutorId,
   getTutors,
   getTutorDetail,
