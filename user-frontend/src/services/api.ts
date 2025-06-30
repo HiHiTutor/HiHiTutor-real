@@ -51,6 +51,18 @@ export const fetchApi = async (endpoint: string, options: RequestInit = {}, para
     const responseData = await response.json().catch(() => ({ message: '無法解析回應' }));
     console.log('📥 API 回應:', responseData);
 
+    // 特殊處理導師 API 的回應格式
+    if (endpoint === '/tutors' && responseData.success && responseData.data && responseData.data.tutors) {
+      console.log('🎯 檢測到導師 API 回應，返回 tutors 陣列');
+      return responseData.data.tutors;
+    }
+
+    // 特殊處理個案 API 的回應格式
+    if ((endpoint === '/tutor-cases' || endpoint === '/find-tutor-cases') && responseData.success && responseData.data && responseData.data.cases) {
+      console.log('🎯 檢測到個案 API 回應，返回 cases 陣列');
+      return responseData.data.cases;
+    }
+
     return responseData;
   } catch (error) {
     console.error('❌ API 請求錯誤:', error);
