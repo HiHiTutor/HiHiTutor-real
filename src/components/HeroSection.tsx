@@ -49,7 +49,7 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="max-w-7xl mx-auto flex flex-col max-w-[1023px]:flex-col lg:flex-row gap-8 items-start px-4 py-10 min-h-[300px] max-sm:px-4 max-sm:py-6">
+    <section className="max-w-7xl mx-auto flex flex-col min-[700px]:flex-row gap-8 items-start px-4 py-10 min-h-[300px] max-sm:px-4 max-sm:py-6">
       {/* 左欄：Hero 圖 & 文案 */}
       <div className="flex-1 w-full max-w-[1023px]:order-1 lg:order-none max-sm:w-full max-[700px]:w-full">
         <div className="relative w-full h-[400px] max-w-[1023px]:h-auto bg-[url('/backbroad.jpg')] bg-cover bg-center max-sm:h-[300px] max-[700px]:h-[350px] w-full max-w-full mx-auto object-contain">
