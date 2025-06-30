@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'react-hot-toast';
+import { getSubjectName } from '@/utils/translate';
 
 interface Tutor {
   id: string;
@@ -108,7 +109,7 @@ export default function TutorDetailPage() {
                   <div className="flex flex-wrap gap-2">
                     {tutor.subjects.map((subject) => (
                       <Badge key={subject} variant="secondary">
-                        {subject}
+                        {getSubjectName(subject)}
                       </Badge>
                     ))}
                   </div>

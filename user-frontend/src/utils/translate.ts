@@ -158,7 +158,8 @@ export function getSubjectName(subject: string): string {
     'art': '美術',
     'pe': '體育',
     'computer': '電腦',
-    'programming': '編程'
+    'programming': '編程',
+    'coding': '編程'
   };
   
   // 檢查是否包含這些關鍵字
