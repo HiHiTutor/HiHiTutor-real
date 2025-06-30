@@ -1,5 +1,5 @@
   {menuOpen && (
-    <div className="absolute top-full left-0 w-full bg-white shadow-lg z-50 flex flex-col items-center space-y-4 py-6 md:hidden animate-fade-in max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-white z-[9999] flex flex-col items-center space-y-4 py-6 md:hidden overflow-y-auto">
       <Link href="/" className="hover:text-primary text-lg" onClick={() => setMenuOpen(false)}>主頁</Link>
       <Link href="/tutors" className="hover:text-primary text-lg" onClick={() => setMenuOpen(false)}>尋導師</Link>
       <Link href="/find-tutor-cases" className="hover:text-primary text-lg" onClick={() => setMenuOpen(false)}>補習個案</Link>
