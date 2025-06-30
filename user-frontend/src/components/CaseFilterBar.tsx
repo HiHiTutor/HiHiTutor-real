@@ -62,17 +62,50 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
   });
 
   const isStudentCase = fetchUrl.includes('student');
-  const colorScheme = isStudentCase ? {
-    text: 'text-yellow-600',
-    border: 'border-yellow-200',
-    bg: 'bg-yellow-50',
-    button: 'bg-yellow-500 hover:bg-yellow-600'
-  } : {
-    text: 'text-blue-600',
-    border: 'border-blue-200',
-    bg: 'bg-blue-50',
-    button: 'bg-blue-500 hover:bg-blue-600'
+  
+  // 根據頁面路徑設定顏色方案
+  const getColorScheme = () => {
+    if (pathname === '/') {
+      // 首頁：銀灰色，與 Topbar 一致
+      return {
+        text: 'text-gray-700',
+        border: 'border-gray-300',
+        bg: 'bg-gradient-to-b from-white to-gray-100',
+        button: 'bg-gray-500 hover:bg-gray-600'
+      };
+    } else if (pathname === '/tutors') {
+      // 導師列表頁：黃色主題
+      return {
+        text: 'text-yellow-700',
+        border: 'border-yellow-200',
+        bg: 'bg-yellow-50',
+        button: 'bg-yellow-500 hover:bg-yellow-600'
+      };
+    } else if (pathname === '/find-tutor-cases') {
+      // 個案頁：保持藍色主題
+      return {
+        text: 'text-blue-600',
+        border: 'border-blue-200',
+        bg: 'bg-blue-50',
+        button: 'bg-blue-500 hover:bg-blue-600'
+      };
+    } else {
+      // 其他頁面：根據 fetchUrl 判斷
+      return isStudentCase ? {
+        text: 'text-yellow-600',
+        border: 'border-yellow-200',
+        bg: 'bg-yellow-50',
+        button: 'bg-yellow-500 hover:bg-yellow-600'
+      } : {
+        text: 'text-blue-600',
+        border: 'border-blue-200',
+        bg: 'bg-blue-50',
+        button: 'bg-blue-500 hover:bg-blue-600'
+      };
+    }
   };
+
+  const colorScheme = getColorScheme();
 
   // 根據當前頁面決定是否顯示目標選擇和自動設定目標值
   const shouldShowTarget = () => {
