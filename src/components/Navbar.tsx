@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
+console.log('🚀 Navbar component loaded');
+
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   console.log('🔥 menuOpen =', menuOpen); // Debug 用
@@ -22,7 +24,8 @@ export default function Navbar() {
 
       {/* 漢堡按鈕 */}
       <button
-        className="md:hidden"
+        className="md:hidden z-[9999]"
+        style={{ pointerEvents: 'auto' }}
         aria-label="Open menu"
         onClick={() => {
           console.log("✅ 點擊漢堡 icon");
