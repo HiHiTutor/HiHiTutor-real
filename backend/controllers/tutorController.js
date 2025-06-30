@@ -314,7 +314,7 @@ const getAllTutors = async (req, res) => {
               isActive: true,
               status: 'active',
               isVip: true 
-            }).select('name email avatar tutorProfile rating isVip isTop createdAt');
+            }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId');
             
             const topTutors = await User.find({ 
               userType: 'tutor',
@@ -322,7 +322,7 @@ const getAllTutors = async (req, res) => {
               status: 'active',
               isTop: true,
               isVip: false  // 排除 VIP，避免重複
-            }).select('name email avatar tutorProfile rating isVip isTop createdAt');
+            }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId');
             
             const regularTutors = await User.find({ 
               userType: 'tutor',
@@ -330,7 +330,7 @@ const getAllTutors = async (req, res) => {
               status: 'active',
               isVip: false,
               isTop: false
-            }).select('name email avatar tutorProfile rating isVip isTop createdAt');
+            }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId');
             
             console.log(`📊 找到導師數量:`);
             console.log(`- VIP 導師: ${vipTutors.length} 個`);
@@ -435,6 +435,7 @@ const getAllTutors = async (req, res) => {
             tutors = finalShuffled.map(tutor => ({
               _id: tutor._id,
               userId: tutor._id,
+              tutorId: tutor.tutorId,
               name: tutor.name,
               subjects: tutor.tutorProfile?.subjects || [],
               education: tutor.tutorProfile?.educationLevel || '',
@@ -561,7 +562,7 @@ const getAllTutors = async (req, res) => {
             isActive: true,
             status: 'active',
             isVip: true 
-          }).select('name email avatar tutorProfile rating isVip isTop createdAt');
+          }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId');
           
           const topTutors = await User.find({ 
             userType: 'tutor',
@@ -569,7 +570,7 @@ const getAllTutors = async (req, res) => {
             status: 'active',
             isTop: true,
             isVip: false  // 排除 VIP，避免重複
-          }).select('name email avatar tutorProfile rating isVip isTop createdAt');
+          }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId');
           
           const regularTutors = await User.find({ 
             userType: 'tutor',
@@ -577,7 +578,7 @@ const getAllTutors = async (req, res) => {
             status: 'active',
             isVip: false,
             isTop: false
-          }).select('name email avatar tutorProfile rating isVip isTop createdAt');
+          }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId');
           
           console.log(`📊 Fallback 查詢結果:`);
           console.log(`- VIP 導師: ${vipTutors.length} 個`);
@@ -660,6 +661,7 @@ const getAllTutors = async (req, res) => {
           tutors = finalShuffled.map(tutor => ({
             _id: tutor._id,
             userId: tutor._id,
+            tutorId: tutor.tutorId,
             name: tutor.name,
             subjects: tutor.tutorProfile?.subjects || [],
             education: tutor.tutorProfile?.educationLevel || '',
@@ -746,7 +748,7 @@ const getAllTutors = async (req, res) => {
           
           // 執行查詢
           const dbTutors = await User.find(query)
-            .select('name email avatar tutorProfile rating isVip isTop createdAt')
+            .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId')
             .sort({ rating: -1, createdAt: -1 })
             .limit(parseInt(limit) || 50);
           
@@ -756,6 +758,7 @@ const getAllTutors = async (req, res) => {
           tutors = dbTutors.map(tutor => ({
             _id: tutor._id,
             userId: tutor._id,
+            tutorId: tutor.tutorId,
             name: tutor.name,
             subjects: tutor.tutorProfile?.subjects || [],
             education: tutor.tutorProfile?.educationLevel || '',
@@ -828,6 +831,7 @@ const getAllTutors = async (req, res) => {
       return {
         id: tutor._id,
         userId: tutor.userId,
+        tutorId: tutor.tutorId,
         name: tutor.name,
         subjects: subjects,
         education: tutor.education,
