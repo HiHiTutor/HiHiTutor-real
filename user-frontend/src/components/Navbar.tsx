@@ -54,7 +54,7 @@ const Navbar = () => {
           </Link>
         </div>
         {/* 桌面選單+右側按鈕 */}
-        <div className="flex-1 flex justify-center items-center">
+        <div className="flex-1 justify-center items-center max-md:hidden flex">
           <nav className="flex space-x-4 items-center justify-center">
             <Link href="/" className="hover:text-primary">主頁</Link>
             <Link href="/tutors" className="bg-yellow-400 text-white px-3 py-1 rounded-md hover:bg-yellow-500 transition">推薦導師</Link>
@@ -207,18 +207,19 @@ const Navbar = () => {
                 &times;
               </button>
             </div>
-
-            <Link href="/" onClick={() => setMenuOpen(false)}>主頁</Link>
+            {/* 推薦導師/補習個案按鈕 */}
             <Link href="/tutors" onClick={() => setMenuOpen(false)}>
-              <button className="bg-yellow-400 text-white px-4 py-2 rounded w-4/5 text-center">
+              <button className="bg-yellow-400 text-white px-4 py-2 rounded w-4/5 text-center font-semibold shadow hover:bg-yellow-500 transition">
                 推薦導師
               </button>
             </Link>
             <Link href="/find-tutor-cases" onClick={() => setMenuOpen(false)}>
-              <button className="bg-blue-500 text-white px-4 py-2 rounded w-4/5 text-center">
+              <button className="bg-blue-500 text-white px-4 py-2 rounded w-4/5 text-center font-semibold shadow hover:bg-blue-600 transition">
                 補習個案
               </button>
             </Link>
+            {/* 主頁及其他選項 */}
+            <Link href="/" onClick={() => setMenuOpen(false)}>主頁</Link>
             <Link href="/articles" onClick={() => setMenuOpen(false)}>教育專欄</Link>
             <Link href="/faq" onClick={() => setMenuOpen(false)}>常見問題</Link>
           </div>
