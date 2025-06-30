@@ -120,24 +120,24 @@ const CategoryList: React.FC = () => {
   };
 
   return (
-    <section className="max-w-screen-xl mx-auto px-4 md:px-12 py-8">
-      <div className="flex items-center gap-2 mb-6">
-        <span className="text-2xl">📚</span>
-        <h2 className="text-2xl font-bold border-l-4 border-yellow-400 pl-3">課程分類</h2>
+    <section className="max-w-screen-xl mx-auto px-4 md:px-12 py-8 max-sm:px-4 max-sm:py-6">
+      <div className="flex items-center gap-2 mb-6 max-sm:gap-1 max-sm:mb-4">
+        <span className="text-2xl max-sm:text-xl">📚</span>
+        <h2 className="text-2xl font-bold border-l-4 border-yellow-400 pl-3 max-sm:text-xl max-sm:pl-2">課程分類</h2>
       </div>
-      <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-4 max-sm:p-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 max-sm:grid-cols-2 max-sm:gap-3">
           {normalizedCategories.map((category, index) => {
             const link = categoryLinks[category.value as string];
             return (
               <div
                 key={category.value || category.label || index}
-                className="h-36 p-4 rounded-xl bg-white shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer flex flex-col items-center justify-center"
+                className="h-36 p-4 rounded-xl bg-white shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer flex flex-col items-center justify-center max-sm:h-28 max-sm:p-3"
                 onClick={() => link && router.push(link)}
               >
-                <div className="text-3xl mb-2">{CATEGORY_ICONS[category.value as string] || '📚'}</div>
-                <h3 className="text-sm font-medium text-gray-800 text-center">{category.label}</h3>
-                <p className="text-xs text-gray-600 text-center mt-1 line-clamp-2">{getCategoryDescription(category)}</p>
+                <div className="text-3xl mb-2 max-sm:text-2xl max-sm:mb-1">{CATEGORY_ICONS[category.value as string] || '📚'}</div>
+                <h3 className="text-sm font-medium text-gray-800 text-center max-sm:text-xs">{category.label}</h3>
+                <p className="text-xs text-gray-600 text-center mt-1 line-clamp-2 max-sm:text-xs max-sm:mt-0.5">{getCategoryDescription(category)}</p>
               </div>
             );
           })}

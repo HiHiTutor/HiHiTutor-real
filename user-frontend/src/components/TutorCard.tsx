@@ -49,46 +49,46 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
 
   if (!navigationId) {
     return (
-      <div className="bg-gray-100 border border-gray-200 p-4 rounded-xl shadow-sm opacity-50 pointer-events-none text-center">
-        <div className="mb-2">資料有誤，缺少 tutorId</div>
-        <div className="text-xs text-gray-400">請聯絡管理員修正</div>
+      <div className="bg-gray-100 border border-gray-200 p-4 rounded-xl shadow-sm opacity-50 pointer-events-none text-center max-sm:p-3">
+        <div className="mb-2 max-sm:text-sm">資料有誤，缺少 tutorId</div>
+        <div className="text-xs text-gray-400 max-sm:text-xs">請聯絡管理員修正</div>
       </div>
     );
   }
 
   return (
     <Link href={`/tutors/${navigationId}`}>
-      <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
+      <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer max-sm:p-3">
         <div
-          className="w-[100px] h-[100px] rounded-full overflow-hidden mx-auto mb-4 bg-center bg-cover"
+          className="w-[100px] h-[100px] rounded-full overflow-hidden mx-auto mb-4 bg-center bg-cover max-sm:w-[80px] max-sm:h-[80px] max-sm:mb-3"
           style={{
             backgroundImage: `url(${displayAvatar})`,
             backgroundPositionX: `${avatarOffsetX}%`,
           }}
         />
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold">{displayName}</h3>
+        <div className="flex justify-between items-center max-sm:flex-col max-sm:items-center max-sm:gap-1">
+          <h3 className="text-lg font-semibold max-sm:text-base max-sm:text-center">{displayName}</h3>
           <Rating rating={tutor.rating || 0} />
         </div>
         
         {/* 科目顯示 - 使用 badge 樣式，統一使用中文名稱 */}
-        <div className="flex flex-wrap gap-1 my-2">
+        <div className="flex flex-wrap gap-1 my-2 max-sm:gap-0.5 max-sm:my-1 max-sm:justify-center">
           {subjects.slice(0, 2).map((subject, idx) => (
             <span
               key={subject}
-              className="inline-block bg-blue-100 text-blue-800 rounded px-2 py-0.5 text-xs font-medium"
+              className="inline-block bg-blue-100 text-blue-800 rounded px-2 py-0.5 text-xs font-medium max-sm:px-1 max-sm:py-0.5 max-sm:text-xs"
             >
               {getSubjectName(subject)}
             </span>
           ))}
           {subjects.length > 2 && (
-            <span className="inline-block bg-gray-100 text-gray-600 rounded px-2 py-0.5 text-xs font-medium">
+            <span className="inline-block bg-gray-100 text-gray-600 rounded px-2 py-0.5 text-xs font-medium max-sm:px-1 max-sm:py-0.5 max-sm:text-xs">
               +{subjects.length - 2}
             </span>
           )}
         </div>
         
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-gray-500 max-sm:text-xs max-sm:text-center">
           <span>教學年資: {displayExperience}</span>
         </div>
       </div>

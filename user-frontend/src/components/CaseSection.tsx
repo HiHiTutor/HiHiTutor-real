@@ -268,27 +268,27 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
   }, [fetchUrl, queryParams, routeType]);
 
   return (
-    <div className="py-8">
-      <div className="flex items-center gap-2 mb-6">
-        <span className="text-2xl">{icon}</span>
-        <h2 className="text-2xl font-bold border-l-4 border-blue-400 pl-3">{title}</h2>
+    <div className="py-8 max-sm:py-6">
+      <div className="flex items-center gap-2 mb-6 max-sm:gap-1 max-sm:mb-4">
+        <span className="text-2xl max-sm:text-xl">{icon}</span>
+        <h2 className="text-2xl font-bold border-l-4 border-blue-400 pl-3 max-sm:text-xl max-sm:pl-2">{title}</h2>
       </div>
 
       {loading ? (
-        <div className="text-center py-8">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-          <p className="mt-2 text-gray-600">載入中...</p>
+        <div className="text-center py-8 max-sm:py-6">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 max-sm:h-6 max-sm:w-6"></div>
+          <p className="mt-2 text-gray-600 max-sm:text-sm">載入中...</p>
         </div>
       ) : error ? (
-        <div className="text-center py-8 text-red-500">
-          <p>{error}</p>
+        <div className="text-center py-8 text-red-500 max-sm:py-6">
+          <p className="max-sm:text-sm">{error}</p>
         </div>
       ) : cases.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          <p>目前沒有{routeType === 'tutor' ? '導師' : '個案'}</p>
+        <div className="text-center py-8 text-gray-500 max-sm:py-6">
+          <p className="max-sm:text-sm">目前沒有{routeType === 'tutor' ? '導師' : '個案'}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-sm:grid-cols-1 max-sm:gap-4">
           {cases.map((caseItem: Case) => {
             if (routeType === 'tutor') {
               if (!caseItem.tutorId) return null;
@@ -300,10 +300,10 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
         </div>
       )}
 
-      <div className="mt-8 text-center">
+      <div className="mt-8 text-center max-sm:mt-6">
         <Link
           href={linkUrl}
-          className="inline-flex items-center text-blue-600 hover:text-blue-800"
+          className="inline-flex items-center text-blue-600 hover:text-blue-800 max-sm:text-sm"
         >
           查看更多 →
         </Link>

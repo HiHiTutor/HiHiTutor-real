@@ -17,15 +17,15 @@ const Rating: React.FC<RatingProps> = ({ rating }) => {
   const fullStars = Math.floor(roundedRating);
 
   for (let i = 0; i < fullStars; i++) {
-    stars.push(<span key={`star-${i}`} className="text-yellow-400">⭐</span>);
+    stars.push(<span key={`star-${i}`} className="text-yellow-400 max-sm:text-sm">⭐</span>);
   }
   
   // 如果需要半星顯示
   if (roundedRating - fullStars === 0.5) {
-    stars.push(<span key="half-star">🌟</span>);
+    stars.push(<span key="half-star" className="max-sm:text-sm">🌟</span>);
   }
 
-  return <div className="flex items-center">{stars}</div>;
+  return <div className="flex items-center max-sm:gap-0.5">{stars}</div>;
 };
 
 export default Rating; 

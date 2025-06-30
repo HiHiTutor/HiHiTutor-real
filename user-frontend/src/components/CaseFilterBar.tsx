@@ -359,18 +359,18 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
   };
 
   return (
-    <div className={`rounded-xl border ${colorScheme.border} ${colorScheme.bg} p-6`}>
-      <div className="space-y-4">
+    <div className={`rounded-xl border ${colorScheme.border} ${colorScheme.bg} p-6 max-sm:p-4`}>
+      <div className="space-y-4 max-sm:space-y-3">
         {/* 篩選選項 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-sm:gap-3">
           {/* 目標選擇 */}
           {shouldShowTarget() && (
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">目標</label>
+            <div className="space-y-2 max-sm:space-y-1">
+              <label className="block text-sm font-medium text-gray-700 max-sm:text-xs">目標</label>
               <select
                 value={filters.target}
                 onChange={(e) => handleFilterChange('target', e.target.value)}
-                className="w-full px-3 py-2 border rounded-md"
+                className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs"
               >
                 <option value="">全部</option>
                 {TARGET_OPTIONS.map(option => (
@@ -383,12 +383,12 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
           )}
 
           {/* 分類選擇 */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">分類</label>
+          <div className="space-y-2 max-sm:space-y-1">
+            <label className="block text-sm font-medium text-gray-700 max-sm:text-xs">分類</label>
             <select
               value={filters.category}
               onChange={(e) => handleFilterChange('category', e.target.value)}
-              className="w-full px-3 py-2 border rounded-md"
+              className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs"
             >
               <option value="">全部</option>
               {CATEGORY_OPTIONS.map(option => (
@@ -401,12 +401,12 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
 
           {/* 子分類選擇 */}
           {filters.category && getSubOptions().length > 0 && (
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">子分類</label>
+            <div className="space-y-2 max-sm:space-y-1">
+              <label className="block text-sm font-medium text-gray-700 max-sm:text-xs">子分類</label>
               <select
                 value={filters.subCategory}
                 onChange={(e) => handleSubCategoryChange(e.target.value)}
-                className="w-full px-3 py-2 border rounded-md"
+                className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs"
               >
                 <option value="">全部</option>
                 {getSubOptions().map(option => (
@@ -420,14 +420,14 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
 
           {/* 科目選擇 */}
           {shouldShowSubjects() && (
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">科目</label>
-              <div className="flex flex-wrap gap-2">
+            <div className="space-y-2 max-sm:space-y-1">
+              <label className="block text-sm font-medium text-gray-700 max-sm:text-xs">科目</label>
+              <div className="flex flex-wrap gap-2 max-sm:gap-1">
                 {getCategorySubjects().map(subject => (
                   <button
                     key={subject.value}
                     onClick={() => handleSubjectChange(subject.value)}
-                    className={`px-3 py-1 rounded-full text-sm ${
+                    className={`px-3 py-1 rounded-full text-sm max-sm:px-2 max-sm:py-0.5 max-sm:text-xs ${
                       filters.subjects.includes(subject.value)
                         ? 'bg-blue-500 text-white'
                         : 'bg-gray-100 text-gray-700'
@@ -441,16 +441,16 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
           )}
 
           {/* 教學模式選擇 */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">教學模式</label>
-            <div className="space-y-2">
+          <div className="space-y-2 max-sm:space-y-1">
+            <label className="block text-sm font-medium text-gray-700 max-sm:text-xs">教學模式</label>
+            <div className="space-y-2 max-sm:space-y-1">
               {/* 大分類選擇 */}
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 max-sm:gap-1">
                 {TEACHING_MODE_OPTIONS.map(mode => (
                   <button
                     key={mode.value}
                     onClick={() => handleModeChange(mode.value)}
-                    className={`px-3 py-1 rounded-full text-sm ${
+                    className={`px-3 py-1 rounded-full text-sm max-sm:px-2 max-sm:py-0.5 max-sm:text-xs ${
                       filters.mode.includes(mode.value)
                         ? 'bg-blue-500 text-white'
                         : 'bg-gray-100 text-gray-700'
@@ -463,14 +463,14 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
               
               {/* 面授子分類選擇 */}
               {filters.mode.includes('in-person') && (
-                <div className="ml-4 space-y-2">
-                  <label className="block text-xs font-medium text-gray-600">面授類型</label>
-                  <div className="flex flex-wrap gap-2">
+                <div className="ml-4 space-y-2 max-sm:ml-2 max-sm:space-y-1">
+                  <label className="block text-xs font-medium text-gray-600 max-sm:text-xs">面授類型</label>
+                  <div className="flex flex-wrap gap-2 max-sm:gap-1">
                     {TEACHING_MODE_OPTIONS.find(m => m.value === 'in-person')?.subCategories.map(subMode => (
                       <button
                         key={subMode.value}
                         onClick={() => handleModeChange(subMode.value)}
-                        className={`px-2 py-1 rounded-full text-xs ${
+                        className={`px-2 py-1 rounded-full text-xs max-sm:px-1 max-sm:py-0.5 ${
                           filters.mode.includes(subMode.value)
                             ? 'bg-green-500 text-white'
                             : 'bg-gray-50 text-gray-600'
@@ -487,12 +487,12 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
 
           {/* 地區選擇 - 只在選擇面授相關模式時顯示 */}
           {filters.mode.some(mode => shouldShowRegionForMode(mode)) && (
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">地區</label>
+            <div className="space-y-2 max-sm:space-y-1">
+              <label className="block text-sm font-medium text-gray-700 max-sm:text-xs">地區</label>
               <select
                 value={filters.regions[0] || ''}
                 onChange={(e) => handleRegionChange(e.target.value)}
-                className="w-full px-3 py-2 border rounded-md"
+                className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs"
               >
                 <option value="">全部</option>
                 {REGION_OPTIONS.map(option => (
@@ -506,12 +506,12 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
 
           {/* 子地區選擇 - 只在選擇面授相關模式且有地區時顯示 */}
           {filters.mode.some(mode => shouldShowRegionForMode(mode)) && filters.regions.length > 0 && (
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">子地區</label>
+            <div className="space-y-2 max-sm:space-y-1">
+              <label className="block text-sm font-medium text-gray-700 max-sm:text-xs">子地區</label>
               <select
                 value={filters.subRegions[0] || ''}
                 onChange={(e) => handleSubRegionChange(e.target.value)}
-                className="w-full px-3 py-2 border rounded-md"
+                className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs"
               >
                 <option value="">全部</option>
                 {REGION_OPTIONS.find(r => r.value === filters.regions[0])?.regions.map(option => (
@@ -524,53 +524,53 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
           )}
 
           {/* 預算範圍 */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">預算範圍</label>
-            <div className="flex items-center space-x-2">
+          <div className="space-y-2 max-sm:space-y-1">
+            <label className="block text-sm font-medium text-gray-700 max-sm:text-xs">預算範圍</label>
+            <div className="flex items-center space-x-2 max-sm:space-x-1">
               <input
                 type="number"
                 value={filters.priceRange[0]}
                 onChange={(e) => handlePriceChange('min', e.target.value)}
-                className="w-24 px-3 py-2 border rounded-md"
+                className="w-24 px-3 py-2 border rounded-md max-sm:w-20 max-sm:px-2 max-sm:py-1 max-sm:text-xs"
                 placeholder="最低"
               />
-              <span>-</span>
+              <span className="max-sm:text-xs">-</span>
               <input
                 type="number"
                 value={filters.priceRange[1]}
                 onChange={(e) => handlePriceChange('max', e.target.value)}
-                className="w-24 px-3 py-2 border rounded-md"
+                className="w-24 px-3 py-2 border rounded-md max-sm:w-20 max-sm:px-2 max-sm:py-1 max-sm:text-xs"
                 placeholder="最高"
               />
             </div>
           </div>
 
           {/* 精選個案 */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 max-sm:space-x-1">
             <input
               type="checkbox"
               id="featured"
               checked={filters.featured}
               onChange={(e) => handleFilterChange('featured', e.target.checked)}
-              className="h-4 w-4 text-blue-600"
+              className="h-4 w-4 text-blue-600 max-sm:h-3 max-sm:w-3"
             />
-            <label htmlFor="featured" className="text-sm font-medium text-gray-700">
+            <label htmlFor="featured" className="text-sm font-medium text-gray-700 max-sm:text-xs">
               只顯示精選個案
             </label>
           </div>
         </div>
 
         {/* 按鈕組 */}
-        <div className="flex justify-end space-x-4">
+        <div className="flex justify-end space-x-4 max-sm:space-x-2 max-sm:flex-col max-sm:items-stretch">
           <button
             onClick={handleReset}
-            className="px-6 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200"
+            className="px-6 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 max-sm:px-4 max-sm:py-2 max-sm:text-sm"
           >
             重置
           </button>
           <button
             onClick={handleFilter}
-            className={`px-6 py-2 text-white rounded-lg ${colorScheme.button}`}
+            className={`px-6 py-2 text-white rounded-lg ${colorScheme.button} max-sm:px-4 max-sm:py-2 max-sm:text-sm`}
           >
             篩選
           </button>

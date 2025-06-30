@@ -65,12 +65,12 @@ export default function CaseCard({ caseData, routeType = 'tutor', borderColor }:
 
   return (
     <div 
-      className={`rounded-xl border ${borderColor || colorScheme.border} ${colorScheme.hover} p-4 transition-all cursor-pointer ${colorScheme.bg}`}
+      className={`rounded-xl border ${borderColor || colorScheme.border} ${colorScheme.hover} p-4 transition-all cursor-pointer ${colorScheme.bg} max-sm:p-3`}
       onClick={() => router.push(`/find-${routeType}-cases/${caseData.id}`)}
     >
       {/* 導師照片 */}
       {routeType === 'tutor' && caseData.avatarUrl && (
-        <div className="relative w-full h-32 mb-3 rounded-lg overflow-hidden">
+        <div className="relative w-full h-32 mb-3 rounded-lg overflow-hidden max-sm:h-24 max-sm:mb-2">
           <Image
             src={caseData.avatarUrl}
             alt={`${caseData.title} 的照片`}
@@ -81,48 +81,48 @@ export default function CaseCard({ caseData, routeType = 'tutor', borderColor }:
       )}
 
       {/* 標題 */}
-      <div className="space-y-1">
-        <h3 className="text-base font-semibold line-clamp-1">
+      <div className="space-y-1 max-sm:space-y-0.5">
+        <h3 className="text-base font-semibold line-clamp-1 max-sm:text-sm">
           {caseData.title || '未命名個案'}
         </h3>
-        <div className="flex items-center gap-1 text-xs text-gray-500">
-          <CalendarIcon className="h-3 w-3" />
+        <div className="flex items-center gap-1 text-xs text-gray-500 max-sm:gap-0.5 max-sm:text-xs">
+          <CalendarIcon className="h-3 w-3 max-sm:h-2 max-sm:w-2" />
           <span>{formatDate(caseData.createdAt)}</span>
         </div>
       </div>
 
       {/* 詳細資訊 */}
-      <div className="mt-2 space-y-1 text-sm">
-        <div className="flex items-start gap-1">
-          <BookOpenIcon className={`h-4 w-4 ${colorScheme.text}`} />
+      <div className="mt-2 space-y-1 text-sm max-sm:mt-1 max-sm:space-y-0.5 max-sm:text-xs">
+        <div className="flex items-start gap-1 max-sm:gap-0.5">
+          <BookOpenIcon className={`h-4 w-4 ${colorScheme.text} max-sm:h-3 max-sm:w-3`} />
           <span className="line-clamp-1">{caseData.subject?.label || '未指定科目'}</span>
         </div>
-        <div className="flex items-start gap-1">
-          <MapPinIcon className={`h-4 w-4 ${colorScheme.text}`} />
+        <div className="flex items-start gap-1 max-sm:gap-0.5">
+          <MapPinIcon className={`h-4 w-4 ${colorScheme.text} max-sm:h-3 max-sm:w-3`} />
           <span className="line-clamp-1">{caseData.region?.label || '未指定地區'}</span>
         </div>
-        <div className="flex items-start gap-1">
-          <AcademicCapIcon className={`h-4 w-4 ${colorScheme.text}`} />
+        <div className="flex items-start gap-1 max-sm:gap-0.5">
+          <AcademicCapIcon className={`h-4 w-4 ${colorScheme.text} max-sm:h-3 max-sm:w-3`} />
           <span className="line-clamp-1">{caseData.experienceLevel?.label || '未指定經驗要求'}</span>
         </div>
         {caseData.modes && (
-          <div className="flex items-start gap-1">
-            <ComputerDesktopIcon className={`h-4 w-4 ${colorScheme.text}`} />
+          <div className="flex items-start gap-1 max-sm:gap-0.5">
+            <ComputerDesktopIcon className={`h-4 w-4 ${colorScheme.text} max-sm:h-3 max-sm:w-3`} />
             <span className="line-clamp-1">{caseData.modes.join(', ')}</span>
           </div>
         )}
         {caseData.lessonDetails && (
-          <div className="flex items-start gap-1">
-            <CurrencyDollarIcon className={`h-4 w-4 ${colorScheme.text}`} />
+          <div className="flex items-start gap-1 max-sm:gap-0.5">
+            <CurrencyDollarIcon className={`h-4 w-4 ${colorScheme.text} max-sm:h-3 max-sm:w-3`} />
             <span className="line-clamp-1">每堂 ${caseData.lessonDetails.pricePerLesson}</span>
           </div>
         )}
       </div>
 
       {/* 查看詳情按鈕 */}
-      <div className="mt-2">
+      <div className="mt-2 max-sm:mt-1">
         <button
-          className={`w-full ${colorScheme.button} text-white rounded-lg py-1.5 text-xs transition-colors`}
+          className={`w-full ${colorScheme.button} text-white rounded-lg py-1.5 text-xs transition-colors max-sm:py-1 max-sm:text-xs`}
         >
           查看詳情
         </button>
