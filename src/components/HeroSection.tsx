@@ -57,10 +57,10 @@ export default function HeroSection() {
           <div className="absolute top-0 left-0 h-full w-full flex items-center max-sm:items-center max-[700px]:items-center min-[701px]:max-[1023px]:items-center">
             <div className="max-w-2xl px-8 max-sm:px-4 max-sm:max-w-full max-[700px]:px-6 max-[700px]:max-w-full min-[701px]:max-[1023px]:px-4 min-[701px]:max-[1023px]:max-w-full">
               <div className="flex flex-col items-start max-sm:items-center max-sm:text-center max-[700px]:items-center max-[700px]:text-center min-[701px]:max-[1023px]:items-center min-[701px]:max-[1023px]:text-center">
-                <h1 className="text-white font-bold text-5xl md:text-6xl leading-tight tracking-wide drop-shadow-lg max-sm:text-3xl max-sm:leading-tight max-[700px]:text-4xl max-[700px]:leading-tight min-[700px]:max-[1023px]:text-2xl min-[700px]:max-[1023px]:leading-tight min-[700px]:max-[1023px]:max-h-[4.5em] min-[700px]:max-[1023px]:whitespace-normal min-[700px]:max-[1023px]:break-words">
+                <h1 className="text-white font-bold text-5xl md:text-4xl leading-tight tracking-wide drop-shadow-lg max-sm:text-3xl max-sm:leading-tight max-[700px]:text-4xl max-[700px]:leading-tight md:text-4xl md:leading-tight md:break-words md:max-w-[180px] md:text-left md:mx-auto md:ml-4">
                   尋找最適合你的導師
                 </h1>
-                <p className="text-gray-100 text-lg md:text-xl mt-4 drop-shadow-md max-sm:text-base max-sm:mt-3 max-[700px]:text-lg max-[700px]:mt-3 min-[700px]:max-[1023px]:text-sm min-[700px]:max-[1023px]:md:text-base min-[700px]:max-[1023px]:text-left min-[700px]:max-[1023px]:space-y-2">
+                <p className="text-gray-100 text-lg md:text-base mt-4 drop-shadow-md max-sm:text-base max-sm:mt-3 max-[700px]:text-lg max-[700px]:mt-3 md:text-base md:leading-relaxed md:text-white md:shadow-md md:bg-gradient-to-b md:from-white/10 md:to-transparent md:px-2 md:py-1 md:space-y-2">
                   我們提供專業的導師配對服務，幫助你找到最適合的學習夥伴
                 </p>
                 <Link
@@ -76,10 +76,10 @@ export default function HeroSection() {
       </div>
 
       {/* 右欄：熱門科目 */}
-      <div className="w-full lg:w-[400px] max-sm:w-full max-[700px]:w-full min-[701px]:max-[1023px]:w-full min-[701px]:max-[1023px]:mt-2 min-[700px]:max-[1023px]:px-4 min-[700px]:max-[1023px]:md:px-0">
-        <div className="bg-white shadow-md rounded-lg p-6 h-[400px] max-sm:h-auto max-sm:p-4 max-[700px]:h-auto max-[700px]:p-5 min-[701px]:max-[1023px]:h-auto min-[701px]:max-[1023px]:p-4">
-          <h2 className="font-bold text-xl mb-6 max-sm:text-lg max-sm:mb-4 max-[700px]:text-lg max-[700px]:mb-4 min-[701px]:max-[1023px]:text-lg min-[701px]:max-[1023px]:mb-3">熱門科目</h2>
-          <div className="space-y-4 max-sm:space-y-3 max-[700px]:space-y-3 min-[701px]:max-[1023px]:space-y-2 min-[700px]:max-[1023px]:px-2 min-[700px]:max-[1023px]:md:px-0">
+      <div className="w-full lg:w-[400px] max-sm:w-full max-[700px]:w-full md:px-6 md:mt-6 md:rounded-md md:shadow-sm md:bg-white">
+        <div className="bg-white shadow-md rounded-lg p-6 h-[400px] max-sm:h-auto max-sm:p-4 max-[700px]:h-auto max-[700px]:p-5 md:bg-white md:shadow-sm md:rounded-md md:px-4 md:mt-4">
+          <h2 className="font-bold text-xl md:text-2xl md:font-semibold md:mb-2 mb-6 max-sm:text-lg max-sm:mb-4 max-[700px]:text-lg max-[700px]:mb-4">熱門科目</h2>
+          <div className="space-y-4 max-sm:space-y-3 max-[700px]:space-y-3 md:space-y-3">
             <SubjectBar name="數學" percent={95} />
             <SubjectBar name="英文" percent={90} />
             <SubjectBar name="中文" percent={85} />
