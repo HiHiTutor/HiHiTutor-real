@@ -49,14 +49,14 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 items-start px-4 py-10 max-sm:px-4 max-sm:py-6 max-[700px]:flex-col max-[700px]:gap-6 min-[701px]:max-[1023px]:flex-col min-[701px]:max-[1023px]:gap-5 min-[701px]:max-[1023px]:py-6">
+    <section className="max-w-7xl mx-auto flex flex-col md:flex-col lg:flex-row gap-8 items-start px-4 py-10 min-h-[300px] max-sm:px-4 max-sm:py-6">
       {/* 左欄：Hero 圖 & 文案 */}
-      <div className="flex-1 max-sm:w-full max-[700px]:w-full min-[701px]:max-[1023px]:w-full">
-        <div className="relative w-full h-[400px] bg-[url('/backbroad.jpg')] bg-cover bg-center max-sm:h-[300px] max-[700px]:h-[350px] min-[701px]:max-[1023px]:h-[300px]">
+      <div className="flex-1 text-center md:text-left px-4 md:px-6 mb-4 md:mb-6 max-sm:w-full max-[700px]:w-full">
+        <div className="relative w-full h-[400px] bg-[url('/backbroad.jpg')] bg-cover bg-center max-sm:h-[300px] max-[700px]:h-[350px] w-full md:w-[80%] max-w-[600px] mx-auto object-contain">
           {/* 疊加內容 */}
-          <div className="absolute top-0 left-0 h-full w-full flex items-center max-sm:items-center max-[700px]:items-center min-[701px]:max-[1023px]:items-center">
-            <div className="max-w-2xl px-8 max-sm:px-4 max-sm:max-w-full max-[700px]:px-6 max-[700px]:max-w-full min-[701px]:max-[1023px]:px-4 min-[701px]:max-[1023px]:max-w-full">
-              <div className="flex flex-col items-start max-sm:items-center max-sm:text-center max-[700px]:items-center max-[700px]:text-center min-[701px]:max-[1023px]:items-center min-[701px]:max-[1023px]:text-center">
+          <div className="absolute top-0 left-0 h-full w-full flex items-center max-sm:items-center max-[700px]:items-center">
+            <div className="max-w-2xl px-8 max-sm:px-4 max-sm:max-w-full max-[700px]:px-6 max-[700px]:max-w-full">
+              <div className="flex flex-col items-start max-sm:items-center max-sm:text-center max-[700px]:items-center max-[700px]:text-center">
                 <h1 className="text-white font-bold text-5xl md:text-4xl leading-tight tracking-wide drop-shadow-lg max-sm:text-3xl max-sm:leading-tight max-[700px]:text-4xl max-[700px]:leading-tight md:text-4xl md:leading-tight md:break-words md:max-w-[180px] md:text-left md:mx-auto md:ml-4">
                   尋找最適合你的導師
                 </h1>
@@ -65,7 +65,7 @@ export default function HeroSection() {
                 </p>
                 <Link
                   href="/about"
-                  className="mt-6 px-6 py-3 bg-yellow-400 hover:bg-yellow-500 text-white rounded-xl shadow-lg transition-colors max-sm:mt-4 max-sm:px-4 max-sm:py-2 max-[700px]:mt-4 max-[700px]:px-5 max-[700px]:py-2.5 min-[701px]:max-[1023px]:mt-3 min-[701px]:max-[1023px]:px-4 min-[701px]:max-[1023px]:py-2"
+                  className="mt-6 px-6 py-3 bg-yellow-400 hover:bg-yellow-500 text-white rounded-xl shadow-lg transition-colors max-sm:mt-4 max-sm:px-4 max-sm:py-2 max-[700px]:mt-4 max-[700px]:px-5 max-[700px]:py-2.5"
                 >
                   了解更多
                 </Link>
