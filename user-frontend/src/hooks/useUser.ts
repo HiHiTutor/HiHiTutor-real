@@ -60,6 +60,26 @@ export function useUser() {
         userType: meData.userType || meData.role // 以 userType 為主
       }
       
+      // 如果係 tutor，額外 fetch tutor profile 來獲取 avatarUrl
+      if (userData.userType === 'tutor') {
+        try {
+          const tutorRes = await fetch('/api/tutors/profile', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          })
+          
+          if (tutorRes.ok) {
+            const tutorData = await tutorRes.json()
+            console.log('🔍 Tutor profile data:', tutorData)
+            // 合併 tutor avatar 到 user data
+            userData.avatarUrl = tutorData.avatarUrl || tutorData.avatar
+          }
+        } catch (tutorError) {
+          console.warn('無法獲取 tutor profile:', tutorError)
+        }
+      }
+      
       console.log('🔍 Final user data:', userData)
       setUser(userData)
     } catch (err) {

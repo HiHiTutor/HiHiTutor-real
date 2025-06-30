@@ -151,13 +151,27 @@ const Navbar = () => {
             {user ? (
               <>
                 <div className="flex flex-col items-center space-y-2 mt-4">
-                  <img
-                    src={user.avatarUrl || user.avatar || '/avatars/default.png'}
-                    alt="avatar"
-                    className="w-16 h-16 rounded-full object-cover border"
-                  />
+                  {/* 只有 tutor 才顯示頭像 */}
+                  {user.userType === 'tutor' && (
+                    <img
+                      src={user.avatarUrl || user.avatar || '/avatars/default.png'}
+                      alt="avatar"
+                      className="w-16 h-16 rounded-full object-cover border"
+                    />
+                  )}
                   <div className="font-medium">{user.name}</div>
                 </div>
+
+                {/* 只有 tutor 才顯示"我的導師介面"按鈕 */}
+                {(user.userType === 'tutor' || user.userType === 'organization') && (
+                  <Link
+                    href="/tutor/dashboard"
+                    className="bg-blue-500 text-white px-4 py-2 rounded w-4/5 text-center"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    我的導師介面
+                  </Link>
+                )}
 
                 <Link
                   href="/profile"
