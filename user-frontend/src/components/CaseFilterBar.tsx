@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, Fragment } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Listbox, Transition } from '@headlessui/react';
 import { ChevronUpDownIcon, CheckIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { Select } from '@headlessui/react';
@@ -48,6 +48,7 @@ const REGION_OPTIONS_FULL = REGION_OPTIONS;
 const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const [filters, setFilters] = useState<FilterState>({
     target: '',
     category: '',
@@ -73,9 +74,31 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
     button: 'bg-blue-500 hover:bg-blue-600'
   };
 
+  // 根據當前頁面決定是否顯示目標選擇和自動設定目標值
+  const shouldShowTarget = () => {
+    // 首頁顯示目標選擇
+    if (pathname === '/') {
+      return true;
+    }
+    // 其他頁面隱藏目標選擇
+    return false;
+  };
+
+  const getAutoTarget = () => {
+    // 根據頁面路徑自動設定目標
+    if (pathname === '/tutors') {
+      return 'find-tutor';
+    } else if (pathname === '/find-tutor-cases') {
+      return 'find-student';
+    }
+    // 首頁或其他頁面返回空值，讓用戶選擇
+    return '';
+  };
+
   // 從 URL 參數初始化篩選條件
   useEffect(() => {
-    const target = searchParams.get('target') || 'find-tutor';
+    const autoTarget = getAutoTarget();
+    const target = searchParams.get('target') || autoTarget;
     const category = searchParams.get('category') || '';
     const subCategory = searchParams.get('subCategory') || '';
     const subjects = searchParams.getAll('subjects');
@@ -96,7 +119,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
       priceRange: [Number(priceMin) || 0, Number(priceMax) || 1000],
       featured: false
     });
-  }, [searchParams]);
+  }, [searchParams, pathname]);
 
   const handleFilterChange = (key: keyof FilterState, value: any) => {
     setFilters(prev => ({
@@ -160,8 +183,12 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
   const handleFilter = () => {
     const params = new URLSearchParams();
     
+    // 根據頁面自動設定目標參數
+    const autoTarget = getAutoTarget();
+    const finalTarget = filters.target || autoTarget;
+    
     // 添加基本參數
-    if (filters.target) params.append('target', filters.target);
+    if (finalTarget) params.append('target', finalTarget);
     if (filters.category) params.append('category', filters.category);
     if (filters.subCategory) params.append('subCategory', filters.subCategory);
     
@@ -182,9 +209,9 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
     
     // 根據目標選擇正確的 URL
     let targetUrl;
-    if (filters.target === 'find-tutor') {
+    if (finalTarget === 'find-tutor') {
       targetUrl = '/tutors';
-    } else if (filters.target === 'find-student') {
+    } else if (finalTarget === 'find-student') {
       targetUrl = '/find-student-cases';
     } else {
       // 如果沒有選擇目標，使用傳入的 fetchUrl
@@ -199,7 +226,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
     
     // 調用回調函數
     onFilter?.({
-      type: filters.target === 'find-tutor' ? 'tutors' : 'find-student-cases',
+      type: finalTarget === 'find-tutor' ? 'tutors' : 'find-student-cases',
       category: filters.category,
       subCategory: filters.subCategory || '',
       subjects: filters.subjects,
@@ -209,8 +236,9 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
   };
 
   const handleReset = () => {
+    const autoTarget = getAutoTarget();
     setFilters({
-      target: '',
+      target: autoTarget,
       category: '',
       subCategory: '',
       subjects: [],
@@ -303,21 +331,23 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
         {/* 篩選選項 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {/* 目標選擇 */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">目標</label>
-            <select
-              value={filters.target}
-              onChange={(e) => handleFilterChange('target', e.target.value)}
-              className="w-full px-3 py-2 border rounded-md"
-            >
-              <option value="">全部</option>
-              {TARGET_OPTIONS.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          {shouldShowTarget() && (
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">目標</label>
+              <select
+                value={filters.target}
+                onChange={(e) => handleFilterChange('target', e.target.value)}
+                className="w-full px-3 py-2 border rounded-md"
+              >
+                <option value="">全部</option>
+                {TARGET_OPTIONS.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* 分類選擇 */}
           <div className="space-y-2">
