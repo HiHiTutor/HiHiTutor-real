@@ -55,22 +55,16 @@ const Navbar = () => {
         </div>
         {/* 桌面選單+右側按鈕 */}
         <div className="flex-1 flex justify-center md:space-x-6 text-sm text-gray-700 md:flex md:items-center md:justify-center max-md:hidden">
-          <nav className="flex space-x-6">
+          <nav className="flex space-x-6 items-center">
             <Link href="/" className="hover:text-primary">主頁</Link>
-            <Link href="/tutors" className="hover:text-primary">尋導師</Link>
-            <Link href="/find-tutor-cases" className="hover:text-primary">補習個案</Link>
-            <Link href="/recommendations" className="hover:text-primary">導師推薦</Link>
+            <Link href="/tutors" className="bg-yellow-400 text-white px-3 py-1 rounded-md hover:bg-yellow-500 transition">推薦導師</Link>
+            <Link href="/find-tutor-cases" className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 transition">補習個案</Link>
             <Link href="/articles" className="hover:text-primary">教育專欄</Link>
             <Link href="/faq" className="hover:text-primary">常見問題</Link>
         </nav>
         </div>
         {/* 桌面右側行動按鈕 */}
         <div className="md:flex items-center gap-2 ml-auto z-10 relative max-md:hidden">
-          {isLoggedIn && (
-            <Link href="/post/student-case">
-              <button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">尋導師</button>
-            </Link>
-          )}
           {isLoggedIn && user && (
             <div className="relative">
               <button
@@ -112,10 +106,11 @@ const Navbar = () => {
           )}
         </div>
         
-        {/* 手機版用戶信息區域 */}
-        <div className="md:hidden flex items-center gap-2 ml-auto mr-2">
+        {/* 手機版合併用戶信息與漢堡選單按鈕 */}
+        <div className="md:hidden flex items-center gap-2 ml-auto">
           {isLoggedIn && user ? (
-            <div className="relative">
+            <div className="relative flex items-center gap-2">
+              {/* 用戶信息按鈕 */}
               <button
                 className="flex items-center gap-2 bg-gray-100 text-gray-800 px-2 py-1 rounded-md hover:bg-gray-200 transition text-sm"
                 onClick={() => setDropdownOpen((v) => !v)}
@@ -128,8 +123,8 @@ const Navbar = () => {
                     className="w-6 h-6 rounded-full object-cover border"
                   />
                 )}
-                <span className="max-w-[60px] truncate">
-                  {user.name.length > 4 ? user.name.substring(0, 4) + '...' : user.name}
+                <span className="max-w-[80px] truncate">
+                  {user.name}
                 </span>
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -152,35 +147,55 @@ const Navbar = () => {
                   >登出</button>
                 </div>
               )}
+              
+              {/* 漢堡選單按鈕 */}
+              <button
+                className="p-2"
+                aria-label="Open menu"
+                onClick={() => setMenuOpen((v) => !v)}
+              >
+                {menuOpen ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                  </svg>
+                )}
+              </button>
             </div>
           ) : (
-            <div className="flex items-center gap-1">
-              <Link href="/login">
-                <button className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition">登入</button>
-              </Link>
-              <Link href="/register">
-                <button className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition">註冊</button>
-              </Link>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
+                <Link href="/login">
+                  <button className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition">登入</button>
+                </Link>
+                <Link href="/register">
+                  <button className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition">註冊</button>
+                </Link>
+              </div>
+              
+              {/* 漢堡選單按鈕 */}
+              <button
+                className="p-2"
+                aria-label="Open menu"
+                onClick={() => setMenuOpen((v) => !v)}
+              >
+                {menuOpen ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                  </svg>
+                )}
+              </button>
             </div>
           )}
         </div>
         
-        {/* 手機漢堡選單按鈕 */}
-        <button
-          className="md:hidden z-20 p-2"
-          aria-label="Open menu"
-          onClick={() => setMenuOpen((v) => !v)}
-        >
-          {menuOpen ? (
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-            </svg>
-          )}
-        </button>
         {/* 手機 dropdown menu */}
         {menuOpen && (
           <div className="absolute top-full left-0 w-full bg-white shadow-lg z-50 flex flex-col items-center space-y-4 py-6 md:hidden animate-fade-in max-h-[90vh] overflow-y-auto">
@@ -196,24 +211,18 @@ const Navbar = () => {
             </div>
 
             <Link href="/" onClick={() => setMenuOpen(false)}>主頁</Link>
-            <Link href="/tutors" onClick={() => setMenuOpen(false)}>尋導師</Link>
-            <Link href="/find-tutor-cases" onClick={() => setMenuOpen(false)}>補習個案</Link>
-            <Link href="/recommendations" onClick={() => setMenuOpen(false)}>導師推薦</Link>
+            <Link href="/tutors" onClick={() => setMenuOpen(false)}>
+              <button className="bg-yellow-400 text-white px-4 py-2 rounded w-4/5 text-center">
+                推薦導師
+              </button>
+            </Link>
+            <Link href="/find-tutor-cases" onClick={() => setMenuOpen(false)}>
+              <button className="bg-blue-500 text-white px-4 py-2 rounded w-4/5 text-center">
+                補習個案
+              </button>
+            </Link>
             <Link href="/articles" onClick={() => setMenuOpen(false)}>教育專欄</Link>
             <Link href="/faq" onClick={() => setMenuOpen(false)}>常見問題</Link>
-
-            {/* 如果用戶已登入，顯示額外選項 */}
-            {user && (
-              <>
-                {isLoggedIn && (
-                  <Link href="/post/student-case" onClick={() => setMenuOpen(false)}>
-                    <button className="bg-green-500 text-white px-4 py-2 rounded w-4/5 text-center">
-                      尋導師
-                    </button>
-                  </Link>
-                )}
-              </>
-            )}
           </div>
         )}
       </div>
