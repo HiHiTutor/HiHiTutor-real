@@ -285,9 +285,10 @@ function TutorsPageContent() {
   };
 
   const handleTutorClick = (tutor: Tutor) => {
-    const tutorId = tutor.tutorId || tutor.id || tutor.userID;
-    if (tutorId) {
-      router.push(`/tutors/${tutorId}`);
+    if (tutor.tutorId) {
+      router.push(`/tutors/${tutor.tutorId}`);
+    } else {
+      alert('此導師缺少 tutorId，請聯絡管理員修正資料');
     }
   };
 

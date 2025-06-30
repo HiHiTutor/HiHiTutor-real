@@ -45,7 +45,16 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
   const avatarOffsetX = tutor.avatarOffsetX || 50; // 預設置中
   
   // 使用 tutorId 作為導航 ID，如果沒有則使用 userId 或 id
-  const navigationId = tutor.tutorId || tutor.userId || tutor.id;
+  const navigationId = tutor.tutorId;
+
+  if (!navigationId) {
+    return (
+      <div className="bg-gray-100 border border-gray-200 p-4 rounded-xl shadow-sm opacity-50 pointer-events-none text-center">
+        <div className="mb-2">資料有誤，缺少 tutorId</div>
+        <div className="text-xs text-gray-400">請聯絡管理員修正</div>
+      </div>
+    );
+  }
 
   return (
     <Link href={`/tutors/${navigationId}`}>
