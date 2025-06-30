@@ -111,9 +111,63 @@ const Navbar = () => {
             </div>
           )}
         </div>
+        
+        {/* 手機版用戶信息區域 */}
+        <div className="md:hidden flex items-center gap-2 ml-auto mr-2">
+          {isLoggedIn && user ? (
+            <div className="relative">
+              <button
+                className="flex items-center gap-2 bg-gray-100 text-gray-800 px-2 py-1 rounded-md hover:bg-gray-200 transition text-sm"
+                onClick={() => setDropdownOpen((v) => !v)}
+              >
+                {/* Tutor 顯示頭像，Student 不顯示 */}
+                {user.userType === 'tutor' && (
+                  <img
+                    src={user.avatarUrl || user.avatar || '/avatars/default.png'}
+                    alt="avatar"
+                    className="w-6 h-6 rounded-full object-cover border"
+                  />
+                )}
+                <span className="max-w-[60px] truncate">
+                  {user.name.length > 4 ? user.name.substring(0, 4) + '...' : user.name}
+                </span>
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-32 bg-white border rounded-md shadow-lg z-50 text-sm">
+                  {(user?.userType === 'tutor' || user?.userType === 'organization') && (
+                    <Link href="/tutor/dashboard" className="block px-3 py-2 hover:bg-gray-100">我的導師介面</Link>
+                  )}
+                  <Link href="/profile" className="block px-3 py-2 hover:bg-gray-100">編列個人資料</Link>
+                  <button
+                    className="block w-full text-left px-3 py-2 hover:bg-gray-100 text-red-500"
+                    onClick={() => {
+                      localStorage.removeItem('token');
+                      localStorage.removeItem('user');
+                      window.dispatchEvent(new Event('logout'));
+                      window.location.href = '/login';
+                    }}
+                  >登出</button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-1">
+              <Link href="/login">
+                <button className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition">登入</button>
+              </Link>
+              <Link href="/register">
+                <button className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 transition">註冊</button>
+              </Link>
+            </div>
+          )}
+        </div>
+        
         {/* 手機漢堡選單按鈕 */}
         <button
-          className="md:hidden ml-auto z-20 p-2"
+          className="md:hidden z-20 p-2"
           aria-label="Open menu"
           onClick={() => setMenuOpen((v) => !v)}
         >
@@ -148,67 +202,16 @@ const Navbar = () => {
             <Link href="/articles" onClick={() => setMenuOpen(false)}>教育專欄</Link>
             <Link href="/faq" onClick={() => setMenuOpen(false)}>常見問題</Link>
 
-            {user ? (
+            {/* 如果用戶已登入，顯示額外選項 */}
+            {user && (
               <>
-                <div className="flex flex-col items-center space-y-2 mt-4">
-                  {/* 只有 tutor 才顯示頭像 */}
-                  {user.userType === 'tutor' && (
-                    <img
-                      src={user.avatarUrl || user.avatar || '/avatars/default.png'}
-                      alt="avatar"
-                      className="w-16 h-16 rounded-full object-cover border"
-                    />
-                  )}
-                  <div className="font-medium">{user.name}</div>
-                </div>
-
-                {/* 只有 tutor 才顯示"我的導師介面"按鈕 */}
-                {(user.userType === 'tutor' || user.userType === 'organization') && (
-                  <Link
-                    href="/tutor/dashboard"
-                    className="bg-blue-500 text-white px-4 py-2 rounded w-4/5 text-center"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    我的導師介面
+                {isLoggedIn && (
+                  <Link href="/post/student-case" onClick={() => setMenuOpen(false)}>
+                    <button className="bg-green-500 text-white px-4 py-2 rounded w-4/5 text-center">
+                      尋導師
+                    </button>
                   </Link>
                 )}
-
-                <Link
-                  href="/profile"
-                  className="bg-yellow-500 text-white px-4 py-2 rounded w-4/5 text-center"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  編輯個人資料
-                </Link>
-                <button
-                  onClick={() => {
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('user');
-                    window.dispatchEvent(new Event('logout'));
-                    window.location.href = '/login';
-                    setMenuOpen(false);
-                  }}
-                  className="bg-gray-500 text-white px-4 py-2 rounded w-4/5"
-                >
-                  登出
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="bg-blue-500 text-white px-4 py-2 rounded w-4/5 text-center"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  用戶登入
-                </Link>
-                <Link
-                  href="/register"
-                  className="bg-green-500 text-white px-4 py-2 rounded w-4/5 text-center"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  註冊用戶
-                </Link>
               </>
             )}
           </div>
