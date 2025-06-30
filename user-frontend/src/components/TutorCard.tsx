@@ -58,37 +58,37 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
 
   return (
     <Link href={`/tutors/${navigationId}`}>
-      <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer max-sm:p-3">
+      <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer max-sm:p-3 max-[700px]:p-4">
         <div
-          className="w-[100px] h-[100px] rounded-full overflow-hidden mx-auto mb-4 bg-center bg-cover max-sm:w-[80px] max-sm:h-[80px] max-sm:mb-3"
+          className="w-[100px] h-[100px] rounded-full overflow-hidden mx-auto mb-4 bg-center bg-cover max-sm:w-[80px] max-sm:h-[80px] max-sm:mb-3 max-[700px]:w-[90px] max-[700px]:h-[90px] max-[700px]:mb-3"
           style={{
             backgroundImage: `url(${displayAvatar})`,
             backgroundPositionX: `${avatarOffsetX}%`,
           }}
         />
-        <div className="flex justify-between items-center max-sm:flex-col max-sm:items-center max-sm:gap-1">
-          <h3 className="text-lg font-semibold max-sm:text-base max-sm:text-center">{displayName}</h3>
+        <div className="flex justify-between items-center max-sm:flex-col max-sm:items-center max-sm:gap-1 max-[700px]:flex-col max-[700px]:items-center max-[700px]:gap-1">
+          <h3 className="text-lg font-semibold max-sm:text-base max-sm:text-center max-[700px]:text-base max-[700px]:text-center">{displayName}</h3>
           <Rating rating={tutor.rating || 0} />
         </div>
         
         {/* 科目顯示 - 使用 badge 樣式，統一使用中文名稱 */}
-        <div className="flex flex-wrap gap-1 my-2 max-sm:gap-0.5 max-sm:my-1 max-sm:justify-center">
+        <div className="flex flex-wrap gap-1 my-2 max-sm:gap-0.5 max-sm:my-1 max-sm:justify-center max-[700px]:gap-1 max-[700px]:my-2 max-[700px]:justify-center">
           {subjects.slice(0, 2).map((subject, idx) => (
             <span
               key={subject}
-              className="inline-block bg-blue-100 text-blue-800 rounded px-2 py-0.5 text-xs font-medium max-sm:px-1 max-sm:py-0.5 max-sm:text-xs"
+              className="inline-block bg-blue-100 text-blue-800 rounded px-2 py-0.5 text-xs font-medium max-sm:px-1 max-sm:py-0.5 max-sm:text-xs max-[700px]:px-2 max-[700px]:py-0.5 max-[700px]:text-xs"
             >
               {getSubjectName(subject)}
             </span>
           ))}
           {subjects.length > 2 && (
-            <span className="inline-block bg-gray-100 text-gray-600 rounded px-2 py-0.5 text-xs font-medium max-sm:px-1 max-sm:py-0.5 max-sm:text-xs">
+            <span className="inline-block bg-gray-100 text-gray-600 rounded px-2 py-0.5 text-xs font-medium max-sm:px-1 max-sm:py-0.5 max-sm:text-xs max-[700px]:px-2 max-[700px]:py-0.5 max-[700px]:text-xs">
               +{subjects.length - 2}
             </span>
           )}
         </div>
         
-        <div className="text-sm text-gray-500 max-sm:text-xs max-sm:text-center">
+        <div className="text-sm text-gray-500 max-sm:text-xs max-sm:text-center max-[700px]:text-sm max-[700px]:text-center">
           <span>教學年資: {displayExperience}</span>
         </div>
       </div>

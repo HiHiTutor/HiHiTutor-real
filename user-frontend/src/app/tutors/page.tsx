@@ -342,15 +342,15 @@ function TutorsPageContent() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-12 py-8 max-sm:px-4 max-sm:py-6">
+    <div className="max-w-7xl mx-auto px-4 md:px-12 py-8 max-sm:px-4 max-sm:py-6 max-[700px]:px-6 max-[700px]:py-6">
       {/* 頁面標題 */}
-      <div className="flex items-center gap-2 mb-6 max-sm:gap-1 max-sm:mb-4">
-        <span className="text-2xl max-sm:text-xl">👩‍🏫</span>
-        <h1 className="text-2xl font-bold border-l-4 border-yellow-400 pl-3 max-sm:text-xl max-sm:pl-2">導師列表</h1>
+      <div className="flex items-center gap-2 mb-6 max-sm:gap-1 max-sm:mb-4 max-[700px]:gap-2 max-[700px]:mb-5">
+        <span className="text-2xl max-sm:text-xl max-[700px]:text-2xl">👩‍🏫</span>
+        <h1 className="text-2xl font-bold border-l-4 border-yellow-400 pl-3 max-sm:text-xl max-sm:pl-2 max-[700px]:text-2xl max-[700px]:pl-3">導師列表</h1>
       </div>
 
       {/* 搜尋和篩選區域 */}
-      <div className="bg-yellow-50 rounded-xl p-6 mb-8 max-sm:p-4 max-sm:mb-6">
+      <div className="bg-yellow-50 rounded-xl p-6 mb-8 max-sm:p-4 max-sm:mb-6 max-[700px]:p-5 max-[700px]:mb-6">
         <CaseFilterBar
           onFilter={(filters) => {
             console.log(' 篩選條件:', filters);
@@ -394,77 +394,77 @@ function TutorsPageContent() {
 
       {/* 導師列表 */}
       {!tutors || tutors.length === 0 ? (
-        <div className="text-center py-12 max-sm:py-8">
-          <p className="text-gray-500 mb-4 max-sm:text-sm">找不到符合條件的導師</p>
+        <div className="text-center py-12 max-sm:py-8 max-[700px]:py-10">
+          <p className="text-gray-500 mb-4 max-sm:text-sm max-[700px]:text-sm">找不到符合條件的導師</p>
           <Button onClick={() => {
             setSearchQuery('');
             setSelectedSubjects([]);
             setSelectedAreas([]);
             setSelectedMethods([]);
             fetchTutors();
-          }} className="max-sm:text-sm">清除篩選條件</Button>
+          }} className="max-sm:text-sm max-[700px]:text-sm">清除篩選條件</Button>
         </div>
       ) : (
         <>
-          <div className="mb-6 max-sm:mb-4">
-            <p className="text-gray-600 max-sm:text-sm">找到 {tutors.length} 位導師</p>
+          <div className="mb-6 max-sm:mb-4 max-[700px]:mb-5">
+            <p className="text-gray-600 max-sm:text-sm max-[700px]:text-sm">找到 {tutors.length} 位導師</p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-sm:gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-sm:gap-3 max-[700px]:grid-cols-2 max-[700px]:gap-4">
             {tutors.map((tutor, index) => (
               <Card 
                 key={tutor.id || tutor.userID || index} 
-                className="hover:shadow-lg transition-all duration-200 cursor-pointer border-2 hover:border-yellow-300 max-sm:border max-sm:hover:border-yellow-300"
+                className="hover:shadow-lg transition-all duration-200 cursor-pointer border-2 hover:border-yellow-300 max-sm:border max-sm:hover:border-yellow-300 max-[700px]:border-2 max-[700px]:hover:border-yellow-300"
                 onClick={() => handleTutorClick(tutor)}
               >
-                <CardHeader className="pb-3 max-sm:pb-2">
-                  <div className="flex items-center gap-3 max-sm:gap-2">
-                    <Avatar className="h-12 w-12 max-sm:h-10 max-sm:w-10">
+                <CardHeader className="pb-3 max-sm:pb-2 max-[700px]:pb-3">
+                  <div className="flex items-center gap-3 max-sm:gap-2 max-[700px]:gap-3">
+                    <Avatar className="h-12 w-12 max-sm:h-10 max-sm:w-10 max-[700px]:h-11 max-[700px]:w-11">
                       <AvatarImage src={getTutorAvatar(tutor)} alt={tutor.name} />
-                      <AvatarFallback className="bg-yellow-100 text-yellow-600 max-sm:text-sm">
+                      <AvatarFallback className="bg-yellow-100 text-yellow-600 max-sm:text-sm max-[700px]:text-sm">
                         {tutor.name?.[0] || 'T'}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <CardTitle className="text-lg truncate max-sm:text-base">{tutor.name}</CardTitle>
-                      <div className="flex items-center gap-1 text-sm text-gray-600 max-sm:text-xs">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 max-sm:h-3 max-sm:w-3" />
+                      <CardTitle className="text-lg truncate max-sm:text-base max-[700px]:text-lg">{tutor.name}</CardTitle>
+                      <div className="flex items-center gap-1 text-sm text-gray-600 max-sm:text-xs max-[700px]:text-sm">
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 max-sm:h-3 max-sm:w-3 max-[700px]:h-4 max-[700px]:w-4" />
                         <span>{getTutorRating(tutor).toFixed(1)}</span>
                       </div>
                     </div>
                     {(tutor.isVip || tutor.isTop) && (
-                      <div className="flex gap-1 max-sm:gap-0.5">
-                        {tutor.isVip && <Badge variant="default" className="bg-purple-500 max-sm:text-xs">VIP</Badge>}
-                        {tutor.isTop && <Badge variant="default" className="bg-yellow-500 max-sm:text-xs">精選</Badge>}
+                      <div className="flex gap-1 max-sm:gap-0.5 max-[700px]:gap-1">
+                        {tutor.isVip && <Badge variant="default" className="bg-purple-500 max-sm:text-xs max-[700px]:text-xs">VIP</Badge>}
+                        {tutor.isTop && <Badge variant="default" className="bg-yellow-500 max-sm:text-xs max-[700px]:text-xs">精選</Badge>}
                       </div>
                     )}
                   </div>
                 </CardHeader>
                 
-                <CardContent className="pt-0 max-sm:pt-0">
-                  <div className="space-y-3 max-sm:space-y-2">
+                <CardContent className="pt-0 max-sm:pt-0 max-[700px]:pt-0">
+                  <div className="space-y-3 max-sm:space-y-2 max-[700px]:space-y-3">
                     <div>
-                      <div className="text-sm font-medium text-gray-700 mb-2 max-sm:text-xs max-sm:mb-1">教授科目</div>
-                      <div className="flex flex-wrap gap-1 max-sm:gap-0.5">
+                      <div className="text-sm font-medium text-gray-700 mb-2 max-sm:text-xs max-sm:mb-1 max-[700px]:text-sm max-[700px]:mb-2">教授科目</div>
+                      <div className="flex flex-wrap gap-1 max-sm:gap-0.5 max-[700px]:gap-1">
                         {getTutorSubjects(tutor).slice(0, 3).map((subject) => (
-                          <Badge key={subject} variant="secondary" className="text-xs max-sm:text-xs">
+                          <Badge key={subject} variant="secondary" className="text-xs max-sm:text-xs max-[700px]:text-xs">
                             {getSubjectLabel(subject)}
                           </Badge>
                         ))}
                         {getTutorSubjects(tutor).length > 3 && (
-                          <Badge variant="outline" className="text-xs max-sm:text-xs">
+                          <Badge variant="outline" className="text-xs max-sm:text-xs max-[700px]:text-xs">
                             +{getTutorSubjects(tutor).length - 3}
                           </Badge>
                         )}
                       </div>
                     </div>
                     
-                    <div className="text-sm text-gray-600 max-sm:text-xs">
+                    <div className="text-sm text-gray-600 max-sm:text-xs max-[700px]:text-sm">
                       <span className="font-medium">教學經驗:</span> {getTutorExperience(tutor)}
                     </div>
                     
                     {/* 地區和教學模式 */}
-                    <div className="text-sm text-gray-600 space-y-1 max-sm:text-xs max-sm:space-y-0.5">
+                    <div className="text-sm text-gray-600 space-y-1 max-sm:text-xs max-sm:space-y-0.5 max-[700px]:text-sm max-[700px]:space-y-1">
                       {tutor.region && (
                         <div>
                           <span className="font-medium">教學地區:</span> {getRegionLabel(tutor.region)}
@@ -477,7 +477,7 @@ function TutorsPageContent() {
                       )}
                     </div>
                     
-                    <Button className="w-full max-sm:text-xs" size="sm">
+                    <Button className="w-full max-sm:text-xs max-[700px]:text-sm" size="sm">
                       查看詳情
                     </Button>
                   </div>
