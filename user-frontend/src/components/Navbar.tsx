@@ -148,20 +148,55 @@ const Navbar = () => {
             <Link href="/articles" onClick={() => setMenuOpen(false)}>教育專欄</Link>
             <Link href="/faq" onClick={() => setMenuOpen(false)}>常見問題</Link>
 
-            <Link
-              href="/login"
-              className="bg-blue-500 text-white px-4 py-2 rounded w-4/5 text-center"
-              onClick={() => setMenuOpen(false)}
-            >
-              用戶登入
-            </Link>
-            <Link
-              href="/register"
-              className="bg-green-500 text-white px-4 py-2 rounded w-4/5 text-center"
-              onClick={() => setMenuOpen(false)}
-            >
-              註冊用戶
-            </Link>
+            {user ? (
+              <>
+                <div className="flex flex-col items-center space-y-2 mt-4">
+                  <img
+                    src="/avatars/default.png"
+                    alt="avatar"
+                    className="w-16 h-16 rounded-full object-cover border"
+                  />
+                  <div className="font-medium">{user.name}</div>
+                </div>
+
+                <Link
+                  href="/profile"
+                  className="bg-yellow-500 text-white px-4 py-2 rounded w-4/5 text-center"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  編輯個人資料
+                </Link>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.dispatchEvent(new Event('logout'));
+                    window.location.href = '/login';
+                    setMenuOpen(false);
+                  }}
+                  className="bg-gray-500 text-white px-4 py-2 rounded w-4/5"
+                >
+                  登出
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="bg-blue-500 text-white px-4 py-2 rounded w-4/5 text-center"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  用戶登入
+                </Link>
+                <Link
+                  href="/register"
+                  className="bg-green-500 text-white px-4 py-2 rounded w-4/5 text-center"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  註冊用戶
+                </Link>
+              </>
+            )}
           </div>
         )}
       </div>
