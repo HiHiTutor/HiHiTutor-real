@@ -244,28 +244,23 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
             regionsType: Array.isArray(caseItem.regions) ? 'array' : typeof caseItem.regions
           });
           
-          if (caseItem.region) {
+          // 優先使用 regions 數組，如果為空或不存在則使用 region
+          let regionValue = null;
+          
+          if (caseItem.regions && Array.isArray(caseItem.regions) && caseItem.regions.length > 0) {
+            regionValue = caseItem.regions[0];
+            console.log('🔍 使用 regions 值:', regionValue);
+          } else if (caseItem.region) {
             // 處理 region 字段（可能是字符串或數組）
-            let regionValue = caseItem.region;
             if (Array.isArray(caseItem.region) && caseItem.region.length > 0) {
               regionValue = caseItem.region[0];
+            } else if (typeof caseItem.region === 'string') {
+              regionValue = caseItem.region;
             }
-            
-            console.log('🔍 處理 region 值:', regionValue);
-            
-            // 先嘗試用 getRegionName 處理主要地區
-            regionLabel = getRegionName(regionValue);
-            console.log('🔍 getRegionName 結果:', regionLabel);
-            
-            // 如果返回的是原值（表示沒找到映射），則嘗試用 getSubRegionName
-            if (regionLabel === regionValue) {
-              regionLabel = getSubRegionName(regionValue);
-              console.log('🔍 getSubRegionName 結果:', regionLabel);
-            }
-          } else if (caseItem.regions && Array.isArray(caseItem.regions) && caseItem.regions.length > 0) {
-            const regionValue = caseItem.regions[0];
-            console.log('🔍 處理 regions 值:', regionValue);
-            
+            console.log('🔍 使用 region 值:', regionValue);
+          }
+          
+          if (regionValue) {
             // 先嘗試用 getRegionName 處理主要地區
             regionLabel = getRegionName(regionValue);
             console.log('🔍 getRegionName 結果:', regionLabel);
