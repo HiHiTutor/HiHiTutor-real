@@ -104,30 +104,31 @@ export default function PostStudentCase() {
         return;
       }
 
+      // 確保所有必要欄位都有值
       const caseData = {
         id: `S${Date.now()}`,
-        title: data.title,
+        title: data.title || '',
         description: data.description || '',
-        category: data.category,
+        category: data.category || '',
         subCategory: data.subCategory || '',
         subjects: data.subjects || [],
-        modes: data.modes,
+        modes: data.modes || [],
         regions: data.regions || [],
         subRegions: data.subRegions || [],
-        price: data.price,
+        price: data.price || 0,
         // 將時長轉換為分鐘
         duration: totalMinutes,
         durationUnit: 'minutes',
-        weeklyLessons: data.weeklyLessons,
-        startDate: data.startDate,
+        weeklyLessons: data.weeklyLessons || 1,
+        startDate: data.startDate || new Date(),
         status: 'open',
         // 添加其他必要欄位
-        budget: data.price.toString(),
-        mode: data.modes.includes('in-person') ? 'in-person' : 'online',
+        budget: (data.price || 0).toString(),
+        mode: (data.modes || []).includes('in-person') ? 'in-person' : 'online',
         requirement: data.description || '',
         requirements: data.description || '',
         region: data.regions || [],
-        priceRange: `${data.price}-${data.price}`,
+        priceRange: `${data.price || 0}-${data.price || 0}`,
         featured: false,
         isVip: false,
         vipLevel: 0,
@@ -142,6 +143,15 @@ export default function PostStudentCase() {
       };
 
       console.log('發送個案數據:', caseData);
+      console.log('驗證必填欄位:', {
+        title: caseData.title,
+        category: caseData.category,
+        modes: caseData.modes,
+        price: caseData.price,
+        duration: caseData.duration,
+        weeklyLessons: caseData.weeklyLessons
+      });
+      
       await studentCaseApi.createStudentCase(caseData);
       toast.success('成功發布個案！');
       router.push('/find-tutor-cases');

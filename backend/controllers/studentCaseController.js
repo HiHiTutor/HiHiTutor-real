@@ -22,20 +22,27 @@ const createStudentCase = async (req, res) => {
     const { title, category, modes, price, duration, weeklyLessons } = req.body;
     
     console.log('收到的個案數據:', req.body);
+    console.log('解析的欄位:', { title, category, modes, price, duration, weeklyLessons });
     
     // 檢查必填欄位
-    if (!title || !category || !modes || !price || !duration || !weeklyLessons) {
+    const missingFields = {
+      title: !title,
+      category: !category,
+      modes: !modes,
+      price: !price,
+      duration: !duration,
+      weeklyLessons: !weeklyLessons
+    };
+    
+    const hasMissingFields = Object.values(missingFields).some(missing => missing);
+    
+    if (hasMissingFields) {
+      console.log('缺少的欄位:', missingFields);
       return res.status(400).json({ 
         success: false, 
         message: '請填寫所有必要欄位',
-        missing: {
-          title: !title,
-          category: !category,
-          modes: !modes,
-          price: !price,
-          duration: !duration,
-          weeklyLessons: !weeklyLessons
-        }
+        missing: missingFields,
+        received: req.body
       });
     }
     
@@ -43,7 +50,8 @@ const createStudentCase = async (req, res) => {
     if (!Array.isArray(modes) || modes.length === 0) {
       return res.status(400).json({ 
         success: false, 
-        message: '請選擇至少一種教學模式' 
+        message: '請選擇至少一種教學模式',
+        received: { modes }
       });
     }
     
@@ -51,7 +59,8 @@ const createStudentCase = async (req, res) => {
     if (!duration || duration <= 0 || isNaN(duration)) {
       return res.status(400).json({ 
         success: false, 
-        message: '請輸入有效的時長' 
+        message: '請輸入有效的時長',
+        received: { duration }
       });
     }
     
@@ -59,7 +68,8 @@ const createStudentCase = async (req, res) => {
     if (!price || price <= 0 || isNaN(price)) {
       return res.status(400).json({ 
         success: false, 
-        message: '請輸入有效的價格' 
+        message: '請輸入有效的價格',
+        received: { price }
       });
     }
     
@@ -67,9 +77,12 @@ const createStudentCase = async (req, res) => {
     if (!weeklyLessons || weeklyLessons <= 0 || isNaN(weeklyLessons)) {
       return res.status(400).json({ 
         success: false, 
-        message: '請輸入有效的每週堂數' 
+        message: '請輸入有效的每週堂數',
+        received: { weeklyLessons }
       });
     }
+    
+    console.log('所有驗證通過，準備保存數據');
     
     const newCase = new StudentCase({ 
       ...req.body, 
@@ -78,6 +91,8 @@ const createStudentCase = async (req, res) => {
     });
     
     await newCase.save();
+    
+    console.log('成功保存個案:', newCase);
     
     res.status(201).json({
       success: true,
