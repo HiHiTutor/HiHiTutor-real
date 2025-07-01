@@ -33,8 +33,13 @@ const formSchema = z.object({
   subRegions: z.array(z.string()).optional(),
   price: z.coerce.number().min(1, '請輸入每堂收費'),
   lessonDuration: z.object({
-    hours: z.number().min(0),
-    minutes: z.number().min(0).max(59)
+    hours: z.coerce.number().min(0, '小時不能為負數').max(12, '小時不能超過12'),
+    minutes: z.coerce.number().min(0, '分鐘不能為負數').max(45, '分鐘不能超過45')
+  }).refine((data) => {
+    return data.hours > 0 || data.minutes > 0;
+  }, {
+    message: "請輸入時長",
+    path: ["hours"]
   }),
   weeklyLessons: z.coerce.number().min(1, '請輸入每週堂數'),
   startDate: z.date()
@@ -131,24 +136,6 @@ export default function PostStudentCase() {
     }
   };
 
-  const handleRegionChange = (region: string) => {
-    const newRegions = selectedRegions.includes(region)
-      ? selectedRegions.filter(r => r !== region)
-      : [...selectedRegions, region];
-    setSelectedRegions(newRegions);
-    setValue('regions', newRegions);
-    setSelectedSubRegions([]);
-    setValue('subRegions', []);
-  };
-
-  const handleSubRegionChange = (subRegion: string) => {
-    const newSubRegions = selectedSubRegions.includes(subRegion)
-      ? selectedSubRegions.filter(r => r !== subRegion)
-      : [...selectedSubRegions, subRegion];
-    setSelectedSubRegions(newSubRegions);
-    setValue('subRegions', newSubRegions);
-  };
-
   const handleSubjectChange = (subject: string) => {
     const category = getValues('category');
     const subCategory = getValues('subCategory');
@@ -208,6 +195,9 @@ export default function PostStudentCase() {
                   ))}
                 </SelectContent>
               </Select>
+              {errors.category && (
+                <p className="mt-1 text-sm text-red-600">{errors.category.message as string}</p>
+              )}
             </div>
 
             {selectedCategoryData?.subCategories && (
@@ -227,6 +217,9 @@ export default function PostStudentCase() {
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.subCategory && (
+                  <p className="mt-1 text-sm text-red-600">{errors.subCategory.message as string}</p>
+                )}
               </div>
             )}
 
@@ -257,6 +250,9 @@ export default function PostStudentCase() {
                 </div>
                 {errors.subjects && (
                   <p className="mt-1 text-sm text-red-600">{errors.subjects.message as string}</p>
+                )}
+                {errors.subCategory && (
+                  <p className="mt-1 text-sm text-red-600">{errors.subCategory.message as string}</p>
                 )}
               </div>
             )}
@@ -313,23 +309,62 @@ export default function PostStudentCase() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     地區
                   </label>
-                  <div className="grid grid-cols-2 gap-4">
-                    {REGION_OPTIONS.map(region => (
-                      <div key={region.value} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={region.value}
-                          checked={selectedRegions.includes(region.value)}
-                          onCheckedChange={() => handleRegionChange(region.value)}
-                        />
-                        <label
-                          htmlFor={region.value}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          {region.label}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
+                  <Select onValueChange={(value) => {
+                    const newRegions = selectedRegions.includes(value)
+                      ? selectedRegions.filter(r => r !== value)
+                      : [...selectedRegions, value];
+                    setSelectedRegions(newRegions);
+                    setValue('regions', newRegions);
+                    setSelectedSubRegions([]);
+                    setValue('subRegions', []);
+                  }}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="請選擇地區" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {REGION_OPTIONS.map(region => (
+                        <SelectItem key={region.value} value={region.value}>
+                          <div className="flex items-center justify-between w-full">
+                            <span>{region.label}</span>
+                            {selectedRegions.includes(region.value) && (
+                              <span className="text-blue-500">✓</span>
+                            )}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {selectedRegions.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {selectedRegions.map(regionValue => {
+                        const region = REGION_OPTIONS.find(r => r.value === regionValue);
+                        return (
+                          <span
+                            key={regionValue}
+                            className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                          >
+                            {region?.label}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newRegions = selectedRegions.filter(r => r !== regionValue);
+                                setSelectedRegions(newRegions);
+                                setValue('regions', newRegions);
+                                setSelectedSubRegions([]);
+                                setValue('subRegions', []);
+                              }}
+                              className="ml-1 text-blue-600 hover:text-blue-800"
+                            >
+                              ×
+                            </button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {errors.regions && (
+                    <p className="mt-1 text-sm text-red-600">{errors.regions.message as string}</p>
+                  )}
                 </div>
 
                 {selectedRegions.length > 0 && (
@@ -337,26 +372,64 @@ export default function PostStudentCase() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       分區
                     </label>
-                    <div className="grid grid-cols-2 gap-4">
-                      {selectedRegions.map(regionValue => {
-                        const region = REGION_OPTIONS.find(r => r.value === regionValue);
-                        return region?.regions.map(subRegion => (
-                          <div key={subRegion.value} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={subRegion.value}
-                              checked={selectedSubRegions.includes(subRegion.value)}
-                              onCheckedChange={() => handleSubRegionChange(subRegion.value)}
-                            />
-                            <label
-                              htmlFor={subRegion.value}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    <Select onValueChange={(value) => {
+                      const newSubRegions = selectedSubRegions.includes(value)
+                        ? selectedSubRegions.filter(r => r !== value)
+                        : [...selectedSubRegions, value];
+                      setSelectedSubRegions(newSubRegions);
+                      setValue('subRegions', newSubRegions);
+                    }}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="請選擇分區" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {selectedRegions.map(regionValue => {
+                          const region = REGION_OPTIONS.find(r => r.value === regionValue);
+                          return region?.regions.map(subRegion => (
+                            <SelectItem key={subRegion.value} value={subRegion.value}>
+                              <div className="flex items-center justify-between w-full">
+                                <span>{subRegion.label}</span>
+                                {selectedSubRegions.includes(subRegion.value) && (
+                                  <span className="text-blue-500">✓</span>
+                                )}
+                              </div>
+                            </SelectItem>
+                          ));
+                        })}
+                      </SelectContent>
+                    </Select>
+                    {selectedSubRegions.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {selectedSubRegions.map(subRegionValue => {
+                          const subRegion = selectedRegions.flatMap(regionValue => {
+                            const region = REGION_OPTIONS.find(r => r.value === regionValue);
+                            return region?.regions || [];
+                          }).find(sr => sr.value === subRegionValue);
+                          return (
+                            <span
+                              key={subRegionValue}
+                              className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
                             >
-                              {subRegion.label}
-                            </label>
-                          </div>
-                        ));
-                      })}
-                    </div>
+                              {subRegion?.label}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newSubRegions = selectedSubRegions.filter(r => r !== subRegionValue);
+                                  setSelectedSubRegions(newSubRegions);
+                                  setValue('subRegions', newSubRegions);
+                                }}
+                                className="ml-1 text-green-600 hover:text-green-800"
+                              >
+                                ×
+                              </button>
+                            </span>
+                          );
+                        })}
+                      </div>
+                    )}
+                    {errors.subRegions && (
+                      <p className="mt-1 text-sm text-red-600">{errors.subRegions.message as string}</p>
+                    )}
                   </div>
                 )}
               </>
@@ -369,21 +442,40 @@ export default function PostStudentCase() {
                   <Input
                     type="number"
                     min="0"
+                    max="12"
                     placeholder="小時"
                     {...register('lessonDuration.hours')}
                   />
+                  {errors.lessonDuration?.hours && (
+                    <p className="text-sm text-red-500">{errors.lessonDuration.hours.message}</p>
+                  )}
                 </div>
                 <div className="flex-1">
-                  <Input
-                    type="number"
-                    min="0"
-                    max="59"
-                    placeholder="分鐘"
-                    {...register('lessonDuration.minutes')}
-                  />
+                  <Select 
+                    onValueChange={(value) => setValue('lessonDuration.minutes', parseInt(value))}
+                    value={watch('lessonDuration.minutes')?.toString() || ''}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="分鐘" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(() => {
+                        const hours = watch('lessonDuration.hours') || 0;
+                        const minuteOptions = hours === 0 ? [30, 45] : [0, 15, 30, 45];
+                        return minuteOptions.map(minute => (
+                          <SelectItem key={minute} value={minute.toString()}>
+                            {minute} 分鐘
+                          </SelectItem>
+                        ));
+                      })()}
+                    </SelectContent>
+                  </Select>
+                  {errors.lessonDuration?.minutes && (
+                    <p className="text-sm text-red-500">{errors.lessonDuration.minutes.message}</p>
+                  )}
                 </div>
               </div>
-              {errors.lessonDuration && (
+              {errors.lessonDuration && typeof errors.lessonDuration.message === 'string' && (
                 <p className="text-sm text-red-500">{errors.lessonDuration.message}</p>
               )}
             </div>
@@ -427,6 +519,9 @@ export default function PostStudentCase() {
                   />
                 </PopoverContent>
               </Popover>
+              {errors.startDate && (
+                <p className="mt-1 text-sm text-red-600">{errors.startDate.message as string}</p>
+              )}
             </div>
 
             <div className="space-y-2">
