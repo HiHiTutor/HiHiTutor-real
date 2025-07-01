@@ -237,21 +237,47 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
 
           // 處理地區
           let regionLabel = '未指定地區';
+          console.log('🔍 處理地區數據:', { 
+            region: caseItem.region, 
+            regions: caseItem.regions,
+            regionType: typeof caseItem.region,
+            regionsType: Array.isArray(caseItem.regions) ? 'array' : typeof caseItem.regions
+          });
+          
           if (caseItem.region) {
+            // 處理 region 字段（可能是字符串或數組）
+            let regionValue = caseItem.region;
+            if (Array.isArray(caseItem.region) && caseItem.region.length > 0) {
+              regionValue = caseItem.region[0];
+            }
+            
+            console.log('🔍 處理 region 值:', regionValue);
+            
             // 先嘗試用 getRegionName 處理主要地區
-            regionLabel = getRegionName(caseItem.region);
+            regionLabel = getRegionName(regionValue);
+            console.log('🔍 getRegionName 結果:', regionLabel);
+            
             // 如果返回的是原值（表示沒找到映射），則嘗試用 getSubRegionName
-            if (regionLabel === caseItem.region) {
-              regionLabel = getSubRegionName(caseItem.region);
+            if (regionLabel === regionValue) {
+              regionLabel = getSubRegionName(regionValue);
+              console.log('🔍 getSubRegionName 結果:', regionLabel);
             }
           } else if (caseItem.regions && Array.isArray(caseItem.regions) && caseItem.regions.length > 0) {
+            const regionValue = caseItem.regions[0];
+            console.log('🔍 處理 regions 值:', regionValue);
+            
             // 先嘗試用 getRegionName 處理主要地區
-            regionLabel = getRegionName(caseItem.regions[0]);
+            regionLabel = getRegionName(regionValue);
+            console.log('🔍 getRegionName 結果:', regionLabel);
+            
             // 如果返回的是原值（表示沒找到映射），則嘗試用 getSubRegionName
-            if (regionLabel === caseItem.regions[0]) {
-              regionLabel = getSubRegionName(caseItem.regions[0]);
+            if (regionLabel === regionValue) {
+              regionLabel = getSubRegionName(regionValue);
+              console.log('🔍 getSubRegionName 結果:', regionLabel);
             }
           }
+          
+          console.log('🔍 最終地區標籤:', regionLabel);
 
           // 處理教學模式
           let modes: string[] = [];
