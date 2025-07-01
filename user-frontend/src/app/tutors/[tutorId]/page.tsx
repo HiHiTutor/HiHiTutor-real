@@ -157,7 +157,7 @@ export default function TutorDetailPage() {
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-yellow-400 text-black font-semibold text-base rounded-xl shadow px-6 py-3 hover:shadow-md transition"
+              className="bg-yellow-400 text-black font-semibold text-lg rounded-xl shadow px-7 py-3.5 hover:shadow-md transition"
             >
               🎯 立即預約上堂
             </a>
