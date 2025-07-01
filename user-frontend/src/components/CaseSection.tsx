@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { fetchApi } from '@/services/api';
 import CaseCard from '@/components/CaseCard';
 import TutorCard from '@/components/TutorCard';
-import { getSubjectName, getRegionName } from '@/utils/translate';
+import { getSubjectName, getRegionName, getSubRegionName } from '@/utils/translate';
 
 // 地區映射表
 const regionMap: { [key: string]: string } = {
@@ -238,9 +238,19 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
           // 處理地區
           let regionLabel = '未指定地區';
           if (caseItem.region) {
+            // 先嘗試用 getRegionName 處理主要地區
             regionLabel = getRegionName(caseItem.region);
+            // 如果返回的是原值（表示沒找到映射），則嘗試用 getSubRegionName
+            if (regionLabel === caseItem.region) {
+              regionLabel = getSubRegionName(caseItem.region);
+            }
           } else if (caseItem.regions && Array.isArray(caseItem.regions) && caseItem.regions.length > 0) {
+            // 先嘗試用 getRegionName 處理主要地區
             regionLabel = getRegionName(caseItem.regions[0]);
+            // 如果返回的是原值（表示沒找到映射），則嘗試用 getSubRegionName
+            if (regionLabel === caseItem.regions[0]) {
+              regionLabel = getSubRegionName(caseItem.regions[0]);
+            }
           }
 
           // 處理教學模式
