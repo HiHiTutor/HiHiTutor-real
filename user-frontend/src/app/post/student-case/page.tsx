@@ -287,7 +287,7 @@ export default function PostStudentCase() {
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   {(selectedCategory === 'primary-secondary' 
-                    ? selectedSubCategoryData?.subjects 
+                    ? selectedSubCategoryData?.subjects || []
                     : selectedCategoryData?.subjects || []
                   ).map(subject => (
                     <div key={subject.value} className="flex items-center space-x-2">
