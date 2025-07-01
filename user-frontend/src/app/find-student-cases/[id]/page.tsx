@@ -51,31 +51,6 @@ export default function FindStudentCaseDetailPage() {
   if (loading) return <div>Loading...</div>;
   if (!caseDetail) return <div>此個案未找到或已被刪除。</div>;
 
-  const handleApply = async () => {
-    // 檢查用戶是否已登入
-    if (!user) {
-      setShowError(true);
-      return;
-    }
-
-    // 檢查用戶是否為導師（同時檢查 userType 和 role）
-    const isTutor = user.userType === 'tutor' || user.role === 'tutor';
-    if (!isTutor) {
-      setShowError(true);
-      return;
-    }
-
-    setShowError(false);
-    console.log(`Applying for case: ${id}`);
-    try {
-      await caseApi.applyCase(id, user.id);
-      // TODO: 顯示成功訊息
-    } catch (error) {
-      console.error('申請失敗:', error);
-      // TODO: 顯示錯誤訊息
-    }
-  };
-
   // 處理個案 ID
   const getCaseId = () => {
     return caseDetail.id || caseDetail._id || '無ID';
@@ -147,12 +122,17 @@ export default function FindStudentCaseDetailPage() {
         <p className="text-gray-600">模式：{getMode()}</p>
         <p className="text-gray-600">要求：{getRequirements()}</p>
         <div>
-          <button
-            onClick={handleApply}
-            className="mt-4 py-2 px-4 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
+          <a
+            href={`https://wa.me/85284158743?text=${encodeURIComponent(
+              `Hello，我喺 HiHiTutor 見到 caseID ${getCaseId()}，想申請呢單case，唔該晒!`
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            申請此個案
-          </button>
+            <button className="mt-4 py-2 px-4 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
+              申請此個案
+            </button>
+          </a>
           {showError && (
             <div className="mt-4 text-red-600">
               {!user ? '請先登入' : '需要升級為導師才可申請此個案'}

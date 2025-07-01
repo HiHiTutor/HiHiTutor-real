@@ -71,12 +71,17 @@ export default function TutorCaseDetail() {
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
         <div className="flex justify-between items-start mb-6">
           <h1 className="text-3xl font-bold text-gray-900">{caseData.title || '未命名案例'}</h1>
-          <button
-            onClick={handleApply}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          <a
+            href={`https://wa.me/85284158743?text=${encodeURIComponent(
+              `Hello，我喺 HiHiTutor 見到 caseID ${caseData.id}，想申請呢單case，唔該晒!`
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            申請此個案
-          </button>
+            <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+              申請此個案
+            </button>
+          </a>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
