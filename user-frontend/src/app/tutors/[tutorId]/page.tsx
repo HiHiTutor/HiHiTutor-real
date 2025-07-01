@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,8 @@ interface Tutor {
 }
 
 export default function TutorDetailPage() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id') || useParams().tutorId;
   const { tutorId } = useParams();
   const [tutor, setTutor] = useState<Tutor | null>(null);
   const [loading, setLoading] = useState(true);
@@ -195,9 +197,9 @@ export default function TutorDetailPage() {
               <h2 className="text-xl font-semibold mb-4 max-sm:text-lg max-sm:mb-3 max-[700px]:text-lg max-[700px]:mb-3">聯絡導師</h2>
               <div className="space-y-4 max-sm:space-y-3 max-[700px]:space-y-4">
                 {/* WhatsApp 黃底按鈕 */}
-                {tutorId && (
+                {id && (
                   <a
-                    href={`https://api.whatsapp.com/send?phone=85284158743&text=${encodeURIComponent(`Hello，我喺 HiHiTutor 見到 tutorID ${tutorId}，想了解同預約上堂，請問方便嗎？`)}`}
+                    href={`https://api.whatsapp.com/send?phone=85284158743&text=${encodeURIComponent(`Hello，我喺 HiHiTutor 見到 tutorID ${id}，想了解同預約上堂，請問方便嗎？`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
@@ -215,7 +217,7 @@ export default function TutorDetailPage() {
                       transition: 'box-shadow 0.2s',
                     }}
                   >
-                    📲 立即 WhatsApp 導師
+                    🎯 立即預約上堂
                   </a>
                 )}
               </div>
