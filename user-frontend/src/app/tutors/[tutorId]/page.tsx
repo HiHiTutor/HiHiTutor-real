@@ -148,82 +148,17 @@ export default function TutorDetailPage() {
           </Card>
         </div>
 
-        {/* 右側：聯絡資訊 */}
-        <div className="space-y-6 max-sm:space-y-4 max-[700px]:space-y-5">
-          <Card>
-            <CardContent className="pt-6 max-sm:pt-4 max-[700px]:pt-5">
-              <h2 className="text-xl font-semibold mb-4 max-sm:text-lg max-sm:mb-3 max-[700px]:text-lg max-[700px]:mb-3">教學資訊</h2>
-              <div className="space-y-4 max-sm:space-y-3 max-[700px]:space-y-4">
-                <div>
-                  <div className="font-medium mb-2 max-sm:text-sm max-sm:mb-1 max-[700px]:text-sm max-[700px]:mb-2">教學地區</div>
-                  <div className="flex flex-wrap gap-2 max-sm:gap-1 max-[700px]:gap-2">
-                    {tutor.teachingAreas.map((area) => (
-                      <Badge key={area} variant="outline" className="max-sm:text-xs max-[700px]:text-xs">
-                        {area}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <div className="font-medium mb-2 max-sm:text-sm max-sm:mb-1 max-[700px]:text-sm max-[700px]:mb-2">授課方式</div>
-                  <div className="flex flex-wrap gap-2 max-sm:gap-1 max-[700px]:gap-2">
-                    {tutor.teachingMethods.map((method) => (
-                      <Badge key={method} variant="outline" className="max-sm:text-xs max-[700px]:text-xs">
-                        {method}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <div className="font-medium mb-2 max-sm:text-sm max-sm:mb-1 max-[700px]:text-sm max-[700px]:mb-2">時薪</div>
-                  <p className="text-muted-foreground max-sm:text-sm max-[700px]:text-sm">HK$ {tutor.hourlyRate} / 小時</p>
-                </div>
-                <div>
-                  <div className="font-medium mb-2 max-sm:text-sm max-sm:mb-1 max-[700px]:text-sm max-[700px]:mb-2">可授課時間</div>
-                  <div className="flex flex-wrap gap-2 max-sm:gap-1 max-[700px]:gap-2">
-                    {tutor.availableTime.map((time) => (
-                      <Badge key={time} variant="outline" className="max-sm:text-xs max-[700px]:text-xs">
-                        {time}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6 max-sm:pt-4 max-[700px]:pt-5">
-              <h2 className="text-xl font-semibold mb-4 max-sm:text-lg max-sm:mb-3 max-[700px]:text-lg max-[700px]:mb-3">聯絡導師</h2>
-              <div className="space-y-4 max-sm:space-y-3 max-[700px]:space-y-4">
-                {/* WhatsApp 黃底按鈕 */}
-                {id && (
-                  <a
-                    href={`https://api.whatsapp.com/send?phone=85284158743&text=${encodeURIComponent(`Hello，我喺 HiHiTutor 見到 tutorID ${id}，想了解同預約上堂，請問方便嗎？`)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      display: 'inline-block',
-                      background: '#FFD600',
-                      color: '#222',
-                      fontWeight: 600,
-                      fontSize: '1.1rem',
-                      borderRadius: '12px',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-                      padding: '16px 32px',
-                      textAlign: 'center',
-                      textDecoration: 'none',
-                      marginTop: '4px',
-                      transition: 'box-shadow 0.2s',
-                    }}
-                  >
-                    🎯 立即預約上堂
-                  </a>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* 右側：只顯示 WhatsApp 黃色按鈕 */}
+        {id && (
+          <a
+            href={`https://api.whatsapp.com/send?phone=85284158743&text=${encodeURIComponent(`Hello，我喺 HiHiTutor 見到 tutorID ${id}，想了解同預約上堂，請問方便嗎？`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-yellow-400 text-black font-semibold text-lg rounded-xl shadow-md px-8 py-4 mt-6 inline-block hover:shadow-lg transition"
+          >
+            🎯 立即預約上堂
+          </a>
+        )}
       </div>
     </div>
   );
