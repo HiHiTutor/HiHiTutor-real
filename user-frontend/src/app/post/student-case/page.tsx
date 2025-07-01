@@ -278,14 +278,18 @@ export default function PostStudentCase() {
               </div>
             )}
 
-            {/* 只有中小學教育且有選擇子分類時才顯示科目選擇 */}
-            {selectedCategory === 'primary-secondary' && selectedSubCategory && (
+            {/* 顯示科目選擇 - 中小學教育需要選擇子分類，其他類別直接顯示 */}
+            {((selectedCategory === 'primary-secondary' && selectedSubCategory) || 
+              (selectedCategory !== 'primary-secondary' && selectedCategory)) && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   科目
                 </label>
                 <div className="grid grid-cols-2 gap-4">
-                  {(selectedSubCategoryData?.subjects || []).map(subject => (
+                  {(selectedCategory === 'primary-secondary' 
+                    ? selectedSubCategoryData?.subjects 
+                    : selectedCategoryData?.subjects || []
+                  ).map(subject => (
                     <div key={subject.value} className="flex items-center space-x-2">
                       <Checkbox
                         id={subject.value}
