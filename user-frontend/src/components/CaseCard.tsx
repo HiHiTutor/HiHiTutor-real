@@ -66,7 +66,11 @@ export default function CaseCard({ caseData, routeType = 'tutor', borderColor }:
   return (
     <div 
       className={`rounded-xl border ${borderColor || colorScheme.border} ${colorScheme.hover} p-4 transition-all cursor-pointer ${colorScheme.bg} max-sm:p-3 max-[700px]:p-4`}
-      onClick={() => router.push(`/find-${routeType}-cases/${caseData.id}`)}
+      onClick={() => {
+        // 補習個案（學生發出的個案）應該指向 find-tutor-cases，因為導師點擊查看
+        const targetRoute = routeType === 'student' ? 'find-tutor-cases' : `find-${routeType}-cases`;
+        router.push(`/${targetRoute}/${caseData.id}`);
+      }}
     >
       {/* 導師照片 */}
       {routeType === 'tutor' && caseData.avatarUrl && (
