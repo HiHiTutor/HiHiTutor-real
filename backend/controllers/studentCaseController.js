@@ -19,11 +19,52 @@ const getAllStudentCases = async (req, res) => {
 
 const createStudentCase = async (req, res) => {
   try {
-    const newCase = new StudentCase({ ...req.body, createdAt: new Date() });
+    const { title, category, modes, price, duration, weeklyLessons } = req.body;
+    
+    // 檢查必填欄位
+    if (!title || !category || !modes || !price || !duration || !weeklyLessons) {
+      return res.status(400).json({ 
+        success: false, 
+        message: '請填寫所有必要欄位',
+        missing: {
+          title: !title,
+          category: !category,
+          modes: !modes,
+          price: !price,
+          duration: !duration,
+          weeklyLessons: !weeklyLessons
+        }
+      });
+    }
+    
+    // 檢查 modes 是否為陣列且不為空
+    if (!Array.isArray(modes) || modes.length === 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: '請選擇至少一種教學模式' 
+      });
+    }
+    
+    const newCase = new StudentCase({ 
+      ...req.body, 
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+    
     await newCase.save();
-    res.status(201).json(newCase);
+    
+    res.status(201).json({
+      success: true,
+      data: newCase,
+      message: '成功創建學生個案'
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: '建立學生案例失敗' });
+    console.error('創建學生個案失敗:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: '建立學生案例失敗',
+      error: error.message 
+    });
   }
 };
 

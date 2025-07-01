@@ -91,10 +91,28 @@ export default function PostStudentCase() {
         regions: data.regions || [],
         subRegions: data.subRegions || [],
         price: data.price,
-        lessonDuration: data.lessonDuration,
+        duration: (data.lessonDuration.hours * 60) + data.lessonDuration.minutes,
+        durationUnit: 'minutes',
         weeklyLessons: data.weeklyLessons,
         startDate: data.startDate,
-        status: 'open'
+        status: 'open',
+        budget: data.price.toString(),
+        mode: data.modes.includes('in-person') ? 'in-person' : 'online',
+        requirement: data.description || '',
+        requirements: data.description || '',
+        region: data.regions || [],
+        priceRange: `${data.price}-${data.price}`,
+        featured: false,
+        isVip: false,
+        vipLevel: 0,
+        isTop: false,
+        topLevel: 0,
+        ratingScore: 0,
+        ratingCount: 0,
+        isPaid: false,
+        paymentType: 'free',
+        promotionLevel: 0,
+        isApproved: true
       };
 
       await studentCaseApi.createStudentCase(caseData);
@@ -444,7 +462,18 @@ export default function PostStudentCase() {
                     min="0"
                     max="12"
                     placeholder="小時"
-                    {...register('lessonDuration.hours')}
+                    {...register('lessonDuration.hours', {
+                      onChange: (e) => {
+                        const hours = parseInt(e.target.value) || 0;
+                        const currentMinutes = watch('lessonDuration.minutes') || 0;
+                        const minuteOptions = hours === 0 ? [30, 45] : [0, 15, 30, 45];
+                        
+                        // 如果當前選中的分鐘不在新的可用選項中，則清空
+                        if (!minuteOptions.includes(currentMinutes)) {
+                          setValue('lessonDuration.minutes', 0);
+                        }
+                      }
+                    })}
                   />
                   {errors.lessonDuration?.hours && (
                     <p className="text-sm text-red-500">{errors.lessonDuration.hours.message}</p>
@@ -453,7 +482,18 @@ export default function PostStudentCase() {
                 <div className="flex-1">
                   <Select 
                     onValueChange={(value) => setValue('lessonDuration.minutes', parseInt(value))}
-                    value={watch('lessonDuration.minutes')?.toString() || ''}
+                    value={(() => {
+                      const hours = watch('lessonDuration.hours') || 0;
+                      const currentMinutes = watch('lessonDuration.minutes') || 0;
+                      const minuteOptions = hours === 0 ? [30, 45] : [0, 15, 30, 45];
+                      
+                      // 如果當前選中的分鐘不在可用選項中，則不顯示選中狀態
+                      if (!minuteOptions.includes(currentMinutes)) {
+                        return '';
+                      }
+                      
+                      return currentMinutes.toString();
+                    })()}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="分鐘" />
