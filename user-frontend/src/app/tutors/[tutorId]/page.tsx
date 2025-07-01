@@ -194,10 +194,30 @@ export default function TutorDetailPage() {
             <CardContent className="pt-6 max-sm:pt-4 max-[700px]:pt-5">
               <h2 className="text-xl font-semibold mb-4 max-sm:text-lg max-sm:mb-3 max-[700px]:text-lg max-[700px]:mb-3">聯絡導師</h2>
               <div className="space-y-4 max-sm:space-y-3 max-[700px]:space-y-4">
-                <Button className="w-full max-sm:text-sm max-[700px]:text-sm">發送訊息</Button>
-                <Button variant="outline" className="w-full max-sm:text-sm max-[700px]:text-sm">
-                  預約試堂
-                </Button>
+                {/* WhatsApp 黃底按鈕 */}
+                {tutorId && (
+                  <a
+                    href={`https://api.whatsapp.com/send?phone=85284158743&text=${encodeURIComponent(`Hello，我喺 HiHiTutor 見到 tutorID ${tutorId}，想了解同預約上堂，請問方便嗎？`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'inline-block',
+                      background: '#FFD600',
+                      color: '#222',
+                      fontWeight: 600,
+                      fontSize: '1.1rem',
+                      borderRadius: '12px',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+                      padding: '16px 32px',
+                      textAlign: 'center',
+                      textDecoration: 'none',
+                      marginTop: '4px',
+                      transition: 'box-shadow 0.2s',
+                    }}
+                  >
+                    📲 立即 WhatsApp 導師
+                  </a>
+                )}
               </div>
             </CardContent>
           </Card>
