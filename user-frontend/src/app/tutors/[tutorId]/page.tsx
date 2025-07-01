@@ -148,16 +148,18 @@ export default function TutorDetailPage() {
           </Card>
         </div>
 
-        {/* 右側：只顯示 WhatsApp 黃色按鈕 */}
+        {/* 右側：只顯示 WhatsApp 黃色按鈕，靠右對齊，貼文字寬度 */}
         {id && (
-          <a
-            href={`https://api.whatsapp.com/send?phone=85284158743&text=${encodeURIComponent(`Hello，我喺 HiHiTutor 見到 tutorID ${id}，想了解同預約上堂，請問方便嗎？`)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-yellow-400 text-black font-semibold text-lg rounded-xl shadow-md px-8 py-4 mt-6 inline-block hover:shadow-lg transition"
-          >
-            🎯 立即預約上堂
-          </a>
+          <div className="flex justify-end items-start">
+            <a
+              href={`https://api.whatsapp.com/send?phone=85284158743&text=${encodeURIComponent(`Hello，我喺 HiHiTutor 見到 tutorID ${id}，想了解同預約上堂，請問方便嗎？`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-yellow-400 text-black font-semibold text-sm rounded-lg shadow px-4 py-2 hover:shadow-md transition"
+            >
+              🎯 立即預約上堂
+            </a>
+          </div>
         )}
       </div>
     </div>
