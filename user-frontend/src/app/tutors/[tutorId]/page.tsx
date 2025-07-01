@@ -151,16 +151,16 @@ export default function TutorDetailPage() {
         {/* 導師卡片結束後，插入靠左的 WhatsApp 按鈕 */}
         <div className="w-full flex justify-center md:justify-start mt-6">
           {id && (
-            <a
-              href={`https://api.whatsapp.com/send?phone=85284158743&text=${encodeURIComponent(
-                `Hello，我喺 HiHiTutor 見到 tutorID ${id}，想了解同預約上堂，請問方便嗎？`
-              )}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-yellow-400 text-black font-semibold text-lg rounded-xl shadow px-7 py-3.5 hover:shadow-md transition"
+            <Button 
+              onClick={() => {
+                const message = `Hello，我喺 HiHiTutor 見到 tutorID ${id}，想了解同預約上堂，請問方便嗎？`;
+                const whatsappUrl = `https://api.whatsapp.com/send?phone=85284158743&text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+              }}
+              className="bg-yellow-400 text-black hover:bg-yellow-500 px-6 py-3 text-base md:text-lg"
             >
               🎯 立即預約上堂
-            </a>
+            </Button>
           )}
         </div>
       </div>
