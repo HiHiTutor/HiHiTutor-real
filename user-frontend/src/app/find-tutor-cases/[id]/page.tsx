@@ -86,7 +86,7 @@ export default function FindTutorCaseDetailPage() {
     
     // 只使用 modes 數組，避免重複
     if (modes.length > 0) {
-      return modes.map(mode => getModeName(mode)).join('、');
+      return modes.map((mode: string) => getModeName(mode)).join('、');
     }
     
     // 如果沒有 modes 數組，使用單一 mode
