@@ -36,10 +36,18 @@ const formSchema = z.object({
     hours: z.coerce.number().min(0, '小時不能為負數').max(12, '小時不能超過12'),
     minutes: z.coerce.number().min(0, '分鐘不能為負數').max(45, '分鐘不能超過45')
   }).refine((data) => {
-    return data.hours > 0 || data.minutes > 0;
+    // 確保至少有一個時長
+    if (data.hours === 0 && data.minutes === 0) {
+      return false;
+    }
+    // 當小時為0時，分鐘不能為0或15
+    if (data.hours === 0 && (data.minutes === 0 || data.minutes === 15)) {
+      return false;
+    }
+    return true;
   }, {
-    message: "請輸入時長",
-    path: ["hours"]
+    message: "請輸入有效的時長",
+    path: ["minutes"]
   }),
   weeklyLessons: z.coerce.number().min(1, '請輸入每週堂數'),
   startDate: z.date()
@@ -80,6 +88,22 @@ export default function PostStudentCase() {
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
+      // 確保時長數據正確
+      const hours = data.lessonDuration.hours || 0;
+      const minutes = data.lessonDuration.minutes || 0;
+      const totalMinutes = (hours * 60) + minutes;
+      
+      // 驗證時長
+      if (totalMinutes === 0) {
+        toast.error('請輸入有效的時長');
+        return;
+      }
+      
+      if (hours === 0 && (minutes === 0 || minutes === 15)) {
+        toast.error('當小時為0時，分鐘只能選擇30或45');
+        return;
+      }
+
       const caseData = {
         id: `S${Date.now()}`,
         title: data.title,
@@ -91,11 +115,13 @@ export default function PostStudentCase() {
         regions: data.regions || [],
         subRegions: data.subRegions || [],
         price: data.price,
-        duration: (data.lessonDuration.hours * 60) + data.lessonDuration.minutes,
+        // 將時長轉換為分鐘
+        duration: totalMinutes,
         durationUnit: 'minutes',
         weeklyLessons: data.weeklyLessons,
         startDate: data.startDate,
         status: 'open',
+        // 添加其他必要欄位
         budget: data.price.toString(),
         mode: data.modes.includes('in-person') ? 'in-person' : 'online',
         requirement: data.description || '',
@@ -115,6 +141,7 @@ export default function PostStudentCase() {
         isApproved: true
       };
 
+      console.log('發送個案數據:', caseData);
       await studentCaseApi.createStudentCase(caseData);
       toast.success('成功發布個案！');
       router.push('/find-tutor-cases');
@@ -481,7 +508,10 @@ export default function PostStudentCase() {
                 </div>
                 <div className="flex-1">
                   <Select 
-                    onValueChange={(value) => setValue('lessonDuration.minutes', parseInt(value))}
+                    onValueChange={(value) => {
+                      const minutes = parseInt(value);
+                      setValue('lessonDuration.minutes', minutes);
+                    }}
                     value={(() => {
                       const hours = watch('lessonDuration.hours') || 0;
                       const currentMinutes = watch('lessonDuration.minutes') || 0;

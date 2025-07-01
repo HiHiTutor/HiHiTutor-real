@@ -21,6 +21,8 @@ const createStudentCase = async (req, res) => {
   try {
     const { title, category, modes, price, duration, weeklyLessons } = req.body;
     
+    console.log('收到的個案數據:', req.body);
+    
     // 檢查必填欄位
     if (!title || !category || !modes || !price || !duration || !weeklyLessons) {
       return res.status(400).json({ 
@@ -42,6 +44,30 @@ const createStudentCase = async (req, res) => {
       return res.status(400).json({ 
         success: false, 
         message: '請選擇至少一種教學模式' 
+      });
+    }
+    
+    // 檢查時長是否有效
+    if (!duration || duration <= 0 || isNaN(duration)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: '請輸入有效的時長' 
+      });
+    }
+    
+    // 檢查價格是否有效
+    if (!price || price <= 0 || isNaN(price)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: '請輸入有效的價格' 
+      });
+    }
+    
+    // 檢查每週堂數是否有效
+    if (!weeklyLessons || weeklyLessons <= 0 || isNaN(weeklyLessons)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: '請輸入有效的每週堂數' 
       });
     }
     
