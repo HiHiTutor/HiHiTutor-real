@@ -149,7 +149,7 @@ export default function TutorDetailPage() {
         </div>
 
         {/* 導師卡片結束後，插入靠左的 WhatsApp 按鈕 */}
-        <div className="flex justify-start items-start mt-4 ml-4">
+        <div className="w-full flex justify-center md:justify-start mt-4">
           {id && (
             <a
               href={`https://api.whatsapp.com/send?phone=85284158743&text=${encodeURIComponent(
