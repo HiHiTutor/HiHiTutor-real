@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import React from 'react';
 
 export default function Topbar() {
   const [open, setOpen] = useState(false);
@@ -19,6 +20,7 @@ export default function Topbar() {
         <Link href="/recommendations" className="hover:text-primary">導師推薦</Link>
         <Link href="/articles" className="hover:text-primary">教育專欄</Link>
         <Link href="/faq" className="hover:text-primary">常見問題</Link>
+        <Link href="/post/student-case" className="hover:text-white bg-yellow-500 px-3 py-1 rounded font-semibold transition-colors">出Post搵導師</Link>
       </div>
       {/* Mobile hamburger */}
       <button
@@ -45,6 +47,7 @@ export default function Topbar() {
           <Link href="/recommendations" className="hover:text-primary text-lg" onClick={() => setOpen(false)}>導師推薦</Link>
           <Link href="/articles" className="hover:text-primary text-lg" onClick={() => setOpen(false)}>教育專欄</Link>
           <Link href="/faq" className="hover:text-primary text-lg" onClick={() => setOpen(false)}>常見問題</Link>
+          <Link href="/post/student-case" className="hover:text-white bg-yellow-500 px-4 py-2 rounded font-semibold transition-colors text-lg" onClick={() => setOpen(false)}>出Post搵導師</Link>
         </div>
       )}
     </nav>
