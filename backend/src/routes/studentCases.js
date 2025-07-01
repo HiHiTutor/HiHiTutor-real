@@ -54,60 +54,73 @@ router.get('/', getAllStudentCases);
 router.get('/:id', getStudentCaseById);
 
 // 學生出Post搵導師
-router.get('/find-tutor-cases', (req, res) => {
-  const { category, subCategory, region, priceMin, priceMax, featured, limit, page } = req.query;
-  let filtered = Array.isArray(studentCases) ? studentCases : [];
+router.get('/find-tutor-cases', async (req, res) => {
+  try {
+    const { category, subCategory, region, priceMin, priceMax, featured, limit, page } = req.query;
+    
+    // 使用數據庫查詢而不是靜態數據
+    const StudentCase = require('../../models/StudentCase');
+    
+    // 構建查詢條件
+    const query = {};
+    
+    // 如果是獲取推薦案例，只顯示已審批的
+    if (featured === 'true') {
+      query.isApproved = true;
+      query.featured = true;
+    } else {
+      // 顯示所有已審批的案例
+      query.isApproved = true;
+    }
 
-  // 如果請求精選個案
-  if (featured === 'true') {
-    filtered = filtered.filter(item => item.featured === true);
-  }
+    // 分類篩選
+    if (category) {
+      query.category = category;
+    }
 
-  if (category) {
-    filtered = filtered.filter(item => item.category === category);
-  }
-  if (subCategory) {
-    const subArr = Array.isArray(subCategory) ? subCategory : subCategory.split(',');
-    console.log("🔍 子分類搜尋參數：", subArr);
-    filtered = filtered.filter(item => {
-      console.log("🧪 subCategory 比對：", item.subCategory);
-      return subArr.some(sub => {
-        if (Array.isArray(item.subCategory)) {
-          return item.subCategory.includes(sub); // 比對 array 內有冇 sub
-        } else if (typeof item.subCategory === 'string') {
-          return item.subCategory.includes(sub); // 比對 string 包唔包含 sub
-        }
-        return false;
-      });
+    // 子分類篩選
+    if (subCategory) {
+      const subArr = Array.isArray(subCategory) ? subCategory : subCategory.split(',');
+      query.subCategory = { $in: subArr };
+    }
+
+    // 地區篩選
+    if (region) {
+      const regionArr = Array.isArray(region) ? region : region.split(',');
+      query.regions = { $in: regionArr };
+    }
+
+    // 價格範圍篩選
+    if (priceMin || priceMax) {
+      query.budget = {};
+      if (priceMin) query.budget.$gte = Number(priceMin);
+      if (priceMax) query.budget.$lte = Number(priceMax);
+    }
+
+    // 執行查詢
+    const cases = await StudentCase.find(query)
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit) || 20);
+
+    // 獲取總數
+    const totalCount = await StudentCase.countDocuments(query);
+
+    res.json({
+      success: true,
+      data: {
+        cases: cases,
+        totalCount: cases.length,
+        allDocumentsCount: totalCount
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error in /find-tutor-cases:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
     });
   }
-  if (region) {
-    const regionArr = Array.isArray(region) ? region : region.split(',');
-    filtered = filtered.filter(item => regionArr.some(r => item.region?.includes(r)));
-  }
-  if (priceMin || priceMax) {
-    filtered = filtered.filter(item => {
-      if (!item.priceRange) return false;
-      const [min, max] = item.priceRange.split('-').map(Number);
-      const minVal = priceMin ? Number(priceMin) : 0;
-      const maxVal = priceMax ? Number(priceMax) : 10000;
-      return max >= minVal && min <= maxVal;
-    });
-  }
-
-  // 如果有 date 欄位，按 date 由新到舊排序
-  if (filtered.length > 0 && filtered[0].date) {
-    filtered = filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-  }
-
-  // 處理分頁 - 在過濾和排序後進行
-  const pageNum = Number(page) || 1;
-  const limitNum = Number(limit) || 10;
-  const startIndex = (pageNum - 1) * limitNum;
-  const endIndex = pageNum * limitNum;
-  const paginatedCases = filtered.slice(startIndex, endIndex);
-
-  res.json(paginatedCases);
 });
 
 // 導師出Post搵學生
@@ -203,12 +216,41 @@ router.get('/find-student-cases/:id', (req, res) => {
 });
 
 // 單一學生個案詳情
-router.get('/find-tutor-cases/:id', (req, res) => {
-  const found = Array.isArray(studentCases) ? studentCases.find(item => item.id === req.params.id) : null;
-  if (found) {
-    res.json(found);
-  } else {
-    res.status(404).json({ message: '個案未找到' });
+router.get('/find-tutor-cases/:id', async (req, res) => {
+  try {
+    const StudentCase = require('../../models/StudentCase');
+    const { id } = req.params;
+    
+    let caseItem = null;
+    
+    // 嘗試使用 ObjectId 查找
+    if (/^[0-9a-fA-F]{24}$/.test(id)) {
+      caseItem = await StudentCase.findById(id);
+    }
+    
+    // 如果通過 _id 找不到，嘗試通過 id 字段查找
+    if (!caseItem) {
+      caseItem = await StudentCase.findOne({ id: id });
+    }
+    
+    if (caseItem) {
+      res.json({
+        success: true,
+        data: caseItem
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: '找不到該學生個案'
+      });
+    }
+  } catch (error) {
+    console.error('❌ Error in /find-tutor-cases/:id:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
   }
 });
 
