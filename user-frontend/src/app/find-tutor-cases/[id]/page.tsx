@@ -42,7 +42,7 @@ export default function FindTutorCaseDetailPage() {
 
     const fetchCase = async () => {
       try {
-        const result = await caseApi.getTutorCaseById(id);
+        const result = await caseApi.getStudentCaseById(id);
         console.log('📥 API 返回的資料:', result);
         setCaseDetail(Array.isArray(result) ? result[0] : result?.data);
       } catch (error) {
