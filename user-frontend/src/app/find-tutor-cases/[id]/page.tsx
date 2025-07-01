@@ -65,8 +65,15 @@ export default function FindTutorCaseDetailPage() {
 
   // 處理科目
   const getSubjects = () => {
-    if (!caseDetail.subjects) return '未指定';
-    return getSubjectNames(caseDetail.subjects);
+    if (!caseDetail.subjects || caseDetail.subjects.length === 0) return '未指定';
+    
+    // 如果是陣列，使用翻譯函數
+    if (Array.isArray(caseDetail.subjects)) {
+      return getSubjectNames(caseDetail.subjects);
+    }
+    
+    // 如果是單一值，直接返回
+    return caseDetail.subjects;
   };
 
   // 處理模式
@@ -93,31 +100,46 @@ export default function FindTutorCaseDetailPage() {
     const regionNames = regions.map(getRegionName);
     const subRegionNames = subRegions.map(getSubRegionName);
     
-    return [...regionNames, ...subRegionNames].join('、');
+    const allLocations = [...regionNames, ...subRegionNames];
+    return allLocations.length > 0 ? allLocations.join('、') : '未指定';
   };
 
   // 處理收費
   const getPrice = () => {
-    if (!caseDetail.lessonDetails) return '待議';
-    const { duration, pricePerLesson, lessonsPerWeek } = caseDetail.lessonDetails;
+    // 支援新的數據結構
+    if (caseDetail.duration && caseDetail.price && caseDetail.weeklyLessons) {
+      let display = '';
+      if (caseDetail.duration) {
+        const unit = caseDetail.durationUnit === 'hours' ? '小時' : '分鐘';
+        display += `每堂${caseDetail.duration}${unit}`;
+      }
+      if (caseDetail.price) display += `，每堂HKD ${caseDetail.price}`;
+      if (caseDetail.weeklyLessons) display += `，每週${caseDetail.weeklyLessons}堂`;
+      return display;
+    }
     
-    let display = '';
-    if (duration) display += `每堂${duration}分鐘`;
-    if (pricePerLesson) display += `，每堂HKD ${pricePerLesson}`;
-    if (lessonsPerWeek) display += `，每週${lessonsPerWeek}堂`;
+    // 支援舊的數據結構
+    if (caseDetail.lessonDetails) {
+      const { duration, pricePerLesson, lessonsPerWeek } = caseDetail.lessonDetails;
+      let display = '';
+      if (duration) display += `每堂${duration}分鐘`;
+      if (pricePerLesson) display += `，每堂HKD ${pricePerLesson}`;
+      if (lessonsPerWeek) display += `，每週${lessonsPerWeek}堂`;
+      return display || '待議';
+    }
     
-    return display || '待議';
+    return '待議';
   };
 
   // 處理要求
   const getRequirements = () => {
-    if (caseDetail.requirements) return caseDetail.requirements;
     if (caseDetail.requirement) return caseDetail.requirement;
+    if (caseDetail.requirements) return caseDetail.requirements;
     if (caseDetail.description) return caseDetail.description;
     if (caseDetail.experience) {
       return EXPERIENCES[caseDetail.experience] || caseDetail.experience;
     }
-    return '導師未指定特別要求';
+    return '學生未指定特別要求';
   };
 
   return (
