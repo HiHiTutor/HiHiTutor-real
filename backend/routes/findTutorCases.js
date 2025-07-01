@@ -33,7 +33,7 @@ router.get('/test', async (req, res) => {
     // 嘗試簡單的數據庫操作
     if (mongoose.connection.readyState === 1) {
       try {
-        const count = await TutorCase.countDocuments();
+        const count = await StudentCase.countDocuments();
         diagnostics.database = {
           connected: true,
           tutorCaseCount: count
@@ -123,7 +123,7 @@ router.get('/', async (req, res) => {
     console.log('🔍 Testing database connection...');
     let count;
     try {
-      count = await TutorCase.countDocuments();
+              count = await StudentCase.countDocuments();
       console.log('📊 Total documents in collection:', count);
     } catch (countError) {
       console.error('❌ Error counting documents:', countError);
@@ -172,7 +172,7 @@ router.get('/', async (req, res) => {
 
     console.log('🔍 Running MongoDB query:', query);
 
-    const cases = await TutorCase.find(query)
+    const cases = await StudentCase.find(query)
       .sort({ createdAt: -1 })
       .limit(parseInt(req.query.limit) || 20);
 
@@ -207,14 +207,14 @@ router.get('/:id', async (req, res) => {
     // 首先嘗試使用 ObjectId 查找
     if (/^[0-9a-fA-F]{24}$/.test(id)) {
       console.log('🔍 嘗試使用 ObjectId 查找');
-      caseItem = await TutorCase.findById(id);
+      caseItem = await StudentCase.findById(id);
       console.log('🔍 ObjectId 查找結果:', caseItem ? '找到' : '未找到');
     }
 
     if (!caseItem) {
       // 如果通過 _id 找不到，或者不是有效的 ObjectId，嘗試通過 id 字段查找
       console.log('🔍 嘗試使用自定義 ID 查找');
-      caseItem = await TutorCase.findOne({ id: id });
+      caseItem = await StudentCase.findOne({ id: id });
       console.log('🔍 自定義 ID 查找結果:', caseItem ? '找到' : '未找到');
     }
 
@@ -474,11 +474,11 @@ router.get('/search', async (req, res) => {
 
     // 執行查詢
     const [cases, total] = await Promise.all([
-      TutorCase.find(query)
+      StudentCase.find(query)
         .sort({ [sortBy]: sortOrder === 'desc' ? -1 : 1 })
         .skip(skip)
         .limit(Number(limit)),
-      TutorCase.countDocuments(query)
+              StudentCase.countDocuments(query)
     ]);
 
     // 獲取所有可用的科目選項
