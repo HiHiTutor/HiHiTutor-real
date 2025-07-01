@@ -84,8 +84,17 @@ export default function FindTutorCaseDetailPage() {
     const modes = caseDetail.modes || [];
     if (modes.length === 0 && !caseDetail.mode) return '未指定';
     
-    const allModes = [...new Set([...(caseDetail.mode ? [caseDetail.mode] : []), ...modes])];
-    return allModes.map(mode => getModeName(mode)).join('、');
+    // 只使用 modes 數組，避免重複
+    if (modes.length > 0) {
+      return modes.map(mode => getModeName(mode)).join('、');
+    }
+    
+    // 如果沒有 modes 數組，使用單一 mode
+    if (caseDetail.mode) {
+      return getModeName(caseDetail.mode);
+    }
+    
+    return '未指定';
   };
 
   // 處理地點
@@ -129,6 +138,16 @@ export default function FindTutorCaseDetailPage() {
       if (pricePerLesson) display += `，每堂HKD ${pricePerLesson}`;
       if (lessonsPerWeek) display += `，每週${lessonsPerWeek}堂`;
       return display || '待議';
+    }
+    
+    // 支援 budget 字段
+    if (caseDetail.budget) {
+      if (typeof caseDetail.budget === 'string' && caseDetail.budget.trim() !== '') {
+        return `每堂HKD ${caseDetail.budget}`;
+      }
+      if (typeof caseDetail.budget === 'object' && caseDetail.budget.min && caseDetail.budget.max) {
+        return `每堂HKD ${caseDetail.budget.min} - ${caseDetail.budget.max}`;
+      }
     }
     
     return '待議';
