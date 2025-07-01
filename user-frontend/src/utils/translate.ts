@@ -6,7 +6,8 @@ export const REGION_MAP: { [key: string]: string } = {
   'hong-kong-island': '香港島',
   'kowloon': '九龍',
   'new-territories': '新界',
-  'islands': '離島'
+  'islands': '離島',
+  'all-hong-kong': '全香港'
 };
 
 // 子地區映射

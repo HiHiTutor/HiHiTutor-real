@@ -9,7 +9,10 @@ import { caseApi } from '@/services/api';
 const MODES: { [key: string]: string } = {
   'online': '網課',
   'offline': '面授',
-  'in-person': '面授'
+  'in-person': '面授',
+  'one-on-one': '一對一',
+  'small-group': '小班教學',
+  'large-center': '大型補習社'
 };
 
 // 經驗要求映射
@@ -82,7 +85,7 @@ export default function FindTutorCaseDetailPage() {
     if (modes.length === 0 && !caseDetail.mode) return '未指定';
     
     const allModes = [...new Set([...(caseDetail.mode ? [caseDetail.mode] : []), ...modes])];
-    return allModes.map(mode => MODES[mode] || mode).join('、');
+    return allModes.map(mode => getModeName(mode)).join('、');
   };
 
   // 處理地點
