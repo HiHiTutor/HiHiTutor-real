@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { fetchApi } from '@/services/api';
 import CaseCard from '@/components/CaseCard';
 import TutorCard from '@/components/TutorCard';
-import { getSubjectName } from '@/utils/translate';
+import { getSubjectName, getRegionName } from '@/utils/translate';
 
 // 地區映射表
 const regionMap: { [key: string]: string } = {
@@ -225,6 +225,71 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
           console.warn('原始資料陣列:', rawCases);
         }
 
+        // 數據格式轉換：將後端數據格式轉換為 CaseCard 期望的格式
+        const transformCaseData = (caseItem: any) => {
+          // 處理科目
+          let subjectLabel = '未指定科目';
+          if (caseItem.subjects && Array.isArray(caseItem.subjects) && caseItem.subjects.length > 0) {
+            subjectLabel = getSubjectName(caseItem.subjects[0]);
+          } else if (caseItem.subject) {
+            subjectLabel = getSubjectName(caseItem.subject);
+          }
+
+          // 處理地區
+          let regionLabel = '未指定地區';
+          if (caseItem.region) {
+            regionLabel = getRegionName(caseItem.region);
+          } else if (caseItem.regions && Array.isArray(caseItem.regions) && caseItem.regions.length > 0) {
+            regionLabel = getRegionName(caseItem.regions[0]);
+          }
+
+          // 處理教學模式
+          let modes: string[] = [];
+          if (caseItem.modes && Array.isArray(caseItem.modes)) {
+            modes = caseItem.modes.map((mode: string) => {
+              if (mode === 'in-person') return '面授';
+              if (mode === 'online') return '網課';
+              return mode;
+            });
+          } else if (caseItem.mode) {
+            if (caseItem.mode === 'in-person') modes = ['面授'];
+            else if (caseItem.mode === 'online') modes = ['網課'];
+            else modes = [caseItem.mode];
+          }
+
+          // 處理經驗要求
+          let experienceLabel = '未指定經驗要求';
+          if (caseItem.experience) {
+            experienceLabel = caseItem.experience;
+          }
+
+          // 處理課程詳情
+          let lessonDetails = null;
+          if (caseItem.lessonDetails) {
+            if (typeof caseItem.lessonDetails === 'string') {
+              try {
+                lessonDetails = JSON.parse(caseItem.lessonDetails);
+              } catch (e) {
+                console.warn('無法解析 lessonDetails:', caseItem.lessonDetails);
+              }
+            } else {
+              lessonDetails = caseItem.lessonDetails;
+            }
+          }
+
+          return {
+            ...caseItem,
+            subject: { label: subjectLabel },
+            region: { label: regionLabel },
+            experienceLevel: { label: experienceLabel },
+            modes: modes,
+            lessonDetails: lessonDetails
+          };
+        };
+
+        // 轉換數據格式
+        const transformedCases = validCases.map(transformCaseData);
+
         // 排序：VIP置頂好評 > VIP置頂 > 置頂好評 > 置頂 > 好評 > 其他
         const getSortScore = (c: any) => [
           c.isVip ? 1 : 0,
@@ -233,7 +298,7 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
           c.rating || 0,
           new Date(c.createdAt || c.date || 0).getTime()
         ];
-        const sorted = [...validCases].sort((a, b) => {
+        const sorted = [...transformedCases].sort((a, b) => {
           const sa = getSortScore(a);
           const sb = getSortScore(b);
           for (let i = 0; i < sa.length; i++) {
