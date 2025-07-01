@@ -57,7 +57,7 @@ const Navbar = () => {
         <div className="flex-1 justify-center items-center max-md:hidden flex">
           <nav className="flex space-x-4 items-center justify-center">
             <Link href="/" className="hover:text-primary">主頁</Link>
-            <Link href="/tutors" className="bg-yellow-400 text-white px-3 py-1 rounded-md hover:bg-yellow-500 transition">推薦導師</Link>
+            <Link href="/tutors" className="bg-yellow-400 text-white px-3 py-1 rounded-md hover:bg-yellow-500 transition">導師列表</Link>
             <Link href="/find-tutor-cases" className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 transition">補習個案</Link>
             <Link href="/articles" className="hover:text-primary">教育專欄</Link>
             <Link href="/faq" className="hover:text-primary">常見問題</Link>
@@ -211,7 +211,7 @@ const Navbar = () => {
             <div className="flex w-4/5 gap-3 mb-2">
               <Link href="/tutors" onClick={() => setMenuOpen(false)} className="flex-1">
                 <button className="bg-yellow-400 text-white px-2 py-2 w-full rounded font-semibold shadow hover:bg-yellow-500 transition whitespace-nowrap text-base">
-                  推薦導師
+                  導師列表
                 </button>
               </Link>
               <Link href="/find-tutor-cases" onClick={() => setMenuOpen(false)} className="flex-1">

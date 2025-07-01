@@ -150,7 +150,7 @@ function HomeContent() {
           </div>
           <div className="relative px-4 sm:px-6 lg:px-8">
             <CaseSection 
-              title="推薦導師"
+              title="導師列表"
               fetchUrl="/tutors"
               linkUrl="/tutors"
               borderColor="border-yellow-200"
