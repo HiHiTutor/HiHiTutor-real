@@ -421,7 +421,8 @@ const getAllCases = async (req, res) => {
     if (!type || type === 'student') {
       // Get student cases
       const studentCases = await StudentCase.find(query)
-        .sort({ createdAt: -1 });
+        .sort({ createdAt: -1 })
+        .populate('studentId', 'name email');
       cases = cases.concat(studentCases.map(c => ({...c.toObject(), type: 'student'})));
       total += await StudentCase.countDocuments(query);
     }
@@ -429,7 +430,8 @@ const getAllCases = async (req, res) => {
     if (!type || type === 'tutor') {
       // Get tutor cases
       const tutorCases = await TutorCase.find(query)
-        .sort({ createdAt: -1 });
+        .sort({ createdAt: -1 })
+        .populate('student', 'name email');
       cases = cases.concat(tutorCases.map(c => ({...c.toObject(), type: 'tutor'})));
       total += await TutorCase.countDocuments(query);
     }

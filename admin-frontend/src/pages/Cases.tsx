@@ -189,8 +189,8 @@ const Cases: React.FC = () => {
               <TableCell>ID</TableCell>
               <TableCell>Type</TableCell>
               <TableCell>Title</TableCell>
-              <TableCell>Student</TableCell>
-              <TableCell>Tutor</TableCell>
+              <TableCell>發佈者名稱</TableCell>
+              <TableCell>發佈者電郵</TableCell>
               <TableCell>Category</TableCell>
               <TableCell>Status</TableCell>
               <TableCell>Created At</TableCell>
@@ -214,9 +214,15 @@ const Cases: React.FC = () => {
                   />
                 </TableCell>
                 <TableCell>{caseItem.title}</TableCell>
-                <TableCell>{caseItem.student?.name || 'N/A'}</TableCell>
                 <TableCell>
-                  {caseItem.tutor ? caseItem.tutor.name : 'Not Assigned'}
+                  {caseItem.type === 'student'
+                    ? caseItem.studentId?.name || 'N/A'
+                    : caseItem.student?.name || 'N/A'}
+                </TableCell>
+                <TableCell>
+                  {caseItem.type === 'student'
+                    ? caseItem.studentId?.email || 'N/A'
+                    : caseItem.student?.email || 'N/A'}
                 </TableCell>
                 <TableCell>{caseItem.category}</TableCell>
                 <TableCell>

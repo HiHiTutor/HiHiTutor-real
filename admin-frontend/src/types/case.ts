@@ -16,9 +16,10 @@ export interface Case {
   budget: string;
   mode: string;
   experience?: string;
-  student?: {
-    id: string;
-    name: string;
+  studentId?: {
+    _id?: string;
+    name?: string;
+    email?: string;
   };
   tutor?: {
     id: string;
