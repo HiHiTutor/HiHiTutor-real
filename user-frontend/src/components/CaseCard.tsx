@@ -46,6 +46,8 @@ interface CaseCardProps {
 export default function CaseCard({ caseData, routeType = 'tutor', borderColor }: CaseCardProps) {
   const router = useRouter();
 
+  console.log('CaseCard:', caseData);
+
   if (!caseData) return null;
 
   // 根據 routeType 決定顏色主調
@@ -62,6 +64,21 @@ export default function CaseCard({ caseData, routeType = 'tutor', borderColor }:
     bg: 'bg-blue-50',
     button: 'bg-blue-500 hover:bg-blue-600'
   };
+
+  // 兼容 mode 及 modes 欄位
+  const modesArr = caseData.modes && caseData.modes.length > 0
+    ? caseData.modes
+    : caseData.mode
+      ? [caseData.mode]
+      : [];
+  const modeText = modesArr
+    .map(mode =>
+      mode === 'in-person' ? '面授'
+      : mode === 'online' ? '網課'
+      : ''
+    )
+    .filter(Boolean)
+    .join('、');
 
   return (
     <div 
@@ -117,19 +134,10 @@ export default function CaseCard({ caseData, routeType = 'tutor', borderColor }:
                 : '堂費預算: 待議'}
           </span>
         </div>
-        {caseData.modes && (
+        {modeText && (
           <div className="flex items-start gap-1 max-sm:gap-0.5 max-[700px]:gap-1">
             <ComputerDesktopIcon className={`h-4 w-4 ${colorScheme.text} max-sm:h-3 max-sm:w-3 max-[700px]:h-4 max-[700px]:w-4`} />
-            <span className="line-clamp-2">
-              {caseData.modes
-                .map(mode =>
-                  mode === 'in-person' ? '面授'
-                  : mode === 'online' ? '網課'
-                  : ''
-                )
-                .filter(Boolean)
-                .join('、')}
-            </span>
+            <span>{modeText}</span>
           </div>
         )}
         {caseData.lessonDetails && (
