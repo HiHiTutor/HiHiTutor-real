@@ -105,8 +105,8 @@ function FindTutorCasesPageContent() {
         setLoading(true);
         console.log("🔍 正在獲取導師個案資料...");
         
-        // 獲取導師個案資料（導師搵學生的個案）
-        const result = await caseApi.getAllTutorCases();
+        // 獲取學生個案資料（學生搵導師的個案）
+        const result = await caseApi.getAllStudentCases();
         console.log("📦 成功獲取導師個案資料：", result);
         const allCases = (result.data || []).sort((a: any, b: any) => 
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
