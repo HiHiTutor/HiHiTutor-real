@@ -21,6 +21,11 @@ export interface Case {
     name?: string;
     email?: string;
   };
+  student?: {
+    _id?: string;
+    name?: string;
+    email?: string;
+  };
   tutor?: {
     id: string;
     name: string;
