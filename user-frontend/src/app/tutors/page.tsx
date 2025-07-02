@@ -305,7 +305,7 @@ function TutorsPageContent() {
   };
 
   const getTutorAvatar = (tutor: Tutor) => {
-    return tutor.avatarUrl || `/avatars/teacher${Math.floor(Math.random() * 6) + 1}.png`;
+    return tutor.avatarUrl || tutor.avatar || `https://hi-hi-tutor-real-backend2.vercel.app/avatars/teacher${Math.floor(Math.random() * 6) + 1}.png`;
   };
 
   // 科目編碼到用戶友好標籤的映射 - 使用統一的翻譯函數

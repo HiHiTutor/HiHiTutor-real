@@ -912,7 +912,7 @@ const getTutorByTutorId = async (req, res) => {
       userId: user.userId,
       tutorId: user.tutorId,
       name: 'HiHiTutor 導師', // 移除真實姓名
-      avatar: '/avatars/default.png', // 使用預設頭像
+      avatar: user.avatar || user.tutorProfile?.avatarUrl || 'https://hi-hi-tutor-real-backend2.vercel.app/avatars/default.png', // 使用真實頭像或完整預設 URL
       avatarOffsetX: user.tutorProfile?.avatarOffsetX || 50,
       subjects: user.tutorProfile?.subjects || [],
       teachingAreas: user.tutorProfile?.teachingAreas || [],
@@ -1087,7 +1087,7 @@ const getTutorDetail = async (req, res) => {
       userId: tutor.userId,
       tutorId: tutor.tutorId,
       name: 'HiHiTutor 導師', // 移除真實姓名
-      avatar: '/avatars/default.png', // 使用預設頭像
+      avatar: tutor.avatar || tutor.tutorProfile?.avatarUrl || 'https://hi-hi-tutor-real-backend2.vercel.app/avatars/default.png', // 使用真實頭像或完整預設 URL
       subjects: tutor.tutorProfile?.subjects || [],
       teachingAreas: tutor.tutorProfile?.teachingAreas || [],
       teachingMethods: tutor.tutorProfile?.teachingMethods || [],

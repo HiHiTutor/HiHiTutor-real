@@ -100,7 +100,10 @@ export default function TutorDetailPage() {
             <CardContent className="pt-6 max-sm:pt-4 max-[700px]:pt-5">
               <div className="flex items-start gap-6 max-sm:flex-col max-sm:items-center max-sm:gap-4 max-sm:text-center max-[700px]:flex-col max-[700px]:items-center max-[700px]:gap-4 max-[700px]:text-center">
                 <Avatar className="h-24 w-24 max-sm:h-20 max-sm:w-20 max-[700px]:h-22 max-[700px]:w-22">
-                  <AvatarImage src={tutor.avatar} alt={tutor.tutorId || ''} />
+                  <AvatarImage 
+                    src={tutor.avatar || 'https://hi-hi-tutor-real-backend2.vercel.app/avatars/default.png'} 
+                    alt={tutor.tutorId || ''} 
+                  />
                   <AvatarFallback className="max-sm:text-lg max-[700px]:text-lg">{tutor.tutorId?.[0] || 'T'}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 max-sm:w-full max-[700px]:w-full">

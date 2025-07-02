@@ -41,7 +41,7 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
   const rawExperience = tutor.tutorProfile?.experience || tutor.experience;
   const displayExperience = typeof rawExperience === 'number' ? `${rawExperience}年` : rawExperience || '未指定';
   const displayEducation = tutor.education || tutor.tutorProfile?.education || '未指定';
-  const displayAvatar = tutor.avatarUrl || tutor.avatar || '/avatars/default.png';
+  const displayAvatar = tutor.avatarUrl || tutor.avatar || 'https://hi-hi-tutor-real-backend2.vercel.app/avatars/default.png';
   const avatarOffsetX = tutor.avatarOffsetX || 50; // 預設置中
   
   // 使用 tutorId 作為導航 ID，如果沒有則使用 userId 或 id
