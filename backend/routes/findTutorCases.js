@@ -176,12 +176,47 @@ router.get('/', async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(parseInt(req.query.limit) || 20);
 
-    console.log('✅ Query returned', cases.length, 'results');
+    // 轉換數據格式，確保預算字段格式正確
+    const transformedCases = cases.map(caseItem => {
+      const transformed = caseItem.toObject();
+      
+      // 處理預算字段
+      if (transformed.budget) {
+        // 如果budget是字符串，嘗試解析為數字
+        if (typeof transformed.budget === 'string') {
+          const budgetValue = transformed.budget.replace(/[^0-9]/g, '');
+          if (budgetValue) {
+            const numValue = parseInt(budgetValue);
+            transformed.budget = {
+              min: numValue,
+              max: numValue
+            };
+          }
+        }
+      }
+      
+      // 如果沒有budget但有price字段，使用price
+      if (!transformed.budget && transformed.price) {
+        const priceValue = typeof transformed.price === 'string' 
+          ? parseInt(transformed.price.replace(/[^0-9]/g, '')) 
+          : transformed.price;
+        if (priceValue) {
+          transformed.budget = {
+            min: priceValue,
+            max: priceValue
+          };
+        }
+      }
+      
+      return transformed;
+    });
+
+    console.log('✅ Query returned', transformedCases.length, 'results');
     res.json({
       success: true,
       data: {
-        cases: cases,
-        totalCount: cases.length,
+        cases: transformedCases,
+        totalCount: transformedCases.length,
         allDocumentsCount: count
       }
     });

@@ -288,10 +288,16 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
             else modes = [caseItem.mode];
           }
 
-          // 處理經驗要求
-          let experienceLabel = '未指定經驗要求';
-          if (caseItem.experience) {
-            experienceLabel = caseItem.experience;
+          // 處理堂費預算
+          let budgetLabel = '堂費預算: 待議';
+          if (caseItem.budget) {
+            if (typeof caseItem.budget === 'object' && caseItem.budget.min && caseItem.budget.max) {
+              budgetLabel = `堂費預算: $${caseItem.budget.min} - $${caseItem.budget.max}`;
+            } else if (typeof caseItem.budget === 'string' && caseItem.budget.trim() !== '') {
+              budgetLabel = `堂費預算: $${caseItem.budget}`;
+            }
+          } else if (caseItem.price) {
+            budgetLabel = `堂費預算: $${caseItem.price}`;
           }
 
           // 處理課程詳情
@@ -312,7 +318,7 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
             ...caseItem,
             subject: { label: subjectLabel },
             region: { label: regionLabel },
-            experienceLevel: { label: experienceLabel },
+            budget: caseItem.budget, // 直接使用原始的budget數據
             modes: modes,
             lessonDetails: lessonDetails
           };
