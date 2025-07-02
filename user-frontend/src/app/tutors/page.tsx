@@ -382,7 +382,7 @@ function TutorsPageContent() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-sm:gap-3 max-[700px]:grid-cols-2 max-[700px]:gap-4">
             {tutors.map((tutor, index) => (
               <Card 
-                key={tutor.id || tutor.userID || index} 
+                key={tutor.id || tutor.userId || index} 
                 className="hover:shadow-lg transition-all duration-200 cursor-pointer border-2 hover:border-yellow-300 max-sm:border max-sm:hover:border-yellow-300 max-[700px]:border-2 max-[700px]:hover:border-yellow-300"
                 onClick={() => handleTutorClick(tutor)}
               >
