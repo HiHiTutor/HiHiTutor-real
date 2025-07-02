@@ -92,7 +92,7 @@ export default function TutorDetailPage() {
                     教學經驗 {tutor.experience} 年 | 評分 {tutor.rating} / 5.0
                   </div>
                   <div className="flex flex-wrap gap-2 max-sm:gap-1 max-sm:justify-center max-[700px]:gap-2 max-[700px]:justify-center">
-                    {tutor.subjects.map((subject) => (
+                    {(tutor.subjects || []).map((subject) => (
                       <Badge key={subject} variant="secondary" className="max-sm:text-xs max-[700px]:text-xs">
                         {getSubjectName(subject)}
                       </Badge>
@@ -123,7 +123,7 @@ export default function TutorDetailPage() {
             <CardContent className="pt-6 max-sm:pt-4 max-[700px]:pt-5">
               <h2 className="text-xl font-semibold mb-4 max-sm:text-lg max-sm:mb-3 max-[700px]:text-lg max-[700px]:mb-3">專業資格</h2>
               <ul className="list-disc list-inside text-muted-foreground max-sm:text-sm max-[700px]:text-sm">
-                {tutor.qualifications.map((qualification, index) => (
+                {(tutor.qualifications || []).map((qualification, index) => (
                   <li key={index}>{qualification}</li>
                 ))}
               </ul>
