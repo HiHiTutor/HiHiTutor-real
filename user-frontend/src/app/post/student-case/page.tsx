@@ -34,17 +34,10 @@ const formSchema = z.object({
   price: z.coerce.number().min(1, '請輸入每堂收費'),
   lessonDuration: z.object({
     hours: z.coerce.number().min(0, '小時不能為負數').max(12, '小時不能超過12'),
-    minutes: z.coerce.number().min(0, '分鐘不能為負數').max(45, '分鐘不能超過45')
+    minutes: z.coerce.number().min(0, '分鐘不能為負數').max(59, '分鐘不能超過59')
   }).refine((data) => {
-    // 確保至少有一個時長
-    if (data.hours === 0 && data.minutes === 0) {
-      return false;
-    }
-    // 當小時為0時，分鐘不能為0或15
-    if (data.hours === 0 && (data.minutes === 0 || data.minutes === 15)) {
-      return false;
-    }
-    return true;
+    // 只要總時長>0即可
+    return (data.hours * 60 + data.minutes) > 0;
   }, {
     message: "請輸入有效的時長",
     path: ["minutes"]
@@ -192,20 +185,11 @@ export default function PostStudentCase() {
   };
 
   const handleSubjectChange = (subject: string) => {
-    const category = getValues('category');
-    const subCategory = getValues('subCategory');
-    
-    // 只有中學和小學分科可以多選
-    if (category === 'primary-secondary' && (subCategory === 'primary' || subCategory === 'secondary')) {
-      const currentSubjects = getValues('subjects') || [];
-      const newSubjects = currentSubjects.includes(subject)
-        ? currentSubjects.filter(s => s !== subject)
-        : [...currentSubjects, subject];
-      setValue('subjects', newSubjects);
-    } else {
-      // 其他類別只能單選
-      setValue('subjects', [subject]);
-    }
+    const currentSubjects = getValues('subjects') || [];
+    const newSubjects = currentSubjects.includes(subject)
+      ? currentSubjects.filter(s => s !== subject)
+      : [...currentSubjects, subject];
+    setValue('subjects', newSubjects);
   };
 
   const selectedCategoryData = CATEGORY_OPTIONS.find(cat => cat.value === selectedCategory);
