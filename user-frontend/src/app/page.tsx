@@ -146,7 +146,7 @@ function HomeContent() {
               bgColor="bg-yellow-50"
               icon="👩‍🏫"
               routeType="tutor"
-              queryParams={{ featured: true }}
+              queryParams={{}}
             />
           </div>
         </div>
