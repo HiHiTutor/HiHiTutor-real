@@ -161,7 +161,7 @@ function HomeContent() {
           <div className="absolute bottom-0 right-0 w-64 h-64 bg-yellow-400 rounded-full mix-blend-multiply filter blur-xl transform translate-x-1/2 translate-y-1/2"></div>
         </div>
         <div className="relative">
-          <TutorSection />
+          <TutorSection tutors={[]} />
         </div>
       </section>
 
