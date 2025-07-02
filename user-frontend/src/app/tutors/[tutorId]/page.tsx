@@ -8,27 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'react-hot-toast';
 import { getSubjectName } from '@/utils/translate';
-
-interface Tutor {
-  id: string;
-  userId: string;
-  tutorId: string | null;
-  name: string;
-  avatar: string;
-  avatarOffsetX: number;
-  subjects: string[];
-  teachingAreas: string[];
-  teachingMethods: string[];
-  experience: number;
-  rating: number;
-  introduction: string;
-  education: string;
-  qualifications: string[];
-  hourlyRate: number;
-  availableTime: string[];
-  examResults: string[];
-  courseFeatures: string;
-}
+import { Tutor } from '@/types/tutor';
 
 export default function TutorDetailPage() {
   const searchParams = useSearchParams();

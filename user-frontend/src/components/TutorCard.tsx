@@ -5,25 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Rating from './Rating';
 import { getSubjectName } from '@/utils/translate';
-
-interface Tutor {
-  id: string;
-  userId?: string;
-  tutorId?: string;
-  name: string;
-  subject?: string;
-  subjects?: string[];
-  experience?: string;
-  education?: string;
-  tutorProfile?: {
-    education?: string;
-    experience?: string;
-  };
-  avatarUrl?: string;
-  avatar?: string;
-  avatarOffsetX?: number;
-  rating?: number;
-}
+import { Tutor } from '@/types/tutor';
 
 interface TutorCardProps {
   tutor: Tutor;

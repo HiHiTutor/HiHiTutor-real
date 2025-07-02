@@ -12,38 +12,7 @@ import { Star } from 'lucide-react';
 import CaseFilterBar from '@/components/CaseFilterBar';
 import { getTeachingModeLabel } from '@/constants/teachingModeOptions';
 import { getSubjectName, getRegionName } from '@/utils/translate';
-
-interface Tutor {
-  id?: string;
-  userID?: string;
-  tutorId?: string;
-  name: string;
-  avatarUrl?: string;
-  tutorProfile?: {
-    subjects?: string[];
-    education?: string;
-    experience?: string;
-    rating?: number;
-  };
-  subjects?: string[];
-  education?: string;
-  experience?: string;
-  rating?: number;
-  isVip?: boolean;
-  isTop?: boolean;
-  region?: string;
-  teachingModes?: string[];
-}
-
-interface TutorsResponse {
-  tutors?: Tutor[];
-  data?: {
-    tutors?: Tutor[];
-  };
-  total?: number;
-  totalPages?: number;
-  currentPage?: number;
-}
+import { Tutor, TutorsResponse } from '@/types/tutor';
 
 export default function TutorsPage() {
   return (

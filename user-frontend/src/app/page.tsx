@@ -14,18 +14,7 @@ import CaseSection from '@/components/CaseSection';
 import TutorSection from '@/components/TutorSection';
 import Advertisement from '@/components/Advertisement';
 import CaseFilterBar from '@/components/CaseFilterBar';
-
-interface Tutor {
-  id: string;
-  name: string;
-  subject: string;
-  education: string;
-  experience: string;
-  rating: number;
-  avatarUrl: string;
-  isVip: boolean;
-  isTop: boolean;
-}
+import { Tutor } from '@/types/tutor';
 
 export default function Home() {
   const router = useRouter();
