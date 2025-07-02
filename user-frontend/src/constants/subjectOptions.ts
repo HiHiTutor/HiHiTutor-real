@@ -47,6 +47,9 @@ export const SUBJECT_MAP: { [key: string]: string } = {
   'foreign-language': '外語（韓文／日文／法文／德文等）',
   'magic-chess': '魔術／棋藝',
   'photography': '攝影／影片剪接',
+  'piano': '鋼琴',
+  'drawing': '繪畫',
+  'mandarin': '普通話',
 
   // 大專補習課程 - 修正代碼以匹配後端
   'uni-liberal': '大學通識',
