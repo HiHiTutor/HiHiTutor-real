@@ -4,9 +4,7 @@ const TutorCase = require('../models/TutorCase');
 const getAllTutorCases = async (req, res) => {
   try {
     const cases = await TutorCase.find()
-      .sort({ createdAt: -1 })
-      .populate('student', 'name')
-      .populate('tutor', 'name');
+      .sort({ createdAt: -1 });
 
     res.json({
       success: true,

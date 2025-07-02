@@ -55,7 +55,7 @@ const search = async (req, res) => {
         { category: { $regex: query, $options: 'i' } },
         { subCategory: { $regex: query, $options: 'i' } }
       ]
-    }).populate('student', 'name avatar');
+    });
 
     // 格式化個案數據
     const formattedCases = matchedCases.map(caseItem => ({
@@ -74,9 +74,7 @@ const search = async (req, res) => {
       category: caseItem.category,
       subCategory: caseItem.subCategory,
       student: caseItem.student ? {
-        id: caseItem.student._id.toString(),
-        name: caseItem.student.name,
-        avatar: caseItem.student.avatar
+        id: caseItem.student._id.toString()
       } : null,
       createdAt: caseItem.createdAt,
       updatedAt: caseItem.updatedAt

@@ -309,12 +309,12 @@ const getAllTutors = async (req, res) => {
           
           try {
             // 分別查詢不同類型的導師
-            const vipTutors = await User.find({ 
-              userType: 'tutor',
-              isActive: true,
-              status: 'active',
-              isVip: true 
-            }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId');
+                      const vipTutors = await User.find({ 
+            userType: 'tutor',
+            isActive: true,
+            status: 'active',
+            isVip: true 
+          }).select('name avatar tutorProfile rating isVip isTop createdAt tutorId');
             
             const topTutors = await User.find({ 
               userType: 'tutor',
@@ -562,7 +562,7 @@ const getAllTutors = async (req, res) => {
             isActive: true,
             status: 'active',
             isVip: true 
-          }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId');
+          }).select('name avatar tutorProfile rating isVip isTop createdAt tutorId');
           
           const topTutors = await User.find({ 
             userType: 'tutor',
@@ -570,7 +570,7 @@ const getAllTutors = async (req, res) => {
             status: 'active',
             isTop: true,
             isVip: false  // 排除 VIP，避免重複
-          }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId');
+          }).select('name avatar tutorProfile rating isVip isTop createdAt tutorId');
           
           const regularTutors = await User.find({ 
             userType: 'tutor',
@@ -578,7 +578,7 @@ const getAllTutors = async (req, res) => {
             status: 'active',
             isVip: false,
             isTop: false
-          }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId');
+          }).select('name avatar tutorProfile rating isVip isTop createdAt tutorId');
           
           console.log(`📊 Fallback 查詢結果:`);
           console.log(`- VIP 導師: ${vipTutors.length} 個`);
