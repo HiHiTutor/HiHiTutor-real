@@ -101,7 +101,7 @@ export default function TutorDetailPage() {
               <div className="flex items-start gap-6 max-sm:flex-col max-sm:items-center max-sm:gap-4 max-sm:text-center max-[700px]:flex-col max-[700px]:items-center max-[700px]:gap-4 max-[700px]:text-center">
                 <Avatar className="h-24 w-24 max-sm:h-20 max-sm:w-20 max-[700px]:h-22 max-[700px]:w-22">
                   <AvatarImage src={tutor.avatar} alt={tutor.tutorId || ''} />
-                  <AvatarFallback className="max-sm:text-lg max-[700px]:text-lg">{tutor.tutorId[0]}</AvatarFallback>
+                  <AvatarFallback className="max-sm:text-lg max-[700px]:text-lg">{tutor.tutorId?.[0] || 'T'}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 max-sm:w-full max-[700px]:w-full">
                   <h1 className="text-2xl font-bold mb-2 max-sm:text-xl max-sm:mb-1 max-[700px]:text-xl max-[700px]:mb-2">{tutor.tutorId}</h1>
