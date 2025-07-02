@@ -152,7 +152,7 @@ function HomeContent() {
         </div>
       </div>
 
-      {/* 成為導師 */}
+      {/* 成為導師宣傳區塊（banner/poster） */}
       <section className="bg-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-64 h-64 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl transform -translate-x-1/2 -translate-y-1/2"></div>
@@ -160,8 +160,34 @@ function HomeContent() {
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-pink-400 rounded-full mix-blend-multiply filter blur-xl transform -translate-x-1/2 translate-y-1/2"></div>
           <div className="absolute bottom-0 right-0 w-64 h-64 bg-yellow-400 rounded-full mix-blend-multiply filter blur-xl transform translate-x-1/2 translate-y-1/2"></div>
         </div>
-        <div className="relative">
-          <TutorSection tutors={[]} />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col md:flex-row items-center gap-8">
+          <div className="flex-1 flex justify-center">
+            <Image
+              src="/tutor-hero.jpg"
+              alt="成為導師"
+              width={400}
+              height={250}
+              className="rounded-lg shadow-lg w-full h-auto max-w-xs md:max-w-md"
+            />
+          </div>
+          <div className="flex-1 space-y-4 text-center md:text-left">
+            <h3 className="text-2xl font-bold text-gray-900">加入我們的導師團隊</h3>
+            <p className="text-gray-600">
+              成為 HiHiTutor 的導師，分享你的專業知識，幫助學生實現學習目標。
+              我們提供靈活的工作時間和豐厚的報酬。
+            </p>
+            <ul className="space-y-2 text-gray-600">
+              <li>✨ 靈活的工作時間</li>
+              <li>💰 豐厚的報酬</li>
+              <li>📚 多元的教學機會</li>
+              <li>👥 專業的教學平台</li>
+            </ul>
+            <Link href="/upgrade">
+              <button className="mt-4 bg-yellow-400 text-white px-6 py-2 rounded-lg hover:bg-yellow-500 transition-all">
+                立即申請成為導師
+              </button>
+            </Link>
+          </div>
         </div>
       </section>
 
