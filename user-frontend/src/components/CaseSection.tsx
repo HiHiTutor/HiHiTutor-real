@@ -237,42 +237,22 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
 
           // 處理地區
           let regionLabel = '未指定地區';
-          console.log('🔍 處理地區數據:', { 
-            region: caseItem.region, 
-            regions: caseItem.regions,
-            regionType: typeof caseItem.region,
-            regionsType: Array.isArray(caseItem.regions) ? 'array' : typeof caseItem.regions
-          });
-          
-          // 優先使用 regions 數組，如果為空或不存在則使用 region
           let regionValue = null;
-          
           if (caseItem.regions && Array.isArray(caseItem.regions) && caseItem.regions.length > 0) {
             regionValue = caseItem.regions[0];
-            console.log('🔍 使用 regions 值:', regionValue);
           } else if (caseItem.region) {
-            // 處理 region 字段（可能是字符串或數組）
             if (Array.isArray(caseItem.region) && caseItem.region.length > 0) {
               regionValue = caseItem.region[0];
             } else if (typeof caseItem.region === 'string') {
               regionValue = caseItem.region;
             }
-            console.log('🔍 使用 region 值:', regionValue);
           }
-          
           if (regionValue) {
-            // 先嘗試用 getRegionName 處理主要地區
             regionLabel = getRegionName(regionValue);
-            console.log('🔍 getRegionName 結果:', regionLabel);
-            
-            // 如果返回的是原值（表示沒找到映射），則嘗試用 getSubRegionName
             if (regionLabel === regionValue) {
               regionLabel = getSubRegionName(regionValue);
-              console.log('🔍 getSubRegionName 結果:', regionLabel);
             }
           }
-          
-          console.log('🔍 最終地區標籤:', regionLabel);
 
           // 處理教學模式
           let modes: string[] = [];
