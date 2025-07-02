@@ -189,8 +189,7 @@ const Cases: React.FC = () => {
               <TableCell>ID</TableCell>
               <TableCell>Type</TableCell>
               <TableCell>Title</TableCell>
-              <TableCell>發佈者名稱</TableCell>
-              <TableCell>發佈者電郵</TableCell>
+              <TableCell>發佈者ID</TableCell>
               <TableCell>Category</TableCell>
               <TableCell>Status</TableCell>
               <TableCell>Created At</TableCell>
@@ -216,13 +215,36 @@ const Cases: React.FC = () => {
                 <TableCell>{caseItem.title}</TableCell>
                 <TableCell>
                   {caseItem.type === 'student'
-                    ? caseItem.studentId?.name || 'N/A'
-                    : caseItem.student?.name || 'N/A'}
-                </TableCell>
-                <TableCell>
-                  {caseItem.type === 'student'
-                    ? caseItem.studentId?.email || 'N/A'
-                    : caseItem.student?.email || 'N/A'}
+                    ? (caseItem.studentId?._id
+                        ? (
+                            <Button
+                              variant="text"
+                              size="small"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/users/${caseItem.studentId!._id}`);
+                              }}
+                              sx={{ textTransform: 'none', p: 0, minWidth: 'auto' }}
+                            >
+                              {caseItem.studentId._id}
+                            </Button>
+                          )
+                        : 'N/A')
+                    : (caseItem.student?._id
+                        ? (
+                            <Button
+                              variant="text"
+                              size="small"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/users/${caseItem.student!._id}`);
+                              }}
+                              sx={{ textTransform: 'none', p: 0, minWidth: 'auto' }}
+                            >
+                              {caseItem.student._id}
+                            </Button>
+                          )
+                        : 'N/A')}
                 </TableCell>
                 <TableCell>{caseItem.category}</TableCell>
                 <TableCell>
