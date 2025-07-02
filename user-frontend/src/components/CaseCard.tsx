@@ -26,7 +26,7 @@ interface CaseData {
   experienceLevel?: {
     label: string
   }
-  budget?: string
+  budget?: { min?: number; max?: number } | string;
   lessonDetails?: {
     duration: number
     pricePerLesson: number
