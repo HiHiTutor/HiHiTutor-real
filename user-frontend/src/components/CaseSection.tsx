@@ -327,12 +327,12 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
         // 轉換數據格式
         const transformedCases = validCases.map(transformCaseData);
 
-        // 排序：按照 createdAt 降序排列（最新個案在前）
-        const sorted = [...transformedCases].sort((a, b) => {
-          const dateA = new Date(a.createdAt || a.date || 0).getTime();
-          const dateB = new Date(b.createdAt || b.date || 0).getTime();
-          return dateB - dateA; // 降序排列
-        });
+        // 排序：加強 fallback，確保 createdAt、date 都無效時 fallback 0
+        const getCaseTime = (c: any) => {
+          const t = new Date(c.createdAt || c.date || 0);
+          return isNaN(t.getTime()) ? 0 : t.getTime();
+        };
+        const sorted = [...transformedCases].sort((a, b) => getCaseTime(b) - getCaseTime(a));
 
         if (isMounted) {
           setCases(sorted);
