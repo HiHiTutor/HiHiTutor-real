@@ -510,7 +510,11 @@ function FindTutorCasesPageContent() {
                 id: caseItem.id,
                 title: caseItem.title || '未命名個案',
                 subject: { label: getSubjectName(caseItem.subjects?.[0] || '') },
-                region: { label: getRegionName(caseItem.region || (caseItem.regions?.[0] || '')) },
+                region: { label: getRegionName(
+                  caseItem.region ||
+                  (Array.isArray(caseItem.regions) && caseItem.regions.length > 0 ? caseItem.regions[0] : '') ||
+                  'all-hong-kong'
+                ) },
                 modes: caseItem.modes && caseItem.modes.length > 0 ? caseItem.modes : (caseItem.mode ? [caseItem.mode] : []),
                 experienceLevel: { label: caseItem.experience || '無教學經驗要求' },
                 lessonDetails: typeof caseItem.lessonDetails === 'string' 
