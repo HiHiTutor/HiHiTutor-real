@@ -1,8 +1,25 @@
 const mongoose = require('mongoose');
 
+// 連線狀態追蹤
+let connectionAttempts = 0;
+const MAX_RETRY_ATTEMPTS = 5;
+
 const connectDB = async () => {
   try {
-    console.log('🔄 Connecting to MongoDB...');
+    connectionAttempts++;
+    console.log(`🔄 Connecting to MongoDB... (Attempt ${connectionAttempts}/${MAX_RETRY_ATTEMPTS})`);
+    
+    // 檢查是否已連接
+    if (mongoose.connection.readyState === 1) {
+      console.log('✅ Already connected to MongoDB');
+      return;
+    }
+    
+    // 檢查是否正在連接
+    if (mongoose.connection.readyState === 2) {
+      console.log('⏳ Already connecting to MongoDB, please wait...');
+      return;
+    }
     
     // 檢查環境變數
     console.log('📋 Environment Check:');
@@ -24,13 +41,16 @@ const connectDB = async () => {
     const options = {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 60000,
-      socketTimeoutMS: 60000,
-      connectTimeoutMS: 60000,
-      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 30000, // 減少超時時間
+      socketTimeoutMS: 30000,
+      connectTimeoutMS: 30000,
+      maxPoolSize: 5, // 減少連接池大小
+      minPoolSize: 1,
       retryWrites: true,
       retryReads: true,
-      bufferCommands: true
+      bufferCommands: true,
+      bufferMaxEntries: 0, // 禁用緩衝
+      autoIndex: false // 禁用自動索引創建
     };
 
     console.log('🔗 Attempting MongoDB connection with options:', {
@@ -48,23 +68,32 @@ const connectDB = async () => {
     console.log('- Connection State:', conn.connection.readyState);
     console.log('- Connection String:', conn.connection.client.s.url);
     
-    // 監聽連接事件
-    mongoose.connection.on('connected', () => {
-      console.log('🟢 Mongoose connected to MongoDB');
-    });
-
-    mongoose.connection.on('error', (err) => {
-      console.error('🔴 Mongoose connection error:', {
-        message: err.message,
-        code: err.code,
-        name: err.name,
-        stack: err.stack
+    // 重置重試計數
+    connectionAttempts = 0;
+    
+    // 監聽連接事件（避免重複設置）
+    if (!mongoose.connection.listeners('connected').length) {
+      mongoose.connection.on('connected', () => {
+        console.log('🟢 Mongoose connected to MongoDB');
       });
-    });
+    }
 
-    mongoose.connection.on('disconnected', () => {
-      console.log('🟡 Mongoose disconnected from MongoDB');
-    });
+    if (!mongoose.connection.listeners('error').length) {
+      mongoose.connection.on('error', (err) => {
+        console.error('🔴 Mongoose connection error:', {
+          message: err.message,
+          code: err.code,
+          name: err.name,
+          stack: err.stack
+        });
+      });
+    }
+
+    if (!mongoose.connection.listeners('disconnected').length) {
+      mongoose.connection.on('disconnected', () => {
+        console.log('🟡 Mongoose disconnected from MongoDB');
+      });
+    }
 
     // 優雅關閉連接
     process.on('SIGINT', async () => {
@@ -94,10 +123,34 @@ const connectDB = async () => {
       console.error('⏰ Connection timeout - check network and MongoDB server');
     }
     
-    // 重試連接
-    console.log('🔄 Retrying connection in 5 seconds...');
-    setTimeout(connectDB, 5000);
+    // 重試連接（避免無限重試）
+    if (connectionAttempts < MAX_RETRY_ATTEMPTS && mongoose.connection.readyState === 0) {
+      console.log(`🔄 Retrying connection in 5 seconds... (${connectionAttempts}/${MAX_RETRY_ATTEMPTS})`);
+      setTimeout(() => {
+        console.log('🔄 Attempting to reconnect...');
+        connectDB();
+      }, 5000);
+    } else if (connectionAttempts >= MAX_RETRY_ATTEMPTS) {
+      console.error('❌ Max retry attempts reached, giving up');
+      console.error('Please check your MongoDB URI and network connection');
+    } else {
+      console.log('⚠️ Connection already in progress, skipping retry');
+    }
   }
 };
 
-module.exports = connectDB; 
+// 連線狀態檢查函數
+const getConnectionStatus = () => {
+  const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+  return {
+    readyState: mongoose.connection.readyState,
+    stateDescription: states[mongoose.connection.readyState] || 'unknown',
+    isConnected: mongoose.connection.readyState === 1,
+    isConnecting: mongoose.connection.readyState === 2,
+    host: mongoose.connection.host,
+    database: mongoose.connection.name,
+    connectionAttempts
+  };
+};
+
+module.exports = { connectDB, getConnectionStatus }; 

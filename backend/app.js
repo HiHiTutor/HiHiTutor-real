@@ -29,7 +29,7 @@ if (!process.env.MONGODB_URI) {
   console.log('- MONGODB_URI:', maskedUri);
 }
 
-const connectDB = require('./config/db');
+const { connectDB, getConnectionStatus } = require('./config/db');
 
 // Import routes
 const tutorCasesRouter = require('./routes/tutorCases');
@@ -169,15 +169,31 @@ app.use((req, res, next) => {
 // Connect to MongoDB
 connectDB();
 
-// Monitor MongoDB connection
-mongoose.connection.on('error', err => {
-  console.error('MongoDB connection error:', err);
-});
+// Monitor MongoDB connection (避免重複監聽器)
+if (!mongoose.connection.listeners('connected').length) {
+  mongoose.connection.on('connected', () => {
+    console.log('✅ MongoDB connected successfully');
+  });
+}
 
-mongoose.connection.on('disconnected', () => {
-  console.log('MongoDB disconnected, attempting to reconnect...');
-  connectDB();
-});
+if (!mongoose.connection.listeners('error').length) {
+  mongoose.connection.on('error', err => {
+    console.error('❌ MongoDB connection error:', err);
+  });
+}
+
+if (!mongoose.connection.listeners('disconnected').length) {
+  mongoose.connection.on('disconnected', () => {
+    console.log('🔄 MongoDB disconnected, attempting to reconnect...');
+    // 避免重複連接，檢查當前狀態
+    if (mongoose.connection.readyState === 0) {
+      setTimeout(() => {
+        console.log('🔄 Attempting to reconnect to MongoDB...');
+        connectDB();
+      }, 5000);
+    }
+  });
+}
 
 // Mount routes
 app.use('/api/auth', authRoutes);
@@ -223,15 +239,12 @@ app.get('/api/test', (req, res) => {
 // Health check endpoint with database status
 app.get('/api/health', async (req, res) => {
   try {
+    const dbStatus = getConnectionStatus();
     const health = {
       status: 'ok',
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV,
-      database: {
-        connected: mongoose.connection.readyState === 1,
-        state: mongoose.connection.readyState,
-        stateDescription: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState] || 'unknown'
-      }
+      database: dbStatus
     };
 
     // 如果數據庫連接，嘗試簡單查詢
