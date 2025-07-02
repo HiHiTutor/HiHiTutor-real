@@ -120,7 +120,7 @@ export default function CaseCard({ caseData, routeType = 'tutor', borderColor }:
         {caseData.modes && (
           <div className="flex items-start gap-1 max-sm:gap-0.5 max-[700px]:gap-1">
             <ComputerDesktopIcon className={`h-4 w-4 ${colorScheme.text} max-sm:h-3 max-sm:w-3 max-[700px]:h-4 max-[700px]:w-4`} />
-            <span className="line-clamp-1">
+            <span className="line-clamp-2">
               {caseData.modes
                 .map(mode =>
                   mode === 'in-person' ? '面授'
