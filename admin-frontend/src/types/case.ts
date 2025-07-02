@@ -18,11 +18,13 @@ export interface Case {
   experience?: string;
   studentId?: {
     _id?: string;
+    userId?: string;
     name?: string;
     email?: string;
   };
   student?: {
     _id?: string;
+    userId?: string;
     name?: string;
     email?: string;
   };

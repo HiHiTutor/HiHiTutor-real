@@ -422,7 +422,7 @@ const getAllCases = async (req, res) => {
       // Get student cases
       const studentCases = await StudentCase.find(query)
         .sort({ createdAt: -1 })
-        .populate('studentId', 'name email');
+        .populate('studentId', 'name email userId');
       cases = cases.concat(studentCases.map(c => ({...c.toObject(), type: 'student'})));
       total += await StudentCase.countDocuments(query);
     }
@@ -431,7 +431,7 @@ const getAllCases = async (req, res) => {
       // Get tutor cases
       const tutorCases = await TutorCase.find(query)
         .sort({ createdAt: -1 })
-        .populate('student', 'name email');
+        .populate('student', 'name email userId');
       cases = cases.concat(tutorCases.map(c => ({...c.toObject(), type: 'tutor'})));
       total += await TutorCase.countDocuments(query);
     }
