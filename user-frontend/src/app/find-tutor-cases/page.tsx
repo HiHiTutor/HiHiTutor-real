@@ -7,6 +7,7 @@ import LoadMoreButton from '@/components/LoadMoreButton';
 import CaseCard from '@/components/CaseCard';
 import { caseApi } from '@/services/api';
 import CATEGORY_OPTIONS from '@/constants/categoryOptions';
+import { getRegionName, getSubjectName } from '@/utils/translate';
 
 // 定義分類選項的類型
 interface CategoryOption {
@@ -507,15 +508,16 @@ function FindTutorCasesPageContent() {
               key={caseItem.id}
               caseData={{
                 id: caseItem.id,
-                title: caseItem.title,
-                subject: { label: caseItem.subjects?.[0] || '' },
-                region: { label: caseItem.region || caseItem.regions?.[0] || '' },
-                modes: caseItem.modes || [caseItem.mode],
-                experienceLevel: { label: caseItem.experience },
+                title: caseItem.title || '未命名個案',
+                subject: { label: getSubjectName(caseItem.subjects?.[0] || '') },
+                region: { label: getRegionName(caseItem.region || (caseItem.regions?.[0] || '')) },
+                modes: caseItem.modes && caseItem.modes.length > 0 ? caseItem.modes : (caseItem.mode ? [caseItem.mode] : []),
+                experienceLevel: { label: caseItem.experience || '無教學經驗要求' },
                 lessonDetails: typeof caseItem.lessonDetails === 'string' 
                   ? JSON.parse(caseItem.lessonDetails)
                   : caseItem.lessonDetails,
-                createdAt: caseItem.createdAt || caseItem.date,
+                budget: caseItem.budget || { min: 0, max: 0 },
+                createdAt: caseItem.createdAt || caseItem.date || '',
               }}
               routeType="tutor"
             />
