@@ -108,19 +108,28 @@ export default function CaseCard({ caseData, routeType = 'tutor', borderColor }:
         <div className="flex items-start gap-1 max-sm:gap-0.5 max-[700px]:gap-1">
           <CurrencyDollarIcon className={`h-4 w-4 ${colorScheme.text} max-sm:h-3 max-sm:w-3 max-[700px]:h-4 max-[700px]:w-4`} />
           <span className="line-clamp-1">
-            {caseData.lessonDetails?.pricePerLesson 
-              ? `每堂 $${caseData.lessonDetails.pricePerLesson}` 
-              : caseData.budget && typeof caseData.budget === 'object' && caseData.budget.min && caseData.budget.max
-                ? `堂費預算: $${caseData.budget.min} - $${caseData.budget.max}`
-                : caseData.budget && typeof caseData.budget === 'string'
-                  ? `堂費預算: $${caseData.budget}`
-                  : '堂費預算: 待議'}
+            {caseData.lessonDetails?.pricePerLesson
+              ? `每堂 $${caseData.lessonDetails.pricePerLesson}`
+              : caseData.budget
+                ? `堂費預算: $${typeof caseData.budget === 'object'
+                    ? caseData.budget.min || caseData.budget.max
+                    : caseData.budget}`
+                : '堂費預算: 待議'}
           </span>
         </div>
         {caseData.modes && (
           <div className="flex items-start gap-1 max-sm:gap-0.5 max-[700px]:gap-1">
             <ComputerDesktopIcon className={`h-4 w-4 ${colorScheme.text} max-sm:h-3 max-sm:w-3 max-[700px]:h-4 max-[700px]:w-4`} />
-            <span className="line-clamp-1">{caseData.modes.join(', ')}</span>
+            <span className="line-clamp-1">
+              {caseData.modes
+                .map(mode =>
+                  mode === 'in-person' ? '面授'
+                  : mode === 'online' ? '網課'
+                  : ''
+                )
+                .filter(Boolean)
+                .join('、')}
+            </span>
           </div>
         )}
         {caseData.lessonDetails && (
