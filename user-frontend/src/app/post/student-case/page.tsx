@@ -106,7 +106,7 @@ export default function PostStudentCase() {
         subCategory: data.subCategory || '',
         subjects: data.subjects || [],
         modes: data.modes || [],
-        regions: data.regions || [],
+        regions: (data.regions && data.regions.length > 0) ? data.regions : ['all-hong-kong'],
         subRegions: data.subRegions || [],
         price: data.price || 0,
         // 將時長轉換為分鐘
