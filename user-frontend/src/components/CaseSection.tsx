@@ -360,43 +360,21 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
 
   return (
     <div className="py-8 max-sm:py-6 max-[700px]:py-6">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center gap-2 mb-6">
+        <span className="text-2xl">{icon}</span>
+        <h2 className="text-2xl font-bold border-l-4 pl-3" style={{ borderColor: routeType === 'tutor' ? '#fde047' : '#60a5fa' }}>{title}</h2>
+      </div>
+
+      <div className="relative">
         <button
-          className={`p-2 rounded-full border ${currentPage === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : (routeType === 'tutor' ? 'bg-yellow-200 text-yellow-600' : 'bg-blue-200 text-blue-600 cursor-pointer hover:bg-blue-300')} transition`}
+          className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full border ${currentPage === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : (routeType === 'tutor' ? 'bg-yellow-200 text-yellow-600' : 'bg-blue-200 text-blue-600 cursor-pointer hover:bg-blue-300')} transition`}
+          style={{ transform: 'translateY(-50%)' }}
           disabled={currentPage === 0}
           onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
           aria-label="上一頁"
         >
           <ChevronLeftIcon className="h-6 w-6" />
         </button>
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">{icon}</span>
-          <h2 className="text-2xl font-bold border-l-4 pl-3" style={{ borderColor: routeType === 'tutor' ? '#fde047' : '#60a5fa' }}>{title}</h2>
-        </div>
-        <button
-          className={`p-2 rounded-full border ${currentPage === totalPages - 1 || totalPages === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : (routeType === 'tutor' ? 'bg-yellow-200 text-yellow-600' : 'bg-blue-200 text-blue-600 cursor-pointer hover:bg-blue-300')} transition`}
-          disabled={currentPage === totalPages - 1 || totalPages === 0}
-          onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
-          aria-label="下一頁"
-        >
-          <ChevronRightIcon className="h-6 w-6" />
-        </button>
-      </div>
-
-      {loading ? (
-        <div className="text-center py-8 max-sm:py-6 max-[700px]:py-8">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 max-sm:h-6 max-sm:w-6 max-[700px]:h-8 max-[700px]:w-8"></div>
-          <p className="mt-2 text-gray-600 max-sm:text-sm max-[700px]:text-sm">載入中...</p>
-        </div>
-      ) : error ? (
-        <div className="text-center py-8 text-red-500 max-sm:py-6 max-[700px]:py-8">
-          <p className="max-sm:text-sm max-[700px]:text-sm">{error}</p>
-        </div>
-      ) : cases.length === 0 ? (
-        <div className="text-center py-8 text-gray-500 max-sm:py-6 max-[700px]:py-8">
-          <p className="max-sm:text-sm max-[700px]:text-sm">目前沒有{routeType === 'tutor' ? '導師' : '個案'}</p>
-        </div>
-      ) : (
         <div className={`grid ${cardsPerPage === 4 ? 'grid-cols-2' : 'grid-cols-4'} gap-6`}>
           {pagedCases.map((caseItem: Case) => (
             routeType === 'tutor'
@@ -404,7 +382,16 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
               : <CaseCard key={caseItem.id} caseData={caseItem as any} routeType={routeType} />
           ))}
         </div>
-      )}
+        <button
+          className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full border ${currentPage === totalPages - 1 || totalPages === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : (routeType === 'tutor' ? 'bg-yellow-200 text-yellow-600' : 'bg-blue-200 text-blue-600 cursor-pointer hover:bg-blue-300')} transition`}
+          style={{ transform: 'translateY(-50%)' }}
+          disabled={currentPage === totalPages - 1 || totalPages === 0}
+          onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
+          aria-label="下一頁"
+        >
+          <ChevronRightIcon className="h-6 w-6" />
+        </button>
+      </div>
 
       <div className="mt-8 text-center max-sm:mt-6 max-[700px]:mt-8">
         <Link
