@@ -13,5 +13,6 @@ router.put('/profile', verifyToken, updateTutorProfile);
 // 公開 API - 只允許用 tutorId 查詢
 router.get('/', getAllTutors);
 router.get('/detail/:tutorId', getTutorByTutorId);
+router.get('/:id', getTutorByTutorId); // 支援 /api/tutors/:id 格式
 
 module.exports = router; 

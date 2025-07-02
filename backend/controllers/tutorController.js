@@ -906,13 +906,13 @@ const getTutorByTutorId = async (req, res) => {
     
     console.log('✅ 找到導師:', user.name);
     
-    // 回傳完整的導師公開資料
+    // 回傳導師公開資料（已移除個人識別資訊）
     const publicProfile = {
       id: user._id,
       userId: user.userId,
       tutorId: user.tutorId,
-      name: user.name,
-      avatar: user.avatar || user.tutorProfile?.avatarUrl || '',
+      name: 'HiHiTutor 導師', // 移除真實姓名
+      avatar: '/avatars/default.png', // 使用預設頭像
       avatarOffsetX: user.tutorProfile?.avatarOffsetX || 50,
       subjects: user.tutorProfile?.subjects || [],
       teachingAreas: user.tutorProfile?.teachingAreas || [],
@@ -1081,9 +1081,32 @@ const getTutorDetail = async (req, res) => {
 
     console.log('✅ 找到導師:', tutor.name);
 
+    // 回傳導師公開資料（已移除個人識別資訊）
+    const publicData = {
+      id: tutor._id,
+      userId: tutor.userId,
+      tutorId: tutor.tutorId,
+      name: 'HiHiTutor 導師', // 移除真實姓名
+      avatar: '/avatars/default.png', // 使用預設頭像
+      subjects: tutor.tutorProfile?.subjects || [],
+      teachingAreas: tutor.tutorProfile?.teachingAreas || [],
+      teachingMethods: tutor.tutorProfile?.teachingMethods || [],
+      experience: tutor.tutorProfile?.teachingExperienceYears || 0,
+      introduction: tutor.tutorProfile?.introduction || '',
+      education: tutor.tutorProfile?.educationLevel || '',
+      qualifications: tutor.tutorProfile?.documents?.map(doc => doc.type) || [],
+      hourlyRate: tutor.tutorProfile?.sessionRate || 0,
+      availableTime: tutor.tutorProfile?.availableTime?.map(time => `${time.day} ${time.time}`.trim()) || [],
+      examResults: tutor.tutorProfile?.examResults?.map(exam => `${exam.subject} ${exam.grade}`) || [],
+      courseFeatures: tutor.tutorProfile?.courseFeatures || '',
+      rating: tutor.rating || 0,
+      createdAt: tutor.createdAt,
+      updatedAt: tutor.updatedAt
+    };
+
     res.json({
       success: true,
-      data: tutor
+      data: publicData
     });
   } catch (error) {
     console.error('❌ 獲取導師詳情錯誤:', {
