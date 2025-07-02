@@ -49,7 +49,6 @@ const connectDB = async () => {
       retryWrites: true,
       retryReads: true,
       bufferCommands: true,
-      bufferMaxEntries: 0, // 禁用緩衝
       autoIndex: false // 禁用自動索引創建
     };
 
