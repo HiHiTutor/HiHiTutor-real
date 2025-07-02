@@ -7,6 +7,7 @@ import { fetchApi } from '@/services/api';
 import CaseCard from '@/components/CaseCard';
 import TutorCard from '@/components/TutorCard';
 import { getSubjectName, getRegionName, getSubRegionName } from '@/utils/translate';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 
 // 地區映射表
 const regionMap: { [key: string]: string } = {
@@ -149,11 +150,20 @@ const BudgetDisplay = ({ budget }: { budget: any }) => {
   return <span>{`${min} - ${max}/小時`}</span>;
 };
 
+const getCardsPerPage = () => {
+  if (typeof window !== 'undefined') {
+    return window.innerWidth <= 700 ? 4 : 8;
+  }
+  return 8;
+};
+
 const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400', bgColor = 'bg-blue-50', icon, routeType, queryParams }: CaseSectionProps) => {
   const [cases, setCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const [currentPage, setCurrentPage] = useState(0);
+  const [cardsPerPage, setCardsPerPage] = useState(getCardsPerPage());
 
   useEffect(() => {
     let isMounted = true;  // 用於防止記憶體洩漏
@@ -339,11 +349,38 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
     };
   }, [fetchUrl, queryParams, routeType]);
 
+  useEffect(() => {
+    const handleResize = () => setCardsPerPage(getCardsPerPage());
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const totalPages = Math.ceil(cases.length / cardsPerPage);
+  const pagedCases = cases.slice(currentPage * cardsPerPage, (currentPage + 1) * cardsPerPage);
+
   return (
     <div className="py-8 max-sm:py-6 max-[700px]:py-6">
-      <div className="flex items-center gap-2 mb-6 max-sm:gap-1 max-sm:mb-4 max-[700px]:gap-2 max-[700px]:mb-5">
-        <span className="text-2xl max-sm:text-xl max-[700px]:text-2xl">{icon}</span>
-        <h2 className="text-2xl font-bold border-l-4 border-blue-400 pl-3 max-sm:text-xl max-sm:pl-2 max-[700px]:text-2xl max-[700px]:pl-3">{title}</h2>
+      <div className="flex items-center justify-between mb-6">
+        <button
+          className={`p-2 rounded-full border ${currentPage === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : (routeType === 'tutor' ? 'bg-yellow-200 text-yellow-600' : 'bg-blue-200 text-blue-600 cursor-pointer hover:bg-blue-300')} transition`}
+          disabled={currentPage === 0}
+          onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
+          aria-label="上一頁"
+        >
+          <ChevronLeftIcon className="h-6 w-6" />
+        </button>
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">{icon}</span>
+          <h2 className="text-2xl font-bold border-l-4 pl-3" style={{ borderColor: routeType === 'tutor' ? '#fde047' : '#60a5fa' }}>{title}</h2>
+        </div>
+        <button
+          className={`p-2 rounded-full border ${currentPage === totalPages - 1 || totalPages === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : (routeType === 'tutor' ? 'bg-yellow-200 text-yellow-600' : 'bg-blue-200 text-blue-600 cursor-pointer hover:bg-blue-300')} transition`}
+          disabled={currentPage === totalPages - 1 || totalPages === 0}
+          onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
+          aria-label="下一頁"
+        >
+          <ChevronRightIcon className="h-6 w-6" />
+        </button>
       </div>
 
       {loading ? (
@@ -360,15 +397,12 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
           <p className="max-sm:text-sm max-[700px]:text-sm">目前沒有{routeType === 'tutor' ? '導師' : '個案'}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-sm:grid-cols-1 max-sm:gap-4 max-[700px]:grid-cols-2 max-[700px]:gap-5">
-          {cases.map((caseItem: Case) => {
-            if (routeType === 'tutor') {
-              if (!caseItem.tutorId) return null;
-              return <TutorCard key={caseItem.tutorId} tutor={caseItem as any} />;
-            } else {
-              return <CaseCard key={caseItem.id} caseData={caseItem as any} routeType={routeType} />;
-            }
-          })}
+        <div className={`grid ${cardsPerPage === 4 ? 'grid-cols-2' : 'grid-cols-4'} gap-6`}>
+          {pagedCases.map((caseItem: Case) => (
+            routeType === 'tutor'
+              ? <TutorCard key={caseItem.tutorId} tutor={caseItem as any} />
+              : <CaseCard key={caseItem.id} caseData={caseItem as any} routeType={routeType} />
+          ))}
         </div>
       )}
 
