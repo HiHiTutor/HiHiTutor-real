@@ -327,21 +327,11 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
         // 轉換數據格式
         const transformedCases = validCases.map(transformCaseData);
 
-        // 排序：VIP置頂好評 > VIP置頂 > 置頂好評 > 置頂 > 好評 > 其他
-        const getSortScore = (c: any) => [
-          c.isVip ? 1 : 0,
-          c.isTop ? 1 : 0,
-          c.rating >= 4.5 ? 1 : 0,
-          c.rating || 0,
-          new Date(c.createdAt || c.date || 0).getTime()
-        ];
+        // 排序：按照 createdAt 降序排列（最新個案在前）
         const sorted = [...transformedCases].sort((a, b) => {
-          const sa = getSortScore(a);
-          const sb = getSortScore(b);
-          for (let i = 0; i < sa.length; i++) {
-            if (sa[i] !== sb[i]) return sb[i] - sa[i];
-          }
-          return 0;
+          const dateA = new Date(a.createdAt || a.date || 0).getTime();
+          const dateB = new Date(b.createdAt || b.date || 0).getTime();
+          return dateB - dateA; // 降序排列
         });
 
         if (isMounted) {
