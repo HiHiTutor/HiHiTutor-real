@@ -3,6 +3,7 @@ import Image from 'next/image';
 const tutors = [
   {
     id: 1,
+    tutorId: 'TUTOR001',
     name: '王老師',
     subject: '數學',
     rating: 4.9,
@@ -14,6 +15,7 @@ const tutors = [
   },
   {
     id: 2,
+    tutorId: 'TUTOR002',
     name: '李老師',
     subject: '英語',
     rating: 4.8,
@@ -25,6 +27,7 @@ const tutors = [
   },
   {
     id: 3,
+    tutorId: 'TUTOR003',
     name: '陳老師',
     subject: '物理',
     rating: 4.7,
@@ -36,6 +39,7 @@ const tutors = [
   },
   {
     id: 4,
+    tutorId: 'TUTOR004',
     name: '張老師',
     subject: '化學',
     rating: 4.9,
@@ -64,14 +68,14 @@ const TutorSection = () => {
                 <div className="relative h-48 w-full mb-4">
                   <Image
                     src={tutor.image}
-                    alt={tutor.name}
+                    alt={tutor.tutorId}
                     fill
                     className="object-cover rounded-lg"
                   />
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-semibold">{tutor.name}</h3>
+                    <h3 className="text-lg font-semibold">{tutor.tutorId}</h3>
                     <div className="flex items-center">
                       <span className="text-yellow-400">⭐</span>
                       <span className="ml-1 text-sm">{tutor.rating}</span>

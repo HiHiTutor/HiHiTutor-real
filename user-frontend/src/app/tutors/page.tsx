@@ -420,13 +420,13 @@ function TutorsPageContent() {
                 <CardHeader className="pb-3 max-sm:pb-2 max-[700px]:pb-3">
                   <div className="flex items-center gap-3 max-sm:gap-2 max-[700px]:gap-3">
                     <Avatar className="h-12 w-12 max-sm:h-10 max-sm:w-10 max-[700px]:h-11 max-[700px]:w-11">
-                      <AvatarImage src={getTutorAvatar(tutor)} alt={tutor.name} />
-                      <AvatarFallback className="bg-yellow-100 text-yellow-600 max-sm:text-sm max-[700px]:text-sm">
-                        {tutor.name?.[0] || 'T'}
+                      <AvatarImage src={getTutorAvatar(tutor)} alt={tutor.tutorId} />
+                      <AvatarFallback className="max-sm:text-lg max-[700px]:text-lg">
+                        {tutor.tutorId?.[0] || 'T'}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <CardTitle className="text-lg truncate max-sm:text-base max-[700px]:text-lg">{tutor.name}</CardTitle>
+                      <CardTitle className="text-lg truncate max-sm:text-base max-[700px]:text-lg">{tutor.tutorId}</CardTitle>
                       <div className="flex items-center gap-1 text-sm text-gray-600 max-sm:text-xs max-[700px]:text-sm">
                         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 max-sm:h-3 max-sm:w-3 max-[700px]:h-4 max-[700px]:w-4" />
                         <span>{getTutorRating(tutor).toFixed(1)}</span>

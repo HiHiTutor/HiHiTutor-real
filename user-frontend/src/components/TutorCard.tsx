@@ -31,7 +31,7 @@ interface TutorCardProps {
 
 const TutorCard = ({ tutor }: TutorCardProps) => {
   // 處理數據結構差異
-  const displayName = tutor.name || '未指定';
+  const displayName = tutor.tutorId || '未指定';
 
   // 科目顯示邏輯 - 使用統一的翻譯函數
   const subjects = tutor.subjects || [];
