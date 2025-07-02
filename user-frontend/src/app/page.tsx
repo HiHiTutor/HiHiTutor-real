@@ -146,7 +146,7 @@ function HomeContent() {
               bgColor="bg-yellow-50"
               icon="👩‍🏫"
               routeType="tutor"
-              queryParams={{ featured: true, limit: 8 }}
+              queryParams={{ featured: true }}
             />
           </div>
         </div>
@@ -207,7 +207,7 @@ function HomeContent() {
               bgColor="bg-blue-50"
               icon="📄"
               routeType="student"
-              queryParams={{ limit: 8 }}
+              queryParams={{}}
             />
           </div>
         </div>
