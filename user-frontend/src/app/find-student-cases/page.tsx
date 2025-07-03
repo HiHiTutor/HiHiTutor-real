@@ -273,14 +273,19 @@ function FindStudentCasesPageContent() {
       }
       
       // 教學模式篩選
-      if (mode && mode.trim()) {
+      let filterMode = '';
+      if (Array.isArray(mode)) {
+        filterMode = mode[0] || '';
+      } else if (typeof mode === 'string') {
+        filterMode = mode;
+      }
+      if (filterMode && filterMode.trim()) {
         const tutorModes = Array.isArray(tutor.modes)
           ? tutor.modes.map(m => String(m).toLowerCase())
           : [];
-        const filterMode = mode.toLowerCase();
-        
-        if (!tutorModes.some(m => m.includes(filterMode))) {
-          console.log("❌ 教學模式不匹配：", { tutorName: tutor.name, tutorModes, filterMode });
+        const filterModeLower = filterMode.toLowerCase();
+        if (!tutorModes.some(m => m.includes(filterModeLower))) {
+          console.log("❌ 教學模式不匹配：", { tutorName: tutor.name, tutorModes, filterModeLower });
           return false;
         }
       }
