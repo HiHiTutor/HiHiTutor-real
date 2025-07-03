@@ -279,9 +279,9 @@ export const caseApi = {
       console.log('🎯 目標是 find-student，調用導師 API');
       return fetchApi('/tutors', {}, params);
     } else if (target === 'find-tutor') {
-      // 導師搵學生 → 調用學生個案 API
-      console.log('🎯 目標是 find-tutor，調用學生個案 API');
-      return fetchApi('/find-student-cases', {}, params);
+      // 導師搵學生 → 調用補習個案 API (find-tutor-cases)
+      console.log('🎯 目標是 find-tutor，調用補習個案 API (find-tutor-cases)');
+      return fetchApi('/find-tutor-cases', {}, params);
     } else {
       // 預設調用導師 API
       console.log('🎯 預設調用導師 API');

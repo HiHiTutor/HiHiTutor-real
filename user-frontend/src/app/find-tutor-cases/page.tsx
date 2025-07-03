@@ -12,19 +12,19 @@ export default function FindTutorCasesPage() {
   const [cases, setCases] = useState([]);
 
   useEffect(() => {
-    console.log('🧪 useEffect 開始執行: 準備呼叫 getAllStudentCases()');
+    console.log('🧪 useEffect 開始執行: 準備呼叫 searchByTarget("find-tutor")');
 
-    caseApi.getAllStudentCases()
+    caseApi.searchByTarget('find-tutor')
       .then((res) => {
-        console.log('🎯 收到學生個案 API 回應:', res);
-        if (res.success && res.data) {
-          setCases(res.data);
+        console.log('🎯 收到補習個案 API 回應:', res);
+        if (res.success && res.data && res.data.cases) {
+          setCases(res.data.cases);
         } else {
           console.warn('⚠️ 回傳結果無資料或失敗:', res);
         }
       })
       .catch((err) => {
-        console.error('❌ 呼叫 getAllStudentCases 發生錯誤:', err);
+        console.error('❌ 呼叫 searchByTarget("find-tutor") 發生錯誤:', err);
       });
   }, []);
 
