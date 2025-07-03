@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -8,9 +9,9 @@ const SearchBar = () => {
   const [searchType, setSearchType] = useState('tutor'); // 'tutor' or 'student'
   const router = useRouter();
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = (e: any) => {
     e.preventDefault();
-    console.log('搜尋類型:', searchType);
+    console.log('👉 handleSearch triggered, searchType =', searchType, 'searchQuery =', searchQuery);
     if (searchQuery.trim()) {
       if (searchType === 'tutor') {
         router.push(`/find-student-cases?search=${encodeURIComponent(searchQuery.trim())}`);
