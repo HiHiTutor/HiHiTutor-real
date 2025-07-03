@@ -1,8 +1,8 @@
 'use client';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 
-export default function RouteTracePage() {
+function RouteTraceContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -32,5 +32,13 @@ export default function RouteTracePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RouteTracePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <RouteTraceContent />
+    </Suspense>
   );
 } 
