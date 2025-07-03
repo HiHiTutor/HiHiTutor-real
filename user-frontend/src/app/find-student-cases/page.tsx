@@ -70,7 +70,7 @@ function FindStudentCasesPageContent() {
         console.log("📦 成功獲取導師個案：", result);
         
         // 處理回應數據
-        const casesData = result.success && result.data && result.data.cases ? result.data.cases : [];
+        const casesData = Array.isArray(result) ? result : (result.success && result.data && result.data.cases ? result.data.cases : []);
         console.log("📊 個案數據：", casesData);
         
         setAllCases(casesData);
