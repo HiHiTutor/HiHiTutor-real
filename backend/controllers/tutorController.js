@@ -213,11 +213,11 @@ const getAllTutors = async (req, res) => {
         
         // 搜尋過濾
         if (search) {
-          const searchLower = search.toLowerCase();
+          const searchLower = typeof search === 'string' ? search.toLowerCase() : '';
           filteredMockTutors = filteredMockTutors.filter(tutor => 
-            tutor.name.toLowerCase().includes(searchLower) ||
-            (tutor.subject && tutor.subject.toLowerCase().includes(searchLower)) ||
-            (tutor.education && tutor.education.toLowerCase().includes(searchLower))
+            typeof tutor.name === 'string' && tutor.name.toLowerCase().includes(searchLower) ||
+            (typeof tutor.subject === 'string' && tutor.subject.toLowerCase().includes(searchLower)) ||
+            (typeof tutor.education === 'string' && tutor.education.toLowerCase().includes(searchLower))
           );
           console.log(`- 搜尋 "${search}" 後剩餘導師: ${filteredMockTutors.length} 個`);
         }
@@ -232,7 +232,7 @@ const getAllTutors = async (req, res) => {
             if (tutor.subjects && Array.isArray(tutor.subjects)) {
               const hasMatchingSubject = subjectArray.some(filterSubject => 
                 tutor.subjects.some(tutorSubject => 
-                  tutorSubject.toLowerCase() === filterSubject.toLowerCase()
+                  typeof tutorSubject === 'string' && typeof filterSubject === 'string' && tutorSubject.toLowerCase() === filterSubject.toLowerCase()
                 )
               );
               if (hasMatchingSubject) {
@@ -244,7 +244,7 @@ const getAllTutors = async (req, res) => {
             // 檢查 tutor.subject 單個科目
             if (tutor.subject) {
               const hasMatchingSubject = subjectArray.some(filterSubject => 
-                tutor.subject.toLowerCase() === filterSubject.toLowerCase()
+                typeof tutor.subject === 'string' && typeof filterSubject === 'string' && tutor.subject.toLowerCase() === filterSubject.toLowerCase()
               );
               if (hasMatchingSubject) {
                 console.log(`- 導師 ${tutor.name} 匹配科目: ${tutor.subject}`);
@@ -271,8 +271,8 @@ const getAllTutors = async (req, res) => {
               const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
               const intersection = subjectArray.filter(subject => 
                 categorySubjects.some(catSubject => 
-                  subject.toLowerCase().includes(catSubject.toLowerCase()) ||
-                  catSubject.toLowerCase().includes(subject.toLowerCase())
+                  (typeof subject === 'string' && typeof catSubject === 'string' && subject.toLowerCase().includes(catSubject.toLowerCase())) ||
+                  (typeof catSubject === 'string' && typeof subject === 'string' && catSubject.toLowerCase().includes(subject.toLowerCase()))
                 )
               );
               if (intersection.length > 0) {
@@ -471,7 +471,7 @@ const getAllTutors = async (req, res) => {
             if (tutor.teachingModes && Array.isArray(tutor.teachingModes)) {
               const hasMatchingMode = modeArray.some(filterMode => 
                 tutor.teachingModes.some(tutorMode => 
-                  tutorMode.toLowerCase() === filterMode.toLowerCase()
+                  typeof tutorMode === 'string' && typeof filterMode === 'string' && tutorMode.toLowerCase() === filterMode.toLowerCase()
                 )
               );
               if (hasMatchingMode) {
@@ -496,7 +496,7 @@ const getAllTutors = async (req, res) => {
             if (tutor.regions && Array.isArray(tutor.regions)) {
               const hasMatchingRegion = regionArray.some(filterRegion => 
                 tutor.regions.some(tutorRegion => 
-                  tutorRegion.toLowerCase() === filterRegion.toLowerCase()
+                  typeof tutorRegion === 'string' && typeof filterRegion === 'string' && tutorRegion.toLowerCase() === filterRegion.toLowerCase()
                 )
               );
               if (hasMatchingRegion) {
@@ -712,8 +712,8 @@ const getAllTutors = async (req, res) => {
                 const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
                 const intersection = subjectArray.filter(subject => 
                   categorySubjects.some(catSubject => 
-                    subject.toLowerCase().includes(catSubject.toLowerCase()) ||
-                    catSubject.toLowerCase().includes(subject.toLowerCase())
+                    (typeof subject === 'string' && typeof catSubject === 'string' && subject.toLowerCase().includes(catSubject.toLowerCase())) ||
+                    (typeof catSubject === 'string' && typeof subject === 'string' && catSubject.toLowerCase().includes(subject.toLowerCase()))
                   )
                 );
                 if (intersection.length > 0) {
