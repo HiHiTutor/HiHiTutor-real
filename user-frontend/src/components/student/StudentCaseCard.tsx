@@ -21,6 +21,7 @@ interface StudentCase {
     max: number;
   } | string | number;
   subjects?: string[];
+  subject?: string;
   category?: string;
   subCategory?: string;
   duration?: number;
