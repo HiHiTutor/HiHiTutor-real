@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { caseApi } from '@/services/api';
-import CaseCard from '@/components/CaseCard';
+import StudentCaseCard from '@/components/student/StudentCaseCard';
 
 export default function FindTutorCasesPage() {
   console.log('🧠 TRACE: src/app/find-tutor-cases/page.tsx 被正確使用 ✅');
@@ -33,10 +33,9 @@ export default function FindTutorCasesPage() {
       <h1 className="text-xl font-bold">📄 補習個案（導師出 Post）</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
         {cases.length === 0 && <p>😢 暫時無個案</p>}
-        {cases.map((c: any, index: number) => {
-          console.log(`🧩 渲染個案 #${index}:`, c);
-          return <CaseCard key={c.id || index} caseData={c} routeType="tutor" />;
-        })}
+        {cases.map((studentCase: any, index: number) => (
+          <StudentCaseCard key={studentCase.id || index} case={studentCase} />
+        ))}
       </div>
     </div>
   );
