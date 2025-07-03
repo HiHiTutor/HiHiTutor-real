@@ -20,8 +20,9 @@ export default function Home() {
   const router = useRouter();
 
   const handleSearch = (query: any) => {
-    const { type, ...rest } = query;
-    const target = type === "tutors" ? "tutors" : "find-student-cases";
+    const { target, type, ...rest } = query;
+    // 優先使用 target，如果沒有則使用 type
+    const searchTarget = target === "find-tutor" || type === "tutors" ? "tutors" : "find-student-cases";
     
     // 將搜尋條件轉換為 URL 參數
     const searchParams = new URLSearchParams();
@@ -55,7 +56,7 @@ export default function Home() {
     }
 
     // 跳轉到目標頁面，並帶上搜尋參數
-    router.push(`/${target}?${searchParams.toString()}`);
+    router.push(`/${searchTarget}?${searchParams.toString()}`);
   };
 
   return (
@@ -70,8 +71,9 @@ function HomeContent() {
   const [currentTarget, setCurrentTarget] = useState('tutors');
 
   const handleSearch = (query: any) => {
-    const { type, ...rest } = query;
-    const target = type === "tutors" ? "tutors" : "find-student-cases";
+    const { target, type, ...rest } = query;
+    // 優先使用 target，如果沒有則使用 type
+    const searchTarget = target === "find-tutor" || type === "tutors" ? "tutors" : "find-student-cases";
     
     // 將搜尋條件轉換為 URL 參數
     const searchParams = new URLSearchParams();
@@ -105,7 +107,7 @@ function HomeContent() {
     }
 
     // 跳轉到目標頁面，並帶上搜尋參數
-    router.push(`/${target}?${searchParams.toString()}`);
+    router.push(`/${searchTarget}?${searchParams.toString()}`);
   };
 
   const handleTargetChange = (target: string) => {
