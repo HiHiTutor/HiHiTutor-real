@@ -133,27 +133,18 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
 
   // 從 URL 參數初始化篩選條件
   useEffect(() => {
-    const autoTarget = getAutoTarget();
-    // 只在 searchParams 沒有 target 且 filters.target 沒有值時才用 autoTarget
-    const target = searchParams.get('target') || filters.target || autoTarget;
-    const category = searchParams.get('category') || filters.category || '';
-    const subCategory = searchParams.get('subCategory') || filters.subCategory || '';
-    const subjects = searchParams.getAll('subjects').length > 0 ? searchParams.getAll('subjects') : filters.subjects;
-    const mode = searchParams.getAll('mode').length > 0 ? searchParams.getAll('mode') : filters.mode;
-    const regions = searchParams.getAll('regions').length > 0 ? searchParams.getAll('regions') : filters.regions;
-    const subRegions = searchParams.getAll('subRegions').length > 0 ? searchParams.getAll('subRegions') : filters.subRegions;
-    const priceMin = searchParams.get('priceMin') || filters.priceRange?.[0] || '';
-    const priceMax = searchParams.get('priceMax') || filters.priceRange?.[1] || '';
-
     setFilters({
-      target,
-      category,
-      subCategory,
-      subjects,
-      mode,
-      regions,
-      subRegions,
-      priceRange: [Number(priceMin) || 0, Number(priceMax) || 1000],
+      target: searchParams.get('target') || '',
+      category: searchParams.get('category') || '',
+      subCategory: searchParams.get('subCategory') || '',
+      subjects: searchParams.getAll('subjects'),
+      mode: searchParams.getAll('mode'),
+      regions: searchParams.getAll('regions'),
+      subRegions: searchParams.getAll('subRegions'),
+      priceRange: [
+        Number(searchParams.get('priceMin')) || 0,
+        Number(searchParams.get('priceMax')) || 1000
+      ],
       featured: false
     });
   }, [searchParams, pathname]);
