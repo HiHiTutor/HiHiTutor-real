@@ -9,17 +9,18 @@ const SearchBar = () => {
   const [searchType, setSearchType] = useState('tutor'); // 'tutor' or 'student'
   const router = useRouter();
 
-  const handleSearch = (e: any) => {
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('👉 handleSearch triggered, searchType =', searchType, 'searchQuery =', searchQuery);
-    if (searchQuery.trim()) {
-      if (searchType === 'tutor') {
-        // 尋導師 → 顯示導師列表（學生搵導師）
-        router.push(`/find-student-cases?target=find-student&search=${encodeURIComponent(searchQuery.trim())}`);
-      } else if (searchType === 'student') {
-        // 招學生 → 顯示學生個案（導師搵學生）
-        router.push(`/find-tutor-cases?target=find-tutor&search=${encodeURIComponent(searchQuery.trim())}`);
-      }
+    const query = searchQuery.trim();
+    if (!query) return;
+
+    // 根據 searchType 準確導航（UI label 無變）
+    if (searchType === 'tutor') {
+      // 學生搵導師 ➝ 去導師列表（find-student-cases）
+      router.push(`/find-student-cases?search=${encodeURIComponent(query)}&target=find-student`);
+    } else if (searchType === 'student') {
+      // 導師搵學生 ➝ 去補習個案列表（find-tutor-cases）
+      router.push(`/find-tutor-cases?search=${encodeURIComponent(query)}&target=find-tutor`);
     }
   };
 
