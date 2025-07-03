@@ -94,6 +94,7 @@ app.get('/health', (req, res) => {
 
 // API 路由
 app.use('/api/find-tutor-cases', findTutorCasesRouter);
+app.use('/api/tutor-cases', tutorCasesRouter);
 app.use('/api/find-student-cases', studentCasesRouter);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/tutors', tutorsRouter);
