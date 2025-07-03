@@ -230,8 +230,6 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
 
   const handleFilter = () => {
     const params = new URLSearchParams();
-    
-    if (filters.target) params.set('target', filters.target);
     if (filters.category && filters.category !== 'unlimited') params.set('category', filters.category);
     if (filters.subCategory && filters.subCategory !== 'unlimited') params.set('subCategory', filters.subCategory);
     filters.subjects.forEach(subject => params.append('subjects', subject));
@@ -247,19 +245,17 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     if (filters.priceRange && filters.priceRange !== 'unlimited') params.set('priceRange', filters.priceRange);
     if (filters.featured) params.set('featured', 'true');
 
-    // 根據 target 決定導向頁面
+    // 只用 currentTarget 決定路由
     let targetPath = pathname;
-    if (filters.target === 'find-tutor') {
-      targetPath = '/tutors';  // 導師列表
-    } else if (filters.target === 'find-student') {
-      targetPath = '/find-student-cases';  // 補習個案
+    if (currentTarget === 'tutors') {
+      targetPath = '/tutors';
+    } else if (currentTarget === 'cases') {
+      targetPath = '/find-student-cases';
     }
 
     const queryString = params.toString();
     const newUrl = queryString ? `${targetPath}?${queryString}` : targetPath;
-    
     router.push(newUrl);
-    
     if (onFilter) {
       onFilter(filters);
     }
