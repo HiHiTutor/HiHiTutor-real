@@ -239,8 +239,16 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
     if (filters.priceRange[1] < 1000) params.set('priceMax', filters.priceRange[1].toString());
     if (filters.featured) params.set('featured', 'true');
 
+    // 根據 target 決定導向頁面
+    let targetPath = pathname;
+    if (filters.target === 'find-tutor') {
+      targetPath = '/find-student-cases';
+    } else if (filters.target === 'find-student') {
+      targetPath = '/find-tutor-cases';
+    }
+
     const queryString = params.toString();
-    const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
+    const newUrl = queryString ? `${targetPath}?${queryString}` : targetPath;
     
     router.push(newUrl);
     
