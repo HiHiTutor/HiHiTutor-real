@@ -241,8 +241,8 @@ function FindStudentCasesPageContent() {
       
       // 科目篩選 - 處理多個科目的精確匹配
       if (subjects && subjects.length > 0) {
+        const tutorSubjects = Array.isArray(tutor.subjects) ? tutor.subjects.map((s: any) => String(s).toLowerCase()) : [];
         const filterSubjects = subjects.map((s: any) => String(s).toLowerCase());
-        
         // 檢查導師的科目是否包含任何一個選擇的科目
         const hasMatchingSubject = tutorSubjects.some((subject: any) => 
           filterSubjects.includes(subject)
