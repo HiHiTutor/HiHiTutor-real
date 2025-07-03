@@ -106,6 +106,13 @@ function FindStudentCasesPageContent() {
 
     console.log("🔍 URL 參數改變，開始過濾導師資料");
     console.log("📊 總導師數量：", allTutors.length);
+    console.log("📊 前5個導師的科目：", allTutors.slice(0, 5).map(t => ({
+      name: t.name,
+      tutorId: t.tutorId,
+      subjects: t.subjects,
+      subjectsType: typeof t.subjects,
+      isArray: Array.isArray(t.subjects)
+    })));
     
     // 從 URL 獲取搜尋參數
     const search = searchParams.get('search');
@@ -128,10 +135,12 @@ function FindStudentCasesPageContent() {
 
     // 從 allTutors 過濾
     const filtered = allTutors.filter(tutor => {
-      console.log("檢查導師：", {
+      console.log("🔍 檢查導師：", {
         name: tutor.name,
         tutorId: tutor.tutorId,
         subjects: tutor.subjects,
+        subjectsType: typeof tutor.subjects,
+        isArray: Array.isArray(tutor.subjects),
         regions: tutor.regions,
         modes: tutor.modes
       });
@@ -178,6 +187,18 @@ function FindStudentCasesPageContent() {
           } else {
             return subject.startsWith(`${category}-`);
           }
+        });
+
+        console.log("🔍 分類匹配檢查：", {
+          tutorName: tutor.name,
+          tutorSubjects,
+          category,
+          hasCategorySubject,
+          categoryCheck: tutorSubjects.map(s => ({
+            subject: s,
+            startsWith: s.startsWith(`${category}-`),
+            result: s.startsWith(`${category}-`)
+          }))
         });
 
         if (!hasCategorySubject) {
