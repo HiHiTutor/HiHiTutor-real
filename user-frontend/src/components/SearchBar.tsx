@@ -98,27 +98,46 @@ const SearchBar = () => {
   return (
     <section className="max-w-7xl mx-auto px-4 py-8">
       {/* 文件夾 tabs */}
-      <div className="flex gap-2 mb-4">
-        {TABS.map((tab, idx) => (
-          <button
-            key={tab.key}
-            onClick={() => handleTabClick(tab.key)}
-            className={`relative flex flex-col items-center px-8 pt-3 pb-2 rounded-t-lg border-t-4 border-l-4 border-r-4 ${
-              activeTab === tab.key
-                ? `${tab.border} bg-white z-10 -mb-1 shadow-lg`
-                : "border-gray-200 bg-gray-100 z-0"
-            } transition-all duration-200`}
-            style={{
-              borderTopLeftRadius: idx === 0 ? 16 : 0,
-              borderTopRightRadius: idx === TABS.length - 1 ? 16 : 0,
-              borderBottom: activeTab === tab.key ? "4px solid white" : "none",
-              boxShadow: activeTab === tab.key ? "0 4px 12px 0 rgba(0,0,0,0.06)" : undefined,
-            }}
-          >
-            <span className="text-2xl mb-1">{tab.icon}</span>
-            <span className={`font-bold text-base ${activeTab === tab.key ? (tab.color === "yellow" ? "text-yellow-600" : "text-blue-600") : "text-gray-500"}`}>{tab.label}</span>
-          </button>
-        ))}
+      <div className="flex gap-0 mb-4 relative">
+        {TABS.map((tab, idx) => {
+          const isActive = activeTab === tab.key;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => handleTabClick(tab.key)}
+              className={`relative flex items-end px-8 pt-4 pb-2 border-x-0 border-t-0 border-b-0
+                ${isActive ? `${tab.border} bg-white z-20` : 'border-gray-200 bg-gray-100 z-10'}
+                transition-all duration-200
+                ${idx === 0 ? 'rounded-tl-[2.5rem]' : ''}
+                ${idx === TABS.length - 1 ? 'rounded-tr-[2.5rem]' : ''}
+                shadow-[0_4px_12px_0_rgba(0,0,0,0.06)]
+                folder-tab
+              `}
+              style={{
+                marginRight: idx !== TABS.length - 1 ? '-1.5rem' : 0,
+                boxShadow: isActive ? '0 6px 16px 0 rgba(0,0,0,0.10)' : '0 2px 6px 0 rgba(0,0,0,0.04)',
+                borderBottom: isActive ? 'none' : '4px solid #e5e7eb',
+                top: isActive ? 0 : 12,
+                minWidth: 120,
+                borderLeft: idx === 0 ? undefined : '2px solid #e5e7eb',
+                borderRight: idx === TABS.length - 1 ? undefined : '2px solid #e5e7eb',
+              }}
+            >
+              <span className="text-3xl mr-2 drop-shadow-sm">{tab.icon}</span>
+              <span className={`font-bold text-lg ${isActive ? (tab.color === 'yellow' ? 'text-yellow-600' : 'text-blue-600') : 'text-gray-400'}`}>{tab.label}</span>
+              {/* 左上突出 */}
+              {idx === 0 && (
+                <span className="absolute -top-3 -left-3 w-6 h-6 bg-white border-l-4 border-t-4 border-yellow-300 rounded-tl-2xl z-30" style={{boxShadow: isActive ? '0 0 0 2px #fde68a' : 'none'}}></span>
+              )}
+              {/* 右上突出 */}
+              {idx === TABS.length - 1 && (
+                <span className="absolute -top-3 -right-3 w-6 h-6 bg-white border-r-4 border-t-4 border-blue-300 rounded-tr-2xl z-30" style={{boxShadow: isActive ? '0 0 0 2px #93c5fd' : 'none'}}></span>
+              )}
+            </button>
+          );
+        })}
+        {/* 插入主體的底色 */}
+        <div className={`absolute left-0 right-0 bottom-0 h-4 ${tabTheme?.bg} z-0 rounded-b-xl`}></div>
       </div>
       {/* 搜尋欄主體 */}
       <div className={`rounded-b-xl border ${borderClass} ${bgClass} p-6`}> 
