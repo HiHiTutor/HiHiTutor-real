@@ -131,12 +131,14 @@ function HomeContent() {
               currentTarget={currentTarget}
               onTabChange={handleTargetChange}
             />
-            <CaseFilterBar
-              onFilter={handleSearch}
-              fetchUrl={currentTarget === 'tutors' ? '/tutors' : '/find-student-cases'}
-              currentTarget={currentTarget}
-              onTargetChange={handleTargetChange}
-            />
+            <Suspense fallback={<div className="text-center py-8">載入篩選器...</div>}>
+              <CaseFilterBar
+                onFilter={handleSearch}
+                fetchUrl={currentTarget === 'tutors' ? '/tutors' : '/find-student-cases'}
+                currentTarget={currentTarget}
+                onTargetChange={handleTargetChange}
+              />
+            </Suspense>
           </div>
           <CategoryList />
         </div>

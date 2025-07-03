@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import SearchTabBar from '@/components/SearchTabBar';
 import CaseFilterBar from '@/components/CaseFilterBar';
 
@@ -27,12 +27,14 @@ export default function TestTabsPage() {
             onTabChange={handleTargetChange}
           />
           
-          <CaseFilterBar
-            onFilter={handleSearch}
-            fetchUrl={currentTarget === 'tutors' ? '/tutors' : '/find-student-cases'}
-            currentTarget={currentTarget}
-            onTargetChange={handleTargetChange}
-          />
+          <Suspense fallback={<div className="text-center py-8">載入篩選器...</div>}>
+            <CaseFilterBar
+              onFilter={handleSearch}
+              fetchUrl={currentTarget === 'tutors' ? '/tutors' : '/find-student-cases'}
+              currentTarget={currentTarget}
+              onTargetChange={handleTargetChange}
+            />
+          </Suspense>
         </div>
 
         <div className="mt-8 bg-white rounded-lg shadow-lg p-6">
