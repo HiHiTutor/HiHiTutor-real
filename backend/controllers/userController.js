@@ -329,7 +329,9 @@ const uploadAvatar = async (req, res) => {
     }
 
     // 取得檔案副檔名
-    const ext = path.extname(req.file.originalname).toLowerCase();
+    const ext = req.file?.originalname && typeof req.file.originalname === 'string'
+        ? path.extname(req.file.originalname).toLowerCase()
+        : '';
     if (!['.jpg', '.jpeg', '.png'].includes(ext)) {
       return res.status(400).json({
         success: false,
