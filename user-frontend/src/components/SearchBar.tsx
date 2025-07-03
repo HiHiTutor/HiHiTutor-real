@@ -14,9 +14,9 @@ const SearchBar = () => {
     console.log('👉 handleSearch triggered, searchType =', searchType, 'searchQuery =', searchQuery);
     if (searchQuery.trim()) {
       if (searchType === 'tutor') {
-        router.push(`/find-student-cases?search=${encodeURIComponent(searchQuery.trim())}`);
+        router.push(`/find-student-cases?target=find-student&search=${encodeURIComponent(searchQuery.trim())}`);
       } else if (searchType === 'student') {
-        router.push(`/find-tutor-cases?search=${encodeURIComponent(searchQuery.trim())}`);
+        router.push(`/find-tutor-cases?target=find-tutor&search=${encodeURIComponent(searchQuery.trim())}`);
       }
     }
   };
