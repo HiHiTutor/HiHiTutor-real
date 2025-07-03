@@ -52,43 +52,56 @@ function getRegionLabel(value: string) {
 }
 
 export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps) {
-  // mode 顯示
-  const displayMode = caseData.mode
-    ? getTeachingModeLabel(caseData.mode)
-    : (caseData.modes && caseData.modes.length > 0
-        ? getTeachingModeLabel(caseData.modes[0])
-        : '未指定');
-  
-  // 地點顯示邏輯
-  let displayRegion = '—';
-  const modesArr = caseData.modes || (caseData.mode ? [caseData.mode] : []);
-  const isOnlineOnly = modesArr.length === 1 && (modesArr[0] === 'online' || modesArr[0] === '線上');
-  if (!isOnlineOnly) {
-    if (Array.isArray(caseData.subRegions) && caseData.subRegions.length > 0) {
-      displayRegion = caseData.subRegions.map(r => getRegionLabel(r)).join('、');
-    } else if (Array.isArray(caseData.regions) && caseData.regions.length > 0 && caseData.regions[0] !== 'all-hong-kong') {
-      displayRegion = caseData.regions.map(r => getRegionLabel(r)).join('、');
-    } else if (Array.isArray(caseData.regions) && caseData.regions[0] === 'all-hong-kong') {
-      displayRegion = '全港';
-    } else if (Array.isArray(caseData.region) && caseData.region.length > 0) {
-      displayRegion = caseData.region.map(r => getRegionLabel(r)).join('、');
+  // 1. 科目顯示
+  const subjects = caseData.subjects || [];
+  const displaySubjects = subjects.slice(0, 3).join('、') + (subjects.length > 3 ? ' +' : '');
+
+  // 2. 模式顯示
+  const modeMap: Record<string, string> = { 'unlimited': '皆可', 'in-person': '面授', 'online': '網課', '線上': '網課' };
+  let displayMode = '未指定';
+  if (caseData.mode && modeMap[caseData.mode]) {
+    displayMode = modeMap[caseData.mode];
+  } else if (caseData.modes && caseData.modes.length > 0 && modeMap[caseData.modes[0]]) {
+    displayMode = modeMap[caseData.modes[0]];
+  }
+
+  // 3. 地點顯示
+  let displayRegion = '';
+  if (displayMode === '網課') {
+    displayRegion = '網課';
+  } else {
+    const subRegions = caseData.subRegions || [];
+    if (subRegions.length > 0) {
+      displayRegion = subRegions.slice(0, 3).map(r => getRegionLabel(r)).join('、');
+      if (subRegions.length > 3) displayRegion += ' +';
+    } else if (caseData.regions && caseData.regions.length > 0) {
+      // regions 只顯示最細的（如「九龍 > 黃大仙」就顯示「黃大仙」；如「九龍 > 不限」就顯示「九龍」）
+      const regions = caseData.regions.filter(r => r !== 'all-hong-kong' && r !== 'unlimited');
+      if (regions.length > 0) {
+        displayRegion = regions.slice(0, 3).map(r => getRegionLabel(r)).join('、');
+        if (regions.length > 3) displayRegion += ' +';
+      } else if (caseData.regions[0] === 'all-hong-kong') {
+        displayRegion = '全港';
+      } else {
+        displayRegion = '未指定';
+      }
     } else {
       displayRegion = '未指定';
     }
   }
-  
+
+  // 4. 每堂預算
+  let displayBudget = '待議';
+  if (typeof caseData.budget === 'number') {
+    displayBudget = `HK$ ${caseData.budget}`;
+  } else if (typeof caseData.budget === 'string') {
+    displayBudget = `HK$ ${caseData.budget}`;
+  } else if (caseData.budget && typeof caseData.budget === 'object' && typeof caseData.budget.min === 'number') {
+    displayBudget = `HK$ ${caseData.budget.min}`;
+  }
+
   // 處理經驗要求顯示
   const displayExperience = caseData.experience || caseData.experienceLevel || caseData.requirement || '未指定';
-  
-  // 處理價格顯示
-  const displayBudget = (() => {
-    if (typeof caseData.budget === 'string') return caseData.budget;
-    if (typeof caseData.budget === 'number') return `$${caseData.budget}`;
-    if (caseData.budget && typeof caseData.budget === 'object') {
-      return `${caseData.budget.min} - ${caseData.budget.max}`;
-    }
-    return '待議';
-  })();
 
   return (
     <div className="bg-white rounded-2xl shadow-md p-4 border border-blue-200 hover:shadow-lg hover:border-blue-300 transition-all max-sm:p-3 max-[700px]:p-4 bg-gradient-to-br from-white to-blue-50">
@@ -105,26 +118,28 @@ export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps
           )}
         </div>
       </div>
-      
       <div className="space-y-2">
         <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
-          <span className="w-16 text-blue-600 font-medium">地點：</span>
-          <span>{displayRegion}</span>
+          <span className="w-16 text-blue-600 font-medium">科目：</span>
+          <span>{displaySubjects || '未指定'}</span>
         </div>
         <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
           <span className="w-16 text-blue-600 font-medium">模式：</span>
           <span>{displayMode}</span>
         </div>
         <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
+          <span className="w-16 text-blue-600 font-medium">地點：</span>
+          <span>{displayRegion}</span>
+        </div>
+        <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
+          <span className="w-16 text-blue-600 font-medium">每堂預算：</span>
+          <span className="font-semibold text-blue-900">{displayBudget}</span>
+        </div>
+        <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
           <span className="w-16 text-blue-600 font-medium">經驗：</span>
           <span>{displayExperience}</span>
         </div>
-        <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
-          <span className="w-16 text-blue-600 font-medium">價格：</span>
-          <span className="font-semibold text-blue-900">{displayBudget}</span>
-        </div>
       </div>
-
       <div className="mt-4 text-xs text-right text-blue-500 max-sm:mt-3 max-[700px]:mt-4 border-t border-blue-100 pt-2">
         發佈於：{formatDate(caseData.createdAt)}
       </div>
