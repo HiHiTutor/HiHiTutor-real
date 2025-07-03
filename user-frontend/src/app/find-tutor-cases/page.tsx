@@ -33,7 +33,7 @@ export default function FindTutorCasesPage() {
         {cases.length === 0 && <p>😢 暫時無個案</p>}
         {cases.map((c: any, index: number) => {
           console.log(`🧩 渲染個案 #${index}:`, c);
-          return <CaseCard key={c.id || index} data={c} />;
+          return <CaseCard key={c.id || index} caseData={c} />;
         })}
       </div>
     </div>
