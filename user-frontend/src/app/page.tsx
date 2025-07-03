@@ -14,7 +14,6 @@ import CaseSection from '@/components/CaseSection';
 import TutorSection from '@/components/TutorSection';
 import Advertisement from '@/components/Advertisement';
 import CaseFilterBar from '@/components/CaseFilterBar';
-import SearchTabBar from '@/components/SearchTabBar';
 import { Tutor } from '@/types/tutor';
 
 export default function Home() {
@@ -127,10 +126,6 @@ function HomeContent() {
           {/* 刪除手機版主頁上方按鈕區域 */}
           <HeroSection />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SearchTabBar 
-              currentTarget={currentTarget}
-              onTabChange={handleTargetChange}
-            />
             <Suspense fallback={<div className="text-center py-8">載入篩選器...</div>}>
               <CaseFilterBar
                 onFilter={handleSearch}

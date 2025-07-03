@@ -50,10 +50,12 @@ const SearchTabBar: React.FC<SearchTabBarProps> = ({ onTabChange, currentTarget,
   const handleTabClick = (target: string) => {
     if (onTabChange) {
       onTabChange(target);
-    } else {
-      // 直接導航到對應頁面
-      const tab = TABS.find((t) => t.key === target);
-      if (tab) router.push(tab.route);
+    }
+    // 無論有無 onTabChange，都要導航到正確路徑
+    if (target === 'tutors') {
+      router.push('/tutors');
+    } else if (target === 'cases') {
+      router.push('/find-student-cases');
     }
   };
 
