@@ -269,6 +269,25 @@ export const caseApi = {
       body: JSON.stringify({ tutorId }),
     });
   },
+
+  // 🆕 統一搜尋 API - 根據 target 參數決定調用哪個 API
+  searchByTarget: (target: string, params?: Record<string, any>) => {
+    console.log('🔍 searchByTarget 被調用:', { target, params });
+    
+    if (target === 'find-student') {
+      // 學生搵導師 → 調用導師 API
+      console.log('🎯 目標是 find-student，調用導師 API');
+      return fetchApi('/tutors', {}, params);
+    } else if (target === 'find-tutor') {
+      // 導師搵學生 → 調用學生個案 API
+      console.log('🎯 目標是 find-tutor，調用學生個案 API');
+      return fetchApi('/find-student-cases', {}, params);
+    } else {
+      // 預設調用導師 API
+      console.log('🎯 預設調用導師 API');
+      return fetchApi('/tutors', {}, params);
+    }
+  },
 };
 
 // 分類相關 API
