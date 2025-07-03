@@ -117,12 +117,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
 
   // 根據當前頁面決定是否顯示目標選擇和自動設定目標值
   const shouldShowTarget = () => {
-    // 首頁顯示目標選擇
-    if (pathname === '/') {
-      return true;
-    }
-    // 其他頁面隱藏目標選擇
-    return false;
+    return true; // 所有頁面都顯示目標選單
   };
 
   const getAutoTarget = () => {
