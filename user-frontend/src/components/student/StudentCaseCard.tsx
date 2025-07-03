@@ -1,5 +1,6 @@
 import { formatDate } from '@/utils/date';
 import { getTeachingModeLabel } from '@/constants/teachingModeOptions';
+import REGION_OPTIONS from '@/constants/regionOptions';
 
 interface StudentCase {
   id: string;
@@ -36,12 +37,33 @@ interface StudentCaseCardProps {
   case: StudentCase;
 }
 
+function getRegionLabel(value: string) {
+  if (!value) return '未指定';
+  // 先找大區
+  const mainRegion = REGION_OPTIONS.find(opt => opt.value === value);
+  if (mainRegion) return mainRegion.label;
+  // 再找細分地區
+  for (const region of REGION_OPTIONS) {
+    const sub = region.regions.find(r => r.value === value);
+    if (sub) return sub.label;
+  }
+  return value;
+}
+
 export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps) {
-  // 處理地區顯示
-  const displayRegion = caseData.region || (caseData.regions && caseData.regions.length > 0 ? caseData.regions[0] : '未指定');
+  // region 顯示
+  const displayRegion = caseData.region
+    ? getRegionLabel(caseData.region)
+    : (caseData.regions && caseData.regions.length > 0
+        ? getRegionLabel(caseData.regions[0])
+        : '未指定');
   
-  // 處理教學模式顯示
-  const displayMode = caseData.mode || (caseData.modes && caseData.modes.length > 0 ? caseData.modes[0] : '未指定');
+  // mode 顯示
+  const displayMode = caseData.mode
+    ? getTeachingModeLabel(caseData.mode)
+    : (caseData.modes && caseData.modes.length > 0
+        ? getTeachingModeLabel(caseData.modes[0])
+        : '未指定');
   
   // 處理經驗要求顯示
   const displayExperience = caseData.experience || caseData.experienceLevel || caseData.requirement || '未指定';
@@ -79,7 +101,7 @@ export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps
         </div>
         <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
           <span className="w-16 text-blue-600 font-medium">模式：</span>
-          <span>{getTeachingModeLabel(displayMode)}</span>
+          <span>{displayMode}</span>
         </div>
         <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
           <span className="w-16 text-blue-600 font-medium">經驗：</span>
