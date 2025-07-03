@@ -120,8 +120,8 @@ function FindStudentCasesPageContent() {
     const subCategory = searchParams.get('subCategory');
     const subject = searchParams.get('subject');
     const subjects = searchParams.getAll('subjects'); // 獲取多個科目參數
-    const region = searchParams.get('region');
-    const mode = searchParams.get('mode');
+    const regions = searchParams.getAll('regions'); // 獲取多個地區參數
+    const modes = searchParams.getAll('mode'); // 獲取多個教學模式參數
 
     console.log("🔍 搜尋參數：", {
       search,
@@ -129,8 +129,8 @@ function FindStudentCasesPageContent() {
       subCategory,
       subject,
       subjects,
-      region,
-      mode
+      regions,
+      modes
     });
 
     // 從 allTutors 過濾
@@ -259,32 +259,35 @@ function FindStudentCasesPageContent() {
       }
       
       // 地區篩選
-      if (region && region.trim()) {
+      if (regions && regions.length > 0) {
         const tutorRegions = Array.isArray(tutor.regions) 
           ? tutor.regions.map((r: any) => String(r).toLowerCase())
           : [];
-        const filterRegion = region.toLowerCase();
+        const filterRegions = regions.map((r: any) => String(r).toLowerCase());
         
-        if (!tutorRegions.some((r: any) => r.includes(filterRegion))) {
-          console.log("❌ 地區不匹配：", { tutorName: tutor.name, tutorRegions, filterRegion });
+        const hasMatchingRegion = tutorRegions.some((tutorRegion: any) => 
+          filterRegions.some((filterRegion: any) => tutorRegion.includes(filterRegion))
+        );
+        
+        if (!hasMatchingRegion) {
+          console.log("❌ 地區不匹配：", { tutorName: tutor.name, tutorRegions, filterRegions });
           return false;
         }
       }
       
       // 教學模式篩選
-      let filterMode = '';
-      if (Array.isArray(mode)) {
-        filterMode = mode[0] || '';
-      } else if (typeof mode === 'string') {
-        filterMode = mode;
-      }
-      if (filterMode && filterMode.trim()) {
+      if (modes && modes.length > 0) {
         const tutorModes = Array.isArray(tutor.modes)
           ? tutor.modes.map((m: any) => String(m).toLowerCase())
           : [];
-        const filterModeLower = filterMode.toLowerCase();
-        if (!tutorModes.some((m: any) => m.includes(filterModeLower))) {
-          console.log("❌ 教學模式不匹配：", { tutorName: tutor.name, tutorModes, filterModeLower });
+        const filterModes = modes.map((m: any) => String(m).toLowerCase());
+        
+        const hasMatchingMode = tutorModes.some((tutorMode: any) => 
+          filterModes.some((filterMode: any) => tutorMode.includes(filterMode))
+        );
+        
+        if (!hasMatchingMode) {
+          console.log("❌ 教學模式不匹配：", { tutorName: tutor.name, tutorModes, filterModes });
           return false;
         }
       }
