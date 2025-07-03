@@ -42,11 +42,13 @@ interface Option {
 interface CaseFilterBarProps {
   onFilter?: (filters: any) => void;
   fetchUrl: string;
+  currentTarget?: string;
+  onTargetChange?: (target: string) => void;
 }
 
 const REGION_OPTIONS_FULL = REGION_OPTIONS;
 
-const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => {
+const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, currentTarget, onTargetChange }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -64,8 +66,29 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
 
   const isStudentCase = fetchUrl.includes('student');
   
-  // 根據頁面路徑設定顏色方案
+  // 根據當前頁面決定顏色方案
   const getColorScheme = () => {
+    // 如果有傳入currentTarget，根據target決定顏色
+    if (currentTarget) {
+      if (currentTarget === 'tutors') {
+        // 導師列表：黃色主題
+        return {
+          text: 'text-yellow-700',
+          border: 'border-yellow-200',
+          bg: 'bg-yellow-50',
+          button: 'bg-yellow-500 hover:bg-yellow-600'
+        };
+      } else if (currentTarget === 'cases') {
+        // 補習個案：藍色主題
+        return {
+          text: 'text-blue-700',
+          border: 'border-blue-200',
+          bg: 'bg-blue-50',
+          button: 'bg-blue-500 hover:bg-blue-600'
+        };
+      }
+    }
+    
     if (pathname === '/') {
       // 首頁：銀灰色，與 Topbar 一致
       return {
@@ -122,6 +145,11 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
   };
 
   const getAutoTarget = () => {
+    // 如果有傳入currentTarget，優先使用
+    if (currentTarget) {
+      return currentTarget === 'tutors' ? 'find-tutor' : 'find-student';
+    }
+    
     if (pathname === '/tutors') {
       return 'find-tutor'; // 導師列表頁面，默認目標是"導師列表"
     } else if (pathname === '/find-student-cases') {
@@ -129,7 +157,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
     } else if (pathname === '/find-tutor-cases') {
       return 'find-tutor'; // 導師要收學生
     }
-    return '';
+    return 'find-tutor'; // 首頁預設為導師列表
   };
 
   // 從 URL 參數初始化篩選條件

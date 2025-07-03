@@ -14,6 +14,7 @@ import CaseSection from '@/components/CaseSection';
 import TutorSection from '@/components/TutorSection';
 import Advertisement from '@/components/Advertisement';
 import CaseFilterBar from '@/components/CaseFilterBar';
+import SearchTabBar from '@/components/SearchTabBar';
 import { Tutor } from '@/types/tutor';
 
 export default function Home() {
@@ -67,6 +68,7 @@ export default function Home() {
 
 function HomeContent() {
   const router = useRouter();
+  const [currentTarget, setCurrentTarget] = useState('tutors');
 
   const handleSearch = (query: any) => {
     const { type, ...rest } = query;
@@ -107,6 +109,10 @@ function HomeContent() {
     router.push(`/${target}?${searchParams.toString()}`);
   };
 
+  const handleTargetChange = (target: string) => {
+    setCurrentTarget(target);
+  };
+
   return (
     <main className="min-h-screen">
       <div className="bg-[url('/newBK.png')] bg-no-repeat bg-cover bg-fixed relative overflow-hidden">
@@ -121,9 +127,15 @@ function HomeContent() {
           {/* 刪除手機版主頁上方按鈕區域 */}
           <HeroSection />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SearchTabBar 
+              currentTarget={currentTarget}
+              onTabChange={handleTargetChange}
+            />
             <CaseFilterBar
               onFilter={handleSearch}
-              fetchUrl="/find-tutor-cases"
+              fetchUrl={currentTarget === 'tutors' ? '/tutors' : '/find-student-cases'}
+              currentTarget={currentTarget}
+              onTargetChange={handleTargetChange}
             />
           </div>
           <CategoryList />
