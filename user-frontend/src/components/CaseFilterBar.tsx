@@ -134,15 +134,16 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
   // 從 URL 參數初始化篩選條件
   useEffect(() => {
     const autoTarget = getAutoTarget();
-    const target = searchParams.get('target') || autoTarget;
-    const category = searchParams.get('category') || '';
-    const subCategory = searchParams.get('subCategory') || '';
-    const subjects = searchParams.getAll('subjects');
-    const mode = searchParams.getAll('mode');
-    const regions = searchParams.getAll('regions');
-    const subRegions = searchParams.getAll('subRegions');
-    const priceMin = searchParams.get('priceMin') || '';
-    const priceMax = searchParams.get('priceMax') || '';
+    // 只在 searchParams 沒有 target 且 filters.target 沒有值時才用 autoTarget
+    const target = searchParams.get('target') || filters.target || autoTarget;
+    const category = searchParams.get('category') || filters.category || '';
+    const subCategory = searchParams.get('subCategory') || filters.subCategory || '';
+    const subjects = searchParams.getAll('subjects').length > 0 ? searchParams.getAll('subjects') : filters.subjects;
+    const mode = searchParams.getAll('mode').length > 0 ? searchParams.getAll('mode') : filters.mode;
+    const regions = searchParams.getAll('regions').length > 0 ? searchParams.getAll('regions') : filters.regions;
+    const subRegions = searchParams.getAll('subRegions').length > 0 ? searchParams.getAll('subRegions') : filters.subRegions;
+    const priceMin = searchParams.get('priceMin') || filters.priceRange?.[0] || '';
+    const priceMax = searchParams.get('priceMax') || filters.priceRange?.[1] || '';
 
     setFilters({
       target,
