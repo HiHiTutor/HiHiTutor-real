@@ -202,7 +202,7 @@ function HomeContent() {
             <CaseSection 
               title="補習個案"
               fetchUrl="/find-student-cases"
-              linkUrl="/find-tutor-cases"
+              linkUrl="/find-student-cases"
               borderColor="border-blue-200"
               bgColor="bg-blue-50"
               icon="📄"
