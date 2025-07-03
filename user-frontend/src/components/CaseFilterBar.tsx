@@ -142,6 +142,10 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
 
   // 根據當前頁面決定是否顯示目標選擇和自動設定目標值
   const shouldShowTarget = () => {
+    // 在 /tutors 和 /find-student-cases 頁面不顯示 tab
+    if (pathname === '/tutors' || pathname === '/find-student-cases') {
+      return false;
+    }
     return false; // 隱藏目標選單，改為自動設定
   };
 
@@ -520,14 +524,16 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* 整合的資料夾風格搜尋欄 */}
       <div className={`relative border ${colorScheme.border} ${colorScheme.bg} rounded-b-xl shadow-lg`}>
-        {/* Tabs 區域 - 貼合主體左上角 */}
-        <div className="absolute -top-12 left-0 z-10">
-          <SearchTabBar 
-            currentTarget={currentTarget}
-            onTabChange={onTargetChange}
-            className=""
-          />
-        </div>
+        {/* Tabs 區域 - 貼合主體左上角，只在首頁顯示 */}
+        {(pathname === '/' || pathname === '') && (
+          <div className="absolute -top-12 left-0 z-10">
+            <SearchTabBar 
+              currentTarget={currentTarget}
+              onTabChange={onTargetChange}
+              className=""
+            />
+          </div>
+        )}
         
         {/* 主體內容 */}
         <div className="p-6 max-sm:p-4 max-[700px]:p-5 pt-8">
