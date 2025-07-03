@@ -255,17 +255,10 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     if (filters.priceRange && filters.priceRange !== 'unlimited') params.set('priceRange', filters.priceRange);
     if (filters.featured) params.set('featured', 'true');
 
-    // 只用 currentTarget 決定路由
-    let targetPath = pathname;
-    if (currentTarget === 'tutors') {
-      targetPath = '/tutors';
-    } else if (currentTarget === 'cases') {
-      targetPath = '/find-student-cases';
-    }
-
-    const queryString = params.toString();
-    const newUrl = queryString ? `${targetPath}?${queryString}` : targetPath;
-    router.push(newUrl);
+    // 直接用 usePathname 判斷
+    const isTutorPage = pathname === "/tutors";
+    const targetRoute = isTutorPage ? "/tutors" : "/find-student-cases";
+    router.push(params.toString() ? `${targetRoute}?${params.toString()}` : targetRoute);
     if (onFilter) {
       onFilter(filters);
     }
@@ -284,9 +277,10 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       priceRange: 'unlimited',
       featured: false
     });
-    
-    router.push(pathname);
-    
+    // 直接用 usePathname 判斷
+    const isTutorPage = pathname === "/tutors";
+    const targetRoute = isTutorPage ? "/tutors" : "/find-student-cases";
+    router.push(targetRoute);
     if (onFilter) {
       onFilter({});
     }
