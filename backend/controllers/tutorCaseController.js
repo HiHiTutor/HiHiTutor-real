@@ -1,4 +1,5 @@
 const TutorCase = require('../models/TutorCase');
+const { buildPriceQuery, extractPriceFromItem } = require('../utils/priceRangeUtils');
 
 // 獲取所有導師案例
 const getAllTutorCases = async (req, res) => {
@@ -34,10 +35,11 @@ const getAllTutorCases = async (req, res) => {
     }
     
     // 價格範圍篩選
-    if (req.query.priceMin || req.query.priceMax) {
-      query['lessonDetails.pricePerLesson'] = {};
-      if (req.query.priceMin) query['lessonDetails.pricePerLesson'].$gte = Number(req.query.priceMin);
-      if (req.query.priceMax) query['lessonDetails.pricePerLesson'].$lte = Number(req.query.priceMax);
+    if (req.query.priceRange && req.query.priceRange !== 'unlimited') {
+      const priceQuery = buildPriceQuery(req.query.priceRange);
+      if (Object.keys(priceQuery).length > 0) {
+        query['lessonDetails.pricePerLesson'] = priceQuery;
+      }
     }
     
     console.log('🔍 執行查詢條件:', query);
@@ -209,8 +211,154 @@ const getTutorCaseById = async (req, res) => {
   }
 };
 
+// 搜尋導師案例
+const searchTutorCases = async (req, res) => {
+  try {
+    const {
+      keyword,
+      category,
+      subCategory,
+      subject,
+      subjects,
+      region,
+      subRegion,
+      mode,
+      modes,
+      priceRange,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+      page = 1,
+      limit = 20
+    } = req.query;
+
+    // 構建查詢條件
+    const query = { isApproved: true };
+
+    // 關鍵字搜尋
+    if (keyword) {
+      query.$or = [
+        { title: { $regex: keyword, $options: 'i' } },
+        { description: { $regex: keyword, $options: 'i' } }
+      ];
+    }
+
+    // 分類篩選
+    if (category && category !== 'unlimited') {
+      query.category = category;
+    }
+
+    // 子分類篩選
+    if (subCategory && subCategory !== 'unlimited') {
+      const subArr = Array.isArray(subCategory) ? subCategory : subCategory.split(',');
+      query.subCategory = { $in: subArr };
+    }
+
+    // 科目篩選
+    if (subject && subject !== 'unlimited') {
+      query.subject = subject;
+    }
+
+    if (subjects && subjects !== 'unlimited') {
+      const subjectArray = subjects.split(',');
+      query.subjects = { $in: subjectArray };
+    }
+
+    // 地區篩選
+    if (region && region !== 'unlimited') {
+      const regionArray = Array.isArray(region) ? region : [region];
+      query.regions = { $in: regionArray };
+    }
+
+    // 子地區篩選
+    if (subRegion && subRegion !== 'unlimited') {
+      const subRegionArray = Array.isArray(subRegion) ? subRegion : subRegion.split(',');
+      query.subRegions = { $in: subRegionArray };
+    }
+
+    // 教學模式篩選
+    if (mode && mode !== 'unlimited') {
+      query.mode = mode;
+    }
+
+    if (modes && modes !== 'unlimited') {
+      const modeArray = Array.isArray(modes) ? modes : modes.split(',');
+      query.modes = { $in: modeArray };
+    }
+
+    // 價格範圍篩選
+    if (priceRange && priceRange !== 'unlimited') {
+      const priceQuery = buildPriceQuery(priceRange);
+      if (Object.keys(priceQuery).length > 0) {
+        query['lessonDetails.pricePerLesson'] = priceQuery;
+      }
+    }
+
+    console.log('🔍 導師案例搜尋條件:', query);
+
+    // 計算分頁
+    const skip = (Number(page) - 1) * Number(limit);
+
+    // 執行查詢
+    const [cases, total] = await Promise.all([
+      TutorCase.find(query)
+        .sort({ [sortBy]: sortOrder === 'desc' ? -1 : 1 })
+        .skip(skip)
+        .limit(Number(limit)),
+      TutorCase.countDocuments(query)
+    ]);
+
+    // 格式化結果
+    const formattedCases = cases.map(caseItem => {
+      const caseObj = caseItem.toObject();
+      return {
+        id: caseObj.id || caseObj._id.toString(),
+        title: caseObj.title || `${caseObj.subject} 補習個案`,
+        subject: caseObj.subject || caseObj.subjects?.[0] || '未指定',
+        subjects: Array.isArray(caseObj.subjects) ? caseObj.subjects : [caseObj.subject].filter(Boolean),
+        region: caseObj.regions?.[0] || '未指定',
+        regions: Array.isArray(caseObj.regions) ? caseObj.regions : [caseObj.region].filter(Boolean),
+        mode: caseObj.mode || caseObj.modes?.[0] || '未指定',
+        modes: Array.isArray(caseObj.modes) ? caseObj.modes : [caseObj.mode].filter(Boolean),
+        experienceLevel: caseObj.experience || '未指定',
+        budget: caseObj.lessonDetails?.pricePerLesson ? 
+          `$${caseObj.lessonDetails.pricePerLesson}` : 
+          '待議',
+        lessonDetails: caseObj.lessonDetails,
+        createdAt: caseObj.createdAt,
+        avatarUrl: caseObj.avatarUrl,
+        category: caseObj.category,
+        subCategory: caseObj.subCategory,
+        status: caseObj.status,
+        featured: caseObj.featured
+      };
+    });
+
+    res.json({
+      success: true,
+      data: {
+        cases: formattedCases,
+        pagination: {
+          total,
+          page: Number(page),
+          limit: Number(limit),
+          totalPages: Math.ceil(total / Number(limit))
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ 搜尋導師案例時發生錯誤:', error);
+    res.status(500).json({
+      success: false,
+      message: '搜尋失敗',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getAllTutorCases,
   createTutorCase,
-  getTutorCaseById
+  getTutorCaseById,
+  searchTutorCases
 }; 

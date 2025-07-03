@@ -1,9 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { getAllTutorCases, createTutorCase, getTutorCaseById } = require('../controllers/tutorCaseController');
+const { getAllTutorCases, createTutorCase, getTutorCaseById, searchTutorCases } = require('../controllers/tutorCaseController');
 
 // GET all tutor cases
 router.get('/', getAllTutorCases);
+
+// 搜尋導師案例
+router.get('/search', searchTutorCases);
 
 // GET single tutor case
 router.get('/:id', getTutorCaseById);

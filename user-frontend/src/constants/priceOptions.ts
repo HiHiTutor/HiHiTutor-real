@@ -2,7 +2,7 @@ export interface PriceOption {
   value: string;
   label: string;
   min?: number;
-  max?: number;
+  max?: number | null;
 }
 
 export const PRICE_OPTIONS: PriceOption[] = [
@@ -11,8 +11,9 @@ export const PRICE_OPTIONS: PriceOption[] = [
     label: '不限'
   },
   { 
-    value: '100-or-below', 
+    value: '0-100', 
     label: 'HK$ 100 或以下',
+    min: 0,
     max: 100
   },
   { 
@@ -34,9 +35,10 @@ export const PRICE_OPTIONS: PriceOption[] = [
     max: 1000
   },
   { 
-    value: '1001-or-above', 
+    value: '1001+', 
     label: 'HK$ 1,001 或以上',
-    min: 1001
+    min: 1001,
+    max: null
   }
 ];
 
