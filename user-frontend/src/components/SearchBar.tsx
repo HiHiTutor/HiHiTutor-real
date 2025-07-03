@@ -14,19 +14,23 @@ const TABS = [
     key: "tutors",
     label: "導師列表",
     color: "yellow",
-    icon: "📁",
+    icon: "📘",
     route: "/tutors",
     bg: "bg-yellow-50",
     border: "border-yellow-300",
+    activeBg: "bg-yellow-100",
+    activeBorder: "border-yellow-400",
   },
   {
     key: "cases",
     label: "補習個案",
     color: "blue",
-    icon: "📁",
+    icon: "📄",
     route: "/find-student-cases",
     bg: "bg-blue-50",
     border: "border-blue-300",
+    activeBg: "bg-blue-100",
+    activeBorder: "border-blue-400",
   },
 ];
 
@@ -71,6 +75,7 @@ const SearchBar = () => {
     filters.subRegions.forEach((subRegion) => subRegion !== "unlimited" && params.append("subRegions", subRegion));
     if (filters.priceRange && filters.priceRange !== "unlimited") params.set("priceRange", filters.priceRange);
     if (filters.featured) params.set("featured", "true");
+    
     // 根據 active tab 決定導向頁面
     const tab = TABS.find((t) => t.key === activeTab);
     const url = tab ? tab.route : "/tutors";
@@ -106,7 +111,7 @@ const SearchBar = () => {
               key={tab.key}
               onClick={() => handleTabClick(tab.key)}
               className={`relative flex items-end px-8 pt-4 pb-2 border-x-0 border-t-0 border-b-0
-                ${isActive ? `${tab.border} bg-white z-20` : 'border-gray-200 bg-gray-100 z-10'}
+                ${isActive ? `${tab.activeBorder} ${tab.activeBg} z-20` : 'border-gray-200 bg-gray-100 z-10'}
                 transition-all duration-200
                 ${idx === 0 ? 'rounded-tl-[2.5rem]' : ''}
                 ${idx === TABS.length - 1 ? 'rounded-tr-[2.5rem]' : ''}
@@ -115,23 +120,35 @@ const SearchBar = () => {
               `}
               style={{
                 marginRight: idx !== TABS.length - 1 ? '-1.5rem' : 0,
-                boxShadow: isActive ? '0 6px 16px 0 rgba(0,0,0,0.10)' : '0 2px 6px 0 rgba(0,0,0,0.04)',
+                boxShadow: isActive 
+                  ? `0 8px 20px 0 rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.8)` 
+                  : '0 2px 6px 0 rgba(0,0,0,0.04)',
                 borderBottom: isActive ? 'none' : '4px solid #e5e7eb',
                 top: isActive ? 0 : 12,
                 minWidth: 120,
                 borderLeft: idx === 0 ? undefined : '2px solid #e5e7eb',
                 borderRight: idx === TABS.length - 1 ? undefined : '2px solid #e5e7eb',
+                transform: isActive ? 'translateY(0)' : 'translateY(2px)',
               }}
             >
               <span className="text-3xl mr-2 drop-shadow-sm">{tab.icon}</span>
-              <span className={`font-bold text-lg ${isActive ? (tab.color === 'yellow' ? 'text-yellow-600' : 'text-blue-600') : 'text-gray-400'}`}>{tab.label}</span>
-              {/* 左上突出 */}
-              {idx === 0 && (
-                <span className="absolute -top-3 -left-3 w-6 h-6 bg-white border-l-4 border-t-4 border-yellow-300 rounded-tl-2xl z-30" style={{boxShadow: isActive ? '0 0 0 2px #fde68a' : 'none'}}></span>
+              <span className={`font-bold text-lg ${isActive ? (tab.color === 'yellow' ? 'text-yellow-700' : 'text-blue-700') : 'text-gray-500'}`}>
+                {tab.label}
+              </span>
+              
+              {/* 左上突出角 - 只在第一個 tab 且 active 時顯示 */}
+              {idx === 0 && isActive && (
+                <div className="absolute -top-3 -left-3 w-6 h-6 bg-white border-l-4 border-t-4 border-yellow-400 rounded-tl-2xl z-30 shadow-[2px_2px_4px_0_rgba(0,0,0,0.1)]"></div>
               )}
-              {/* 右上突出 */}
-              {idx === TABS.length - 1 && (
-                <span className="absolute -top-3 -right-3 w-6 h-6 bg-white border-r-4 border-t-4 border-blue-300 rounded-tr-2xl z-30" style={{boxShadow: isActive ? '0 0 0 2px #93c5fd' : 'none'}}></span>
+              
+              {/* 右上突出角 - 只在最後一個 tab 且 active 時顯示 */}
+              {idx === TABS.length - 1 && isActive && (
+                <div className="absolute -top-3 -right-3 w-6 h-6 bg-white border-r-4 border-t-4 border-blue-400 rounded-tr-2xl z-30 shadow-[-2px_2px_4px_0_rgba(0,0,0,0.1)]"></div>
+              )}
+              
+              {/* 底部插入效果 - 只在 active tab 顯示 */}
+              {isActive && (
+                <div className={`absolute left-0 right-0 bottom-0 h-1 ${tab.activeBg} rounded-b-sm`}></div>
               )}
             </button>
           );
@@ -139,8 +156,9 @@ const SearchBar = () => {
         {/* 插入主體的底色 */}
         <div className={`absolute left-0 right-0 bottom-0 h-4 ${tabTheme?.bg} z-0 rounded-b-xl`}></div>
       </div>
+      
       {/* 搜尋欄主體 */}
-      <div className={`rounded-b-xl border ${borderClass} ${bgClass} p-6`}> 
+      <div className={`rounded-b-xl border ${borderClass} ${bgClass} p-6 shadow-lg`}> 
         <form onSubmit={handleFilter} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {/* 課程分類 */}
