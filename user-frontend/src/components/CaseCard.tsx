@@ -84,8 +84,18 @@ export default function CaseCard({ caseData, routeType = 'tutor', borderColor }:
     <div 
       className={`rounded-xl border ${borderColor || colorScheme.border} ${colorScheme.hover} p-4 transition-all cursor-pointer ${colorScheme.bg} max-sm:p-3 max-[700px]:p-4`}
       onClick={() => {
-        // 補習個案（學生發出的個案）應該指向 find-tutor-cases，因為導師點擊查看
-        const targetRoute = routeType === 'student' ? 'find-tutor-cases' : `find-${routeType}-cases`;
+        // 根據 routeType 決定目標路由
+        let targetRoute;
+        if (routeType === 'student') {
+          // 學生個案 → 導師查看詳情
+          targetRoute = 'find-tutor-cases';
+        } else if (routeType === 'tutor') {
+          // 導師個案 → 學生查看詳情
+          targetRoute = 'find-student-cases';
+        } else {
+          // 預設
+          targetRoute = 'find-tutor-cases';
+        }
         router.push(`/${targetRoute}/${caseData.id}`);
       }}
     >

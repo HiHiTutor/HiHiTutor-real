@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { fetchApi } from '@/services/api';
+import { fetchApi, caseApi } from '@/services/api';
 import CaseCard from '@/components/CaseCard';
 import TutorCard from '@/components/TutorCard';
 import { getSubjectName, getRegionName, getSubRegionName } from '@/utils/translate';
@@ -173,8 +173,16 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
         setLoading(true);
         console.log(`🔍 正在獲取${routeType === 'tutor' ? '導師' : '個案'}資料...`, { fetchUrl, queryParams });
         
-        // 使用 fetchApi 並傳遞查詢參數
-        const data = await fetchApi(fetchUrl, {}, queryParams);
+        // 根據 fetchUrl 和 routeType 決定使用哪個 API
+        let data;
+        if (fetchUrl === '/find-tutor-cases' && routeType === 'tutor') {
+          // 導師個案 → 使用 searchByTarget API
+          console.log('🎯 使用 searchByTarget API 獲取導師個案');
+          data = await caseApi.searchByTarget('find-tutor', queryParams);
+        } else {
+          // 其他情況 → 使用 fetchApi
+          data = await fetchApi(fetchUrl, {}, queryParams);
+        }
         console.log(`📦 成功獲取${routeType === 'tutor' ? '導師' : '個案'}資料：`, data);
         
         // 處理不同格式的回應

@@ -30,12 +30,12 @@ export default function FindTutorCasesPage() {
 
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold">📄 補習個案（學生出 Post）</h1>
+      <h1 className="text-xl font-bold">📄 補習個案（導師出 Post）</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
         {cases.length === 0 && <p>😢 暫時無個案</p>}
         {cases.map((c: any, index: number) => {
           console.log(`🧩 渲染個案 #${index}:`, c);
-          return <CaseCard key={c.id || index} caseData={c} routeType="student" />;
+          return <CaseCard key={c.id || index} caseData={c} routeType="tutor" />;
         })}
       </div>
     </div>

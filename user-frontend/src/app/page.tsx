@@ -206,7 +206,7 @@ function HomeContent() {
               borderColor="border-blue-200"
               bgColor="bg-blue-50"
               icon="📄"
-              routeType="student"
+              routeType="tutor"
               queryParams={{}}
             />
           </div>
