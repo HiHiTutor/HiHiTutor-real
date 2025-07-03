@@ -1,6 +1,7 @@
 import { formatDate } from '@/utils/date';
 import { getTeachingModeLabel } from '@/constants/teachingModeOptions';
 import REGION_OPTIONS from '@/constants/regionOptions';
+import SUBJECT_OPTIONS from '@/constants/subjectOptions';
 
 interface StudentCase {
   id: string;
@@ -52,9 +53,18 @@ function getRegionLabel(value: string) {
 }
 
 export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps) {
-  // 1. 科目顯示
+  // 1. 科目顯示（轉中文）
   const subjects = caseData.subjects || [];
-  const displaySubjects = subjects.slice(0, 3).join('、') + (subjects.length > 3 ? ' +' : '');
+  function getSubjectLabel(value: string) {
+    if (!value) return '';
+    // 先找主科目
+    for (const key in SUBJECT_OPTIONS) {
+      const found = SUBJECT_OPTIONS[key].find((s: any) => s.value === value);
+      if (found) return found.label;
+    }
+    return value;
+  }
+  const displaySubjects = subjects.slice(0, 3).map(getSubjectLabel).join('、') + (subjects.length > 3 ? ' +' : '');
 
   // 2. 模式顯示
   const modeMap: Record<string, string> = { 'unlimited': '皆可', 'in-person': '面授', 'online': '網課', '線上': '網課' };
@@ -75,7 +85,6 @@ export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps
       displayRegion = subRegions.slice(0, 3).map(r => getRegionLabel(r)).join('、');
       if (subRegions.length > 3) displayRegion += ' +';
     } else if (caseData.regions && caseData.regions.length > 0) {
-      // regions 只顯示最細的（如「九龍 > 黃大仙」就顯示「黃大仙」；如「九龍 > 不限」就顯示「九龍」）
       const regions = caseData.regions.filter(r => r !== 'all-hong-kong' && r !== 'unlimited');
       if (regions.length > 0) {
         displayRegion = regions.slice(0, 3).map(r => getRegionLabel(r)).join('、');
@@ -90,7 +99,7 @@ export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps
     }
   }
 
-  // 4. 每堂預算
+  // 4. 每堂預算（不換行）
   let displayBudget = '待議';
   if (typeof caseData.budget === 'number') {
     displayBudget = `HK$ ${caseData.budget}`;
@@ -99,9 +108,6 @@ export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps
   } else if (caseData.budget && typeof caseData.budget === 'object' && typeof caseData.budget.min === 'number') {
     displayBudget = `HK$ ${caseData.budget.min}`;
   }
-
-  // 處理經驗要求顯示
-  const displayExperience = caseData.experience || caseData.experienceLevel || caseData.requirement || '未指定';
 
   return (
     <div className="bg-white rounded-2xl shadow-md p-4 border border-blue-200 hover:shadow-lg hover:border-blue-300 transition-all max-sm:p-3 max-[700px]:p-4 bg-gradient-to-br from-white to-blue-50">
@@ -133,11 +139,7 @@ export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps
         </div>
         <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
           <span className="w-16 text-blue-600 font-medium">每堂預算：</span>
-          <span className="font-semibold text-blue-900">{displayBudget}</span>
-        </div>
-        <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
-          <span className="w-16 text-blue-600 font-medium">經驗：</span>
-          <span>{displayExperience}</span>
+          <span className="font-semibold text-blue-900 whitespace-nowrap">{displayBudget}</span>
         </div>
       </div>
       <div className="mt-4 text-xs text-right text-blue-500 max-sm:mt-3 max-[700px]:mt-4 border-t border-blue-100 pt-2">
