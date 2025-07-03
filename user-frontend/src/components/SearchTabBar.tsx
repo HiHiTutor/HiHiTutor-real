@@ -51,12 +51,7 @@ const SearchTabBar: React.FC<SearchTabBarProps> = ({ onTabChange, currentTarget,
     if (onTabChange) {
       onTabChange(target);
     }
-    // 無論有無 onTabChange，都要導航到正確路徑
-    if (target === 'tutors') {
-      router.push('/tutors');
-    } else if (target === 'cases') {
-      router.push('/find-student-cases');
-    }
+    // 不做 router.push，單純切換 active tab
   };
 
   return (
@@ -114,4 +109,4 @@ const SearchTabBar: React.FC<SearchTabBarProps> = ({ onTabChange, currentTarget,
   );
 };
 
-export default SearchTabBar; 
+export default SearchTabBar;
