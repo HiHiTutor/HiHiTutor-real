@@ -62,11 +62,18 @@ const SearchTabBar: React.FC<SearchTabBarProps> = ({ onTabChange, currentTarget,
           <button
             key={tab.key}
             onClick={() => handleTabClick(tab.key)}
-            className={`relative flex items-end px-4 sm:px-6 md:px-8 pt-2 sm:pt-3 md:pt-4 pb-1 sm:pb-2 border-x-0 border-t-0 border-b-0
+            className={`
+              relative flex items-end
+              min-w-[80px] max-w-[110px]
+              sm:min-w-[120px] sm:max-w-[160px]
+              lg:min-w-[180px] lg:max-w-[240px]
+              px-4 sm:px-6 lg:px-8
+              pt-2 sm:pt-3 lg:pt-4
+              pb-1 sm:pb-2
               ${isActive ? `${tab.activeBorder} ${tab.activeBg} z-20` : 'border-gray-200 bg-gray-100 z-10'}
               transition-all duration-200
-              ${idx === 0 ? 'rounded-tl-[1.5rem] sm:rounded-tl-[2rem] md:rounded-tl-[2.5rem]' : ''}
-              ${idx === TABS.length - 1 ? 'rounded-tr-[1.5rem] sm:rounded-tr-[2rem] md:rounded-tr-[2.5rem]' : ''}
+              ${idx === 0 ? 'rounded-tl-[1.5rem] sm:rounded-tl-[2rem] lg:rounded-tl-[2.5rem]' : ''}
+              ${idx === TABS.length - 1 ? 'rounded-tr-[1.5rem] sm:rounded-tr-[2rem] lg:rounded-tr-[2.5rem]' : ''}
               shadow-[0_4px_12px_0_rgba(0,0,0,0.06)]
               folder-tab
             `}
@@ -77,15 +84,13 @@ const SearchTabBar: React.FC<SearchTabBarProps> = ({ onTabChange, currentTarget,
                 : '0 2px 6px 0 rgba(0,0,0,0.04)',
               borderBottom: isActive ? 'none' : '4px solid #e5e7eb',
               top: isActive ? 0 : 12,
-              minWidth: '80px',
-              maxWidth: '120px',
               borderLeft: idx === 0 ? undefined : '2px solid #e5e7eb',
               borderRight: idx === TABS.length - 1 ? undefined : '2px solid #e5e7eb',
               transform: isActive ? 'translateY(0)' : 'translateY(2px)',
             }}
           >
-            <span className="text-xl sm:text-2xl md:text-3xl mr-1 sm:mr-2 drop-shadow-sm">{tab.icon}</span>
-            <span className={`font-bold text-xs sm:text-sm md:text-lg whitespace-nowrap ${isActive ? (tab.color === 'yellow' ? 'text-yellow-700' : 'text-blue-700') : 'text-gray-500'}`}>
+            <span className="text-lg sm:text-2xl lg:text-3xl mr-1 sm:mr-2 drop-shadow-sm">{tab.icon}</span>
+            <span className={`font-bold text-xs sm:text-base lg:text-lg whitespace-nowrap ${isActive ? (tab.color === 'yellow' ? 'text-yellow-700' : 'text-blue-700') : 'text-gray-500'}`}>
               {tab.label}
             </span>
             
