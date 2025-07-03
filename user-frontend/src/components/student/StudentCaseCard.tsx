@@ -8,6 +8,7 @@ interface StudentCase {
   title?: string;
   region?: string;
   regions?: string[];
+  subRegions?: string[];
   mode?: string;
   modes?: string[];
   experience?: string;

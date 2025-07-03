@@ -10,6 +10,7 @@ export interface IStudentCase extends Document {
   category: string;
   subCategory: string;
   region: string;
+  subRegions?: string[];
   priceRange: string;
   featured: boolean;
   createdAt: Date;

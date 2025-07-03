@@ -30,6 +30,7 @@ interface StudentCase {
   id: string;
   title?: string;
   region: string;
+  subRegions?: string[];
   mode: string;
   experience: string;
   budget: {
