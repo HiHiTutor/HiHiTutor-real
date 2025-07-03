@@ -1,6 +1,11 @@
 // 教學模式選項
 export const TEACHING_MODE_OPTIONS = [
   { 
+    value: 'unlimited', 
+    label: '不限',
+    subCategories: []
+  },
+  { 
     value: 'in-person', 
     label: '面授',
     subCategories: [
@@ -19,6 +24,7 @@ export const TEACHING_MODE_OPTIONS = [
 // 教學模式映射（用於轉換不同格式）
 export const TEACHING_MODE_MAP: { [key: string]: string } = {
   // 英文到中文
+  'unlimited': '不限',
   'online': '網課',
   'in-person': '面授',
   'one-on-one': '一對一',
@@ -26,6 +32,7 @@ export const TEACHING_MODE_MAP: { [key: string]: string } = {
   'large-center': '大型補習社',
   
   // 中文到英文
+  '不限': 'unlimited',
   '網課': 'online',
   '網上': 'online',
   '面授': 'in-person',
