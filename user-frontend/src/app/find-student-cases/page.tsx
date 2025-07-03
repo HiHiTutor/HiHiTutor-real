@@ -64,10 +64,10 @@ function FindStudentCasesPageContent() {
     const fetchAllCases = async () => {
       try {
         setLoading(true);
-        console.log("🔍 正在獲取學生個案資料...");
+        console.log("🔍 正在獲取補習個案資料...");
         
         const result = await caseApi.searchByTarget('find-student');
-        console.log("📦 成功獲取學生個案：", result);
+        console.log("📦 成功獲取補習個案：", result);
         
         // 處理回應數據
         const casesData = Array.isArray(result) ? result : (result.success && result.data && result.data.cases ? result.data.cases : []);
@@ -76,7 +76,7 @@ function FindStudentCasesPageContent() {
         setAllCases(casesData);
         console.log("✅ 已保存個案資料到 allCases，數量：", casesData.length);
       } catch (error) {
-        console.error('❌ 獲取學生個案時發生錯誤：', error);
+        console.error('❌ 獲取補習個案時發生錯誤：', error);
         setAllCases([]);
       } finally {
         setLoading(false);
@@ -233,7 +233,7 @@ function FindStudentCasesPageContent() {
           <span className="text-2xl text-white">📄</span>
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-blue-900 border-l-4 border-blue-500 pl-4">學生個案</h1>
+          <h1 className="text-3xl font-bold text-blue-900 border-l-4 border-blue-500 pl-4">補習個案</h1>
           <p className="text-blue-600 mt-1">尋找適合的補習個案</p>
         </div>
       </div>
