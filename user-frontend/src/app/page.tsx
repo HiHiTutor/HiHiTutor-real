@@ -201,12 +201,12 @@ function HomeContent() {
           <div className="relative px-4 sm:px-6 lg:px-8">
             <CaseSection 
               title="補習個案"
-              fetchUrl="/find-tutor-cases"
+              fetchUrl="/find-student-cases"
               linkUrl="/find-tutor-cases"
               borderColor="border-blue-200"
               bgColor="bg-blue-50"
               icon="📄"
-              routeType="tutor"
+              routeType="student"
               queryParams={{}}
             />
           </div>
