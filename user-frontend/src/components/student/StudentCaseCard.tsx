@@ -54,8 +54,14 @@ function getRegionLabel(value: string) {
 }
 
 export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps) {
-  // 1. 科目顯示（轉中文）
-  const subjects = caseData.subjects || [];
+  // 1. 科目顯示（合併所有可能欄位並去重）
+  const allSubjects = [
+    ...(Array.isArray(caseData.subjects) ? caseData.subjects : []),
+    ...(caseData.subject ? [caseData.subject] : []),
+    ...(caseData.category ? [caseData.category] : []),
+    ...(caseData.subCategory ? [caseData.subCategory] : []),
+  ];
+  const uniqueSubjects = Array.from(new Set(allSubjects));
   function getSubjectLabel(value: string) {
     if (!value) return '';
     for (const key in SUBJECT_OPTIONS) {
@@ -67,7 +73,7 @@ export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps
     }
     return value;
   }
-  const displaySubjects = subjects.slice(0, 3).map(getSubjectLabel).join('、') + (subjects.length > 3 ? ' +' : '');
+  const displaySubjects = uniqueSubjects.slice(0, 3).map(getSubjectLabel).join('、') + (uniqueSubjects.length > 3 ? ' +' : '');
 
   // 2. 模式顯示
   const modeMap: Record<string, string> = { 'unlimited': '皆可', 'in-person': '面授', 'online': '網課', '線上': '網課' };
@@ -113,7 +119,7 @@ export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps
   }
 
   return (
-    <Link href={`/find-student-cases/${caseData.id || caseData._id}`}
+    <Link href={`/find-student-cases/${caseData.id}`}
       className="block group" prefetch={false} scroll={true}>
       <div className="bg-white rounded-2xl shadow-md p-4 border border-blue-200 hover:shadow-lg hover:border-blue-300 transition-all max-sm:p-3 max-[700px]:p-4 bg-gradient-to-br from-white to-blue-50 group-hover:ring-2 group-hover:ring-blue-300 cursor-pointer">
         <div className="flex items-center justify-between mb-3">
