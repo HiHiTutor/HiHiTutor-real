@@ -81,6 +81,14 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
         bg: 'bg-yellow-50',
         button: 'bg-yellow-500 hover:bg-yellow-600'
       };
+    } else if (pathname === '/find-student-cases') {
+      // 找學生案例頁：黃色主題（顯示導師）
+      return {
+        text: 'text-yellow-700',
+        border: 'border-yellow-200',
+        bg: 'bg-yellow-50',
+        button: 'bg-yellow-500 hover:bg-yellow-600'
+      };
     } else if (pathname === '/find-tutor-cases') {
       // 個案頁：保持藍色主題
       return {
