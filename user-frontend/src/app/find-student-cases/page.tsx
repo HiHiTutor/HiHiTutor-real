@@ -72,7 +72,12 @@ function FindStudentCasesPageContent() {
         
         const result = await tutorApi.getAllTutors();
         console.log("📦 成功獲取導師：", result);
-        const sorted = (result.data?.tutors || result.tutors || []).sort((a: any, b: any) => {
+        
+        // 正確處理後端返回的數據結構
+        const tutorsData = result.data?.tutors || result.tutors || [];
+        console.log("📊 導師數據：", tutorsData);
+        
+        const sorted = tutorsData.sort((a: any, b: any) => {
           // 優先顯示 VIP 和 Top 導師
           if (a.isVip && !b.isVip) return -1;
           if (!a.isVip && b.isVip) return 1;
@@ -80,8 +85,10 @@ function FindStudentCasesPageContent() {
           if (!a.isTop && b.isTop) return 1;
           return 0;
         });
+        
+        console.log("📊 排序後的導師：", sorted.map(t => ({ name: t.name, tutorId: t.tutorId, subjects: t.subjects })));
         setAllTutors(sorted);
-        console.log("✅ 已保存導師資料到 allTutors");
+        console.log("✅ 已保存導師資料到 allTutors，數量：", sorted.length);
       } catch (error) {
         console.error('❌ 獲取導師時發生錯誤：', error);
         setAllTutors([]);
@@ -98,6 +105,8 @@ function FindStudentCasesPageContent() {
     if (allTutors.length === 0) return;
 
     console.log("🔍 URL 參數改變，開始過濾導師資料");
+    console.log("📊 總導師數量：", allTutors.length);
+    
     // 從 URL 獲取搜尋參數
     const search = searchParams.get('search');
     const category = searchParams.get('category');
@@ -119,10 +128,16 @@ function FindStudentCasesPageContent() {
 
     // 從 allTutors 過濾
     const filtered = allTutors.filter(tutor => {
-      console.log("檢查導師：", tutor);
+      console.log("檢查導師：", {
+        name: tutor.name,
+        tutorId: tutor.tutorId,
+        subjects: tutor.subjects,
+        regions: tutor.regions,
+        modes: tutor.modes
+      });
 
       // 搜尋過濾
-      if (search) {
+      if (search && search.trim()) {
         const searchLower = search.toLowerCase();
         const matchesSearch = 
           tutor.name?.toLowerCase().includes(searchLower) ||
@@ -133,13 +148,13 @@ function FindStudentCasesPageContent() {
           String(tutor.introduction || '').toLowerCase().includes(searchLower);
         
         if (!matchesSearch) {
-          console.log("❌ 不符合搜尋條件：", { search, tutor });
+          console.log("❌ 不符合搜尋條件：", { search, tutor: tutor.name });
           return false;
         }
       }
 
       // 分類和科目篩選
-      if (category) {
+      if (category && category.trim()) {
         const categoryOption = CATEGORY_OPTIONS.find(c => c.value === category);
         if (!categoryOption) {
           console.log("❌ 找不到對應分類：", { category });
@@ -150,6 +165,7 @@ function FindStudentCasesPageContent() {
         const tutorSubjects = Array.isArray(tutor.subjects) ? tutor.subjects.map(s => String(s).toLowerCase()) : [];
         
         console.log("🔍 檢查分類：", {
+          tutorName: tutor.name,
           tutorSubjects,
           filterCategory: category,
           filterSubCategory: subCategory
@@ -166,31 +182,35 @@ function FindStudentCasesPageContent() {
 
         if (!hasCategorySubject) {
           console.log("❌ 導師沒有該分類的科目：", { 
+            tutorName: tutor.name,
             tutorSubjects,
             filterCategory: category 
           });
           return false;
         } else {
           console.log("✅ 導師有該分類的科目：", {
+            tutorName: tutor.name,
             tutorSubjects,
             category
           });
         }
 
         // 如果指定了子分類（科目）
-        if (subCategory) {
+        if (subCategory && subCategory.trim()) {
           const subCategoryStr = typeof subCategory === 'string' ? subCategory : 
                                Array.isArray(subCategory) ? subCategory[0] : '';
           const matchesSubject = tutorSubjects.some(s => s === subCategoryStr);
 
           if (!matchesSubject) {
             console.log("❌ 科目不匹配：", { 
+              tutorName: tutor.name,
               subjects: tutorSubjects,
               subCategory: subCategoryStr
             });
             return false;
           } else {
             console.log("✅ 科目匹配：", {
+              tutorName: tutor.name,
               subjects: tutorSubjects,
               subCategory: subCategoryStr
             });
@@ -210,6 +230,7 @@ function FindStudentCasesPageContent() {
         
         if (!hasMatchingSubject) {
           console.log("❌ 導師沒有匹配的科目：", { 
+            tutorName: tutor.name,
             tutorSubjects, 
             filterSubjects
           });
@@ -218,39 +239,39 @@ function FindStudentCasesPageContent() {
       }
       
       // 地區篩選
-      if (region) {
+      if (region && region.trim()) {
         const tutorRegions = Array.isArray(tutor.regions) 
           ? tutor.regions.map(r => String(r).toLowerCase())
           : [];
         const filterRegion = region.toLowerCase();
         
         if (!tutorRegions.some(r => r.includes(filterRegion))) {
-          console.log("❌ 地區不匹配：", { tutorRegions, filterRegion });
+          console.log("❌ 地區不匹配：", { tutorName: tutor.name, tutorRegions, filterRegion });
           return false;
         }
       }
       
       // 教學模式篩選
-      if (mode) {
+      if (mode && mode.trim()) {
         const tutorModes = Array.isArray(tutor.modes)
           ? tutor.modes.map(m => String(m).toLowerCase())
           : [];
         const filterMode = mode.toLowerCase();
         
         if (!tutorModes.some(m => m.includes(filterMode))) {
-          console.log("❌ 教學模式不匹配：", { tutorModes, filterMode });
+          console.log("❌ 教學模式不匹配：", { tutorName: tutor.name, tutorModes, filterMode });
           return false;
         }
       }
 
-      console.log("✅ 導師符合所有條件");
+      console.log("✅ 導師符合所有條件：", tutor.name);
       return true;
     });
 
     console.log("🔍 過濾後結果：", {
       totalTutors: allTutors.length,
       filteredCount: filtered.length,
-      filteredTutors: filtered
+      filteredTutors: filtered.map(t => ({ name: t.name, tutorId: t.tutorId }))
     });
 
     // 更新顯示的導師
