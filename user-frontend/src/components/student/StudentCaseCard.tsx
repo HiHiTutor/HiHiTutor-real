@@ -2,6 +2,7 @@ import { formatDate } from '@/utils/date';
 import { getTeachingModeLabel } from '@/constants/teachingModeOptions';
 import REGION_OPTIONS from '@/constants/regionOptions';
 import SUBJECT_OPTIONS from '@/constants/subjectOptions';
+import Link from 'next/link';
 
 interface StudentCase {
   id: string;
@@ -110,41 +111,44 @@ export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-md p-4 border border-blue-200 hover:shadow-lg hover:border-blue-300 transition-all max-sm:p-3 max-[700px]:p-4 bg-gradient-to-br from-white to-blue-50">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg font-semibold text-blue-900 max-sm:text-base max-[700px]:text-lg">
-          {caseData.title || '未命名個案'}
-        </h3>
-        <div className="flex gap-1">
-          {caseData.featured && (
-            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">推薦</span>
-          )}
-          {caseData.isVip && (
-            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">VIP</span>
-          )}
+    <Link href={`/find-student-cases/${caseData.id || caseData._id}`}
+      className="block group" prefetch={false} scroll={true}>
+      <div className="bg-white rounded-2xl shadow-md p-4 border border-blue-200 hover:shadow-lg hover:border-blue-300 transition-all max-sm:p-3 max-[700px]:p-4 bg-gradient-to-br from-white to-blue-50 group-hover:ring-2 group-hover:ring-blue-300 cursor-pointer">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-lg font-semibold text-blue-900 max-sm:text-base max-[700px]:text-lg">
+            {caseData.title || '未命名個案'}
+          </h3>
+          <div className="flex gap-1">
+            {caseData.featured && (
+              <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">推薦</span>
+            )}
+            {caseData.isVip && (
+              <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">VIP</span>
+            )}
+          </div>
+        </div>
+        <div className="space-y-2">
+          <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
+            <span className="w-16 text-blue-600 font-medium">科目：</span>
+            <span>{displaySubjects || '未指定'}</span>
+          </div>
+          <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
+            <span className="w-16 text-blue-600 font-medium">模式：</span>
+            <span>{displayMode}</span>
+          </div>
+          <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
+            <span className="w-16 text-blue-600 font-medium">地點：</span>
+            <span>{displayRegion}</span>
+          </div>
+          <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
+            <span className="w-16 text-blue-600 font-medium">每堂預算：</span>
+            <span className="font-semibold text-blue-900 whitespace-nowrap">{displayBudget}</span>
+          </div>
+        </div>
+        <div className="mt-4 text-xs text-right text-blue-500 max-sm:mt-3 max-[700px]:mt-4 border-t border-blue-100 pt-2">
+          發佈於：{formatDate(caseData.createdAt)}
         </div>
       </div>
-      <div className="space-y-2">
-        <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
-          <span className="w-16 text-blue-600 font-medium">科目：</span>
-          <span>{displaySubjects || '未指定'}</span>
-        </div>
-        <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
-          <span className="w-16 text-blue-600 font-medium">模式：</span>
-          <span>{displayMode}</span>
-        </div>
-        <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
-          <span className="w-16 text-blue-600 font-medium">地點：</span>
-          <span>{displayRegion}</span>
-        </div>
-        <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
-          <span className="w-16 text-blue-600 font-medium">每堂預算：</span>
-          <span className="font-semibold text-blue-900 whitespace-nowrap">{displayBudget}</span>
-        </div>
-      </div>
-      <div className="mt-4 text-xs text-right text-blue-500 max-sm:mt-3 max-[700px]:mt-4 border-t border-blue-100 pt-2">
-        發佈於：{formatDate(caseData.createdAt)}
-      </div>
-    </div>
+    </Link>
   );
 } 
