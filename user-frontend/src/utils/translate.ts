@@ -165,7 +165,7 @@ export function getSubjectName(subject: string): string {
   
   // 檢查是否包含這些關鍵字
   for (const [key, value] of Object.entries(fallbackMap)) {
-    if (subject.toLowerCase().includes(key)) {
+    if (typeof subject === 'string' && subject.toLowerCase().includes(key)) {
       return value;
     }
   }
