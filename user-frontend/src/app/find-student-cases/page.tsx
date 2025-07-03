@@ -149,7 +149,11 @@ function FindStudentCasesPageContent() {
       }
       
       // 教學模式篩選
-      if (modes && modes.length > 0) {
+      if (
+        modes &&
+        modes.length > 0 &&
+        !(modes.length === 1 && modes[0] === 'unlimited')
+      ) {
         const caseModes = Array.isArray(caseItem.modes) ? caseItem.modes.filter((m: any) => typeof m === 'string').map((m: string) => m.toLowerCase()) : [];
         const filterModes = Array.isArray(modes) ? modes.filter((m: any) => typeof m === 'string').map((m: string) => m.toLowerCase()) : [];
         const hasMatchingMode = caseModes.some((caseMode: string) => 
