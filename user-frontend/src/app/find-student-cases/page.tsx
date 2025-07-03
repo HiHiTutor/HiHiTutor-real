@@ -64,10 +64,10 @@ function FindStudentCasesPageContent() {
     const fetchAllCases = async () => {
       try {
         setLoading(true);
-        console.log("🔍 正在獲取導師個案資料...");
+        console.log("🔍 正在獲取學生個案資料...");
         
-        const result = await caseApi.searchByTarget('find-tutor');
-        console.log("📦 成功獲取導師個案：", result);
+        const result = await caseApi.searchByTarget('find-student');
+        console.log("📦 成功獲取學生個案：", result);
         
         // 處理回應數據
         const casesData = Array.isArray(result) ? result : (result.success && result.data && result.data.cases ? result.data.cases : []);
@@ -76,7 +76,7 @@ function FindStudentCasesPageContent() {
         setAllCases(casesData);
         console.log("✅ 已保存個案資料到 allCases，數量：", casesData.length);
       } catch (error) {
-        console.error('❌ 獲取導師個案時發生錯誤：', error);
+        console.error('❌ 獲取學生個案時發生錯誤：', error);
         setAllCases([]);
       } finally {
         setLoading(false);
@@ -230,7 +230,7 @@ function FindStudentCasesPageContent() {
     <div className="max-w-7xl mx-auto px-4 md:px-12 py-8">
       <div className="flex items-center gap-2 mb-6">
         <span className="text-2xl">📄</span>
-        <h1 className="text-2xl font-bold border-l-4 border-blue-400 pl-3">導師個案</h1>
+        <h1 className="text-2xl font-bold border-l-4 border-blue-400 pl-3">學生個案</h1>
       </div>
 
       <div className="bg-blue-50 rounded-xl p-6 mb-8">
