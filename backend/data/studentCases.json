@@ -777,5 +777,110 @@
     "experience": "3年教學經驗",
     "featured": false,
     "createdAt": "2025-07-11T18:00:00.000Z"
+  },
+  {
+    "id": "early_001",
+    "tutorId": "tutor_early_001",
+    "title": "幼兒數學啟蒙班",
+    "description": "適合3-6歲幼兒，通過遊戲和互動方式學習基礎數學概念，培養邏輯思維能力。",
+    "category": "early-childhood",
+    "subCategory": "math",
+    "subjects": [
+      "early-childhood-math"
+    ],
+    "region": "kowloon",
+    "subRegion": "mong-kok",
+    "mode": "in-person",
+    "budget": {
+      "min": 200,
+      "max": 300
+    },
+    "experience": "3年幼兒數學教學經驗",
+    "featured": true,
+    "createdAt": "2025-01-15T10:00:00.000Z"
+  },
+  {
+    "id": "early_002",
+    "tutorId": "tutor_early_002",
+    "title": "幼兒中文識字班",
+    "description": "專為4-6歲幼兒設計，通過故事和遊戲學習中文識字，提升語言表達能力。",
+    "category": "early-childhood",
+    "subCategory": "chinese",
+    "subjects": [
+      "early-childhood-chinese"
+    ],
+    "region": "hong-kong-island",
+    "subRegion": "causeway-bay",
+    "mode": "both",
+    "budget": {
+      "min": 250,
+      "max": 350
+    },
+    "experience": "5年幼兒中文教學經驗",
+    "featured": true,
+    "createdAt": "2025-01-16T11:00:00.000Z"
+  },
+  {
+    "id": "early_003",
+    "tutorId": "tutor_early_003",
+    "title": "幼兒英文啟蒙班",
+    "description": "適合3-5歲幼兒，通過歌曲、遊戲和互動活動學習基礎英文，培養英語語感。",
+    "category": "early-childhood",
+    "subCategory": "english",
+    "subjects": [
+      "early-childhood-english"
+    ],
+    "region": "new-territories",
+    "subRegion": "sha-tin",
+    "mode": "online",
+    "budget": {
+      "min": 180,
+      "max": 280
+    },
+    "experience": "4年幼兒英文教學經驗",
+    "featured": false,
+    "createdAt": "2025-01-17T12:00:00.000Z"
+  },
+  {
+    "id": "early_004",
+    "tutorId": "tutor_early_004",
+    "title": "幼兒拼音學習班",
+    "description": "專為5-6歲幼兒設計，系統學習拼音和注音，為小學學習打好基礎。",
+    "category": "early-childhood",
+    "subCategory": "phonics",
+    "subjects": [
+      "early-childhood-phonics"
+    ],
+    "region": "kowloon",
+    "subRegion": "jordan",
+    "mode": "in-person",
+    "budget": {
+      "min": 220,
+      "max": 320
+    },
+    "experience": "6年幼兒拼音教學經驗",
+    "featured": false,
+    "createdAt": "2025-01-18T13:00:00.000Z"
+  },
+  {
+    "id": "early_005",
+    "tutorId": "tutor_early_005",
+    "title": "幼兒邏輯思維訓練",
+    "description": "適合4-6歲幼兒，通過益智遊戲和邏輯題目訓練思維能力，提升解決問題的能力。",
+    "category": "early-childhood",
+    "subCategory": "logic",
+    "subjects": [
+      "early-childhood-logic"
+    ],
+    "region": "hong-kong-island",
+    "subRegion": "wan-chai",
+    "mode": "both",
+    "budget": {
+      "min": 200,
+      "max": 300
+    },
+    "experience": "3年幼兒邏輯訓練經驗",
+    "featured": false,
+    "createdAt": "2025-01-19T14:00:00.000Z"
   }
 ]
