@@ -211,7 +211,7 @@ router.get('/', async (req, res) => {
   console.log('📥 Received request to /api/find-student-cases');
   
   try {
-    const { featured, limit, search, category, subCategory, region } = req.query;
+    const { featured, limit, search, category, subCategory, region, regions, modes } = req.query;
     
     // 構建查詢條件
     const query = {};
@@ -235,10 +235,19 @@ router.get('/', async (req, res) => {
     }
 
     // 如果有地區篩選
-    if (region) {
+    if (region || regions) {
+      const regionValue = region || regions;
       query.$or = [
-        { region: region },
-        { regions: region }
+        { region: regionValue },
+        { regions: regionValue }
+      ];
+    }
+
+    // 如果有教學模式篩選
+    if (modes) {
+      query.$or = [
+        { mode: modes },
+        { modes: modes }
       ];
     }
 

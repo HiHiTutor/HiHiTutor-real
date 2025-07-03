@@ -283,13 +283,13 @@ export const caseApi = {
     console.log('🔍 searchByTarget 被調用:', { target, params });
     
     if (target === 'find-student') {
-      // 學生搵導師 → 調用學生個案搜尋 API
-      console.log('🎯 目標是 find-student，調用學生個案搜尋 API');
-      return fetchApi('/find-student-cases/search', {}, params);
+      // 學生搵導師 → 調用學生個案 API
+      console.log('🎯 目標是 find-student，調用學生個案 API');
+      return fetchApi('/find-student-cases', {}, params);
     } else if (target === 'find-tutor') {
-      // 導師搵學生 → 調用導師個案搜尋 API
-      console.log('🎯 目標是 find-tutor，調用導師個案搜尋 API');
-      return fetchApi('/tutor-cases/search', {}, params);
+      // 導師搵學生 → 調用導師個案 API
+      console.log('🎯 目標是 find-tutor，調用導師個案 API');
+      return fetchApi('/tutor-cases', {}, params);
     } else {
       // 預設調用導師 API
       console.log('🎯 預設調用導師 API');
