@@ -225,18 +225,21 @@ router.get('/', async (req, res) => {
     }
 
     // 如果有類別篩選
-    if (category) {
+    if (category && category !== 'unlimited') {
       query.category = category;
     }
 
     // 如果有子類別篩選
-    if (subCategory) {
+    if (subCategory && subCategory !== 'unlimited') {
       query.subCategory = subCategory;
     }
 
     // 如果有地區篩選
-    if (region || regions) {
-      const regionValue = region || regions;
+    if (
+      (region && region !== 'unlimited') ||
+      (regions && regions !== 'unlimited')
+    ) {
+      const regionValue = region !== 'unlimited' ? region : regions;
       query.$or = [
         { region: regionValue },
         { regions: regionValue }
@@ -244,7 +247,7 @@ router.get('/', async (req, res) => {
     }
 
     // 如果有教學模式篩選
-    if (modes) {
+    if (modes && modes !== 'unlimited') {
       query.$or = [
         { mode: modes },
         { modes: modes }
