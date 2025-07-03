@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 interface SearchTabBarProps {
   onTabChange?: (target: string) => void;
   currentTarget?: string;
+  className?: string;
 }
 
 const TABS = [
@@ -33,7 +34,7 @@ const TABS = [
   },
 ];
 
-const SearchTabBar: React.FC<SearchTabBarProps> = ({ onTabChange, currentTarget }) => {
+const SearchTabBar: React.FC<SearchTabBarProps> = ({ onTabChange, currentTarget, className = "" }) => {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -56,66 +57,57 @@ const SearchTabBar: React.FC<SearchTabBarProps> = ({ onTabChange, currentTarget 
     }
   };
 
-  // UI 顏色
-  const tabTheme = TABS.find((t) => t.key === activeTarget);
-  const bgClass = tabTheme ? tabTheme.bg : "bg-yellow-50";
-
   return (
-    <div className="flex justify-center mb-6">
-      {/* 文件夾 tabs */}
-      <div className="flex gap-0 relative">
-        {TABS.map((tab, idx) => {
-          const isActive = activeTarget === tab.key;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => handleTabClick(tab.key)}
-              className={`relative flex items-end px-8 pt-4 pb-2 border-x-0 border-t-0 border-b-0
-                ${isActive ? `${tab.activeBorder} ${tab.activeBg} z-20` : 'border-gray-200 bg-gray-100 z-10'}
-                transition-all duration-200
-                ${idx === 0 ? 'rounded-tl-[2.5rem]' : ''}
-                ${idx === TABS.length - 1 ? 'rounded-tr-[2.5rem]' : ''}
-                shadow-[0_4px_12px_0_rgba(0,0,0,0.06)]
-                folder-tab
-              `}
-              style={{
-                marginRight: idx !== TABS.length - 1 ? '-1.5rem' : 0,
-                boxShadow: isActive 
-                  ? `0 8px 20px 0 rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.8)` 
-                  : '0 2px 6px 0 rgba(0,0,0,0.04)',
-                borderBottom: isActive ? 'none' : '4px solid #e5e7eb',
-                top: isActive ? 0 : 12,
-                minWidth: 120,
-                borderLeft: idx === 0 ? undefined : '2px solid #e5e7eb',
-                borderRight: idx === TABS.length - 1 ? undefined : '2px solid #e5e7eb',
-                transform: isActive ? 'translateY(0)' : 'translateY(2px)',
-              }}
-            >
-              <span className="text-3xl mr-2 drop-shadow-sm">{tab.icon}</span>
-              <span className={`font-bold text-lg ${isActive ? (tab.color === 'yellow' ? 'text-yellow-700' : 'text-blue-700') : 'text-gray-500'}`}>
-                {tab.label}
-              </span>
-              
-              {/* 左上突出角 - 只在第一個 tab 且 active 時顯示 */}
-              {idx === 0 && isActive && (
-                <div className="absolute -top-3 -left-3 w-6 h-6 bg-white border-l-4 border-t-4 border-yellow-400 rounded-tl-2xl z-30 shadow-[2px_2px_4px_0_rgba(0,0,0,0.1)]"></div>
-              )}
-              
-              {/* 右上突出角 - 只在最後一個 tab 且 active 時顯示 */}
-              {idx === TABS.length - 1 && isActive && (
-                <div className="absolute -top-3 -right-3 w-6 h-6 bg-white border-r-4 border-t-4 border-blue-400 rounded-tr-2xl z-30 shadow-[-2px_2px_4px_0_rgba(0,0,0,0.1)]"></div>
-              )}
-              
-              {/* 底部插入效果 - 只在 active tab 顯示 */}
-              {isActive && (
-                <div className={`absolute left-0 right-0 bottom-0 h-1 ${tab.activeBg} rounded-b-sm`}></div>
-              )}
-            </button>
-          );
-        })}
-        {/* 插入主體的底色 */}
-        <div className={`absolute left-0 right-0 bottom-0 h-4 ${bgClass} z-0 rounded-b-xl`}></div>
-      </div>
+    <div className={`flex gap-0 relative ${className}`}>
+      {TABS.map((tab, idx) => {
+        const isActive = activeTarget === tab.key;
+        return (
+          <button
+            key={tab.key}
+            onClick={() => handleTabClick(tab.key)}
+            className={`relative flex items-end px-8 pt-4 pb-2 border-x-0 border-t-0 border-b-0
+              ${isActive ? `${tab.activeBorder} ${tab.activeBg} z-20` : 'border-gray-200 bg-gray-100 z-10'}
+              transition-all duration-200
+              ${idx === 0 ? 'rounded-tl-[2.5rem]' : ''}
+              ${idx === TABS.length - 1 ? 'rounded-tr-[2.5rem]' : ''}
+              shadow-[0_4px_12px_0_rgba(0,0,0,0.06)]
+              folder-tab
+            `}
+            style={{
+              marginRight: idx !== TABS.length - 1 ? '-1.5rem' : 0,
+              boxShadow: isActive 
+                ? `0 6px 16px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.8)` 
+                : '0 2px 6px 0 rgba(0,0,0,0.04)',
+              borderBottom: isActive ? 'none' : '4px solid #e5e7eb',
+              top: isActive ? 0 : 12,
+              minWidth: 120,
+              borderLeft: idx === 0 ? undefined : '2px solid #e5e7eb',
+              borderRight: idx === TABS.length - 1 ? undefined : '2px solid #e5e7eb',
+              transform: isActive ? 'translateY(0)' : 'translateY(2px)',
+            }}
+          >
+            <span className="text-3xl mr-2 drop-shadow-sm">{tab.icon}</span>
+            <span className={`font-bold text-lg ${isActive ? (tab.color === 'yellow' ? 'text-yellow-700' : 'text-blue-700') : 'text-gray-500'}`}>
+              {tab.label}
+            </span>
+            
+            {/* 左上突出角 - 只在第一個 tab 且 active 時顯示 */}
+            {idx === 0 && isActive && (
+              <div className="absolute -top-3 -left-3 w-6 h-6 bg-white border-l-4 border-t-4 border-yellow-400 rounded-tl-2xl z-30 shadow-[2px_2px_4px_0_rgba(0,0,0,0.1)]"></div>
+            )}
+            
+            {/* 右上突出角 - 只在最後一個 tab 且 active 時顯示 */}
+            {idx === TABS.length - 1 && isActive && (
+              <div className="absolute -top-3 -right-3 w-6 h-6 bg-white border-r-4 border-t-4 border-blue-400 rounded-tr-2xl z-30 shadow-[-2px_2px_4px_0_rgba(0,0,0,0.1)]"></div>
+            )}
+            
+            {/* 底部插入效果 - 只在 active tab 顯示 */}
+            {isActive && (
+              <div className={`absolute left-0 right-0 bottom-0 h-1 ${tab.activeBg} rounded-b-sm`}></div>
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 };

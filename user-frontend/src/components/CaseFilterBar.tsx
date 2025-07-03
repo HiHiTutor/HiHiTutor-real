@@ -10,6 +10,7 @@ import REGION_OPTIONS from '@/constants/regionOptions';
 import { SUBJECT_MAP } from '@/constants/subjectOptions';
 import { TEACHING_MODE_OPTIONS, shouldShowRegionForMode } from '@/constants/teachingModeOptions';
 import PRICE_OPTIONS from '@/constants/priceOptions';
+import SearchTabBar from './SearchTabBar';
 
 interface FilterState {
   target: string;
@@ -516,349 +517,363 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   const selectedOptions = getSelectedOptions();
 
   return (
-    <div className={`rounded-xl border ${colorScheme.border} ${colorScheme.bg} p-6 max-sm:p-4 max-[700px]:p-5`}>
-      <div className="space-y-4 max-sm:space-y-3 max-[700px]:space-y-4">
-        {/* 已選選項顯示區域 */}
-        {selectedOptions.length > 0 && (
-          <div className="bg-white rounded-lg p-4 border border-gray-200">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-medium text-gray-700">已選選項</h3>
-              <button
-                onClick={clearAllOptions}
-                className="text-xs text-gray-500 hover:text-gray-700 underline"
-              >
-                清除全部
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {selectedOptions.map((option, index) => (
-                <div
-                  key={`${option.key}-${option.value}`}
-                  className="flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
-                >
-                  <span>{option.label}</span>
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      {/* 整合的資料夾風格搜尋欄 */}
+      <div className={`relative border ${colorScheme.border} ${colorScheme.bg} rounded-b-xl shadow-lg`}>
+        {/* Tabs 區域 - 貼合主體左上角 */}
+        <div className="absolute -top-12 left-0 z-10">
+          <SearchTabBar 
+            currentTarget={currentTarget}
+            onTabChange={onTargetChange}
+            className=""
+          />
+        </div>
+        
+        {/* 主體內容 */}
+        <div className="p-6 max-sm:p-4 max-[700px]:p-5 pt-8">
+          <div className="space-y-4 max-sm:space-y-3 max-[700px]:space-y-4">
+            {/* 已選選項顯示區域 */}
+            {selectedOptions.length > 0 && (
+              <div className="bg-white rounded-lg p-4 border border-gray-200">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-medium text-gray-700">已選選項</h3>
                   <button
-                    onClick={() => removeSelectedOption(option.key, option.value)}
-                    className="ml-2 text-blue-600 hover:text-blue-800"
+                    onClick={clearAllOptions}
+                    className="text-xs text-gray-500 hover:text-gray-700 underline"
                   >
-                    <XMarkIcon className="h-4 w-4" />
+                    清除全部
                   </button>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* 篩選選項 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-sm:gap-3 max-[700px]:grid-cols-2 max-[700px]:gap-4">
-
-          {/* 分類選擇 */}
-          <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
-            <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">課程分類</label>
-            <select
-              value={filters.category}
-              onChange={(e) => handleFilterChange('category', e.target.value)}
-              className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
-            >
-              {CATEGORY_OPTIONS.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 子分類選擇 */}
-          {filters.category && getSubOptions().length > 0 && (
-            <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
-              <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">子分類</label>
-              <select
-                value={filters.subCategory}
-                onChange={(e) => handleSubCategoryChange(e.target.value)}
-                className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
-              >
-                {getSubOptions().map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {/* 科目選擇 - 改為下拉式多選 */}
-          {shouldShowSubjects() && (
-            <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
-              <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">科目</label>
-              <Listbox
-                value={filters.subjects}
-                onChange={(value) => handleFilterChange('subjects', value)}
-                multiple
-              >
-                <div className="relative">
-                  <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
-                    <span className="block truncate">
-                      {filters.subjects.length === 0
-                        ? '不限'
-                        : filters.subjects.length === 1
-                        ? getSubjectOptions().find(s => s.value === filters.subjects[0])?.label
-                        : `已選擇 ${filters.subjects.length} 個科目`}
-                    </span>
-                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                      <ChevronUpDownIcon
-                        className="h-5 w-5 text-gray-400"
-                        aria-hidden="true"
-                      />
-                    </span>
-                  </Listbox.Button>
-                  <Transition
-                    as={Fragment}
-                    leave="transition ease-in duration-100"
-                    leaveFrom="opacity-100"
-                    leaveTo="opacity-0"
-                  >
-                    <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                      {getSubjectOptions().map((subject) => (
-                        <Listbox.Option
-                          key={subject.value}
-                          className={({ active }) =>
-                            `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                              active ? 'bg-amber-100 text-amber-900' : 'text-gray-900'
-                            }`
-                          }
-                          value={subject.value}
-                        >
-                          {({ selected }) => (
-                            <>
-                              <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
-                                {subject.label}
-                              </span>
-                              {selected ? (
-                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
-                                  <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                                </span>
-                              ) : null}
-                            </>
-                          )}
-                        </Listbox.Option>
-                      ))}
-                    </Listbox.Options>
-                  </Transition>
+                <div className="flex flex-wrap gap-2">
+                  {selectedOptions.map((option, index) => (
+                    <div
+                      key={`${option.key}-${option.value}`}
+                      className="flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                    >
+                      <span>{option.label}</span>
+                      <button
+                        onClick={() => removeSelectedOption(option.key, option.value)}
+                        className="ml-2 text-blue-600 hover:text-blue-800"
+                      >
+                        <XMarkIcon className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              </Listbox>
-            </div>
-          )}
-
-          {/* 教學模式選擇 - 改為下拉式多選 */}
-          <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
-            <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">教學模式</label>
-            <Listbox
-              value={filters.mode}
-              onChange={(value) => handleFilterChange('mode', value)}
-              multiple
-            >
-              <div className="relative">
-                <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
-                  <span className="block truncate">
-                    {filters.mode.length === 0 || (filters.mode.length === 1 && filters.mode[0] === 'unlimited')
-                      ? '不限'
-                      : filters.mode.length === 1
-                      ? TEACHING_MODE_OPTIONS.find(m => m.value === filters.mode[0])?.label || 
-                        TEACHING_MODE_OPTIONS.flatMap(m => m.subCategories).find(sm => sm.value === filters.mode[0])?.label
-                      : `已選擇 ${filters.mode.filter(m => m !== 'unlimited').length} 個模式`}
-                  </span>
-                  <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                    <ChevronUpDownIcon
-                      className="h-5 w-5 text-gray-400"
-                      aria-hidden="true"
-                    />
-                  </span>
-                </Listbox.Button>
-                <Transition
-                  as={Fragment}
-                  leave="transition ease-in duration-100"
-                  leaveFrom="opacity-100"
-                  leaveTo="opacity-0"
-                >
-                  <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                    {TEACHING_MODE_OPTIONS.map((mode) => (
-                      <Listbox.Option
-                        key={mode.value}
-                        className={({ active }) =>
-                          `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                            active ? 'bg-amber-100 text-amber-900' : 'text-gray-900'
-                          }`
-                        }
-                        value={mode.value}
-                      >
-                        {({ selected }) => (
-                          <>
-                            <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
-                              {mode.label}
-                            </span>
-                            {selected ? (
-                              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
-                                <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                              </span>
-                            ) : null}
-                          </>
-                        )}
-                      </Listbox.Option>
-                    ))}
-                    {filters.mode.includes('in-person') && TEACHING_MODE_OPTIONS.find(m => m.value === 'in-person')?.subCategories.map((subMode) => (
-                      <Listbox.Option
-                        key={subMode.value}
-                        className={({ active }) =>
-                          `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                            active ? 'bg-amber-100 text-amber-900' : 'text-gray-900'
-                          }`
-                        }
-                        value={subMode.value}
-                      >
-                        {({ selected }) => (
-                          <>
-                            <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'} ml-4`}>
-                              └ {subMode.label}
-                            </span>
-                            {selected ? (
-                              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
-                                <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                              </span>
-                            ) : null}
-                          </>
-                        )}
-                      </Listbox.Option>
-                    ))}
-                  </Listbox.Options>
-                </Transition>
               </div>
-            </Listbox>
-          </div>
+            )}
 
-          {/* 地區選擇 - 改為單選 */}
-          <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
-            <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">地區</label>
-            <select
-              value={filters.regions[0] || 'unlimited'}
-              onChange={(e) => handleRegionChange(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
-            >
-              {REGION_OPTIONS.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
+            {/* 篩選選項 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-sm:gap-3 max-[700px]:grid-cols-2 max-[700px]:gap-4">
+              {/* 分類選擇 */}
+              <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
+                <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">課程分類</label>
+                <select
+                  value={filters.category}
+                  onChange={(e) => handleFilterChange('category', e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
+                >
+                  {CATEGORY_OPTIONS.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-          {/* 子地區選擇 - 改為多選 */}
-          {filters.regions.length > 0 && filters.regions[0] !== 'unlimited' && (
-            <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
-              <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">子地區</label>
-              <Listbox
-                value={filters.subRegions}
-                onChange={(value) => handleFilterChange('subRegions', value)}
-                multiple
-              >
-                <div className="relative">
-                  <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
-                    <span className="block truncate">
-                      {filters.subRegions.length === 0 || (filters.subRegions.length === 1 && filters.subRegions[0] === 'unlimited')
-                        ? '不限'
-                        : filters.subRegions.length === 1
-                        ? getSelectedSubRegions().find(sr => sr.value === filters.subRegions[0])?.label
-                        : `已選擇 ${filters.subRegions.filter(sr => sr !== 'unlimited').length} 個子地區`}
-                    </span>
-                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                      <ChevronUpDownIcon
-                        className="h-5 w-5 text-gray-400"
-                        aria-hidden="true"
-                      />
-                    </span>
-                  </Listbox.Button>
-                  <Transition
-                    as={Fragment}
-                    leave="transition ease-in duration-100"
-                    leaveFrom="opacity-100"
-                    leaveTo="opacity-0"
+              {/* 子分類選擇 */}
+              {filters.category && getSubOptions().length > 0 && (
+                <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">子分類</label>
+                  <select
+                    value={filters.subCategory}
+                    onChange={(e) => handleSubCategoryChange(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
                   >
-                    <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                      {getSelectedSubRegions().map((subRegion) => (
-                        <Listbox.Option
-                          key={subRegion.value}
-                          className={({ active }) =>
-                            `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                              active ? 'bg-amber-100 text-amber-900' : 'text-gray-900'
-                            }`
-                          }
-                          value={subRegion.value}
-                        >
-                          {({ selected }) => (
-                            <>
-                              <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
-                                {subRegion.label}
-                              </span>
-                              {selected ? (
-                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
-                                  <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                                </span>
-                              ) : null}
-                            </>
-                          )}
-                        </Listbox.Option>
-                      ))}
-                    </Listbox.Options>
-                  </Transition>
+                    {getSubOptions().map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              </Listbox>
+              )}
+
+              {/* 科目選擇 */}
+              {shouldShowSubjects() && (
+                <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">科目</label>
+                  <Listbox
+                    value={filters.subjects}
+                    onChange={(value) => handleFilterChange('subjects', value)}
+                    multiple
+                  >
+                    <div className="relative">
+                      <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
+                        <span className="block truncate">
+                          {filters.subjects.length === 0
+                            ? '不限'
+                            : filters.subjects.length === 1
+                            ? getSubjectOptions().find(s => s.value === filters.subjects[0])?.label
+                            : `已選擇 ${filters.subjects.length} 個科目`}
+                        </span>
+                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                          <ChevronUpDownIcon
+                            className="h-5 w-5 text-gray-400"
+                            aria-hidden="true"
+                          />
+                        </span>
+                      </Listbox.Button>
+                      <Transition
+                        as={Fragment}
+                        leave="transition ease-in duration-100"
+                        leaveFrom="opacity-100"
+                        leaveTo="opacity-0"
+                      >
+                        <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                          {getSubjectOptions().map((subject) => (
+                            <Listbox.Option
+                              key={subject.value}
+                              className={({ active }) =>
+                                `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                                  active ? 'bg-amber-100 text-amber-900' : 'text-gray-900'
+                                }`
+                              }
+                              value={subject.value}
+                            >
+                              {({ selected }) => (
+                                <>
+                                  <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
+                                    {subject.label}
+                                  </span>
+                                  {selected ? (
+                                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
+                                      <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                                    </span>
+                                  ) : null}
+                                </>
+                              )}
+                            </Listbox.Option>
+                          ))}
+                        </Listbox.Options>
+                      </Transition>
+                    </div>
+                  </Listbox>
+                </div>
+              )}
+
+              {/* 教學模式選擇 */}
+              <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
+                <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">教學模式</label>
+                <Listbox
+                  value={filters.mode}
+                  onChange={(value) => handleFilterChange('mode', value)}
+                  multiple
+                >
+                  <div className="relative">
+                    <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
+                      <span className="block truncate">
+                        {filters.mode.length === 0 || (filters.mode.length === 1 && filters.mode[0] === 'unlimited')
+                          ? '不限'
+                          : filters.mode.length === 1
+                          ? TEACHING_MODE_OPTIONS.find(m => m.value === filters.mode[0])?.label || 
+                            TEACHING_MODE_OPTIONS.flatMap(m => m.subCategories).find(sm => sm.value === filters.mode[0])?.label
+                          : `已選擇 ${filters.mode.filter(m => m !== 'unlimited').length} 個模式`}
+                      </span>
+                      <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                        <ChevronUpDownIcon
+                          className="h-5 w-5 text-gray-400"
+                          aria-hidden="true"
+                        />
+                      </span>
+                    </Listbox.Button>
+                    <Transition
+                      as={Fragment}
+                      leave="transition ease-in duration-100"
+                      leaveFrom="opacity-100"
+                      leaveTo="opacity-0"
+                    >
+                      <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                        {TEACHING_MODE_OPTIONS.map((mode) => (
+                          <Listbox.Option
+                            key={mode.value}
+                            className={({ active }) =>
+                              `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                                active ? 'bg-amber-100 text-amber-900' : 'text-gray-900'
+                              }`
+                            }
+                            value={mode.value}
+                          >
+                            {({ selected }) => (
+                              <>
+                                <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
+                                  {mode.label}
+                                </span>
+                                {selected ? (
+                                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
+                                    <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                                  </span>
+                                ) : null}
+                              </>
+                            )}
+                          </Listbox.Option>
+                        ))}
+                        {filters.mode.includes('in-person') && TEACHING_MODE_OPTIONS.find(m => m.value === 'in-person')?.subCategories.map((subMode) => (
+                          <Listbox.Option
+                            key={subMode.value}
+                            className={({ active }) =>
+                              `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                                active ? 'bg-amber-100 text-amber-900' : 'text-gray-900'
+                              }`
+                            }
+                            value={subMode.value}
+                          >
+                            {({ selected }) => (
+                              <>
+                                <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'} ml-4`}>
+                                  └ {subMode.label}
+                                </span>
+                                {selected ? (
+                                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
+                                    <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                                  </span>
+                                ) : null}
+                              </>
+                            )}
+                          </Listbox.Option>
+                        ))}
+                      </Listbox.Options>
+                    </Transition>
+                  </div>
+                </Listbox>
+              </div>
+
+              {/* 地區選擇 */}
+              <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
+                <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">地區</label>
+                <select
+                  value={filters.regions[0] || 'unlimited'}
+                  onChange={(e) => handleRegionChange(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
+                >
+                  {REGION_OPTIONS.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 子地區選擇 */}
+              {filters.regions.length > 0 && filters.regions[0] !== 'unlimited' && (
+                <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">子地區</label>
+                  <Listbox
+                    value={filters.subRegions}
+                    onChange={(value) => handleFilterChange('subRegions', value)}
+                    multiple
+                  >
+                    <div className="relative">
+                      <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
+                        <span className="block truncate">
+                          {filters.subRegions.length === 0 || (filters.subRegions.length === 1 && filters.subRegions[0] === 'unlimited')
+                            ? '不限'
+                            : filters.subRegions.length === 1
+                            ? getSelectedSubRegions().find(sr => sr.value === filters.subRegions[0])?.label
+                            : `已選擇 ${filters.subRegions.filter(sr => sr !== 'unlimited').length} 個子地區`}
+                        </span>
+                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                          <ChevronUpDownIcon
+                            className="h-5 w-5 text-gray-400"
+                            aria-hidden="true"
+                          />
+                        </span>
+                      </Listbox.Button>
+                      <Transition
+                        as={Fragment}
+                        leave="transition ease-in duration-100"
+                        leaveFrom="opacity-100"
+                        leaveTo="opacity-0"
+                      >
+                        <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                          {getSelectedSubRegions().map((subRegion) => (
+                            <Listbox.Option
+                              key={subRegion.value}
+                              className={({ active }) =>
+                                `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                                  active ? 'bg-amber-100 text-amber-900' : 'text-gray-900'
+                                }`
+                              }
+                              value={subRegion.value}
+                            >
+                              {({ selected }) => (
+                                <>
+                                  <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
+                                    {subRegion.label}
+                                  </span>
+                                  {selected ? (
+                                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
+                                      <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                                    </span>
+                                  ) : null}
+                                </>
+                              )}
+                            </Listbox.Option>
+                          ))}
+                        </Listbox.Options>
+                      </Transition>
+                    </div>
+                  </Listbox>
+                </div>
+              )}
+
+              {/* 每堂堂費 */}
+              <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
+                <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">每堂堂費</label>
+                <select
+                  value={filters.priceRange}
+                  onChange={(e) => handlePriceChange(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
+                >
+                  {PRICE_OPTIONS.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 精選個案 */}
+              <div className="flex items-center space-x-2 max-sm:space-x-1 max-[700px]:space-x-2">
+                <input
+                  type="checkbox"
+                  id="featured"
+                  checked={filters.featured}
+                  onChange={(e) => handleFilterChange('featured', e.target.checked)}
+                  className="h-4 w-4 text-blue-600 max-sm:h-3 max-sm:w-3 max-[700px]:h-4 max-[700px]:w-4"
+                />
+                <label htmlFor="featured" className="text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">
+                  只顯示精選個案
+                </label>
+              </div>
             </div>
-          )}
+          </div>
 
-          {/* 每堂堂費 */}
-          <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
-            <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">每堂堂費</label>
-            <select
-              value={filters.priceRange}
-              onChange={(e) => handlePriceChange(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
+          {/* 按鈕組 */}
+          <div className="flex justify-end space-x-4 max-sm:space-x-2 max-sm:flex-col max-sm:items-stretch max-[700px]:space-x-4 max-[700px]:flex-row max-[700px]:justify-end mt-6">
+            <button
+              onClick={handleReset}
+              className="px-6 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 max-sm:px-4 max-sm:py-2 max-sm:text-sm max-[700px]:px-6 max-[700px]:py-2 max-[700px]:text-sm"
             >
-              {PRICE_OPTIONS.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+              重置
+            </button>
+            <button
+              onClick={handleFilter}
+              className={`px-6 py-2 text-white rounded-lg ${colorScheme.button} max-sm:px-4 max-sm:py-2 max-sm:text-sm max-[700px]:px-6 max-[700px]:py-2 max-[700px]:text-sm`}
+            >
+              篩選
+            </button>
           </div>
-
-          {/* 精選個案 */}
-          <div className="flex items-center space-x-2 max-sm:space-x-1 max-[700px]:space-x-2">
-            <input
-              type="checkbox"
-              id="featured"
-              checked={filters.featured}
-              onChange={(e) => handleFilterChange('featured', e.target.checked)}
-              className="h-4 w-4 text-blue-600 max-sm:h-3 max-sm:w-3 max-[700px]:h-4 max-[700px]:w-4"
-            />
-            <label htmlFor="featured" className="text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">
-              只顯示精選個案
-            </label>
-          </div>
-        </div>
-
-        {/* 按鈕組 */}
-        <div className="flex justify-end space-x-4 max-sm:space-x-2 max-sm:flex-col max-sm:items-stretch max-[700px]:space-x-4 max-[700px]:flex-row max-[700px]:justify-end">
-          <button
-            onClick={handleReset}
-            className="px-6 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 max-sm:px-4 max-sm:py-2 max-sm:text-sm max-[700px]:px-6 max-[700px]:py-2 max-[700px]:text-sm"
-          >
-            重置
-          </button>
-          <button
-            onClick={handleFilter}
-            className={`px-6 py-2 text-white rounded-lg ${colorScheme.button} max-sm:px-4 max-sm:py-2 max-sm:text-sm max-[700px]:px-6 max-[700px]:py-2 max-[700px]:text-sm`}
-          >
-            篩選
-          </button>
         </div>
       </div>
     </div>
