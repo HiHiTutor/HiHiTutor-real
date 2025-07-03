@@ -82,12 +82,12 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
         button: 'bg-yellow-500 hover:bg-yellow-600'
       };
     } else if (pathname === '/find-student-cases') {
-      // 找學生案例頁：黃色主題（顯示導師）
+      // 找學生案例頁：藍色主題
       return {
-        text: 'text-yellow-700',
-        border: 'border-yellow-200',
-        bg: 'bg-yellow-50',
-        button: 'bg-yellow-500 hover:bg-yellow-600'
+        text: 'text-blue-700',
+        border: 'border-blue-200',
+        bg: 'bg-blue-50',
+        button: 'bg-blue-500 hover:bg-blue-600'
       };
     } else if (pathname === '/find-tutor-cases') {
       // 個案頁：保持藍色主題
@@ -100,10 +100,10 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
     } else {
       // 其他頁面：根據 fetchUrl 判斷
       return isStudentCase ? {
-        text: 'text-yellow-600',
-        border: 'border-yellow-200',
-        bg: 'bg-yellow-50',
-        button: 'bg-yellow-500 hover:bg-yellow-600'
+        text: 'text-blue-600',
+        border: 'border-blue-200',
+        bg: 'bg-blue-50',
+        button: 'bg-blue-500 hover:bg-blue-600'
       } : {
         text: 'text-blue-600',
         border: 'border-blue-200',

@@ -57,18 +57,41 @@ export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps
   })();
 
   return (
-    <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 hover:shadow-lg transition-all max-sm:p-3 max-[700px]:p-4">
-      <h3 className="text-lg font-semibold text-blue-900 max-sm:text-base max-[700px]:text-lg">
-        {caseData.title || '未命名個案'}
-      </h3>
-      <p className="text-sm text-gray-700 max-sm:text-xs max-[700px]:text-sm">地點：{displayRegion}</p>
-      <p className="text-sm text-gray-700 max-sm:text-xs max-[700px]:text-sm">教學模式：{getTeachingModeLabel(displayMode)}</p>
-      <p className="text-sm text-gray-700 max-sm:text-xs max-[700px]:text-sm">經驗要求：{displayExperience}</p>
-      <p className="text-sm text-gray-700 max-sm:text-xs max-[700px]:text-sm">
-        價格：{displayBudget}
-      </p>
+    <div className="bg-white rounded-2xl shadow-md p-4 border border-blue-200 hover:shadow-lg hover:border-blue-300 transition-all max-sm:p-3 max-[700px]:p-4 bg-gradient-to-br from-white to-blue-50">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-lg font-semibold text-blue-900 max-sm:text-base max-[700px]:text-lg">
+          {caseData.title || '未命名個案'}
+        </h3>
+        <div className="flex gap-1">
+          {caseData.featured && (
+            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">推薦</span>
+          )}
+          {caseData.isVip && (
+            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">VIP</span>
+          )}
+        </div>
+      </div>
+      
+      <div className="space-y-2">
+        <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
+          <span className="w-16 text-blue-600 font-medium">地點：</span>
+          <span>{displayRegion}</span>
+        </div>
+        <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
+          <span className="w-16 text-blue-600 font-medium">模式：</span>
+          <span>{getTeachingModeLabel(displayMode)}</span>
+        </div>
+        <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
+          <span className="w-16 text-blue-600 font-medium">經驗：</span>
+          <span>{displayExperience}</span>
+        </div>
+        <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
+          <span className="w-16 text-blue-600 font-medium">價格：</span>
+          <span className="font-semibold text-blue-900">{displayBudget}</span>
+        </div>
+      </div>
 
-      <div className="mt-4 text-xs text-right text-gray-400 max-sm:mt-3 max-[700px]:mt-4">
+      <div className="mt-4 text-xs text-right text-blue-500 max-sm:mt-3 max-[700px]:mt-4 border-t border-blue-100 pt-2">
         發佈於：{formatDate(caseData.createdAt)}
       </div>
     </div>

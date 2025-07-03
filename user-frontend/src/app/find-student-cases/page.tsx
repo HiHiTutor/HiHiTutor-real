@@ -227,31 +227,42 @@ function FindStudentCasesPageContent() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-12 py-8">
-      <div className="flex items-center gap-2 mb-6">
-        <span className="text-2xl">📄</span>
-        <h1 className="text-2xl font-bold border-l-4 border-blue-400 pl-3">學生個案</h1>
+    <div className="max-w-7xl mx-auto px-4 md:px-12 py-8 bg-gradient-to-br from-blue-50 to-white min-h-screen">
+      <div className="flex items-center gap-3 mb-8">
+        <div className="bg-blue-500 p-3 rounded-full">
+          <span className="text-2xl text-white">📄</span>
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold text-blue-900 border-l-4 border-blue-500 pl-4">學生個案</h1>
+          <p className="text-blue-600 mt-1">尋找適合的補習個案</p>
+        </div>
       </div>
 
-      <div className="bg-blue-50 rounded-xl p-6 mb-8">
+      <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-blue-100">
         <CaseFilterBar onFilter={handleFilter} fetchUrl="/find-tutor-cases" />
       </div>
 
       {loading ? (
-        <div className="text-center py-8">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-          <p className="mt-2 text-gray-600">載入中...</p>
+        <div className="text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600"></div>
+          <p className="mt-4 text-blue-700 font-medium">載入中...</p>
         </div>
       ) : error ? (
-        <div className="text-center py-8 text-red-500">
-          <p>{error}</p>
+        <div className="text-center py-12">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 max-w-md mx-auto">
+            <p className="text-red-600 font-medium">{error}</p>
+          </div>
         </div>
       ) : cases.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          <p>目前沒有符合條件的個案</p>
+        <div className="text-center py-12">
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-8 max-w-md mx-auto">
+            <div className="text-6xl mb-4">📋</div>
+            <p className="text-blue-700 font-medium text-lg">目前沒有符合條件的個案</p>
+            <p className="text-blue-500 mt-2">請嘗試調整搜尋條件</p>
+          </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {cases.map((caseItem, index) => (
             <StudentCaseCard
               key={caseItem.id || index}
@@ -262,13 +273,20 @@ function FindStudentCasesPageContent() {
       )}
 
       {hasMore && (
-        <div className="mt-8 text-center">
+        <div className="mt-12 text-center">
           <button
             onClick={loadMoreCases}
             disabled={loadingMore}
-            className="bg-blue-500 text-white hover:bg-blue-600 rounded-lg px-4 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 rounded-xl px-8 py-3 text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105"
           >
-            {loadingMore ? '載入中...' : '載入更多'}
+            {loadingMore ? (
+              <div className="flex items-center gap-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                載入中...
+              </div>
+            ) : (
+              '載入更多個案'
+            )}
           </button>
         </div>
       )}
