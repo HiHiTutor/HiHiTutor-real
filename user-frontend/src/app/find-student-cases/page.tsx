@@ -73,8 +73,8 @@ function FindStudentCasesPageContent() {
         const result = await tutorApi.getAllTutors();
         console.log("📦 成功獲取導師：", result);
         
-        // 正確處理後端返回的數據結構
-        const tutorsData = result.data?.tutors || result.tutors || [];
+        // fetchApi 已經返回了 tutors 陣列，不需要再提取
+        const tutorsData = Array.isArray(result) ? result : (result.data?.tutors || result.tutors || []);
         console.log("📊 導師數據：", tutorsData);
         
         const sorted = tutorsData.sort((a: any, b: any) => {
