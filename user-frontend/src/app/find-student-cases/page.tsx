@@ -169,7 +169,7 @@ function FindStudentCasesPageContent() {
         }
 
         // 檢查導師的科目是否匹配分類
-        const tutorSubjects = Array.isArray(tutor.subjects) ? tutor.subjects.map((s: any) => typeof s === 'string' ? s.toLowerCase() : s) : [];
+        const tutorSubjects = Array.isArray(tutor.subjects) ? tutor.subjects.map((s: any) => typeof s === 'string' ? s.toLowerCase() : '') : [];
         
         console.log("🔍 檢查分類：", {
           tutorName: tutor.name,
@@ -240,7 +240,7 @@ function FindStudentCasesPageContent() {
       // 科目篩選 - 處理多個科目的精確匹配
       if (subjects && subjects.length > 0) {
         const tutorSubjects = tutor.subjects || [];
-        const filterSubjects = subjects.map((s: any) => typeof s === 'string' ? s.toLowerCase() : s);
+        const filterSubjects = subjects.map((s: any) => typeof s === 'string' ? s.toLowerCase() : '');
         // 檢查導師的科目是否包含任何一個選擇的科目
         const hasMatchingSubject = tutorSubjects.some((subject: any) => 
           filterSubjects.includes(subject)
@@ -258,8 +258,8 @@ function FindStudentCasesPageContent() {
       
       // 地區篩選
       if (regions && regions.length > 0) {
-        const tutorRegions = Array.isArray(tutor.regions) ? tutor.regions.map((r: any) => typeof r === 'string' ? r.toLowerCase() : r) : [];
-        const filterRegions = regions.map((r: any) => typeof r === 'string' ? r.toLowerCase() : r);
+        const tutorRegions = Array.isArray(tutor.regions) ? tutor.regions.map((r: any) => typeof r === 'string' ? r.toLowerCase() : '') : [];
+        const filterRegions = regions.map((r: any) => typeof r === 'string' ? r.toLowerCase() : '');
         
         const hasMatchingRegion = tutorRegions.some((tutorRegion: any) => 
           filterRegions.some((filterRegion: any) => tutorRegion.includes(filterRegion))
@@ -273,8 +273,8 @@ function FindStudentCasesPageContent() {
       
       // 教學模式篩選
       if (modes && modes.length > 0) {
-        const tutorModes = Array.isArray(tutor.modes) ? tutor.modes.map((m: any) => typeof m === 'string' ? m.toLowerCase() : m) : [];
-        const filterModes = modes.map((m: any) => typeof m === 'string' ? m.toLowerCase() : m);
+        const tutorModes = Array.isArray(tutor.modes) ? tutor.modes.map((m: any) => typeof m === 'string' ? m.toLowerCase() : '') : [];
+        const filterModes = modes.map((m: any) => typeof m === 'string' ? m.toLowerCase() : '');
         
         const hasMatchingMode = tutorModes.some((tutorMode: any) => 
           filterModes.some((filterMode: any) => tutorMode.includes(filterMode))
