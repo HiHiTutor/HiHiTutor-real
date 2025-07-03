@@ -180,7 +180,7 @@ export default function FindTutorCaseDetailPage() {
         <p className="text-gray-600">要求：{getRequirements()}</p>
         <div>
           <a
-            href={`https://wa.me/85284158743?text=${encodeURIComponent(
+            href={`https://wa.me/85295011159?text=${encodeURIComponent(
               `Hello，我喺 HiHiTutor 見到 caseID ${getCaseId()}，想申請呢單case，唔該晒!`
             )}`}
             target="_blank"

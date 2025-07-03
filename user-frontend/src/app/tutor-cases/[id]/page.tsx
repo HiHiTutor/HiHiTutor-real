@@ -72,7 +72,7 @@ export default function TutorCaseDetail() {
         <div className="flex justify-between items-start mb-6">
           <h1 className="text-3xl font-bold text-gray-900">{caseData.title || '未命名案例'}</h1>
           <a
-            href={`https://wa.me/85284158743?text=${encodeURIComponent(
+            href={`https://wa.me/85295011159?text=${encodeURIComponent(
               `Hello，我喺 HiHiTutor 見到 caseID ${caseData.id}，想申請呢單case，唔該晒!`
             )}`}
             target="_blank"

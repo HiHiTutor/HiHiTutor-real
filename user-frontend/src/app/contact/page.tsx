@@ -149,7 +149,7 @@ export default function ContactPage() {
           <div className="bg-white rounded-lg shadow-sm p-6">
             <h3 className="text-lg font-medium text-gray-900">WhatsApp</h3>
             <p className="mt-2 text-gray-600">
-              +852 8415 8743
+              +852 9501 1159
             </p>
           </div>
 

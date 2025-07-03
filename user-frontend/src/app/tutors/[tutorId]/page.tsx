@@ -137,7 +137,7 @@ export default function TutorDetailPage() {
             <Button 
               onClick={() => {
                 const message = `Hello，我喺 HiHiTutor 見到 tutorID ${id}，想了解同預約上堂，請問方便嗎？`;
-                const whatsappUrl = `https://api.whatsapp.com/send?phone=85284158743&text=${encodeURIComponent(message)}`;
+                const whatsappUrl = `https://api.whatsapp.com/send?phone=85295011159&text=${encodeURIComponent(message)}`;
                 window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
               }}
               className="bg-yellow-400 text-black hover:bg-yellow-500 px-6 py-3 text-base md:text-lg"

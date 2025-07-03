@@ -123,7 +123,7 @@ export default function PrivacyPage() {
             <p className="mb-6">15.2 您有權利可以要求刪除帳號並移除我們從應用程式或網站收集到的個人資料；刪除的功能可以直接在應用程式或網站中操作。</p>
 
             <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">16. 聯繫我們</h2>
-            <p className="mb-6">16.1 如果您對本隱私權政策有任何請求（包括退出）、詢問或意見， 請發送電子郵件至 hihitutor.edu@gmail.com ，致電：+852 84158743。</p>
+            <p className="mb-6">16.1 如果您對本隱私權政策有任何請求（包括退出）、詢問或意見， 請發送電子郵件至 hihitutor.edu@gmail.com ，致電：+852 95011159。</p>
 
             <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">17. 以中文版本為準</h2>
             <p className="mb-6">17.1 若本隱私權政策的中文版本與其他翻譯版本間存在任何不一致或有矛盾之處，將以中文版本為準。</p>
