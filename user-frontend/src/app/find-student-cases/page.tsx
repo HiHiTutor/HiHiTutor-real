@@ -167,10 +167,10 @@ function FindStudentCasesPageContent() {
       filteredCases: filtered.map((c: any) => ({ title: c.title, id: c.id }))
     });
 
-    // 更新顯示的個案
-    setCases(filtered.slice(0, CASES_PER_PAGE));
+    // 更新顯示的個案 - 暫時顯示所有個案以便調試
+    setCases(filtered);
     setCurrentPage(1);
-    setHasMore(filtered.length > CASES_PER_PAGE);
+    setHasMore(false); // 暫時關閉分頁
   }, [searchParams, allCases]);
 
   const handleFilter = (filters: any) => {
