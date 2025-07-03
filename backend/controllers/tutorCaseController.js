@@ -54,23 +54,17 @@ const getAllTutorCases = async (req, res) => {
       return {
         id: caseObj.id || caseObj._id.toString(),
         title: caseObj.title || `${caseObj.subject} 補習個案`,
-        subject: {
-          label: caseObj.subject || caseObj.subjects?.[0] || '未指定'
-        },
-        region: {
-          label: caseObj.regions?.[0] || '未指定'
-        },
-        mode: {
-          label: caseObj.mode || caseObj.modes?.[0] || '未指定'
-        },
-        experienceLevel: {
-          label: caseObj.experience || '未指定'
-        },
+        subject: caseObj.subject || caseObj.subjects?.[0] || '未指定',
+        subjects: Array.isArray(caseObj.subjects) ? caseObj.subjects : [caseObj.subject].filter(Boolean),
+        region: caseObj.regions?.[0] || '未指定',
+        regions: Array.isArray(caseObj.regions) ? caseObj.regions : [caseObj.region].filter(Boolean),
+        mode: caseObj.mode || caseObj.modes?.[0] || '未指定',
+        modes: Array.isArray(caseObj.modes) ? caseObj.modes : [caseObj.mode].filter(Boolean),
+        experienceLevel: caseObj.experience || '未指定',
         budget: caseObj.lessonDetails?.pricePerLesson ? 
           `$${caseObj.lessonDetails.pricePerLesson}` : 
           '待議',
         lessonDetails: caseObj.lessonDetails,
-        modes: caseObj.modes || [caseObj.mode].filter(Boolean),
         createdAt: caseObj.createdAt,
         avatarUrl: caseObj.avatarUrl,
         category: caseObj.category,
