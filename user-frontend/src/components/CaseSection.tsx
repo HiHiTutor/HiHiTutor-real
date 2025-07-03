@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { fetchApi, caseApi } from '@/services/api';
 import CaseCard from '@/components/CaseCard';
 import TutorCard from '@/components/TutorCard';
+import StudentCaseCard from '@/components/student/StudentCaseCard';
 import { getSubjectName, getRegionName, getSubRegionName } from '@/utils/translate';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 
@@ -387,7 +388,7 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
           {pagedCases.map((caseItem: Case) => (
             routeType === 'tutor'
               ? <TutorCard key={caseItem.tutorId} tutor={caseItem as any} />
-              : <CaseCard key={caseItem.id} caseData={caseItem as any} routeType={routeType} />
+              : <StudentCaseCard key={caseItem.id} case={caseItem as any} />
           ))}
         </div>
         <button
