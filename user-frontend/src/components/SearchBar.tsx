@@ -14,8 +14,10 @@ const SearchBar = () => {
     console.log('👉 handleSearch triggered, searchType =', searchType, 'searchQuery =', searchQuery);
     if (searchQuery.trim()) {
       if (searchType === 'tutor') {
+        // 尋導師 → 顯示導師列表（學生搵導師）
         router.push(`/find-student-cases?target=find-student&search=${encodeURIComponent(searchQuery.trim())}`);
       } else if (searchType === 'student') {
+        // 招學生 → 顯示學生個案（導師搵學生）
         router.push(`/find-tutor-cases?target=find-tutor&search=${encodeURIComponent(searchQuery.trim())}`);
       }
     }

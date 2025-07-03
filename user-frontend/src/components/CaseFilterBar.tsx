@@ -131,8 +131,11 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
 
   // 從 URL 參數初始化篩選條件
   useEffect(() => {
+    const autoTarget = getAutoTarget(); // 根據 pathname 判斷正確目標
+    const target = searchParams.get('target') || autoTarget;
+
     setFilters({
-      target: searchParams.get('target') || '',
+      target,
       category: searchParams.get('category') || '',
       subCategory: searchParams.get('subCategory') || '',
       subjects: searchParams.getAll('subjects'),
