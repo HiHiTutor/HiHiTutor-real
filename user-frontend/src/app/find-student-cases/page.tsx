@@ -147,14 +147,12 @@ function FindStudentCasesPageContent() {
 
       // 搜尋過濾
       if (search && search.trim()) {
-        const searchLower = search.toLowerCase();
+        const searchLower = typeof search === 'string' ? search.toLowerCase() : '';
         const matchesSearch = 
-          tutor.name?.toLowerCase().includes(searchLower) ||
-          (Array.isArray(tutor.subjects) && tutor.subjects.some((s: any) => 
-            String(s).toLowerCase().includes(searchLower)
-          )) ||
-          String(tutor.education || '').toLowerCase().includes(searchLower) ||
-          String(tutor.introduction || '').toLowerCase().includes(searchLower);
+          tutor.name && typeof tutor.name === 'string' && tutor.name.toLowerCase().includes(searchLower) ||
+          (Array.isArray(tutor.subjects) && tutor.subjects.some((s: any) => typeof s === 'string' ? s.toLowerCase().includes(searchLower) : false)) ||
+          (typeof tutor.education === 'string' && tutor.education.toLowerCase().includes(searchLower)) ||
+          (typeof tutor.introduction === 'string' && tutor.introduction.toLowerCase().includes(searchLower));
         
         if (!matchesSearch) {
           console.log("❌ 不符合搜尋條件：", { search, tutor: tutor.name });
@@ -171,7 +169,7 @@ function FindStudentCasesPageContent() {
         }
 
         // 檢查導師的科目是否匹配分類
-        const tutorSubjects = Array.isArray(tutor.subjects) ? tutor.subjects.map((s: any) => String(s).toLowerCase()) : [];
+        const tutorSubjects = Array.isArray(tutor.subjects) ? tutor.subjects.map((s: any) => typeof s === 'string' ? s.toLowerCase() : s) : [];
         
         console.log("🔍 檢查分類：", {
           tutorName: tutor.name,
@@ -241,8 +239,7 @@ function FindStudentCasesPageContent() {
       
       // 科目篩選 - 處理多個科目的精確匹配
       if (subjects && subjects.length > 0) {
-        const tutorSubjects = Array.isArray(tutor.subjects) ? tutor.subjects.map((s: any) => String(s).toLowerCase()) : [];
-        const filterSubjects = subjects.map((s: any) => String(s).toLowerCase());
+        const filterSubjects = subjects.map((s: any) => typeof s === 'string' ? s.toLowerCase() : s);
         // 檢查導師的科目是否包含任何一個選擇的科目
         const hasMatchingSubject = tutorSubjects.some((subject: any) => 
           filterSubjects.includes(subject)
@@ -260,10 +257,8 @@ function FindStudentCasesPageContent() {
       
       // 地區篩選
       if (regions && regions.length > 0) {
-        const tutorRegions = Array.isArray(tutor.regions) 
-          ? tutor.regions.map((r: any) => String(r).toLowerCase())
-          : [];
-        const filterRegions = regions.map((r: any) => String(r).toLowerCase());
+        const tutorRegions = Array.isArray(tutor.regions) ? tutor.regions.map((r: any) => typeof r === 'string' ? r.toLowerCase() : r) : [];
+        const filterRegions = regions.map((r: any) => typeof r === 'string' ? r.toLowerCase() : r);
         
         const hasMatchingRegion = tutorRegions.some((tutorRegion: any) => 
           filterRegions.some((filterRegion: any) => tutorRegion.includes(filterRegion))
@@ -277,10 +272,8 @@ function FindStudentCasesPageContent() {
       
       // 教學模式篩選
       if (modes && modes.length > 0) {
-        const tutorModes = Array.isArray(tutor.modes)
-          ? tutor.modes.map((m: any) => String(m).toLowerCase())
-          : [];
-        const filterModes = modes.map((m: any) => String(m).toLowerCase());
+        const tutorModes = Array.isArray(tutor.modes) ? tutor.modes.map((m: any) => typeof m === 'string' ? m.toLowerCase() : m) : [];
+        const filterModes = modes.map((m: any) => typeof m === 'string' ? m.toLowerCase() : m);
         
         const hasMatchingMode = tutorModes.some((tutorMode: any) => 
           filterModes.some((filterMode: any) => tutorMode.includes(filterMode))
