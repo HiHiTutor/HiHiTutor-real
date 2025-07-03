@@ -285,11 +285,15 @@ export const categoryApi = {
 
 // 搜尋相關 API
 export const searchApi = {
-  // 搜尋導師
+  // 統一搜尋（返回包含 tutors 和 cases 的結果）
+  search: (query: string) => 
+    fetchApi(`/search?q=${encodeURIComponent(query)}`),
+  
+  // 搜尋導師（向後兼容）
   searchTutors: (query: string) => 
     fetchApi(`/search?q=${encodeURIComponent(query)}`),
   
-  // 搜尋個案
+  // 搜尋個案（向後兼容）
   searchCases: (query: string) => 
     fetchApi(`/search?q=${encodeURIComponent(query)}`),
 };

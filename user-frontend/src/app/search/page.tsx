@@ -36,11 +36,15 @@ function SearchPageContent() {
 
       try {
         setLoading(true);
-        const [tutors, cases] = await Promise.all([
-          searchApi.searchTutors(query),
-          searchApi.searchCases(query)
-        ]);
-        setResults({ tutors, cases });
+        const searchResult = await searchApi.search(query);
+        console.log('🔍 搜尋結果:', searchResult);
+        console.log('📊 導師數量:', searchResult.tutors?.length || 0);
+        console.log('📊 個案數量:', searchResult.cases?.length || 0);
+        
+        setResults({
+          tutors: searchResult.tutors || [],
+          cases: searchResult.cases || []
+        });
         setError(null);
       } catch (err) {
         console.error('搜尋失敗:', err);
