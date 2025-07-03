@@ -5,6 +5,7 @@ import { caseApi } from '@/services/api';
 import CaseCard from '@/components/CaseCard';
 
 export default function FindTutorCasesPage() {
+  console.log('🧠 TRACE: src/app/find-tutor-cases/page.tsx 被正確使用 ✅');
   console.log('🧠 [Trace] ✅ 你而家用緊 src/app/find-tutor-cases/page.tsx 呢個 Component');
   console.log('💥 進入 page.tsx: /find-tutor-cases ✅');
 
