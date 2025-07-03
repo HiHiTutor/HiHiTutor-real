@@ -118,9 +118,8 @@ function FindStudentCasesPageContent() {
       if (search && search.trim()) {
         const searchLower = typeof search === 'string' ? search.toLowerCase() : '';
         const matchesSearch = 
-          caseItem.title && typeof caseItem.title === 'string' && caseItem.title.toLowerCase().includes(searchLower) ||
-          (caseItem.subjects && Array.isArray(caseItem.subjects) && caseItem.subjects.some((s: any) => typeof s === 'string' ? s.toLowerCase().includes(searchLower) : false));
-        
+          (caseItem.title && typeof caseItem.title === 'string' && caseItem.title.toLowerCase().includes(searchLower)) ||
+          (caseItem.subjects && Array.isArray(caseItem.subjects) && caseItem.subjects.filter((s: any) => typeof s === 'string').some((s: string) => s.toLowerCase().includes(searchLower)));
         if (!matchesSearch) {
           console.log("❌ 不符合搜尋條件：", { search, caseItem: caseItem.title });
           return false;
@@ -129,13 +128,11 @@ function FindStudentCasesPageContent() {
 
       // 地區篩選
       if (regions && regions.length > 0) {
-        const caseRegions = Array.isArray(caseItem.regions) ? caseItem.regions.map((r: any) => typeof r === 'string' ? r.toLowerCase() : '') : [];
-        const filterRegions = Array.isArray(regions) ? regions.map((r: any) => typeof r === 'string' ? r.toLowerCase() : '') : [];
-        
-        const hasMatchingRegion = caseRegions.some((caseRegion: any) => 
-          filterRegions.some((filterRegion: any) => caseRegion.includes(filterRegion))
+        const caseRegions = Array.isArray(caseItem.regions) ? caseItem.regions.filter((r: any) => typeof r === 'string').map((r: string) => r.toLowerCase()) : [];
+        const filterRegions = Array.isArray(regions) ? regions.filter((r: any) => typeof r === 'string').map((r: string) => r.toLowerCase()) : [];
+        const hasMatchingRegion = caseRegions.some((caseRegion: string) => 
+          filterRegions.some((filterRegion: string) => caseRegion.includes(filterRegion))
         );
-        
         if (!hasMatchingRegion) {
           console.log("❌ 地區不匹配：", { caseTitle: caseItem.title, caseRegions, filterRegions });
           return false;
@@ -144,13 +141,11 @@ function FindStudentCasesPageContent() {
       
       // 教學模式篩選
       if (modes && modes.length > 0) {
-        const caseModes = Array.isArray(caseItem.modes) ? caseItem.modes.map((m: any) => typeof m === 'string' ? m.toLowerCase() : '') : [];
-        const filterModes = Array.isArray(modes) ? modes.map((m: any) => typeof m === 'string' ? m.toLowerCase() : '') : [];
-        
-        const hasMatchingMode = caseModes.some((caseMode: any) => 
-          filterModes.some((filterMode: any) => caseMode.includes(filterMode))
+        const caseModes = Array.isArray(caseItem.modes) ? caseItem.modes.filter((m: any) => typeof m === 'string').map((m: string) => m.toLowerCase()) : [];
+        const filterModes = Array.isArray(modes) ? modes.filter((m: any) => typeof m === 'string').map((m: string) => m.toLowerCase()) : [];
+        const hasMatchingMode = caseModes.some((caseMode: string) => 
+          filterModes.some((filterMode: string) => caseMode.includes(filterMode))
         );
-        
         if (!hasMatchingMode) {
           console.log("❌ 教學模式不匹配：", { caseTitle: caseItem.title, caseModes, filterModes });
           return false;
