@@ -112,6 +112,11 @@ function FindStudentCasesPageContent() {
       modes
     });
 
+    // 檢查是否有任何篩選條件
+    const hasFilters = search || category || subCategory || subject || (subjects && subjects.length > 0) || (regions && regions.length > 0) || (modes && modes.length > 0);
+    
+    console.log("🔍 是否有篩選條件：", hasFilters);
+
     // 從 allCases 過濾
     const filtered = allCases.filter((caseItem: any) => {
       // 搜尋過濾
