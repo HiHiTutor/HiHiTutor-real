@@ -8,7 +8,9 @@ const getAllTutorCases = async (req, res) => {
 
     res.json({
       success: true,
-      data: cases
+      data: {
+        cases: cases
+      }
     });
   } catch (error) {
     console.error('獲取導師個案列表時發生錯誤:', error);
