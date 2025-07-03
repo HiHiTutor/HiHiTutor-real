@@ -51,19 +51,30 @@ function getRegionLabel(value: string) {
 }
 
 export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps) {
-  // region 顯示
-  const displayRegion = caseData.region
-    ? getRegionLabel(caseData.region)
-    : (caseData.regions && caseData.regions.length > 0
-        ? getRegionLabel(caseData.regions[0])
-        : '未指定');
-  
   // mode 顯示
   const displayMode = caseData.mode
     ? getTeachingModeLabel(caseData.mode)
     : (caseData.modes && caseData.modes.length > 0
         ? getTeachingModeLabel(caseData.modes[0])
         : '未指定');
+  
+  // 地點顯示邏輯
+  let displayRegion = '—';
+  const modesArr = caseData.modes || (caseData.mode ? [caseData.mode] : []);
+  const isOnlineOnly = modesArr.length === 1 && (modesArr[0] === 'online' || modesArr[0] === '線上');
+  if (!isOnlineOnly) {
+    if (Array.isArray(caseData.subRegions) && caseData.subRegions.length > 0) {
+      displayRegion = caseData.subRegions.map(r => getRegionLabel(r)).join('、');
+    } else if (Array.isArray(caseData.regions) && caseData.regions.length > 0 && caseData.regions[0] !== 'all-hong-kong') {
+      displayRegion = caseData.regions.map(r => getRegionLabel(r)).join('、');
+    } else if (Array.isArray(caseData.regions) && caseData.regions[0] === 'all-hong-kong') {
+      displayRegion = '全港';
+    } else if (Array.isArray(caseData.region) && caseData.region.length > 0) {
+      displayRegion = caseData.region.map(r => getRegionLabel(r)).join('、');
+    } else {
+      displayRegion = '未指定';
+    }
+  }
   
   // 處理經驗要求顯示
   const displayExperience = caseData.experience || caseData.experienceLevel || caseData.requirement || '未指定';
