@@ -25,7 +25,9 @@ const generateEmail = (name) => {
   const domains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com'];
   const domain = domains[Math.floor(Math.random() * domains.length)];
   const randomNum = Math.floor(Math.random() * 1000);
-  return `${name.toLowerCase().replace(/\s+/g, '')}${randomNum}@${domain}`;
+  return typeof name === 'string'
+    ? `${name.toLowerCase().replace(/\s+/g, '')}${randomNum}@${domain}`
+    : `unknown${randomNum}@${domain}`;
 };
 
 // 生成隨機密碼
