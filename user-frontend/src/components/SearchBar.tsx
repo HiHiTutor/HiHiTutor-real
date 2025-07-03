@@ -10,6 +10,7 @@ const SearchBar = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('搜尋類型:', searchType);
     if (searchQuery.trim()) {
       if (searchType === 'tutor') {
         router.push(`/find-student-cases?search=${encodeURIComponent(searchQuery.trim())}`);
