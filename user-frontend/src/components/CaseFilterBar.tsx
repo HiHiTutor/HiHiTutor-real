@@ -117,14 +117,16 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
 
   // 根據當前頁面決定是否顯示目標選擇和自動設定目標值
   const shouldShowTarget = () => {
-    return true; // 所有頁面都顯示目標選單
+    return false; // 隱藏目標選單，改為自動設定
   };
 
   const getAutoTarget = () => {
-    if (pathname === '/find-tutor-cases') {
-      return 'find-tutor'; // ✅ 對應搵學生（導師要收學生）
+    if (pathname === '/tutors') {
+      return 'find-tutor'; // 導師列表頁面，默認目標是"導師列表"
     } else if (pathname === '/find-student-cases') {
-      return 'find-student'; // ✅ 對應搵導師（學生要補習）
+      return 'find-student'; // 補習個案頁面，默認目標是"補習個案"
+    } else if (pathname === '/find-tutor-cases') {
+      return 'find-tutor'; // 導師要收學生
     }
     return '';
   };
@@ -246,8 +248,9 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
   };
 
   const handleReset = () => {
+    const autoTarget = getAutoTarget(); // 保持自動設定的目標值
     setFilters({
-      target: '',
+      target: autoTarget,
       category: '',
       subCategory: '',
       subjects: [],
@@ -333,13 +336,13 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
   const getSelectedOptions = () => {
     const selected: { key: string; label: string; value: string }[] = [];
     
-    // 目標
-    if (filters.target) {
-      const targetOption = TARGET_OPTIONS.find(t => t.value === filters.target);
-      if (targetOption) {
-        selected.push({ key: 'target', label: targetOption.label, value: filters.target });
-      }
-    }
+    // 目標 - 不顯示在已選項目中
+    // if (filters.target) {
+    //   const targetOption = TARGET_OPTIONS.find(t => t.value === filters.target);
+    //   if (targetOption) {
+    //     selected.push({ key: 'target', label: targetOption.label, value: filters.target });
+    //   }
+    // }
     
     // 分類
     if (filters.category) {
@@ -408,9 +411,6 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
       const newFilters = { ...prev };
       
       switch (key) {
-        case 'target':
-          newFilters.target = '';
-          break;
         case 'category':
           newFilters.category = '';
           newFilters.subCategory = '';
@@ -446,8 +446,9 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
 
   // 清除所有選項
   const clearAllOptions = () => {
+    const autoTarget = getAutoTarget(); // 保持自動設定的目標值
     setFilters({
-      target: '',
+      target: autoTarget,
       category: '',
       subCategory: '',
       subjects: [],
@@ -497,24 +498,6 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
 
         {/* 篩選選項 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-sm:gap-3 max-[700px]:grid-cols-2 max-[700px]:gap-4">
-          {/* 目標選擇 */}
-          {shouldShowTarget() && (
-            <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
-              <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">目標</label>
-              <select
-                value={filters.target}
-                onChange={(e) => handleFilterChange('target', e.target.value)}
-                className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
-              >
-                <option value="">請選擇</option>
-                {TARGET_OPTIONS.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
 
           {/* 分類選擇 */}
           <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
