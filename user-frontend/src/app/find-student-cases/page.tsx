@@ -132,7 +132,11 @@ function FindStudentCasesPageContent() {
       }
 
       // 地區篩選
-      if (regions && regions.length > 0) {
+      if (
+        regions &&
+        regions.length > 0 &&
+        !(regions.length === 1 && regions[0] === 'unlimited')
+      ) {
         const caseRegions = Array.isArray(caseItem.regions) ? caseItem.regions.filter((r: any) => typeof r === 'string').map((r: string) => r.toLowerCase()) : [];
         const filterRegions = Array.isArray(regions) ? regions.filter((r: any) => typeof r === 'string').map((r: string) => r.toLowerCase()) : [];
         const hasMatchingRegion = caseRegions.some((caseRegion: string) => 
