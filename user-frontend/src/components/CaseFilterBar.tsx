@@ -249,9 +249,9 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     // 根據 target 決定導向頁面
     let targetPath = pathname;
     if (filters.target === 'find-tutor') {
-      targetPath = '/find-student-cases';
+      targetPath = '/tutors';  // 導師列表
     } else if (filters.target === 'find-student') {
-      targetPath = '/find-tutor-cases';
+      targetPath = '/find-student-cases';  // 補習個案
     }
 
     const queryString = params.toString();
