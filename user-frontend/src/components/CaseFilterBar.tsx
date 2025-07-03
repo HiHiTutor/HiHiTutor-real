@@ -121,13 +121,11 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl }) => 
   };
 
   const getAutoTarget = () => {
-    // 根據頁面路徑自動設定目標
-    if (pathname === '/tutors') {
-      return 'find-tutor';
-    } else if (pathname === '/find-tutor-cases') {
-      return 'find-student';
+    if (pathname === '/find-tutor-cases') {
+      return 'find-tutor'; // ✅ 對應搵學生（導師要收學生）
+    } else if (pathname === '/find-student-cases') {
+      return 'find-student'; // ✅ 對應搵導師（學生要補習）
     }
-    // 首頁或其他頁面返回空值，讓用戶選擇
     return '';
   };
 
