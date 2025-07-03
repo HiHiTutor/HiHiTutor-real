@@ -179,6 +179,16 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     });
   }, [searchParams, pathname]);
 
+  // 同步 filters.target 與 currentTarget
+  useEffect(() => {
+    if (currentTarget) {
+      setFilters(prev => ({
+        ...prev,
+        target: currentTarget === 'tutors' ? 'find-tutor' : 'find-student'
+      }));
+    }
+  }, [currentTarget]);
+
   const handleFilterChange = (key: keyof FilterState, value: any) => {
     setFilters(prev => ({
       ...prev,
