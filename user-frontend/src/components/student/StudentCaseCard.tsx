@@ -58,10 +58,12 @@ export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps
   const subjects = caseData.subjects || [];
   function getSubjectLabel(value: string) {
     if (!value) return '';
-    // 先找主科目
     for (const key in SUBJECT_OPTIONS) {
-      const found = SUBJECT_OPTIONS[key].find((s: any) => s.value === value);
-      if (found) return found.label;
+      const arr = SUBJECT_OPTIONS[key];
+      if (Array.isArray(arr)) {
+        const found = arr.find((s: any) => s.value === value);
+        if (found) return found.label;
+      }
     }
     return value;
   }
