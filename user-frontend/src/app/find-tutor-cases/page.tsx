@@ -4,36 +4,36 @@ import React, { useEffect, useState } from 'react';
 import { caseApi } from '@/services/api';
 import CaseCard from '@/components/CaseCard';
 
-
-
 export default function FindTutorCasesPage() {
-  const [cases, setCases] = useState<any[]>([]);
+  console.log('💥 進入 page.tsx: /find-tutor-cases ✅');
+
+  const [cases, setCases] = useState([]);
 
   useEffect(() => {
-    console.log('📍 useEffect triggered – 正在 fetch 學生個案');
+    console.log('🧪 useEffect 開始執行: 準備呼叫 getAllStudentCases()');
 
     caseApi.getAllStudentCases()
-      .then((result) => {
-        console.log('📦 getAllStudentCases response:', result);
-        if (result.success && result.data) {
-          setCases(result.data);
+      .then((res) => {
+        console.log('🎯 收到學生個案 API 回應:', res);
+        if (res.success && res.data) {
+          setCases(res.data);
         } else {
-          console.warn('⚠️ getAllStudentCases returned empty or error:', result);
+          console.warn('⚠️ 回傳結果無資料或失敗:', res);
         }
       })
       .catch((err) => {
-        console.error('❌ getAllStudentCases 發生錯誤:', err);
+        console.error('❌ 呼叫 getAllStudentCases 發生錯誤:', err);
       });
   }, []);
 
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold">📄 補習個案（學生出Post）</h1>
+      <h1 className="text-xl font-bold">📄 補習個案（學生出 Post）</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
         {cases.length === 0 && <p>😢 暫時無個案</p>}
         {cases.map((c: any, index: number) => {
           console.log(`🧩 渲染個案 #${index}:`, c);
-          return <CaseCard key={c.id || index} caseData={c} />;
+          return <CaseCard key={c.id || index} caseData={c} routeType="student" />;
         })}
       </div>
     </div>
