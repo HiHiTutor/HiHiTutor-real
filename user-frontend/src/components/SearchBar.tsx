@@ -12,14 +12,19 @@ const SearchBar = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const query = searchQuery.trim();
+
+    console.log('🔍 handleSearch triggered', {
+      searchType,
+      query,
+    });
+
     if (!query) return;
 
-    // 根據 searchType 準確導航（UI label 無變）
     if (searchType === 'tutor') {
-      // 學生搵導師 ➝ 去導師列表（find-student-cases）
+      // 學生搵導師 ➝ 導向導師列表
       router.push(`/find-student-cases?search=${encodeURIComponent(query)}&target=find-student`);
     } else if (searchType === 'student') {
-      // 導師搵學生 ➝ 去補習個案列表（find-tutor-cases）
+      // 導師搵學生 ➝ 導向補習個案
       router.push(`/find-tutor-cases?search=${encodeURIComponent(query)}&target=find-tutor`);
     }
   };
