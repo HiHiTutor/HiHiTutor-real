@@ -56,15 +56,18 @@ function getRegionLabel(value: string) {
   return value;
 }
 
-// 兼容 object array / string array 顯示
-const formatList = (arr: any[] | undefined) =>
-  Array.isArray(arr)
-    ? arr.map((x) => (typeof x === 'object' && x.label ? x.label : getSubjectName?.(x) || x)).join('、')
-    : '';
+// 兼容 object array / string array 顯示（針對科目）
+const formatSubjects = (arr: any[] | undefined) => {
+  if (!Array.isArray(arr)) return '';
+  if (arr.length > 0 && typeof arr[0] === 'object' && arr[0].label) {
+    return arr.map(x => x.label).join('、');
+  }
+  return arr.map(x => getSubjectName(x)).join('、');
+};
 
 export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps) {
   // 1. 科目顯示
-  const displaySubjects = formatList(caseData.subjects);
+  const displaySubjects = formatSubjects(caseData.subjects);
 
   // 2. 模式顯示
   const modeMap: Record<string, string> = { 'unlimited': '皆可', 'in-person': '面授', 'online': '網課', '線上': '網課' };
