@@ -1,3 +1,4 @@
+console.log("StudentCaseCard rendered v3");
 import { formatDate } from '@/utils/date';
 import { getTeachingModeLabel } from '@/constants/teachingModeOptions';
 import REGION_OPTIONS from '@/constants/regionOptions';
@@ -128,7 +129,7 @@ export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps
         <div className="space-y-2">
           <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
             <span className="w-16 text-blue-600 font-medium">科目：</span>
-            <span>{displaySubjects || '未指定'}</span>
+            <span className="overflow-hidden text-ellipsis whitespace-nowrap flex-1">{displaySubjects || '未指定'}</span>
           </div>
           <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
             <span className="w-16 text-blue-600 font-medium">模式：</span>
@@ -140,7 +141,7 @@ export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps
           </div>
           <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
             <span className="w-16 text-blue-600 font-medium">每堂預算：</span>
-            <span className="font-semibold text-blue-900 whitespace-nowrap">{displayBudget}</span>
+            <span className="font-semibold text-blue-900 whitespace-nowrap overflow-hidden text-ellipsis flex-1">{displayBudget}</span>
           </div>
         </div>
         <div className="mt-4 text-xs text-right text-blue-500 max-sm:mt-3 max-[700px]:mt-4 border-t border-blue-100 pt-2">
