@@ -3,6 +3,7 @@ import { getTeachingModeLabel } from '@/constants/teachingModeOptions';
 import REGION_OPTIONS from '@/constants/regionOptions';
 import SUBJECT_OPTIONS from '@/constants/subjectOptions';
 import Link from 'next/link';
+import { getSubjectName } from '@/constants/subjectOptions';
 
 interface StudentCase {
   id: string;
@@ -54,27 +55,15 @@ function getRegionLabel(value: string) {
   return value;
 }
 
+// 兼容 object array / string array 顯示
+const formatList = (arr: any[] | undefined) =>
+  Array.isArray(arr)
+    ? arr.map((x) => (typeof x === 'object' && x.label ? x.label : getSubjectName?.(x) || x)).join('、')
+    : '';
+
 export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps) {
-  // 1. 科目顯示（合併所有可能欄位並去重）
-  const allSubjects = [
-    ...(Array.isArray(caseData.subjects) ? caseData.subjects : []),
-    ...(caseData.subject ? [caseData.subject] : []),
-    ...(caseData.category ? [caseData.category] : []),
-    ...(caseData.subCategory ? [caseData.subCategory] : []),
-  ];
-  const uniqueSubjects = Array.from(new Set(allSubjects));
-  function getSubjectLabel(value: string) {
-    if (!value) return '';
-    for (const key in SUBJECT_OPTIONS) {
-      const arr = SUBJECT_OPTIONS[key];
-      if (Array.isArray(arr)) {
-        const found = arr.find((s: any) => s.value === value);
-        if (found) return found.label;
-      }
-    }
-    return value;
-  }
-  const displaySubjects = uniqueSubjects.slice(0, 3).map(getSubjectLabel).join('、') + (uniqueSubjects.length > 3 ? ' +' : '');
+  // 1. 科目顯示
+  const displaySubjects = formatList(caseData.subjects);
 
   // 2. 模式顯示
   const modeMap: Record<string, string> = { 'unlimited': '皆可', 'in-person': '面授', 'online': '網課', '線上': '網課' };
