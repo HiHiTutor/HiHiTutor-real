@@ -66,7 +66,17 @@ export const SUBJECT_MAP: { [key: string]: string } = {
   'chinese-language': '廣東話／普通話',
   'second-language': '興趣／第二語言學習',
   'computer-skills': '電腦技能（Excel／Photoshop 等）',
-  'exam-prep': '考試準備（IELTS／TOEFL／JLPT）'
+  'exam-prep': '考試準備（IELTS／TOEFL／JLPT）',
+  'ib-physics': 'IB物理',
+  'ib-chemistry': 'IB化學',
+  'ib-math': 'IB數學',
+  'ib-biology': 'IB生物',
+  'ib-english': 'IB英文',
+  'ib-chinese': 'IB中文',
+  'adult-english': '成人英文',
+  'adult-japanese': '成人日語',
+  'adult-mandarin': '成人普通話',
+  'adult-cantonese': '成人廣東話',
 };
 
 // 輔助函數：獲取科目中文名稱
