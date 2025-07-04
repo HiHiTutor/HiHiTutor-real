@@ -94,13 +94,27 @@ morgan.token('request-body', (req) => {
 app.use(morgan(':method :url :status :response-time ms - :request-body'));
 
 // CORS configuration
+// 允許的網域清單
+const allowedOrigins = [
+  'https://www.hihitutor.com',                       // 正式前台
+  'https://api.hihitutor.com',                       // 正式 API 自身 call（如 SSR 或內部跳轉）
+  'https://hi-hi-tutor-real-backend2.vercel.app',    // develop backend URL
+  'https://hi-hi-tutor-real.vercel.app',             // 現有 Vercel 部署
+  'https://hi-hi-tutor-real-admin-frontend.vercel.app', // 現有 admin frontend
+  'http://localhost:3000',                           // local frontend
+  'http://localhost:3001'                            // local admin frontend
+];
+
+// 使用 cors middleware
 app.use(cors({
-  origin: [
-    'https://hi-hi-tutor-real.vercel.app',
-    'https://hi-hi-tutor-real-admin-frontend.vercel.app',
-    'http://localhost:3000',
-    'http://localhost:3001'
-  ], // 測試階段先允許全部，正式可限制 https://hi-hi-tutor-real.vercel.app
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('❌ CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS: ' + origin));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept', 'X-Requested-With'],
   exposedHeaders: ['Content-Length', 'X-Requested-With'],
