@@ -129,7 +129,7 @@ export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps
         <div className="space-y-2">
           <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
             <span className="w-16 text-blue-600 font-medium">科目：</span>
-            <span className="overflow-hidden text-ellipsis whitespace-nowrap flex-1">{displaySubjects || '未指定'}</span>
+            <span className="line-clamp-2 overflow-hidden text-ellipsis flex-1">{displaySubjects || '未指定'}</span>
           </div>
           <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
             <span className="w-16 text-blue-600 font-medium">模式：</span>
