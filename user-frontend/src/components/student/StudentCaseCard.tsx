@@ -62,7 +62,7 @@ const formatSubjects = (arr: any[] | undefined) => {
   if (arr.length > 0 && typeof arr[0] === 'object' && arr[0].label) {
     return arr.map(x => x.label).join('、');
   }
-  return arr.map(x => getSubjectName(x)).join('、');
+  return arr.map(s => getSubjectName(s)).join('、');
 };
 
 export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps) {
@@ -144,7 +144,7 @@ export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps
           </div>
           <div className="flex items-center text-sm text-blue-800 max-sm:text-xs max-[700px]:text-sm">
             <span className="w-16 text-blue-600 font-medium">每堂預算：</span>
-            <span className="font-semibold text-blue-900 whitespace-nowrap overflow-hidden text-ellipsis flex-1">{displayBudget}</span>
+            <span className="font-semibold text-blue-900 whitespace-nowrap truncate flex-1">{displayBudget}</span>
           </div>
         </div>
         <div className="mt-4 text-xs text-right text-blue-500 max-sm:mt-3 max-[700px]:mt-4 border-t border-blue-100 pt-2">
