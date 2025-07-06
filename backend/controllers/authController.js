@@ -800,13 +800,27 @@ const sendVerificationCode = async (req, res) => {
       });
     }
 
+    // 檢查是否在 90 秒內重複發送
+    const recentToken = await RegisterToken.findOne({
+      phone,
+      createdAt: { $gte: new Date(Date.now() - 90000) } // 90 秒內
+    }).sort({ createdAt: -1 });
+
+    if (recentToken) {
+      const timeLeft = Math.ceil((90000 - (Date.now() - recentToken.createdAt.getTime())) / 1000);
+      return res.status(429).json({
+        success: false,
+        message: `請等待 ${timeLeft} 秒後再重新發送驗證碼`
+      });
+    }
+
     // 生成 6 位數字驗證碼
     const code = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log(`📱 發送驗證碼 ${code} 到 ${phone}`);
+    console.log(`📱 準備發送驗證碼 ${code} 到 ${phone}`);
 
     // 生成臨時令牌
     const token = `TEMP-REGISTER-TOKEN-${Math.random().toString(36).substring(2, 15)}`;
-    const expiresAt = new Date(Date.now() + 300000); // 5 分鐘後過期
+    const expiresAt = new Date(Date.now() + 600000); // 10 分鐘後過期
 
     // 保存驗證碼和令牌到數據庫
     const registerToken = await RegisterToken.create({
@@ -824,8 +838,21 @@ const sendVerificationCode = async (req, res) => {
       expiresAt: registerToken.expiresAt
     });
 
-    // TODO: 實際發送 SMS 的邏輯
-    // 這裡先模擬發送成功
+    // 使用 Bird SMS 發送驗證碼
+    try {
+      const { sendBirdVerificationCode } = require('../utils/sendBirdSMS');
+      const formattedPhone = phone.startsWith('+') ? phone : `+852${phone}`;
+      
+      await sendBirdVerificationCode(formattedPhone, code);
+      console.log('✅ Bird SMS 發送成功');
+    } catch (smsError) {
+      console.error('❌ Bird SMS 發送失敗:', smsError);
+      // 即使 SMS 發送失敗，也保留驗證碼記錄，但返回錯誤
+      return res.status(500).json({
+        success: false,
+        message: 'SMS 發送失敗，請稍後再試'
+      });
+    }
 
     return res.status(200).json({
       success: true,
@@ -880,7 +907,7 @@ const verifyCode = async (req, res) => {
 
     // 驗證碼驗證成功，生成新的註冊令牌
     const token = `TEMP-REGISTER-TOKEN-${Math.random().toString(36).substring(2, 15)}`;
-    const expiresAt = new Date(Date.now() + 300000); // 5 分鐘後過期
+    const expiresAt = new Date(Date.now() + 600000); // 10 分鐘後過期
 
     // 標記舊的驗證碼為已使用
     tokenData.isUsed = true;
