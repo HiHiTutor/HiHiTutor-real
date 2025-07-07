@@ -5,7 +5,7 @@ class SMSService {
   constructor() {
     this.clientId = process.env.SMS_TO_CLIENT_ID;
     this.clientSecret = process.env.SMS_TO_CLIENT_SECRET;
-    this.baseURL = 'https://api.sms.to';
+    this.baseURL = 'https://api.sms.to/v1';
     this.authURL = 'https://auth.sms.to';
   }
 
@@ -76,7 +76,7 @@ class SMSService {
       });
 
       // 發送 SMS
-      const response = await axios.post(`${this.baseURL}/sms/send`, smsData, {
+      const response = await axios.post(`${this.baseURL}/messages/sms`, smsData, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`
