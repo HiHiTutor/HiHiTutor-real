@@ -48,8 +48,17 @@ export default function FindStudentCaseDetailPage() {
     fetchCase();
   }, [id]);
 
-  if (loading) return <div>Loading...</div>;
-  if (!caseDetail) return <div>此個案未找到或已被刪除。</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="text-blue-600 text-lg">載入中...</div>
+    </div>
+  );
+  
+  if (!caseDetail) return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="text-red-600 text-lg">此個案未找到或已被刪除。</div>
+    </div>
+  );
 
   // 處理個案 ID
   const getCaseId = () => {
@@ -109,37 +118,65 @@ export default function FindStudentCaseDetailPage() {
   };
 
   return (
-    <section className="px-4 py-8 max-w-screen-xl mx-auto">
-      <div className="flex items-center gap-2 mb-6">
-        <span className="text-2xl">👩‍🏫</span>
-        <h2 className="text-2xl font-bold border-l-4 border-yellow-400 pl-3">導師個案詳情</h2>
-      </div>
-      <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-8">
-        <p className="text-gray-600">個案 ID：{getCaseId()}</p>
-        <p className="text-gray-600">科目：{getSubjects()}</p>
-        <p className="text-gray-600">地點：{getLocation()}</p>
-        <p className="text-gray-600">收費：{getBudget()}</p>
-        <p className="text-gray-600">模式：{getMode()}</p>
-        <p className="text-gray-600">要求：{getRequirements()}</p>
-        <div>
-          <a
-            href={`https://wa.me/85295011159?text=${encodeURIComponent(
-              `Hello，我喺 HiHiTutor 見到 caseID ${getCaseId()}，想申請呢單case，唔該晒!`
-            )}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <button className="mt-4 py-2 px-4 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
-              申請此個案
-            </button>
-          </a>
-          {showError && (
-            <div className="mt-4 text-red-600">
-              {!user ? '請先登入' : '需要升級為導師才可申請此個案'}
+    <div className="max-w-4xl mx-auto">
+      <div className="bg-white rounded-xl shadow-lg border border-blue-200 overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+          <h2 className="text-xl font-bold text-white">個案詳情</h2>
+          <p className="text-blue-100 text-sm mt-1">個案 ID: {getCaseId()}</p>
+        </div>
+        
+        <div className="p-6 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-blue-50 rounded-lg p-4">
+              <h3 className="font-semibold text-blue-800 mb-2">📚 科目</h3>
+              <p className="text-gray-700">{getSubjects()}</p>
             </div>
-          )}
+            
+            <div className="bg-blue-50 rounded-lg p-4">
+              <h3 className="font-semibold text-blue-800 mb-2">📍 地點</h3>
+              <p className="text-gray-700">{getLocation()}</p>
+            </div>
+            
+            <div className="bg-blue-50 rounded-lg p-4">
+              <h3 className="font-semibold text-blue-800 mb-2">💰 收費</h3>
+              <p className="text-gray-700">{getBudget()}</p>
+            </div>
+            
+            <div className="bg-blue-50 rounded-lg p-4">
+              <h3 className="font-semibold text-blue-800 mb-2">🎯 模式</h3>
+              <p className="text-gray-700">{getMode()}</p>
+            </div>
+          </div>
+          
+          <div className="bg-blue-50 rounded-lg p-4">
+            <h3 className="font-semibold text-blue-800 mb-2">📋 要求</h3>
+            <p className="text-gray-700">{getRequirements()}</p>
+          </div>
+          
+          <div className="pt-4">
+            <a
+              href={`https://wa.me/85295011159?text=${encodeURIComponent(
+                `Hello，我喺 HiHiTutor 見到 caseID ${getCaseId()}，想申請呢單case，唔該晒!`
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block w-full md:w-auto"
+            >
+              <button className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 shadow-md">
+                📱 申請此個案
+              </button>
+            </a>
+            
+            {showError && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-600 text-sm">
+                  {!user ? '請先登入' : '需要升級為導師才可申請此個案'}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 } 
