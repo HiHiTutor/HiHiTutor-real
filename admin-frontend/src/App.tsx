@@ -7,6 +7,7 @@ import UserDetail from './pages/UserDetail';
 import Cases from './pages/Cases';
 import CaseDetail from './pages/CaseDetail';
 import Statistics from './pages/Statistics';
+import SearchStatistics from './pages/SearchStatistics';
 import Login from './pages/Login';
 import { useAppSelector } from './hooks/redux';
 import CreateUser from './pages/CreateUser';
@@ -46,6 +47,7 @@ const App: React.FC = () => {
       <Route path="/cases/create" element={<ProtectedRoute element={<Layout><CreateCase /></Layout>} />} />
       <Route path="/cases/:id" element={<ProtectedRoute element={<Layout><CaseDetail /></Layout>} />} />
       <Route path="/statistics" element={<ProtectedRoute element={<Layout><Statistics /></Layout>} />} />
+      <Route path="/search-statistics" element={<ProtectedRoute element={<Layout><SearchStatistics /></Layout>} />} />
       <Route path="/tutor-applications" element={<ProtectedRoute element={<Layout><TutorApplications /></Layout>} />} />
       <Route path="/tutor-profile-approvals" element={<ProtectedRoute element={<Layout><TutorProfileApprovals /></Layout>} />} />
       

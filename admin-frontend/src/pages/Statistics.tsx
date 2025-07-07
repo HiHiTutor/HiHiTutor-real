@@ -10,13 +10,17 @@ import {
   ListItem,
   ListItemText,
   Divider,
+  Button,
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { Search as SearchIcon } from '@mui/icons-material';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { statisticsAPI } from '../services/api';
 import { setStatistics } from '../store/slices/statisticsSlice';
 
 const Statistics: React.FC = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { statistics } = useAppSelector((state) => state.statistics);
 
   useEffect(() => {
@@ -38,9 +42,18 @@ const Statistics: React.FC = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        Platform Statistics
-      </Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography variant="h4" gutterBottom>
+          Platform Statistics
+        </Typography>
+        <Button
+          variant="contained"
+          startIcon={<SearchIcon />}
+          onClick={() => navigate('/search-statistics')}
+        >
+          查看搜尋統計
+        </Button>
+      </Box>
 
       <Grid container spacing={3}>
         {/* User Statistics */}
