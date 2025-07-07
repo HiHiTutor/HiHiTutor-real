@@ -5,7 +5,7 @@ class SMSService {
   constructor() {
     this.clientId = process.env.SMS_TO_CLIENT_ID;
     this.clientSecret = process.env.SMS_TO_CLIENT_SECRET;
-    this.baseURL = 'https://api.sms.to';
+    this.baseURL = 'https://api.sms.to/v1';
   }
 
   // 生成6位數驗證碼
@@ -18,7 +18,7 @@ class SMSService {
     try {
       console.log('🔐 獲取 SMS.to 訪問令牌...');
       
-      const response = await axios.post(`${this.baseURL}/oauth/token`, {
+      const response = await axios.post(`${this.baseURL}/auth/token`, {
         grant_type: 'client_credentials',
         client_id: this.clientId,
         client_secret: this.clientSecret
@@ -68,7 +68,7 @@ class SMSService {
       });
 
       // 發送 SMS
-      const response = await axios.post(`${this.baseURL}/sms/send`, smsData, {
+      const response = await axios.post(`${this.baseURL}/messages/sms`, smsData, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`
