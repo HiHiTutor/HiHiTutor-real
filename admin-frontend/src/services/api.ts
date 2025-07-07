@@ -226,6 +226,10 @@ export const statisticsAPI = {
     };
   }),
   getSubjectStats: () => api.get<Statistics>('/admin/statistics/subjects'),
+  getSearchStats: (params?: { startDate?: string; endDate?: string; groupBy?: string }) => 
+    api.get('/admin/statistics/search', { params }),
+  getMatchingStats: (params?: { startDate?: string; endDate?: string }) => 
+    api.get('/admin/statistics/matching', { params }),
 };
 
 // Auth API

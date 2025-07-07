@@ -4,6 +4,7 @@ const { validateUserUpdate } = require('../validators/userValidator');
 const bcrypt = require('bcryptjs');
 const StudentCase = require('../models/StudentCase');
 const TutorCase = require('../models/TutorCase');
+const SearchLog = require('../models/SearchLog');
 const connectDB = require('../config/db');
 const mongoose = require('mongoose');
 
@@ -882,6 +883,254 @@ const getPlatformStats = async (req, res) => {
   }
 };
 
+// 獲取搜尋統計數據
+const getSearchStats = async (req, res) => {
+  try {
+    const { startDate, endDate, groupBy = 'day' } = req.query;
+    
+    // 設置默認日期範圍（如果沒有提供）
+    const defaultStartDate = new Date();
+    defaultStartDate.setMonth(defaultStartDate.getMonth() - 1); // 默認查詢過去一個月
+    
+    const dateMatch = {
+      createdAt: {
+        $gte: startDate ? new Date(startDate) : defaultStartDate,
+        $lte: endDate ? new Date(endDate) : new Date(),
+      },
+    };
+
+    // 統計搜尋科目頻率
+    const subjectSearchStats = await SearchLog.aggregate([
+      { $match: dateMatch },
+      { $unwind: '$subjects' },
+      {
+        $group: {
+          _id: '$subjects',
+          searchCount: { $sum: 1 },
+          uniqueUsers: { $addToSet: '$userId' },
+          avgResultsCount: { $avg: { $add: ['$resultsCount.tutors', '$resultsCount.cases'] } }
+        }
+      },
+      {
+        $project: {
+          subject: '$_id',
+          searchCount: 1,
+          uniqueUserCount: { $size: '$uniqueUsers' },
+          avgResultsCount: { $round: ['$avgResultsCount', 2] }
+        }
+      },
+      { $sort: { searchCount: -1 } }
+    ]);
+
+    // 統計搜尋類型分布
+    const searchTypeStats = await SearchLog.aggregate([
+      { $match: dateMatch },
+      {
+        $group: {
+          _id: '$searchType',
+          count: { $sum: 1 },
+          uniqueUsers: { $addToSet: '$userId' }
+        }
+      },
+      {
+        $project: {
+          searchType: '$_id',
+          count: 1,
+          uniqueUserCount: { $size: '$uniqueUsers' }
+        }
+      },
+      { $sort: { count: -1 } }
+    ]);
+
+    // 統計每日搜尋趨勢
+    const dailySearchTrend = await SearchLog.aggregate([
+      { $match: dateMatch },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: groupBy === 'hour' ? '%Y-%m-%d-%H' : '%Y-%m-%d',
+              date: '$createdAt'
+            }
+          },
+          searchCount: { $sum: 1 },
+          uniqueUsers: { $addToSet: '$userId' }
+        }
+      },
+      {
+        $project: {
+          date: '$_id',
+          searchCount: 1,
+          uniqueUserCount: { $size: '$uniqueUsers' }
+        }
+      },
+      { $sort: { date: 1 } }
+    ]);
+
+    // 統計熱門搜尋關鍵字
+    const popularKeywords = await SearchLog.aggregate([
+      { $match: dateMatch },
+      {
+        $group: {
+          _id: '$searchQuery',
+          count: { $sum: 1 },
+          uniqueUsers: { $addToSet: '$userId' }
+        }
+      },
+      {
+        $project: {
+          keyword: '$_id',
+          count: 1,
+          uniqueUserCount: { $size: '$uniqueUsers' }
+        }
+      },
+      { $sort: { count: -1 } },
+      { $limit: 20 }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        subjectSearchStats,
+        searchTypeStats,
+        dailySearchTrend,
+        popularKeywords,
+        summary: {
+          totalSearches: subjectSearchStats.reduce((sum, stat) => sum + stat.searchCount, 0),
+          totalUniqueUsers: new Set(subjectSearchStats.flatMap(stat => stat.uniqueUsers)).size,
+          topSubject: subjectSearchStats[0]?.subject || '無數據',
+          topKeyword: popularKeywords[0]?.keyword || '無數據'
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error getting search statistics:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Internal server error',
+      error: error.message 
+    });
+  }
+};
+
+// 獲取成功配對統計
+const getMatchingStats = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    
+    const defaultStartDate = new Date();
+    defaultStartDate.setMonth(defaultStartDate.getMonth() - 1);
+    
+    const dateMatch = {
+      createdAt: {
+        $gte: startDate ? new Date(startDate) : defaultStartDate,
+        $lte: endDate ? new Date(endDate) : new Date(),
+      },
+    };
+
+    // 統計成功配對的科目頻率
+    const [studentCaseMatches, tutorCaseMatches] = await Promise.all([
+      StudentCase.aggregate([
+        { $match: { ...dateMatch, status: 'matched' } },
+        { $unwind: '$subjects' },
+        {
+          $group: {
+            _id: '$subjects',
+            matchCount: { $sum: 1 },
+            avgBudget: { $avg: '$budget' },
+            avgResponseTime: { $avg: { $subtract: ['$updatedAt', '$createdAt'] } }
+          }
+        },
+        {
+          $project: {
+            subject: '$_id',
+            matchCount: 1,
+            avgBudget: { $round: ['$avgBudget', 2] },
+            avgResponseTimeHours: { $round: [{ $divide: ['$avgResponseTime', 3600000] }, 2] }
+          }
+        },
+        { $sort: { matchCount: -1 } }
+      ]),
+      TutorCase.aggregate([
+        { $match: { ...dateMatch, status: 'matched' } },
+        { $unwind: '$subjects' },
+        {
+          $group: {
+            _id: '$subjects',
+            matchCount: { $sum: 1 },
+            avgPrice: { $avg: '$lessonDetails.pricePerLesson' },
+            avgResponseTime: { $avg: { $subtract: ['$updatedAt', '$createdAt'] } }
+          }
+        },
+        {
+          $project: {
+            subject: '$_id',
+            matchCount: 1,
+            avgPrice: { $round: ['$avgPrice', 2] },
+            avgResponseTimeHours: { $round: [{ $divide: ['$avgResponseTime', 3600000] }, 2] }
+          }
+        },
+        { $sort: { matchCount: -1 } }
+      ])
+    ]);
+
+    // 合併統計數據
+    const combinedMatchStats = {};
+    
+    studentCaseMatches.forEach(stat => {
+      combinedMatchStats[stat.subject] = {
+        subject: stat.subject,
+        studentMatchCount: stat.matchCount,
+        tutorMatchCount: 0,
+        totalMatchCount: stat.matchCount,
+        avgBudget: stat.avgBudget,
+        avgPrice: 0,
+        avgResponseTimeHours: stat.avgResponseTimeHours
+      };
+    });
+
+    tutorCaseMatches.forEach(stat => {
+      if (combinedMatchStats[stat.subject]) {
+        combinedMatchStats[stat.subject].tutorMatchCount = stat.matchCount;
+        combinedMatchStats[stat.subject].totalMatchCount += stat.matchCount;
+        combinedMatchStats[stat.subject].avgPrice = stat.avgPrice;
+      } else {
+        combinedMatchStats[stat.subject] = {
+          subject: stat.subject,
+          studentMatchCount: 0,
+          tutorMatchCount: stat.matchCount,
+          totalMatchCount: stat.matchCount,
+          avgBudget: 0,
+          avgPrice: stat.avgPrice,
+          avgResponseTimeHours: stat.avgResponseTimeHours
+        };
+      }
+    });
+
+    const matchStats = Object.values(combinedMatchStats).sort((a, b) => b.totalMatchCount - a.totalMatchCount);
+
+    res.json({
+      success: true,
+      data: {
+        matchStats,
+        summary: {
+          totalMatches: matchStats.reduce((sum, stat) => sum + stat.totalMatchCount, 0),
+          topMatchingSubject: matchStats[0]?.subject || '無數據',
+          avgResponseTime: matchStats.length > 0 ? 
+            matchStats.reduce((sum, stat) => sum + stat.avgResponseTimeHours, 0) / matchStats.length : 0
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error getting matching statistics:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Internal server error',
+      error: error.message 
+    });
+  }
+};
+
 module.exports = {
   // User Management
   createUser,
@@ -902,5 +1151,7 @@ module.exports = {
   
   // Statistics
   getSubjectStats,
-  getPlatformStats
+  getPlatformStats,
+  getSearchStats,
+  getMatchingStats
 }; 

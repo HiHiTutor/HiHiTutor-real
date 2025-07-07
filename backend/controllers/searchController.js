@@ -1,5 +1,32 @@
 const User = require('../models/User');
 const TutorCase = require('../models/TutorCase');
+const SearchLog = require('../models/SearchLog');
+
+// 記錄搜尋日誌
+const logSearch = async (req, searchData, results) => {
+  try {
+    const searchLog = new SearchLog({
+      userId: req.user?.id || null,
+      userType: req.user?.userType || 'anonymous',
+      searchQuery: searchData.query,
+      searchType: searchData.type || 'general',
+      subjects: searchData.subjects || [],
+      regions: searchData.regions || [],
+      filters: searchData.filters || {},
+      resultsCount: {
+        tutors: results.tutors.length,
+        cases: results.cases.length
+      },
+      ipAddress: req.ip,
+      userAgent: req.get('User-Agent')
+    });
+    
+    await searchLog.save();
+    console.log('📝 搜尋日誌已記錄:', searchLog._id);
+  } catch (error) {
+    console.error('❌ 記錄搜尋日誌失敗:', error);
+  }
+};
 
 // 搜尋導師與個案
 const search = async (req, res) => {
@@ -95,12 +122,23 @@ const search = async (req, res) => {
       updatedAt: caseItem.updatedAt
     }));
     
-    console.log(`🔍 搜尋結果: 找到 ${formattedTutors.length} 個導師, ${formattedCases.length} 個個案`);
-    
-    res.json({
+    const results = {
       tutors: formattedTutors,
       cases: formattedCases
-    });
+    };
+    
+    // 記錄搜尋日誌
+    await logSearch(req, {
+      query,
+      type: 'general',
+      subjects: [],
+      regions: [],
+      filters: {}
+    }, results);
+    
+    console.log(`🔍 搜尋結果: 找到 ${formattedTutors.length} 個導師, ${formattedCases.length} 個個案`);
+    
+    res.json(results);
   } catch (error) {
     console.error('❌ 搜尋時發生錯誤:', error);
     res.status(500).json({

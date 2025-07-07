@@ -16,7 +16,9 @@ const {
   updateCaseStatus,
   updatePromotionLevel,
   getSubjectStats,
-  getPlatformStats
+  getPlatformStats,
+  getSearchStats,
+  getMatchingStats
 } = require('../controllers/adminController');
 
 // User management routes
@@ -39,5 +41,7 @@ router.put('/cases/:id/promotion', verifyToken, isAdmin, updatePromotionLevel);
 // Statistics routes
 router.get('/statistics/subjects', verifyToken, isAdmin, getSubjectStats);
 router.get('/statistics/platform', verifyToken, isAdmin, getPlatformStats);
+router.get('/statistics/search', verifyToken, isAdmin, getSearchStats);
+router.get('/statistics/matching', verifyToken, isAdmin, getMatchingStats);
 
 module.exports = router; 
