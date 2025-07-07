@@ -149,7 +149,7 @@ export default function FindStudentCaseDetailPage() {
     // 檢查 modes 陣列
     if (caseDetail.modes && Array.isArray(caseDetail.modes) && caseDetail.modes.length > 0) {
       console.log('📦 使用 modes 陣列:', caseDetail.modes);
-      const modeNames = caseDetail.modes.map(mode => {
+      const modeNames = caseDetail.modes.map((mode: any) => {
         const modeName = getModeName(mode);
         console.log(`🎯 模式 ${mode} -> ${modeName}`);
         return modeName;
