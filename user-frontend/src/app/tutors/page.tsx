@@ -45,34 +45,44 @@ function TutorsPageContent() {
       const params = new URLSearchParams();
       if (searchQuery) params.append('search', searchQuery);
       
-      // 直接從 URL 參數讀取科目，而不是依賴 selectedSubjects 狀態
+      // 從 URL 參數讀取所有篩選條件
       const subjectsFromUrl = searchParams.getAll('subjects');
-      console.log('🔍 subjectsFromUrl:', subjectsFromUrl);
-      console.log('🔍 selectedSubjects:', selectedSubjects);
-      console.log('🔍 selectedSubjects.length:', selectedSubjects.length);
+      const regionsFromUrl = searchParams.getAll('regions');
+      const modesFromUrl = searchParams.getAll('modes');
+      const categoryFromUrl = searchParams.get('category');
       
+      console.log('🔍 URL 參數:', {
+        subjects: subjectsFromUrl,
+        regions: regionsFromUrl,
+        modes: modesFromUrl,
+        category: categoryFromUrl
+      });
+      
+      // 添加科目參數
       if (subjectsFromUrl.length > 0) {
         subjectsFromUrl.forEach(subject => params.append('subjects', subject));
         console.log('🔍 已添加科目參數到 API 請求');
-      } else if (selectedSubjects.length > 0) {
-        selectedSubjects.forEach(subject => params.append('subjects', subject));
-        console.log('🔍 已添加科目參數到 API 請求 (從 selectedSubjects)');
-      } else {
-        console.log('🔍 沒有選擇的科目，跳過科目參數');
       }
       
-      if (selectedAreas.length > 0) params.append('regions', selectedAreas.join(','));
-      if (selectedMethods.length > 0) params.append('modes', selectedMethods.join(','));
+      // 添加地區參數
+      if (regionsFromUrl.length > 0) {
+        regionsFromUrl.forEach(region => params.append('regions', region));
+        console.log('🔍 已添加地區參數到 API 請求');
+      }
+      
+      // 添加模式參數
+      if (modesFromUrl.length > 0) {
+        modesFromUrl.forEach(mode => params.append('modes', mode));
+        console.log('🔍 已添加模式參數到 API 請求');
+      }
       
       // 添加分類參數
-      const category = searchParams.get('category');
-      if (category) {
-        params.append('category', category);
+      if (categoryFromUrl) {
+        params.append('category', categoryFromUrl);
+        console.log('🔍 已添加分類參數到 API 請求');
       }
       
       params.append('page', currentPage.toString());
-      // 移除分頁限制，一次顯示所有導師
-      // params.append('limit', '12');
 
       console.log('🔍 正在獲取導師資料...', params.toString());
       
@@ -109,39 +119,7 @@ function TutorsPageContent() {
         tutorsData = data.data.tutors;
       } else {
         console.warn('⚠️ 無法識別回應格式:', data);
-        // 如果沒有數據，使用 mock 數據
-        tutorsData = [
-          {
-            id: '1',
-            name: '張老師',
-            avatarUrl: '/avatars/teacher1.png',
-            subjects: ['數學', '物理'],
-            experience: '5年教學經驗',
-            rating: 4.8,
-            isVip: true,
-            isTop: true
-          },
-          {
-            id: '2',
-            name: '李老師',
-            avatarUrl: '/avatars/teacher2.png',
-            subjects: ['英文', '中文'],
-            experience: '3年教學經驗',
-            rating: 4.6,
-            isVip: false,
-            isTop: true
-          },
-          {
-            id: '3',
-            name: '王老師',
-            avatarUrl: '/avatars/teacher3.png',
-            subjects: ['化學', '生物'],
-            experience: '7年教學經驗',
-            rating: 4.9,
-            isVip: true,
-            isTop: false
-          }
-        ];
+        tutorsData = [];
       }
       
       setTutors(tutorsData);
@@ -152,54 +130,8 @@ function TutorsPageContent() {
     } catch (error) {
       console.error('❌ 獲取導師資料時發生錯誤:', error);
       setError(error instanceof Error ? error.message : '獲取導師列表失敗');
-      
-      // 如果 API 失敗，使用 mock 數據
-      const mockTutors = [
-        {
-          id: '1',
-          name: '張老師',
-          avatarUrl: '/avatars/teacher1.png',
-          subjects: ['數學', '物理'],
-          experience: '5年教學經驗',
-          rating: 4.8,
-          isVip: true,
-          isTop: true
-        },
-        {
-          id: '2',
-          name: '李老師',
-          avatarUrl: '/avatars/teacher2.png',
-          subjects: ['英文', '中文'],
-          experience: '3年教學經驗',
-          rating: 4.6,
-          isVip: false,
-          isTop: true
-        },
-        {
-          id: '3',
-          name: '王老師',
-          avatarUrl: '/avatars/teacher3.png',
-          subjects: ['化學', '生物'],
-          experience: '7年教學經驗',
-          rating: 4.9,
-          isVip: true,
-          isTop: false
-        },
-        {
-          id: '4',
-          name: '陳老師',
-          avatarUrl: '/avatars/teacher4.png',
-          subjects: ['歷史', '地理'],
-          experience: '4年教學經驗',
-          rating: 4.5,
-          isVip: false,
-          isTop: false
-        }
-      ];
-      
-      setTutors(mockTutors);
+      setTutors([]);
       setTotalPages(1);
-      toast.error('API 連接失敗，顯示示例數據');
     } finally {
       setLoading(false);
     }
@@ -208,9 +140,9 @@ function TutorsPageContent() {
   useEffect(() => {
     // 從 URL 參數中讀取搜尋條件
     const search = searchParams.get('search');
-    const subjects = searchParams.getAll('subjects'); // 使用 getAll 獲取多個 subjects 參數
-    const regions = searchParams.getAll('regions'); // 使用 getAll 獲取多個 regions 參數
-    const modes = searchParams.getAll('modes'); // 使用 getAll 獲取多個 modes 參數
+    const subjects = searchParams.getAll('subjects');
+    const regions = searchParams.getAll('regions');
+    const modes = searchParams.getAll('modes');
     const category = searchParams.get('category');
     
     if (search) {
@@ -220,8 +152,7 @@ function TutorsPageContent() {
       setSelectedSubjects(subjects);
       console.log('🔍 設置 selectedSubjects:', subjects);
     } else {
-      console.log('🔍 沒有從 URL 讀取到科目參數');
-      setSelectedSubjects([]); // 清空科目選擇
+      setSelectedSubjects([]);
     }
     if (regions && regions.length > 0) {
       setSelectedAreas(regions);
@@ -229,18 +160,14 @@ function TutorsPageContent() {
     if (modes && modes.length > 0) {
       setSelectedMethods(modes);
     }
-    if (category) {
-      console.log('📝 檢測到分類參數:', category);
-      console.log('📝 檢測到科目參數:', subjects);
-      // 這裡可以根據分類設置相應的科目
-      // 例如：early-childhood -> 幼兒教育相關科目
-    }
     
     // 延遲執行 fetchTutors，確保狀態已經更新
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       fetchTutors();
-    }, 0);
-  }, [currentPage, searchParams]);
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [searchParams, currentPage]); // 移除 fetchTutors 依賴，避免無限循環
 
   const handleSearch = () => {
     setCurrentPage(1);
