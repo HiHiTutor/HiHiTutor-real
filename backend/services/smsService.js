@@ -5,7 +5,8 @@ class SMSService {
   constructor() {
     this.clientId = process.env.SMS_TO_CLIENT_ID;
     this.clientSecret = process.env.SMS_TO_CLIENT_SECRET;
-    this.baseURL = 'https://api.sms.to/v1';
+    this.baseURL = 'https://api.sms.to';
+    this.authURL = 'https://auth.sms.to';
   }
 
   // 生成6位數驗證碼
@@ -17,12 +18,17 @@ class SMSService {
   async getAccessToken() {
     try {
       console.log('🔐 獲取 SMS.to 訪問令牌...');
+      console.log('🔐 使用認證 URL:', this.authURL);
+      console.log('🔐 Client ID:', this.clientId ? '已設置' : '未設置');
+      console.log('🔐 Client Secret:', this.clientSecret ? '已設置' : '未設置');
       
-      const response = await axios.post(`${this.baseURL}/auth/token`, {
+      const payload = {
         grant_type: 'client_credentials',
         client_id: this.clientId,
         client_secret: this.clientSecret
-      }, {
+      };
+
+      const response = await axios.post(`${this.authURL}/oauth/token`, payload, {
         headers: {
           'Content-Type': 'application/json'
         },
@@ -30,12 +36,14 @@ class SMSService {
       });
 
       console.log('✅ 訪問令牌獲取成功');
+      console.log('🔐 響應狀態:', response.status);
       return response.data.access_token;
     } catch (error) {
       console.error('❌ 獲取訪問令牌失敗:', {
         message: error.message,
         response: error.response?.data,
-        status: error.response?.status
+        status: error.response?.status,
+        url: `${this.authURL}/oauth/token`
       });
       throw new Error('Failed to get access token');
     }
@@ -68,7 +76,7 @@ class SMSService {
       });
 
       // 發送 SMS
-      const response = await axios.post(`${this.baseURL}/messages/sms`, smsData, {
+      const response = await axios.post(`${this.baseURL}/sms/send`, smsData, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`
