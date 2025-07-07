@@ -5,6 +5,7 @@ import REGION_OPTIONS from '@/constants/regionOptions';
 import SUBJECT_OPTIONS from '@/constants/subjectOptions';
 import Link from 'next/link';
 import { getSubjectName } from '@/constants/subjectOptions';
+import { getModeName } from '@/utils/translate';
 
 interface StudentCase {
   id: string;
@@ -69,18 +70,20 @@ export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps
   // 1. 科目顯示
   const displaySubjects = formatSubjects(caseData.subjects);
 
-  // 2. 模式顯示
-  const modeMap: Record<string, string> = { 'unlimited': '皆可', 'in-person': '面授', 'online': '網課', '線上': '網課' };
+  // 2. 模式顯示 - 改善邏輯支援多個模式和中文值
   let displayMode = '未指定';
-  if (caseData.mode && modeMap[caseData.mode]) {
-    displayMode = modeMap[caseData.mode];
-  } else if (caseData.modes && caseData.modes.length > 0 && modeMap[caseData.modes[0]]) {
-    displayMode = modeMap[caseData.modes[0]];
+  if (caseData.modes && Array.isArray(caseData.modes) && caseData.modes.length > 0) {
+    // 處理多個模式
+    const modeNames = caseData.modes.map(mode => getModeName(mode));
+    displayMode = modeNames.join('、');
+  } else if (caseData.mode) {
+    // 處理單一模式
+    displayMode = getModeName(caseData.mode);
   }
 
   // 3. 地點顯示
   let displayRegion = '';
-  if (displayMode === '網課') {
+  if (displayMode.includes('網課')) {
     displayRegion = '網課';
   } else {
     const subRegions = caseData.subRegions || [];

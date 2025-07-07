@@ -133,12 +133,19 @@ export const MODE_MAP: { [key: string]: string } = {
   '面對面': '面授',
   '網課': '網課',
   '面授': '面授',
+  '一對一': '一對一',
+  '小班': '小班教學',
+  '大班': '大型補習社',
   'both': '面授/網課',
   // 其他可能的格式
   'online-class': '網課',
   'face-to-face': '面授',
   'virtual': '網課',
-  'physical': '面授'
+  'physical': '面授',
+  'individual': '一對一',
+  'private': '一對一',
+  'group': '小班教學',
+  'classroom': '面授'
 };
 
 // 獲取地區完整名稱
