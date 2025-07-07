@@ -37,7 +37,25 @@ export default function FindStudentCaseDetailPage() {
       try {
         const result = await caseApi.getStudentCaseById(id);
         console.log('📥 API 返回的資料:', result);
-        setCaseDetail(Array.isArray(result) ? result[0] : result?.data);
+        
+        // 正確處理 API 回應資料結構
+        let caseData = null;
+        if (result && result.success && result.data) {
+          // 後端返回 { success: true, data: caseItem }
+          caseData = result.data;
+        } else if (Array.isArray(result)) {
+          // 如果是陣列，取第一個
+          caseData = result[0];
+        } else if (result && result.data) {
+          // 其他可能的資料結構
+          caseData = result.data;
+        } else {
+          // 直接使用 result
+          caseData = result;
+        }
+        
+        console.log('📦 處理後的個案資料:', caseData);
+        setCaseDetail(caseData);
       } catch (error) {
         console.error('❌ 獲取案例失敗:', error);
         setCaseDetail(null);
@@ -88,11 +106,37 @@ export default function FindStudentCaseDetailPage() {
 
   // 處理預算
   const getBudget = () => {
-    if (!caseDetail.budget) return '待議';
-    const { min, max } = caseDetail.budget;
-    if (!min && !max) return '待議';
-    if (min === max) return `${min}/小時`;
-    return `${min} - ${max}/小時`;
+    console.log('💰 處理預算，原始資料:', caseDetail.budget);
+    
+    if (!caseDetail.budget) {
+      console.log('❌ 沒有預算資料');
+      return '待議';
+    }
+    
+    // 如果是字符串格式
+    if (typeof caseDetail.budget === 'string') {
+      console.log('📝 預算是字符串:', caseDetail.budget);
+      return caseDetail.budget === '' ? '待議' : `${caseDetail.budget}/小時`;
+    }
+    
+    // 如果是數字格式
+    if (typeof caseDetail.budget === 'number') {
+      console.log('🔢 預算是數字:', caseDetail.budget);
+      return `${caseDetail.budget}/小時`;
+    }
+    
+    // 如果是對象格式 { min, max }
+    if (typeof caseDetail.budget === 'object' && caseDetail.budget !== null) {
+      const { min, max } = caseDetail.budget;
+      console.log('📦 預算是對象:', { min, max });
+      
+      if (!min && !max) return '待議';
+      if (min === max) return `${min}/小時`;
+      return `${min} - ${max}/小時`;
+    }
+    
+    console.log('❓ 未知預算格式:', caseDetail.budget);
+    return '待議';
   };
 
   // 處理模式
