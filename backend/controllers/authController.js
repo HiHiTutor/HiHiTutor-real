@@ -838,15 +838,15 @@ const sendVerificationCode = async (req, res) => {
       expiresAt: registerToken.expiresAt
     });
 
-    // 使用 Bird SMS 發送驗證碼
+    // 使用 SMS.to 發送驗證碼
     try {
-      const { sendBirdVerificationCode } = require('../utils/sendBirdSMS');
-      const formattedPhone = phone.startsWith('+') ? phone : `+852${phone}`;
+      const smsService = require('../services/smsService');
+      const formattedPhone = smsService.formatHongKongPhone(phone);
       
-      await sendBirdVerificationCode(formattedPhone, code);
-      console.log('✅ Bird SMS 發送成功');
+      await smsService.sendVerificationSMS(formattedPhone, code);
+      console.log('✅ SMS.to 發送成功');
     } catch (smsError) {
-      console.error('❌ Bird SMS 發送失敗:', smsError);
+      console.error('❌ SMS.to 發送失敗:', smsError);
       // 即使 SMS 發送失敗，也保留驗證碼記錄，但返回錯誤
       return res.status(500).json({
         success: false,
