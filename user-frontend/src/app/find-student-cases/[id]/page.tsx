@@ -141,13 +141,32 @@ export default function FindStudentCaseDetailPage() {
 
   // 處理模式
   const getMode = () => {
-    if (!caseDetail.mode && (!caseDetail.modes || caseDetail.modes.length === 0)) {
-      return '未指定';
+    console.log('🎯 處理模式，原始資料:', {
+      mode: caseDetail.mode,
+      modes: caseDetail.modes
+    });
+    
+    // 檢查 modes 陣列
+    if (caseDetail.modes && Array.isArray(caseDetail.modes) && caseDetail.modes.length > 0) {
+      console.log('📦 使用 modes 陣列:', caseDetail.modes);
+      const modeNames = caseDetail.modes.map(mode => {
+        const modeName = getModeName(mode);
+        console.log(`🎯 模式 ${mode} -> ${modeName}`);
+        return modeName;
+      });
+      return modeNames.join('、');
     }
+    
+    // 檢查單一 mode
     if (caseDetail.mode) {
-      return getModeName(caseDetail.mode);
+      console.log('📝 使用單一 mode:', caseDetail.mode);
+      const modeName = getModeName(caseDetail.mode);
+      console.log(`🎯 模式 ${caseDetail.mode} -> ${modeName}`);
+      return modeName;
     }
-    return caseDetail.modes.map(getModeName).join('、');
+    
+    console.log('❌ 沒有模式資料');
+    return '未指定';
   };
 
   // 處理要求

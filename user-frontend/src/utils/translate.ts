@@ -122,11 +122,23 @@ export const SUBREGION_MAP: Record<string, string> = {
 
 // 教學模式映射
 export const MODE_MAP: { [key: string]: string } = {
+  // 英文值
   'online': '網課',
   'in-person': '面授',
   'one-on-one': '一對一',
   'small-group': '小班教學',
-  'large-center': '大型補習社'
+  'large-center': '大型補習社',
+  // 中文值（後端存儲的格式）
+  '線上': '網課',
+  '面對面': '面授',
+  '網課': '網課',
+  '面授': '面授',
+  'both': '面授/網課',
+  // 其他可能的格式
+  'online-class': '網課',
+  'face-to-face': '面授',
+  'virtual': '網課',
+  'physical': '面授'
 };
 
 // 獲取地區完整名稱
