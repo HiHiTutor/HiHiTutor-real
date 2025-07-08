@@ -299,11 +299,8 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       filters.regions.includes(region.value)
     );
     
-    const subRegions = selectedRegions.flatMap(region => 
-      region.regions.filter(subRegion => 
-        filters.subRegions.includes(subRegion.value)
-      )
-    );
+    // Get all sub-regions from selected regions, not just the ones already selected
+    const subRegions = selectedRegions.flatMap(region => region.regions);
     
     return [
       { value: 'unlimited', label: '不限' },
@@ -859,7 +856,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                   className="h-4 w-4 text-blue-600 max-sm:h-3 max-sm:w-3 max-[700px]:h-4 max-[700px]:w-4"
                 />
                 <label htmlFor="featured" className="text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">
-                  只顯示精選個案
+                  {currentTarget === 'tutor' ? '只顯示精選導師' : '只顯示精選個案'}
                 </label>
               </div>
             </div>
