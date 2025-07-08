@@ -80,7 +80,7 @@ export default function ArticlesPage() {
       </section>
 
       {/* 🆕 最新文章放第二 */}
-      <section>
+      <section className="bg-white rounded-lg shadow p-4 mb-12">
         <h2 className="text-2xl font-semibold mb-4">🆕 最新文章</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {latest.map((article) => (
