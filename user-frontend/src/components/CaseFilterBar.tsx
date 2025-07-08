@@ -21,7 +21,6 @@ interface FilterState {
   regions: string[];
   subRegions: string[];
   priceRange: string; // 改為字符串，使用預設選項
-  featured: boolean;
 }
 
 const TARGET_OPTIONS = [
@@ -61,8 +60,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     mode: ['unlimited'], // 預設為不限
     regions: ['unlimited'], // 預設為不限，改為單選
     subRegions: ['unlimited'], // 預設為不限
-    priceRange: 'unlimited', // 預設為不限
-    featured: false
+    priceRange: 'unlimited' // 預設為不限
   });
 
   const isStudentCase = fetchUrl.includes('student');
@@ -178,8 +176,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       mode: searchParams.getAll('mode').length > 0 ? searchParams.getAll('mode') : ['unlimited'],
       regions: searchParams.getAll('regions').length > 0 ? searchParams.getAll('regions') : ['unlimited'],
       subRegions: searchParams.getAll('subRegions').length > 0 ? searchParams.getAll('subRegions') : ['unlimited'],
-      priceRange: searchParams.get('priceRange') || 'unlimited',
-      featured: false
+      priceRange: searchParams.get('priceRange') || 'unlimited'
     });
   }, [searchParams, pathname]);
 
@@ -257,7 +254,6 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       if (subRegion !== 'unlimited') params.append('subRegions', subRegion);
     });
     if (filters.priceRange && filters.priceRange !== 'unlimited') params.set('priceRange', filters.priceRange);
-    if (filters.featured) params.set('featured', 'true');
 
     // 直接用 usePathname 判斷
     const isTutorPage = pathname === "/tutors";
@@ -278,8 +274,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       mode: ['unlimited'],
       regions: ['unlimited'],
       subRegions: ['unlimited'],
-      priceRange: 'unlimited',
-      featured: false
+      priceRange: 'unlimited'
     });
     // 直接用 usePathname 判斷
     const isTutorPage = pathname === "/tutors";
@@ -510,8 +505,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       mode: ['unlimited'],
       regions: ['unlimited'],
       subRegions: ['unlimited'],
-      priceRange: 'unlimited',
-      featured: false
+      priceRange: 'unlimited'
     });
   };
 
@@ -846,19 +840,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                 </select>
               </div>
 
-              {/* 精選個案 */}
-              <div className="flex items-center space-x-2 max-sm:space-x-1 max-[700px]:space-x-2">
-                <input
-                  type="checkbox"
-                  id="featured"
-                  checked={filters.featured}
-                  onChange={(e) => handleFilterChange('featured', e.target.checked)}
-                  className="h-4 w-4 text-blue-600 max-sm:h-3 max-sm:w-3 max-[700px]:h-4 max-[700px]:w-4"
-                />
-                <label htmlFor="featured" className="text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">
-                  {currentTarget === 'tutor' ? '只顯示精選導師' : '只顯示精選個案'}
-                </label>
-              </div>
+
             </div>
           </div>
 
