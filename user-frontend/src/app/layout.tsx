@@ -10,7 +10,9 @@ export const metadata = {
   title: 'HiHiTutor - 香港補習平台',
   description: '香港最大的補習配對平台，提供一對一補習、小組補習、網上補習等服務。',
   icons: {
-    icon: '/favicon.png',
+    icon: [
+      { url: '/favicon.png', type: 'image/png' },
+    ],
   },
 };
 
