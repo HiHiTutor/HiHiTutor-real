@@ -173,8 +173,13 @@ export default function TutorDetailPage() {
               <Dialog
                 isOpen={showLoginMessage}
                 onClose={() => setShowLoginMessage(false)}
-                title="請先登入"
-                message={<span style={{ fontSize: '2.5rem', fontWeight: 'bold', display: 'block', textAlign: 'center' }}>請先登入<br /><span style={{ fontSize: '1.5rem', fontWeight: 'normal' }}>3秒後自動跳轉到登入頁面...</span></span>}
+                title=""
+                message={
+                  <div style={{ textAlign: 'center', width: '100%' }}>
+                    <div style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: 8 }}>請先登入</div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 'normal' }}>3秒後自動跳轉到登入頁面...</div>
+                  </div>
+                }
                 actions={[]}
               />
             </>
