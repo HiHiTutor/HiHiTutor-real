@@ -14,7 +14,7 @@ const Footer = () => {
           </div>
           {/* 右上連結（大螢幕靠右，手機置中） */}
           <div className="flex space-x-8 max-[700px]:space-x-6 max-[700px]:flex-wrap max-[700px]:justify-center">
-            <Link href="/contact" className="hover:text-primary transition-colors border-r border-gray-400 pr-4 last:border-none max-[700px]:border-r max-[700px]:pr-4 max-[700px]:text-sm">聯絡我們</Link>
+            <a href="https://wa.me/95011159" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors border-r border-gray-400 pr-4 last:border-none max-[700px]:border-r max-[700px]:pr-4 max-[700px]:text-sm">聯絡我們</a>
             <Link href="/about" className="hover:text-primary transition-colors border-r border-gray-400 pr-4 last:border-none max-[700px]:border-r max-[700px]:pr-4 max-[700px]:text-sm">關於我們</Link>
             <Link href="/terms" className="hover:text-primary transition-colors border-r border-gray-400 pr-4 last:border-none max-[700px]:border-r max-[700px]:pr-4 max-[700px]:text-sm">服務條款</Link>
             <Link href="/privacy" className="hover:text-primary transition-colors pr-0 max-[700px]:border-r-0 max-[700px]:pr-0 max-[700px]:text-sm">私隱政策</Link>
