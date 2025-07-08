@@ -254,7 +254,7 @@ export default function FindStudentCaseDetailPage() {
               className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 shadow-md"
             >
               {getButtonText()}
-            </button>
+              </button>
             
             {showLoginMessage && (
               <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">

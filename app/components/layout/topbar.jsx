@@ -31,7 +31,7 @@ const menuItems = [
   },
   {
     id: 5,
-    name: "常見問題",
+    name: "配對流程",
     link: "/faq",
   },
 ]; 

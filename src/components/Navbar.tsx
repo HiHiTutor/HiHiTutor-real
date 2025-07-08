@@ -19,7 +19,7 @@ export default function Navbar() {
         <Link href="/find-tutor-cases">補習個案</Link>
         <Link href="/recommendations">導師推薦</Link>
         <Link href="/articles">教育專欄</Link>
-        <Link href="/faq">常見問題</Link>
+        <Link href="/faq">配對流程</Link>
       </div>
 
       {/* 漢堡按鈕 */}
@@ -46,7 +46,7 @@ export default function Navbar() {
           <Link href="/find-tutor-cases" onClick={() => setMenuOpen(false)}>補習個案</Link>
           <Link href="/recommendations" onClick={() => setMenuOpen(false)}>導師推薦</Link>
           <Link href="/articles" onClick={() => setMenuOpen(false)}>教育專欄</Link>
-          <Link href="/faq" onClick={() => setMenuOpen(false)}>常見問題</Link>
+          <Link href="/faq" onClick={() => setMenuOpen(false)}>配對流程</Link>
           {/* ✅ 加入登入與註冊按鈕 */}
           <Link
             href="/login"
