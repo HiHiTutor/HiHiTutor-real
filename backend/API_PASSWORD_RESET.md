@@ -1,21 +1,20 @@
-# 密碼重設 API 文檔
+# HiHiTutor 密碼重設 API 文檔
 
-## 新的密碼重設流程
-
-### 1. 請求重設密碼
+## 請求密碼重設
 
 **端點**: `POST /api/auth/request-password-reset`
 
-**描述**: 請求發送重設密碼email到指定email地址
+### 請求格式
 
-**請求參數**:
 ```json
 {
   "email": "user@example.com"
 }
 ```
 
-**響應範例**:
+### 響應格式
+
+#### 成功響應 (200)
 ```json
 {
   "success": true,
@@ -23,7 +22,7 @@
 }
 ```
 
-**錯誤響應**:
+#### 錯誤響應 (400)
 ```json
 {
   "success": false,
@@ -31,94 +30,103 @@
 }
 ```
 
-**安全性特點**:
-- 無論email是否存在，都返回相同的成功訊息
-- 避免帳號資訊洩漏（Do not leak registered status）
-- Token有效期為30分鐘
-
-### 2. Email 內容
-
-**主旨**: `[HiHiTutor] 密碼重設連結`
-
-**內容範本**:
-```
-親愛的用戶，您好！
-
-您剛剛請求重設密碼，請點擊以下連結完成操作：
-https://hihitutor.com/reset-password?token=xxx
-
-如果您沒有要求重設密碼，請忽略此郵件。
-
-謝謝！
-HiHiTutor 團隊
+#### 錯誤響應 (500)
+```json
+{
+  "success": false,
+  "message": "發送重設密碼email時發生錯誤，請稍後再試"
+}
 ```
 
-**重設連結格式**: `https://hihitutor.com/reset-password?token=xxx`
+### Email 格式
 
-### 3. 重設密碼（現有端點）
+系統會發送一封包含以下內容的 email：
+
+**主旨**: 🔐 重設你的 HiHiTutor 密碼
+
+**內容**:
+```
+HiHiTutor 用戶你好，
+
+請按以下連結重設你的密碼（連結 10 分鐘內有效）：
+
+👉 https://hihitutor.com/reset-password?token=xxx
+
+如你沒有要求重設密碼，請忽略此訊息。
+```
+
+**發件人**: HiHiTutor 平台通知 <uadmin@hihitutor.com>
+
+### 安全特性
+
+1. **Token 有效期**: 10 分鐘
+2. **唯一性**: 每次請求生成新的 token
+3. **一次性使用**: token 使用後立即失效
+4. **隱私保護**: 無論 email 是否存在都返回相同訊息
+
+## 重設密碼
 
 **端點**: `POST /api/auth/reset-password`
 
-**請求參數**:
+### 請求格式
+
 ```json
 {
-  "token": "reset_token_from_email",
+  "token": "reset_token_here",
   "password": "new_password"
 }
 ```
 
-## 技術實現
+### 響應格式
 
-### Token 生成
-- 使用 `crypto.randomBytes(32).toString('hex')` 生成64位元隨機token
-- 儲存在 `RegisterToken` 集合中
-- 類型設為 `password-reset`
-- 有效期30分鐘
-
-### 數據庫結構
-```javascript
+#### 成功響應 (200)
+```json
 {
-  token: "64位元隨機字串",
-  email: "user@example.com",
-  type: "password-reset",
-  isUsed: false,
-  expiresAt: "30分鐘後",
-  createdAt: "當前時間"
+  "success": true,
+  "message": "密碼重設成功"
 }
 ```
 
-### Email 服務
-- 使用現有的 `emailService.sendPasswordResetEmail()` 方法
-- 支援HTML和純文字格式
-- 包含美觀的重設按鈕和備用連結
-
-## 測試
-
-### 1. 測試有效email
-```bash
-curl -X POST http://localhost:3000/api/auth/request-password-reset \
-  -H "Content-Type: application/json" \
-  -d '{"email": "existing@example.com"}'
+#### 錯誤響應 (400)
+```json
+{
+  "success": false,
+  "message": "無效或過期的 token"
+}
 ```
 
-### 2. 測試無效email
+## 測試範例
+
+### 請求密碼重設
 ```bash
-curl -X POST http://localhost:3000/api/auth/request-password-reset \
+curl -X POST https://hi-hi-tutor-real-backend2.vercel.app/api/auth/request-password-reset \
   -H "Content-Type: application/json" \
-  -d '{"email": "nonexistent@example.com"}'
+  -d '{"email": "test@example.com"}'
 ```
 
-### 3. 測試無效格式
+### 重設密碼
 ```bash
-curl -X POST http://localhost:3000/api/auth/request-password-reset \
+curl -X POST https://hi-hi-tutor-real-backend2.vercel.app/api/auth/reset-password \
   -H "Content-Type: application/json" \
-  -d '{"email": "invalid-email"}'
+  -d '{"token": "your_reset_token", "password": "new_password"}'
+```
+
+## 環境變數要求
+
+確保以下環境變數已正確設置：
+
+```env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=uadmin@hihitutor.com
+SMTP_PASS=your_app_password
+SMTP_FROM=uadmin@hihitutor.com
 ```
 
 ## 注意事項
 
-1. **安全性**: 無論email是否存在都返回成功訊息
-2. **有效期**: Token有效期為30分鐘
-3. **一次性使用**: Token使用後會被標記為已使用
-4. **自動清理**: 過期的token會自動從數據庫中刪除
-5. **開發環境**: 在開發環境中只會模擬發送email 
+1. **Email 服務**: 使用 `uadmin@hihitutor.com` 作為發件人
+2. **Token 安全性**: 32 位元組隨機 token，10 分鐘有效期
+3. **錯誤處理**: 完善的錯誤處理和日誌記錄
+4. **送達率**: 建議設置 SPF/DKIM 記錄以提高 email 送達率 

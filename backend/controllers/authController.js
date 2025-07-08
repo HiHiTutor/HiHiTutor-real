@@ -583,9 +583,9 @@ const requestPasswordReset = async (req, res) => {
       });
     }
 
-    // 生成重設密碼 token（30分鐘有效期）
+    // 生成重設密碼 token（10分鐘有效期）
     const resetToken = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30分鐘
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10分鐘
 
     // 保存重設 token 到數據庫
     await RegisterToken.create({
@@ -659,9 +659,9 @@ const forgotPassword = async (req, res) => {
       });
     }
 
-    // 生成重設密碼 token
-    const resetToken = require('crypto').randomBytes(20).toString('hex');
-    const expiresAt = new Date(Date.now() + 3600000); // 1小時後過期
+    // 生成重設密碼 token（10分鐘有效期）
+    const resetToken = require('crypto').randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10分鐘後過期
 
     // 保存重設 token 到數據庫
     await RegisterToken.create({

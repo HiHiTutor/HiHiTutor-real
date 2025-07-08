@@ -23,7 +23,10 @@ class EmailService {
       }
 
       const mailOptions = {
-        from: process.env.SMTP_FROM,
+        from: {
+          name: 'HiHiTutor 平台通知',
+          address: process.env.SMTP_FROM || 'uadmin@hihitutor.com'
+        },
         to,
         subject,
         text,
@@ -67,22 +70,21 @@ class EmailService {
 
   async sendPasswordResetEmail(to, userName, resetToken) {
     const resetUrl = `https://hihitutor.com/reset-password?token=${resetToken}`;
-    const subject = '[HiHiTutor] 密碼重設連結';
-    const text = `親愛的用戶，您好！\n\n您剛剛請求重設密碼，請點擊以下連結完成操作：\n${resetUrl}\n\n如果您沒有要求重設密碼，請忽略此郵件。\n\n謝謝！\nHiHiTutor 團隊`;
+    const subject = '🔐 重設你的 HiHiTutor 密碼';
+    const text = `HiHiTutor 用戶你好，\n\n請按以下連結重設你的密碼（連結 10 分鐘內有效）：\n\n👉 ${resetUrl}\n\n如你沒有要求重設密碼，請忽略此訊息。`;
     const html = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #f59e0b;">[HiHiTutor] 密碼重設連結</h2>
-        <p>親愛的用戶，您好！</p>
-        <p>您剛剛請求重設密碼，請點擊以下連結完成操作：</p>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #f59e0b; text-align: center;">🔐 重設你的 HiHiTutor 密碼</h2>
+        <p>HiHiTutor 用戶你好，</p>
+        <p>請按以下連結重設你的密碼（連結 10 分鐘內有效）：</p>
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${resetUrl}" style="background-color: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">重設密碼</a>
+          <a href="${resetUrl}" style="background-color: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">👉 重設密碼</a>
         </div>
-        <p>或者複製以下連結到瀏覽器：</p>
-        <p style="word-break: break-all; color: #666;">${resetUrl}</p>
-        <p><strong>此連結將在30分鐘後過期。</strong></p>
-        <p>如果您沒有要求重設密碼，請忽略此郵件。</p>
+        <p style="word-break: break-all; color: #666; background-color: #f8f9fa; padding: 10px; border-radius: 4px;">${resetUrl}</p>
+        <p><strong>⚠️ 此連結將在 10 分鐘後過期。</strong></p>
+        <p>如你沒有要求重設密碼，請忽略此訊息。</p>
         <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-        <p style="color: #666; font-size: 14px;">謝謝！<br>HiHiTutor 團隊</p>
+        <p style="color: #666; font-size: 14px; text-align: center;">HiHiTutor 平台通知</p>
       </div>
     `;
 
