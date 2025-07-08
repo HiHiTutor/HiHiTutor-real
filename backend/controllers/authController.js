@@ -551,6 +551,76 @@ const getCurrentUser = async (req, res) => {
   }
 };
 
+// 請求重設密碼（僅支援 email）
+const requestPasswordReset = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ 
+        success: false,
+        message: '請提供 email 地址' 
+      });
+    }
+
+    // 驗證 email 格式
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ 
+        success: false,
+        message: '請提供有效的 email 地址' 
+      });
+    }
+
+    // 查找用戶
+    const user = await User.findOne({ email });
+
+    // 無論用戶是否存在，都返回成功訊息（避免帳號資訊洩漏）
+    if (!user) {
+      console.log(`📧 請求重設密碼：email ${email} 不存在，但仍返回成功訊息`);
+      return res.status(200).json({ 
+        success: true,
+        message: '如果該 email 已註冊，重設密碼連結將發送到您的信箱'
+      });
+    }
+
+    // 生成重設密碼 token（30分鐘有效期）
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30分鐘
+
+    // 保存重設 token 到數據庫
+    await RegisterToken.create({
+      token: resetToken,
+      email: user.email,
+      expiresAt,
+      isUsed: false,
+      type: 'password-reset'
+    });
+
+    // 發送重設密碼email
+    try {
+      await emailService.sendPasswordResetEmail(user.email, user.name, resetToken);
+      console.log(`📧 重設密碼email已發送到: ${user.email}`);
+    } catch (emailError) {
+      console.error('❌ 發送重設密碼email失敗:', emailError);
+      return res.status(500).json({ 
+        success: false,
+        message: '發送重設密碼email時發生錯誤，請稍後再試' 
+      });
+    }
+
+    return res.status(200).json({ 
+      success: true,
+      message: '如果該 email 已註冊，重設密碼連結將發送到您的信箱'
+    });
+  } catch (error) {
+    console.error('請求重設密碼處理失敗:', error);
+    return res.status(500).json({
+      success: false,
+      message: '處理重設密碼請求時發生錯誤'
+    });
+  }
+};
+
 // 忘記密碼（支援 email 或電話）
 const forgotPassword = async (req, res) => {
   try {
@@ -1161,6 +1231,7 @@ module.exports = {
   register,
   getUserProfile,
   getCurrentUser,
+  requestPasswordReset,
   forgotPassword,
   resetPassword,
   getMe,

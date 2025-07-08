@@ -6,6 +6,7 @@ const {
   register, 
   getUserProfile, 
   getCurrentUser, 
+  requestPasswordReset,
   forgotPassword, 
   resetPassword,
   updateUserProfile,
@@ -53,6 +54,7 @@ router.post('/request-tutor-upgrade', verifyToken, requestTutorUpgrade);
 router.get('/me', verifyToken, getCurrentUser);
 router.get('/profile', verifyToken, getUserProfile);
 router.put('/profile', verifyToken, updateUserProfile);
+router.post('/request-password-reset', requestPasswordReset);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
 router.post('/verify-password', verifyToken, verifyPassword);
