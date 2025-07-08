@@ -20,10 +20,10 @@ const getAllStudentCases = async (req, res) => {
 
 const createStudentCase = async (req, res) => {
   try {
-    const { title, category, modes, price, duration, weeklyLessons } = req.body;
+    const { title, category, modes, price, duration, weeklyLessons, subjects } = req.body;
     
     console.log('收到的個案數據:', req.body);
-    console.log('解析的欄位:', { title, category, modes, price, duration, weeklyLessons });
+    console.log('解析的欄位:', { title, category, modes, price, duration, weeklyLessons, subjects });
     
     // 檢查必填欄位
     const missingFields = {
@@ -81,6 +81,17 @@ const createStudentCase = async (req, res) => {
         message: '請輸入有效的每週堂數',
         received: { weeklyLessons }
       });
+    }
+    
+    // 檢查科目是否有效（除了不限分類外，其他分類都需要選擇科目）
+    if (category && category !== 'unlimited') {
+      if (!subjects || !Array.isArray(subjects) || subjects.length === 0) {
+        return res.status(400).json({ 
+          success: false, 
+          message: '請選擇至少一個科目',
+          received: { subjects }
+        });
+      }
     }
     
     console.log('所有驗證通過，準備保存數據');

@@ -50,10 +50,14 @@ const formSchema = z.object({
     return (data.subCategory && data.subCategory.length > 0) && 
            (data.subjects && data.subjects.length > 0);
   }
+  // 對於其他有科目選項的分類，也需要選擇至少一個科目
+  if (data.category && data.category !== 'unlimited' && data.category !== 'primary-secondary') {
+    return (data.subjects && data.subjects.length > 0);
+  }
   return true;
 }, {
-  message: "中小學教育必須選擇子分類和科目",
-  path: ["subCategory"] // 錯誤顯示在子分類欄位
+  message: "請選擇至少一個科目",
+  path: ["subjects"] // 錯誤顯示在科目欄位
 });
 
 type FormData = z.infer<typeof formSchema>;
