@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'react-hot-toast';
 import { getSubjectName } from '@/utils/translate';
 import { Tutor } from '@/types/tutor';
+import Dialog from '@/components/Dialog';
 
 export default function TutorDetailPage() {
   const searchParams = useSearchParams();
@@ -159,7 +160,6 @@ export default function TutorDetailPage() {
                     }, 3000);
                     return;
                   }
-                  
                   // 已登入：直接跳轉到 WhatsApp
                   const message = `Hello，我喺 HiHiTutor 見到 tutorID ${id}，想了解同預約上堂，請問方便嗎？`;
                   const whatsappUrl = `https://api.whatsapp.com/send?phone=85295011159&text=${encodeURIComponent(message)}`;
@@ -169,14 +169,14 @@ export default function TutorDetailPage() {
               >
                 🎯 立即預約上堂
               </Button>
-              
-              {showLoginMessage && (
-                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-yellow-700 text-sm">
-                    請先登入，3秒後自動跳轉到登入頁面...
-                  </p>
-                </div>
-              )}
+              {/* 置中大字彈窗 */}
+              <Dialog
+                isOpen={showLoginMessage}
+                onClose={() => setShowLoginMessage(false)}
+                title="請先登入"
+                message={<span style={{ fontSize: '2.5rem', fontWeight: 'bold', display: 'block', textAlign: 'center' }}>請先登入<br /><span style={{ fontSize: '1.5rem', fontWeight: 'normal' }}>3秒後自動跳轉到登入頁面...</span></span>}
+                actions={[]}
+              />
             </>
           )}
         </div>
