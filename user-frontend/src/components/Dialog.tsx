@@ -1,11 +1,12 @@
 import { Fragment } from 'react';
 import { Dialog as HeadlessDialog, Transition } from '@headlessui/react';
+import React from 'react';
 
 interface DialogProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  message: string;
+  message: React.ReactNode;
   actions: {
     label: string;
     onClick: () => void;
