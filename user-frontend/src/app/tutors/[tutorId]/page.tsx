@@ -104,7 +104,7 @@ export default function TutorDetailPage() {
                 <div className="flex-1 max-sm:w-full max-[700px]:w-full">
                   <h1 className="text-2xl font-bold mb-2 max-sm:text-xl max-sm:mb-1 max-[700px]:text-xl max-[700px]:mb-2">{tutor.tutorId}</h1>
                   <div className="text-muted-foreground mb-4 max-sm:text-sm max-sm:mb-3 max-[700px]:text-sm max-[700px]:mb-3">
-                    教學經驗 {tutor.experience} 年 | 評分 {tutor.rating} / 5.0
+                    教學經驗 {tutor.experience} 年 | 評分 {Number(tutor.rating).toFixed(1)} / 5.0
                   </div>
                   <div className="flex flex-wrap gap-2 max-sm:gap-1 max-sm:justify-center max-[700px]:gap-2 max-[700px]:justify-center">
                     {(tutor.subjects || []).map((subject) => (
