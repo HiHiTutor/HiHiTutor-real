@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,12 +12,26 @@ import { Tutor } from '@/types/tutor';
 
 export default function TutorDetailPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const id = searchParams.get('id') || useParams().tutorId;
   const { tutorId } = useParams();
   const [tutor, setTutor] = useState<Tutor | null>(null);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
+  const [showLoginMessage, setShowLoginMessage] = useState(false);
 
   useEffect(() => {
+    // 從 localStorage 獲取用戶資料
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const userData = JSON.parse(userStr);
+        setUser(userData);
+      } catch (error) {
+        console.error('解析用戶資料失敗:', error);
+      }
+    }
+
     const fetchTutorDetail = async () => {
       try {
         setLoading(true);
@@ -134,16 +148,36 @@ export default function TutorDetailPage() {
         {/* 導師卡片結束後，插入靠左的 WhatsApp 按鈕 */}
         <div className="w-full flex justify-center md:justify-start mt-6">
           {id && (
-            <Button 
-              onClick={() => {
-                const message = `Hello，我喺 HiHiTutor 見到 tutorID ${id}，想了解同預約上堂，請問方便嗎？`;
-                const whatsappUrl = `https://api.whatsapp.com/send?phone=85295011159&text=${encodeURIComponent(message)}`;
-                window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-              }}
-              className="bg-yellow-400 text-black hover:bg-yellow-500 px-6 py-3 text-base md:text-lg"
-            >
-              🎯 立即預約上堂
-            </Button>
+            <>
+              <Button 
+                onClick={() => {
+                  if (!user) {
+                    // 未登入：顯示訊息並跳轉到登入頁面
+                    setShowLoginMessage(true);
+                    setTimeout(() => {
+                      router.push('/login');
+                    }, 3000);
+                    return;
+                  }
+                  
+                  // 已登入：直接跳轉到 WhatsApp
+                  const message = `Hello，我喺 HiHiTutor 見到 tutorID ${id}，想了解同預約上堂，請問方便嗎？`;
+                  const whatsappUrl = `https://api.whatsapp.com/send?phone=85295011159&text=${encodeURIComponent(message)}`;
+                  window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+                }}
+                className="bg-yellow-400 text-black hover:bg-yellow-500 px-6 py-3 text-base md:text-lg"
+              >
+                🎯 立即預約上堂
+              </Button>
+              
+              {showLoginMessage && (
+                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-yellow-700 text-sm">
+                    請先登入，3秒後自動跳轉到登入頁面...
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

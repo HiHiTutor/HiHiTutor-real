@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { getSubjectNames, getRegionName, getSubRegionName, getModeName } from '@/utils/translate';
 import { caseApi } from '@/services/api';
 
@@ -15,11 +15,13 @@ const EXPERIENCES: { [key: string]: string } = {
 
 export default function FindStudentCaseDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const id = typeof params?.id === 'string' ? params.id : '';
   const [caseDetail, setCaseDetail] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [showError, setShowError] = useState(false);
+  const [showLoginMessage, setShowLoginMessage] = useState(false);
 
   useEffect(() => {
     // 從 localStorage 獲取完整的用戶資料
@@ -180,6 +182,36 @@ export default function FindStudentCaseDetailPage() {
     return '學生未指定特別要求';
   };
 
+  // 處理申請按鈕點擊
+  const handleApplyClick = () => {
+    if (!user) {
+      // 未登入：顯示訊息並跳轉到登入頁面
+      setShowLoginMessage(true);
+      setTimeout(() => {
+        router.push('/login');
+      }, 3000);
+      return;
+    }
+
+    if (user.userType === 'student') {
+      // 學生用戶：跳轉到升級頁面
+      router.push('/upgrade');
+      return;
+    }
+
+    // 導師用戶：直接跳轉到 WhatsApp
+    const message = `Hello，我喺 HiHiTutor 見到 caseID ${getCaseId()}，想申請呢單case，唔該晒!`;
+    const whatsappUrl = `https://wa.me/85295011159?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  // 獲取按鈕文字
+  const getButtonText = () => {
+    if (!user) return '📱 申請此個案';
+    if (user.userType === 'student') return '立即申請成為導師';
+    return '📱 申請此個案';
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="bg-white rounded-xl shadow-lg border border-blue-200 overflow-hidden">
@@ -217,18 +249,20 @@ export default function FindStudentCaseDetailPage() {
           </div>
           
           <div className="pt-4">
-            <a
-              href={`https://wa.me/85295011159?text=${encodeURIComponent(
-                `Hello，我喺 HiHiTutor 見到 caseID ${getCaseId()}，想申請呢單case，唔該晒!`
-              )}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block w-full md:w-auto"
+            <button 
+              onClick={handleApplyClick}
+              className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 shadow-md"
             >
-              <button className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 shadow-md">
-                📱 申請此個案
-              </button>
-            </a>
+              {getButtonText()}
+            </button>
+            
+            {showLoginMessage && (
+              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-yellow-700 text-sm">
+                  請先登入，3秒後自動跳轉到登入頁面...
+                </p>
+              </div>
+            )}
             
             {showError && (
               <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
