@@ -30,7 +30,7 @@ export default function ArticleDetail() {
   if (!article) return <div className="p-8">載入中...</div>
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
+    <div className="p-6 max-w-3xl mx-auto bg-white rounded-lg shadow">
       <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
       <div className="text-sm text-gray-500 mb-2">
         ✍️ 作者：{article.author}　🕒 發佈時間：{article.date || '未知'}
