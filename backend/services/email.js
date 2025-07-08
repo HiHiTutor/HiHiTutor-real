@@ -64,6 +64,31 @@ class EmailService {
 
     return this.sendEmail(to, subject, text, html);
   }
+
+  async sendPasswordResetEmail(to, userName, resetToken) {
+    const resetUrl = `https://hi-hi-tutor-real.vercel.app/reset-password?token=${resetToken}`;
+    const subject = 'HiHiTutor - 重設密碼';
+    const text = `你好 ${userName}！\n\n你要求重設 HiHiTutor 帳戶的密碼。\n\n請點擊以下連結重設密碼：\n${resetUrl}\n\n此連結將在1小時後過期。\n\n如果你沒有要求重設密碼，請忽略此email。\n\n謝謝！\nHiHiTutor 團隊`;
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #f59e0b;">HiHiTutor - 重設密碼</h2>
+        <p>你好 <strong>${userName}</strong>！</p>
+        <p>你要求重設 HiHiTutor 帳戶的密碼。</p>
+        <p>請點擊以下按鈕重設密碼：</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${resetUrl}" style="background-color: #f59e0b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">重設密碼</a>
+        </div>
+        <p>或者複製以下連結到瀏覽器：</p>
+        <p style="word-break: break-all; color: #666;">${resetUrl}</p>
+        <p><strong>此連結將在1小時後過期。</strong></p>
+        <p>如果你沒有要求重設密碼，請忽略此email。</p>
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+        <p style="color: #666; font-size: 14px;">謝謝！<br>HiHiTutor 團隊</p>
+      </div>
+    `;
+
+    return this.sendEmail(to, subject, text, html);
+  }
 }
 
 module.exports = new EmailService(); 

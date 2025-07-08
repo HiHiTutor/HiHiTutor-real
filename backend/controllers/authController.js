@@ -6,6 +6,7 @@ const { loadUsers, saveUsers } = require('../data/users');
 const { getUserById } = require('../utils/userStorage');
 const User = require('../models/User');
 const RegisterToken = require('../models/RegisterToken');
+const emailService = require('../services/email');
 
 // 模擬 JWT token 生成
 const generateToken = (user) => {
@@ -602,13 +603,29 @@ const forgotPassword = async (req, res) => {
       type: 'password-reset'
     });
 
-    // TODO: 實際發送重設密碼連結的邏輯
-    // 這裡先模擬發送成功
-    console.log(`📧 模擬發送重設密碼連結：https://hi-hi-tutor-real.vercel.app/reset-password?token=${resetToken}`);
+    // 發送重設密碼email
+    try {
+      if (user.email) {
+        await emailService.sendPasswordResetEmail(user.email, user.name, resetToken);
+        console.log(`📧 重設密碼email已發送到: ${user.email}`);
+      } else {
+        console.log('❌ 用戶沒有email地址，無法發送重設密碼email');
+        return res.status(400).json({ 
+          success: false,
+          message: '該帳戶沒有email地址，無法發送重設密碼連結' 
+        });
+      }
+    } catch (emailError) {
+      console.error('❌ 發送重設密碼email失敗:', emailError);
+      return res.status(500).json({ 
+        success: false,
+        message: '發送重設密碼email時發生錯誤，請稍後再試' 
+      });
+    }
 
     return res.status(200).json({ 
       success: true,
-      message: '密碼重設連結已發送到您的信箱或手機，請查收。',
+      message: '密碼重設連結已發送到您的信箱，請查收。',
       token: process.env.NODE_ENV === 'development' ? resetToken : undefined // 在開發環境中返回 token
     });
   } catch (error) {
