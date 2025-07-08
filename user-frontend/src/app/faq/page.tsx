@@ -89,7 +89,7 @@ export default function FAQPage() {
           <p className="text-gray-600">
             還有其他問題？歡迎
             <a
-              href="https://wa.me/95011159"
+              href="https://wa.me/85295011159"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:text-blue-800 font-medium ml-1"
