@@ -427,14 +427,14 @@ router.post('/', verifyToken, async (req, res) => {
       paymentType: paymentType !== undefined
     });
 
-    if (!tutorId || title === undefined || !category || 
+    if (/*!tutorId ||*/ title === undefined || !category || 
         !subjects || !Array.isArray(subjects) || subjects.length === 0 ||
         !regions || !Array.isArray(regions) || regions.length === 0 ||
         !modes || !Array.isArray(modes) || modes.length === 0 ||
         !(budget || price)) {
       
       console.log('❌ 驗證失敗，缺少必要欄位:', {
-        tutorId,
+        // tutorId,
         title,
         category,
         subjects,
@@ -447,7 +447,7 @@ router.post('/', verifyToken, async (req, res) => {
         success: false,
         message: '請填寫所有必要欄位',
         details: {
-          tutorId: !tutorId ? '缺少導師ID' : null,
+          // tutorId: !tutorId ? '缺少導師ID' : null,
           title: title === undefined ? '缺少標題' : null,
           category: !category ? '缺少分類' : null,
           subjects: (!subjects || !Array.isArray(subjects) || subjects.length === 0) ? '缺少科目' : null,
@@ -460,8 +460,8 @@ router.post('/', verifyToken, async (req, res) => {
 
     // 創建新案例
     const newCase = new StudentCase({
-      id: tutorId, // 使用 tutorId 作為案例 ID
-      tutorId,
+      // id: tutorId, // 不要用 tutorId 作為 id
+      // tutorId,
       title: title || '',
       category,
       subCategory: subCategory || '',
