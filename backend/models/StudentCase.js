@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const studentCaseSchema = new mongoose.Schema({
   id: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   tutorId: {
     type: String,

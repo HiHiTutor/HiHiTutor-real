@@ -380,6 +380,7 @@ router.post('/', verifyToken, async (req, res) => {
 
   try {
     const {
+      id,
       tutorId,
       title,
       description,
@@ -460,7 +461,7 @@ router.post('/', verifyToken, async (req, res) => {
 
     // 創建新案例
     const newCase = new StudentCase({
-      // id: tutorId, // 不要用 tutorId 作為 id
+      id: id,
       // tutorId,
       title: title || '',
       category,
