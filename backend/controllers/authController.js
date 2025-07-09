@@ -622,42 +622,22 @@ const requestPasswordReset = async (req, res) => {
 };
 
 // 忘記密碼（支援 email 或電話）
-const forgotPassword = async (req, res) => {
-  try {
-    const { email } = req.body;
-    
-    if (!email) {
-      return res.status(400).json({ 
-        success: false,
-        message: '請提供電子郵件地址' 
-      });
-    }
+const forgotPassword = (req, res) => {
+  const { identifier } = req.body;
+  console.log("💡 接收到的 identifier：", identifier);
 
-    // 檢查該 email 是否存在於使用者資料庫中
-    const user = await User.findOne({ email: email });
-
-    if (!user) {
-      return res.status(404).json({ 
-        success: false,
-        message: '找不到該電子郵件地址的使用者' 
-      });
-    }
-
-    // 如果找到使用者，先記錄重設密碼請求
-    console.log("重設密碼請求", email);
-
-    // 回傳成功訊息
-    return res.status(200).json({ 
-      success: true,
-      message: '重設密碼連結已發送到您的電子郵件' 
-    });
-  } catch (error) {
-    console.error('忘記密碼 API 錯誤:', error);
-    return res.status(500).json({
+  if (!identifier) {
+    return res.status(400).json({
       success: false,
-      message: '伺服器錯誤，請稍後再試'
+      message: '請提供 email 或電話號碼',
     });
   }
+
+  return res.json({
+    success: true,
+    message: '成功收到 identifier',
+    identifier,
+  });
 };
 
 // 重設密碼
