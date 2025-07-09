@@ -624,7 +624,11 @@ const requestPasswordReset = async (req, res) => {
 // 忘記密碼（支援 email 或電話）
 const forgotPassword = (req, res) => {
   console.log("🔥 forgotPassword req.body = ", req.body);
-  const { identifier } = req.body;
+  // 允許 email 或 phone 直接傳入
+  let { identifier, email, phone } = req.body;
+  if (!identifier && (email || phone)) {
+    identifier = email || phone;
+  }
   console.log("💡 接收到的 identifier：", identifier);
 
   if (!identifier) {
