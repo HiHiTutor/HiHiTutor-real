@@ -626,10 +626,10 @@ const requestPasswordReset = async (req, res) => {
 // 忘記密碼（支援 email 或電話）
 const forgotPassword = async (req, res) => {
   console.log("🔥🔥🔥 進入 forgotPassword function，req.body =", req.body);
-  // 允許 email 或 phone 直接傳入
-  let { identifier, email, phone } = req.body;
-  if (!identifier && (email || phone)) {
-    identifier = email || phone;
+  // 允許 email、phone、account 或 identifier 直接傳入
+  let { identifier, email, phone, account } = req.body;
+  if (!identifier && (email || phone || account)) {
+    identifier = email || phone || account;
   }
   console.log("💡 接收到的 identifier：", identifier);
 
