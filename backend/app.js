@@ -137,6 +137,10 @@ app.options('*', (req, res) => {
 
 // Body parsing middleware - BEFORE routes
 app.use(express.json());
+app.use((req, res, next) => {
+  console.log("🔥 GLOBAL MIDDLEWARE HIT:", req.method, req.originalUrl);
+  next();
+});
 app.use(express.urlencoded({ extended: true }));
 
 // Create uploads directory if it doesn't exist
@@ -218,6 +222,7 @@ if (!mongoose.connection.listeners('disconnected').length) {
 
 // Mount routes
 app.use('/api/auth', authRoutes);
+console.log("✅ authRoutes loaded and mounted");
 app.use('/api/admin/auth', adminAuthRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin-management', require('./routes/admin'));
