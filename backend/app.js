@@ -148,6 +148,11 @@ if (!fs.existsSync(uploadsDir)) {
 // Request logging middleware
 app.use((req, res, next) => {
   const requestId = Math.random().toString(36).substring(7);
+  
+  // 🔥 調試日誌：檢查 req.body
+  console.log('🔥 req.body =', req.body);
+  console.log('🔥 req.headers["content-type"] =', req.headers['content-type']);
+  
   console.log(`[${requestId}] 📝 Request received:`, {
     timestamp: new Date().toISOString(),
     method: req.method,
@@ -159,7 +164,7 @@ app.use((req, res, next) => {
       'authorization': req.headers['authorization'] ? 'Bearer [hidden]' : 'none'
     },
     body: req.method !== 'GET' ? (
-      req.body.password ? {...req.body, password: '[HIDDEN]'} : req.body
+      req.body && req.body.password ? {...req.body, password: '[HIDDEN]'} : req.body
     ) : undefined,
     query: req.query,
     ip: req.ip
@@ -318,7 +323,7 @@ app.use((err, req, res, next) => {
         'user-agent': req.headers['user-agent']
       },
       body: req.method !== 'GET' ? (
-        req.body.password ? {...req.body, password: '[HIDDEN]'} : req.body
+        req.body && req.body.password ? {...req.body, password: '[HIDDEN]'} : req.body
       ) : undefined
     },
     environment: {

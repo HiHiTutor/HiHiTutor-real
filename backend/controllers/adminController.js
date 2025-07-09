@@ -162,7 +162,7 @@ const updateUser = async (req, res) => {
     }
 
     // 檢查是否嘗試將用戶升級為管理員
-    if (req.body.userType === 'admin' || req.body.role === 'admin') {
+    if (req.body && (req.body.userType === 'admin' || req.body.role === 'admin')) {
       // 確保當前用戶是管理員
       const currentUser = await User.findById(req.user.id);
       if (!currentUser || currentUser.userType !== 'admin') {
@@ -176,8 +176,8 @@ const updateUser = async (req, res) => {
     const updateData = {
       ...req.body,
       // 如果設置為管理員，確保兩個字段都正確設置
-      ...(req.body.userType === 'admin' ? { role: 'admin', status: 'active' } : {}),
-      ...(req.body.role === 'admin' ? { userType: 'admin', status: 'active' } : {})
+      ...(req.body && req.body.userType === 'admin' ? { role: 'admin', status: 'active' } : {}),
+      ...(req.body && req.body.role === 'admin' ? { userType: 'admin', status: 'active' } : {})
     };
 
     // 支援通過 userId 或 MongoDB _id 查找用戶

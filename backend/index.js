@@ -116,7 +116,7 @@ app.use('/api/faqs', faqRoutes);
 app.post('/api/upload', upload.array('files'), (req, res) => {
   try {
     const uploadedFiles = req.files;
-    const userId = req.body.userId || 'unknown';
+    const userId = (req.body && req.body.userId) || 'unknown';
     if (!uploadedFiles || uploadedFiles.length === 0) {
       return res.status(400).json({ success: false, message: 'Upload failed' });
     }
