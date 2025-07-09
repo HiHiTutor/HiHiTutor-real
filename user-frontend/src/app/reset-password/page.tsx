@@ -55,7 +55,7 @@ function ResetPasswordPageContent() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 border rounded-lg shadow-lg bg-gray-100">
+    <div className="max-w-md mx-auto mt-10 p-6 border rounded-lg shadow-lg bg-gray-200">
       <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">重設密碼</h1>
       {!token ? (
         <p className="text-red-500 text-center">缺少驗證 token，請從電郵連結進入。</p>
@@ -137,7 +137,7 @@ function ResetPasswordPageContent() {
             </div>
             {/* 密碼不符提示 */}
             {isPasswordMismatch && (
-              <p className="mt-1 text-sm text-red-500">與新密碼不符</p>
+              <p className="mt-1 text-sm text-red-600 font-medium">密碼不符合</p>
             )}
           </div>
 

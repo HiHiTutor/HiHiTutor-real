@@ -7,6 +7,7 @@ const { getUserById } = require('../utils/userStorage');
 const User = require('../models/User');
 const RegisterToken = require('../models/RegisterToken');
 const emailService = require('../services/email');
+const { sendResetPasswordEmail } = require('../utils/emailService');
 const ResetToken = require('../models/ResetToken');
 
 // 模擬 JWT token 生成
@@ -639,15 +640,49 @@ const forgotPassword = async (req, res) => {
     });
   }
 
+  // 查找用戶
+  const user = await User.findOne({
+    $or: [
+      { email: identifier },
+      { phone: identifier }
+    ]
+  });
+
+  // 無論用戶是否存在，都返回成功訊息（避免帳號資訊洩漏）
+  if (!user) {
+    console.log(`📧 請求重設密碼：identifier ${identifier} 不存在，但仍返回成功訊息`);
+    return res.status(200).json({
+      success: true,
+      message: '如果該帳號已註冊，重設密碼連結將發送到您的信箱'
+    });
+  }
+
   // 產生 reset token 並儲存到 MongoDB
   const token = crypto.randomBytes(32).toString('hex');
   const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1小時
   await ResetToken.create({ identifier, token, expiresAt });
-  console.log('🔗 Reset link:', `${process.env.FRONTEND_URL || 'https://hihitutor.com'}/reset-password?token=${token}`);
+  
+  // 生成重設密碼連結
+  const resetLink = `${process.env.FRONTEND_URL || 'https://hihitutor.com'}/reset-password?token=${token}`;
+  console.log('🔗 Reset link:', resetLink);
+
+  // 如果用戶有 email，發送重設密碼 email
+  if (user.email) {
+    try {
+      await sendResetPasswordEmail(user.email, resetLink);
+      console.log(`📧 重設密碼email已發送到: ${user.email}`);
+    } catch (emailError) {
+      console.error('❌ 發送重設密碼email失敗:', emailError);
+      return res.status(500).json({
+        success: false,
+        message: '發送重設密碼email時發生錯誤，請稍後再試'
+      });
+    }
+  }
 
   return res.json({
     success: true,
-    message: '成功收到 identifier',
+    message: '如果該帳號已註冊，重設密碼連結將發送到您的信箱',
     identifier,
     resetToken: token
   });
