@@ -6,27 +6,20 @@ import { useRouter } from 'next/navigation';
 import TutorCard from './TutorCard';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 import { useEffect, useState } from 'react';
+import { useIsMobile } from '@/hooks/useMediaQuery';
 
 interface TutorSectionProps {
   tutors: any[];
 }
 
-const getCardsPerPage = () => {
-  if (typeof window !== 'undefined') {
-    return window.innerWidth <= 700 ? 4 : 8;
-  }
-  return 8;
-};
-
 const TutorSection = ({ tutors }: TutorSectionProps) => {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(0);
-  const [cardsPerPage, setCardsPerPage] = useState(getCardsPerPage());
-  useEffect(() => {
-    const handleResize = () => setCardsPerPage(getCardsPerPage());
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const isMobile = useIsMobile();
+  
+  // 根據螢幕大小決定每頁卡片數量
+  const cardsPerPage = isMobile ? 4 : 8;
+  
   const totalPages = Math.ceil(tutors.length / cardsPerPage);
   const pagedTutors = tutors.slice(currentPage * cardsPerPage, (currentPage + 1) * cardsPerPage);
 
@@ -46,7 +39,7 @@ const TutorSection = ({ tutors }: TutorSectionProps) => {
         >
           <ChevronLeftIcon className="h-6 w-6" />
         </button>
-        <div className={`grid ${cardsPerPage === 4 ? 'grid-cols-2' : 'grid-cols-4'} gap-6`}>
+        <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-4'} gap-6`}>
           {pagedTutors.map((tutor: any) => (
             <TutorCard key={tutor.tutorId} tutor={tutor} />
           ))}

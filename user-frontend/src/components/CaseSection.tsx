@@ -9,6 +9,7 @@ import TutorCard from '@/components/TutorCard';
 import StudentCaseCard from '@/components/student/StudentCaseCard';
 import { getSubjectName, getRegionName, getSubRegionName } from '@/utils/translate';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
+import { useIsMobile } from '@/hooks/useMediaQuery';
 
 // 地區映射表
 const regionMap: { [key: string]: string } = {
@@ -151,20 +152,16 @@ const BudgetDisplay = ({ budget }: { budget: any }) => {
   return <span>{`${min} - ${max}/小時`}</span>;
 };
 
-const getCardsPerPage = () => {
-  if (typeof window !== 'undefined') {
-    return window.innerWidth <= 700 ? 4 : 8;
-  }
-  return 8;
-};
-
 const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400', bgColor = 'bg-blue-50', icon, routeType, queryParams }: CaseSectionProps) => {
   const [cases, setCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(0);
-  const [cardsPerPage, setCardsPerPage] = useState(getCardsPerPage());
+  const isMobile = useIsMobile();
+  
+  // 根據螢幕大小決定每頁卡片數量
+  const cardsPerPage = isMobile ? 4 : 8;
 
   useEffect(() => {
     let isMounted = true;  // 用於防止記憶體洩漏
@@ -358,11 +355,7 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
     };
   }, [fetchUrl, queryParams, routeType]);
 
-  useEffect(() => {
-    const handleResize = () => setCardsPerPage(getCardsPerPage());
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  // 移除 resize 監聽器，因為 useIsMobile hook 已經處理了響應式
 
   const totalPages = Math.ceil(cases.length / cardsPerPage);
   const pagedCases = cases.slice(currentPage * cardsPerPage, (currentPage + 1) * cardsPerPage);
@@ -384,7 +377,7 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
         >
           <ChevronLeftIcon className="h-6 w-6" />
         </button>
-        <div className={`grid ${cardsPerPage === 4 ? 'grid-cols-2' : 'grid-cols-4'} gap-6`}>
+        <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-4'} gap-6`}>
           {pagedCases.map((caseItem: Case) => (
             routeType === 'tutor'
               ? <TutorCard key={caseItem.tutorId} tutor={caseItem as any} />
