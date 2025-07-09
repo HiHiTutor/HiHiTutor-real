@@ -2,7 +2,7 @@ const User = require('../models/user');
 const RegisterToken = require('../models/registerToken');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 const loginUser = async (req, res) => {
   try {

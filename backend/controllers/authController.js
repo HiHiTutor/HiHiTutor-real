@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const userRepository = require('../repositories/UserRepository.js');
 const crypto = require('crypto');
 const { loadUsers, saveUsers } = require('../data/users');
