@@ -734,9 +734,31 @@ const resetPassword = async (req, res) => {
       });
     }
     // hash 新密碼
+    console.log('🔑 開始重設密碼...');
+    console.log('📝 重設密碼信息：', {
+      newPassword: newPassword,
+      passwordLength: newPassword.length,
+      userEmail: user.email,
+      userPhone: user.phone
+    });
+    
     const hashedPassword = await bcrypt.hash(newPassword, 10);
+    console.log('🔐 新密碼 hash：', {
+      newHash: hashedPassword,
+      hashPrefix: hashedPassword.substring(0, 7),
+      hashLength: hashedPassword.length
+    });
+    
+    const oldPassword = user.password;
     user.password = hashedPassword;
     await user.save();
+    
+    console.log('✅ 密碼更新成功：', {
+      oldHash: oldPassword,
+      newHash: user.password,
+      updatedAt: user.updatedAt
+    });
+    
     // 刪除 reset token
     await ResetToken.deleteOne({ _id: resetTokenData._id });
     return res.json({
