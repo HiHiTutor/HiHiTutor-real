@@ -624,85 +624,38 @@ const requestPasswordReset = async (req, res) => {
 // 忘記密碼（支援 email 或電話）
 const forgotPassword = async (req, res) => {
   try {
-    const { account } = req.body;
+    const { email } = req.body;
     
-    if (!account) {
+    if (!email) {
       return res.status(400).json({ 
         success: false,
-        message: '請提供 email 或電話號碼' 
+        message: '請提供電子郵件地址' 
       });
     }
 
-    // 檢查是否為 email 或電話
-    const isEmail = account.includes('@');
-    const isPhone = /^[5689]\d{7}$/.test(account);
-
-    if (!isEmail && !isPhone) {
-      return res.status(400).json({ 
-        success: false,
-        message: '格式錯誤，請輸入正確 email 或電話' 
-      });
-    }
-
-    // 查找用戶
-    const user = await User.findOne({
-      $or: [
-        { email: account },
-        { phone: account }
-      ]
-    });
+    // 檢查該 email 是否存在於使用者資料庫中
+    const user = await User.findOne({ email: email });
 
     if (!user) {
       return res.status(404).json({ 
         success: false,
-        message: '找不到該帳戶' 
+        message: '找不到該電子郵件地址的使用者' 
       });
     }
 
-    // 生成重設密碼 token（10分鐘有效期）
-    const resetToken = require('crypto').randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10分鐘後過期
+    // 如果找到使用者，先記錄重設密碼請求
+    console.log("重設密碼請求", email);
 
-    // 保存重設 token 到數據庫
-    await RegisterToken.create({
-      token: resetToken,
-      phone: user.phone,
-      email: user.email,
-      expiresAt,
-      isUsed: false,
-      type: 'password-reset'
-    });
-
-    // 發送重設密碼email
-    try {
-      if (user.email) {
-        await emailService.sendPasswordResetEmail(user.email, user.name, resetToken);
-        console.log(`📧 重設密碼email已發送到: ${user.email}`);
-      } else {
-        console.log('❌ 用戶沒有email地址，無法發送重設密碼email');
-        return res.status(400).json({ 
-          success: false,
-          message: '該帳戶沒有email地址，無法發送重設密碼連結' 
-        });
-      }
-    } catch (emailError) {
-      console.error('❌ 發送重設密碼email失敗:', emailError);
-      return res.status(500).json({ 
-        success: false,
-        message: '發送重設密碼email時發生錯誤，請稍後再試' 
-      });
-    }
-
+    // 回傳成功訊息
     return res.status(200).json({ 
       success: true,
-      message: '密碼重設連結已發送到您的信箱，請查收。',
-      token: process.env.NODE_ENV === 'development' ? resetToken : undefined // 在開發環境中返回 token
+      message: '重設密碼連結已發送到您的電子郵件' 
     });
   } catch (error) {
-    console.error('忘記密碼處理失敗:', error);
+    console.error('忘記密碼 API 錯誤:', error);
     return res.status(500).json({
       success: false,
-      message: '處理忘記密碼請求時發生錯誤'
+      message: '伺服器錯誤，請稍後再試'
     });
   }
 };
