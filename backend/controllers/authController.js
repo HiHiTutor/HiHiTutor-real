@@ -656,67 +656,57 @@ const forgotPassword = async (req, res) => {
 // 重設密碼
 const resetPassword = async (req, res) => {
   try {
-    const { token, password } = req.body;
-
-    if (!token || !password) {
-      return res.status(400).json({ 
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) {
+      return res.status(400).json({
         success: false,
-        message: '請提供 token 及新密碼' 
+        message: '請提供 token 及新密碼'
       });
     }
-
-    if (password.length < 6) {
-      return res.status(400).json({ 
+    if (newPassword.length < 6) {
+      return res.status(400).json({
         success: false,
-        message: '密碼長度必須至少為6個字符' 
+        message: '密碼長度必須至少為6個字符'
       });
     }
-
-    // 查找重設 token
-    const resetTokenData = await RegisterToken.findOne({
-      token,
-      type: 'password-reset',
-      isUsed: false,
-      expiresAt: { $gt: new Date() }
-    });
-
+    // 查找 reset token
+    const resetTokenData = await ResetToken.findOne({ token });
     if (!resetTokenData) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: '無效或過期的 token' 
+        message: '無效的 token'
       });
     }
-
-    // 查找用戶
+    if (resetTokenData.expiresAt < new Date()) {
+      await ResetToken.deleteOne({ _id: resetTokenData._id });
+      return res.status(400).json({
+        success: false,
+        message: 'token 已過期'
+      });
+    }
+    // 根據 identifier 找 user
     const user = await User.findOne({
       $or: [
-        { email: resetTokenData.email },
-        { phone: resetTokenData.phone }
+        { email: resetTokenData.identifier },
+        { phone: resetTokenData.identifier }
       ]
     });
-
     if (!user) {
-      return res.status(404).json({ 
+      await ResetToken.deleteOne({ _id: resetTokenData._id });
+      return res.status(404).json({
         success: false,
-        message: '找不到用戶' 
+        message: '找不到用戶'
       });
     }
-
-    // 加密新密碼
-    const hashedPassword = await bcrypt.hash(password, 10);
-    
-    // 更新用戶密碼
-    await User.findByIdAndUpdate(user._id, {
-      $set: { password: hashedPassword }
-    });
-
-    // 標記 token 為已使用
-    resetTokenData.isUsed = true;
-    await resetTokenData.save();
-
-    return res.status(200).json({ 
+    // hash 新密碼
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+    // 刪除 reset token
+    await ResetToken.deleteOne({ _id: resetTokenData._id });
+    return res.json({
       success: true,
-      message: '密碼重設成功' 
+      message: '密碼已成功重設'
     });
   } catch (error) {
     console.error('重設密碼失敗:', error);
