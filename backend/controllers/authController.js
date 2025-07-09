@@ -7,9 +7,7 @@ const { getUserById } = require('../utils/userStorage');
 const User = require('../models/User');
 const RegisterToken = require('../models/RegisterToken');
 const emailService = require('../services/email');
-const fs = require('fs');
-const path = require('path');
-const { generateResetToken } = require('../utils/tokenUtils');
+const ResetToken = require('../models/ResetToken');
 
 // 模擬 JWT token 生成
 const generateToken = (user) => {
@@ -625,7 +623,7 @@ const requestPasswordReset = async (req, res) => {
 };
 
 // 忘記密碼（支援 email 或電話）
-const forgotPassword = (req, res) => {
+const forgotPassword = async (req, res) => {
   console.log("🔥🔥🔥 進入 forgotPassword function，req.body =", req.body);
   // 允許 email 或 phone 直接傳入
   let { identifier, email, phone } = req.body;
@@ -641,27 +639,17 @@ const forgotPassword = (req, res) => {
     });
   }
 
-  // 產生 reset token 並儲存
-  const resetTokensFile = path.join(__dirname, '../data/resetTokens.json');
-  let resetTokens = [];
-  if (fs.existsSync(resetTokensFile)) {
-    resetTokens = JSON.parse(fs.readFileSync(resetTokensFile));
-  }
-  const resetToken = generateResetToken();
-  const tokenData = {
-    identifier,
-    token: resetToken,
-    expiresAt: Date.now() + 1000 * 60 * 10 // 10分鐘
-  };
-  resetTokens.push(tokenData);
-  fs.writeFileSync(resetTokensFile, JSON.stringify(resetTokens, null, 2));
-  console.log(`🔗 Reset Link: https://hihitutor.com/reset-password?token=${resetToken}`);
+  // 產生 reset token 並儲存到 MongoDB
+  const token = crypto.randomBytes(32).toString('hex');
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1小時
+  await ResetToken.create({ identifier, token, expiresAt });
+  console.log('🔗 Reset link:', `${process.env.FRONTEND_URL || 'https://hihitutor.com'}/reset-password?token=${token}`);
 
   return res.json({
     success: true,
     message: '成功收到 identifier',
     identifier,
-    resetToken
+    resetToken: token
   });
 };
 
