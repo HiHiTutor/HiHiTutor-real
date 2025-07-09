@@ -7,6 +7,9 @@ const { getUserById } = require('../utils/userStorage');
 const User = require('../models/User');
 const RegisterToken = require('../models/RegisterToken');
 const emailService = require('../services/email');
+const fs = require('fs');
+const path = require('path');
+const { generateResetToken } = require('../utils/tokenUtils');
 
 // 模擬 JWT token 生成
 const generateToken = (user) => {
@@ -638,10 +641,27 @@ const forgotPassword = (req, res) => {
     });
   }
 
+  // 產生 reset token 並儲存
+  const resetTokensFile = path.join(__dirname, '../data/resetTokens.json');
+  let resetTokens = [];
+  if (fs.existsSync(resetTokensFile)) {
+    resetTokens = JSON.parse(fs.readFileSync(resetTokensFile));
+  }
+  const resetToken = generateResetToken();
+  const tokenData = {
+    identifier,
+    token: resetToken,
+    expiresAt: Date.now() + 1000 * 60 * 10 // 10分鐘
+  };
+  resetTokens.push(tokenData);
+  fs.writeFileSync(resetTokensFile, JSON.stringify(resetTokens, null, 2));
+  console.log(`🔗 Reset Link: https://hihitutor.com/reset-password?token=${resetToken}`);
+
   return res.json({
     success: true,
     message: '成功收到 identifier',
     identifier,
+    resetToken
   });
 };
 
