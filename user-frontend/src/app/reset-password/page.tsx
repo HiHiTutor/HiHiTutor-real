@@ -43,7 +43,7 @@ function ResetPasswordPageContent() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ token, newPassword: password }),
+      body: JSON.stringify({ token, password, newPassword: password }),
     });
     const data = await res.json();
     if (res.ok) {
