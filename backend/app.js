@@ -1,3 +1,4 @@
+console.log('🔥 App.js loaded: ', __filename);
 // Deployment trigger: 2024-03-22-2
 const express = require('express');
 const mongoose = require('mongoose');
