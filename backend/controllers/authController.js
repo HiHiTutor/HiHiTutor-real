@@ -742,15 +742,10 @@ const resetPassword = async (req, res) => {
       userPhone: user.phone
     });
     
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    console.log('🔐 新密碼 hash：', {
-      newHash: hashedPassword,
-      hashPrefix: hashedPassword.substring(0, 7),
-      hashLength: hashedPassword.length
-    });
+    console.log('🔐 準備更新密碼...');
     
     const oldPassword = user.password;
-    user.password = hashedPassword;
+    user.password = newPassword; // 設為明文，等 pre-save middleware 處理
     await user.save();
     
     console.log('✅ 密碼更新成功：', {
