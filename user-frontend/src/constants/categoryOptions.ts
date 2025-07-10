@@ -11,11 +11,6 @@ export interface CategoryOption {
 
 const CATEGORY_OPTIONS: CategoryOption[] = [
   { 
-    value: 'unlimited',
-    label: '不限',
-    subjects: []
-  },
-  { 
     value: 'early-childhood',
     label: '幼兒教育',
     subjects: [

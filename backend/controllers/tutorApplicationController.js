@@ -31,6 +31,7 @@ const saveApplications = (applications) => {
 
 // 1. 提交導師申請
 const submitTutorApplication = async (req, res) => {
+  console.log('收到申請資料:', req.body, req.files);
   try {
     const { education, experience, subjects, documents } = req.body;
     const userId = req.user.id;

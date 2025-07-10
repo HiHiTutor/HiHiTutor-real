@@ -19,6 +19,7 @@ export default function UpgradePage() {
     subjects: [],
     files: []
   });
+  const [fileInputs, setFileInputs] = useState([0]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,13 +35,24 @@ export default function UpgradePage() {
     }
   }, [router]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (idx: number, e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setFormData(prev => ({
-        ...prev,
-        files: Array.from(e.target.files || [])
-      }));
+      setFormData(prev => {
+        const newFiles = [...prev.files];
+        newFiles[idx] = e.target.files[0];
+        return { ...prev, files: newFiles };
+      });
     }
+  };
+  const handleAddFileInput = () => {
+    setFileInputs((prev) => [...prev, prev.length]);
+  };
+  const handleRemoveFileInput = (idx: number) => {
+    setFileInputs((prev) => prev.filter((_, i) => i !== idx));
+    setFormData((prev) => {
+      const newFiles = prev.files.filter((_, i) => i !== idx);
+      return { ...prev, files: newFiles };
+    });
   };
 
   const handleSubjectChange = (subject: string) => {
@@ -239,13 +251,20 @@ export default function UpgradePage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   上傳證明文件
                 </label>
-                <input
-                  type="file"
-                  multiple
-                  onChange={handleFileChange}
-                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                />
+                {fileInputs.map((inputIdx, idx) => (
+                  <div key={inputIdx} className="flex items-center mb-2">
+                    <input
+                      type="file"
+                      onChange={(e) => handleFileChange(idx, e)}
+                      accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                    />
+                    {fileInputs.length > 1 && (
+                      <button type="button" onClick={() => handleRemoveFileInput(idx)} className="ml-2 text-red-500">✕</button>
+                    )}
+                  </div>
+                ))}
+                <button type="button" onClick={handleAddFileInput} className="mt-2 px-3 py-1 bg-indigo-100 text-indigo-700 rounded hover:bg-indigo-200">＋ 新增檔案</button>
                 <p className="mt-1 text-sm text-gray-500">
                   請上傳相關證明文件（學歷證明、教學證明等）
                 </p>
