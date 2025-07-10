@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Star } from 'lucide-react';
 import { tutorApi } from '@/services/api';
 import HeroSection from '@/components/HeroSection';
+import HeroAdCarousel from '@/components/HeroAdCarousel';
 import CategoryList from '@/components/CategoryList';
 import CaseSection from '@/components/CaseSection';
 import TutorSection from '@/components/TutorSection';
@@ -139,6 +140,11 @@ function HomeContent() {
           </div>
           <CategoryList />
         </div>
+      </div>
+      
+      {/* Hero 輪播廣告 */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+        <HeroAdCarousel />
       </div>
       
       {/* 精選導師個案 */}
