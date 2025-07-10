@@ -350,7 +350,7 @@ export default function PostStudentCase() {
               )}
             </div>
 
-            {selectedModes.includes('in-person') && (
+            {(selectedModes.includes('in-person') || selectedModes.includes('unlimited')) && (
               <>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
