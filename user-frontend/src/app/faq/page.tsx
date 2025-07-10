@@ -99,6 +99,35 @@ export default function FAQPage() {
           </p>
         </div>
       </div>
+      <hr className="my-8" />
+      <section className="bg-white p-4 rounded shadow mt-8">
+        <h2 className="text-2xl font-bold mb-4">關於我們</h2>
+        <p className="mb-2">
+          HiHiTutor 致力於為學生和導師搭建最優質的教學平台
+        </p>
+        <h3 className="text-xl font-semibold mt-4 mb-2">我們的使命</h3>
+        <ul className="list-disc pl-6 mb-2">
+          <li>為學生提供最適合的導師配對</li>
+          <li>為導師創造公平的教學機會</li>
+          <li>建立安全、透明的教學環境</li>
+          <li>推動教育資源的公平分配</li>
+        </ul>
+        <h3 className="text-xl font-semibold mt-4 mb-2">我們的特色</h3>
+        <ul className="list-disc pl-6 mb-2">
+          <li><b>智能配對：</b>根據學生的需求和導師的專長，提供最適合的配對建議</li>
+          <li><b>品質保證：</b>嚴格的導師審核制度，確保教學品質</li>
+          <li><b>安全支付：</b>安全的支付系統，保障雙方權益</li>
+          <li><b>專業支援：</b>專業的客服團隊，隨時為您解決問題</li>
+        </ul>
+        <h3 className="text-xl font-semibold mt-4 mb-2">我們的團隊</h3>
+        <p className="mb-2">
+          HiHiTutor 由一群熱愛教育的專業人士組成，我們擁有豐富的教育經驗和技術背景，致力於為您提供最好的服務。
+        </p>
+        <h3 className="text-xl font-semibold mt-4 mb-2">加入我們</h3>
+        <p className="mb-2">
+          無論您是想要尋找導師的學生，還是想要分享知識的導師，都歡迎加入 HiHiTutor 的大家庭。
+        </p>
+      </section>
     </div>
   );
 } 
