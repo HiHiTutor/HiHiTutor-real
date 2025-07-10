@@ -32,7 +32,7 @@ const ads: Ad[] = [
   },
 ];
 
-const HeroAdCarousel: React.FC = () => {
+export default function HeroAdCarousel() {
   const [index, setIndex] = useState<number>(0);
 
   useEffect(() => {
@@ -45,12 +45,14 @@ const HeroAdCarousel: React.FC = () => {
   const current = ads[index];
 
   return (
-    <div className={`relative text-white py-10 px-6 ${current.bgColor} transition-all duration-500`}>
-      <h2 className="text-3xl font-bold mb-3">{current.title}</h2>
-      <p className="mb-4">{current.description}</p>
-      <a href={current.buttonLink} className="bg-yellow-400 text-black px-4 py-2 rounded hover:bg-yellow-500">
-        {current.buttonText}
-      </a>
+    <div className={`relative text-white py-10 px-6 h-[400px] flex items-center ${current.bgColor} transition-all duration-500`}>
+      <div>
+        <h2 className="text-3xl font-bold mb-3">{current.title}</h2>
+        <p className="mb-4">{current.description}</p>
+        <a href={current.buttonLink} className="bg-yellow-400 text-black px-4 py-2 rounded hover:bg-yellow-500">
+          {current.buttonText}
+        </a>
+      </div>
       {/* 指示點 */}
       <div className="absolute left-1/2 -translate-x-1/2 bottom-4 flex gap-2">
         {ads.map((_, i) => (
@@ -69,6 +71,4 @@ const HeroAdCarousel: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default HeroAdCarousel; 
+} 
