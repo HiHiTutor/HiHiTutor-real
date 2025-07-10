@@ -104,7 +104,8 @@ const allowedOrigins = [
   'https://hi-hi-tutor-real.vercel.app',             // 現有 Vercel 部署
   'https://hi-hi-tutor-real-admin-frontend.vercel.app', // 現有 admin frontend
   'http://localhost:3000',                           // local frontend
-  'http://localhost:3001'                            // local admin frontend
+  'http://localhost:3001',                           // local admin frontend
+  'https://hi-hi-tutor-real-hag1t6leo-hihitutors-projects.vercel.app' // 新增 Vercel 前端
 ];
 
 // 使用 cors middleware
