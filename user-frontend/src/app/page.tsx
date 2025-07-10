@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Star } from 'lucide-react';
 import { tutorApi } from '@/services/api';
 import HeroSection from '@/components/HeroSection';
-import HeroAdCarousel from '@/components/HeroAdCarousel';
+import HeroAdCarousel from '@/components/ads/HeroAdCarousel';
 import CategoryList from '@/components/CategoryList';
 import CaseSection from '@/components/CaseSection';
 import TutorSection from '@/components/TutorSection';
