@@ -27,21 +27,18 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
     setIsLoading(true);
 
     try {
-      const response = await authApi.login(formData);
+      const response = await authApi.login(formData.email, formData.password);
       
-      if (response.success) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-        
-        // Dispatch login event
-        window.dispatchEvent(new Event('login'));
-        
-        toast.success('登入成功！');
-        onSuccess();
-        onClose();
-      } else {
-        toast.error(response.message || '登入失敗');
-      }
+      // authApi.login 返回的是用戶資料和 token
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('user', JSON.stringify(response));
+      
+      // Dispatch login event
+      window.dispatchEvent(new Event('login'));
+      
+      toast.success('登入成功！');
+      onSuccess();
+      onClose();
     } catch (error) {
       console.error('登入錯誤:', error);
       toast.error('登入失敗，請稍後再試');
