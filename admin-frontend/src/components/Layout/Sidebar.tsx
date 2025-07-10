@@ -15,6 +15,7 @@ import {
   BarChart as BarChartIcon,
   School as SchoolIcon,
   Search as SearchIcon,
+  Campaign as CampaignIcon,
 } from '@mui/icons-material';
 
 const drawerWidth = 240;
@@ -27,6 +28,7 @@ const menuItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
   { text: 'Users', icon: <PeopleIcon />, path: '/users' },
   { text: 'Cases', icon: <DescriptionIcon />, path: '/cases' },
+  { text: '廣告管理', icon: <CampaignIcon />, path: '/AdManager' },
   { text: 'Statistics', icon: <BarChartIcon />, path: '/statistics' },
   { text: '搜尋統計', icon: <SearchIcon />, path: '/search-statistics' },
   { text: '導師申請審核', icon: <SchoolIcon />, path: '/tutor-applications' },
