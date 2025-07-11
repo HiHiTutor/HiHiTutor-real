@@ -511,21 +511,10 @@ export default function PostStudentCase() {
                 <div className="flex-1">
                   <Select 
                     onValueChange={(value) => {
-                      const minutes = parseInt(value);
-                      setValue('lessonDuration.minutes', minutes);
+                      const minutes = Number(value);
+                      setValue('lessonDuration.minutes', isNaN(minutes) ? 0 : minutes);
                     }}
-                    value={(() => {
-                      const hours = watch('lessonDuration.hours') || 0;
-                      const currentMinutes = watch('lessonDuration.minutes') || 0;
-                      const minuteOptions = hours === 0 ? [30, 45] : [0, 15, 30, 45];
-                      
-                      // 如果當前選中的分鐘不在可用選項中，則不顯示選中狀態
-                      if (!minuteOptions.includes(currentMinutes)) {
-                        return '';
-                      }
-                      
-                      return currentMinutes.toString();
-                    })()}
+                    value={String(watch('lessonDuration.minutes') ?? '')}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="分鐘" />
