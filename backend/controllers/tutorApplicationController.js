@@ -68,12 +68,18 @@ const submitTutorApplication = async (req, res) => {
     }
 
     // 從用戶資料中取得 userNumber (userId)
-    const userNumber = user.userId;
+    let userNumber = user.userId;
     if (!userNumber) {
-      return res.status(400).json({
-        success: false,
-        message: '用戶編號不存在'
-      });
+      // 如果 userId 不存在，生成一個新的
+      console.log('⚠️ 用戶沒有 userId，正在生成新的 userId...');
+      const lastUser = await User.findOne({ userId: { $exists: true } }).sort({ userId: -1 });
+      let newId = lastUser ? parseInt(lastUser.userId, 10) + 1 : 1000001;
+      userNumber = newId.toString().padStart(7, '0');
+      
+      // 更新用戶資料
+      user.userId = userNumber;
+      await user.save();
+      console.log('✅ 已為用戶生成新的 userId:', userNumber);
     }
 
     // 生成申請 ID
