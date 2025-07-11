@@ -17,6 +17,7 @@ import TutorApplications from './pages/TutorApplications';
 import TutorProfileApprovals from './pages/TutorProfileApprovals';
 import AdManager from './pages/AdManager';
 import AdCreate from './pages/AdCreate';
+import AdEdit from './pages/AdEdit';
 
 // Protected Route component
 const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
@@ -54,6 +55,7 @@ const App: React.FC = () => {
       <Route path="/tutor-profile-approvals" element={<ProtectedRoute element={<Layout><TutorProfileApprovals /></Layout>} />} />
       <Route path="/AdManager" element={<ProtectedRoute element={<Layout><AdManager /></Layout>} />} />
       <Route path="/ad-create" element={<ProtectedRoute element={<Layout><AdCreate /></Layout>} />} />
+      <Route path="/ad-edit/:id" element={<ProtectedRoute element={<Layout><AdEdit /></Layout>} />} />
       
       {/* Fallback route */}
       <Route path="*" element={<NotFound />} />
