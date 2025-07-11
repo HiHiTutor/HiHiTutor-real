@@ -100,7 +100,28 @@ export default function AdCreate() {
         </div>
         <div style={{ marginBottom: 16 }}>
           <label>按鈕顏色：</label>
-          <input name="buttonColor" value={form.buttonColor} onChange={handleChange} style={{ width: '100%', padding: 8 }} placeholder="#2563eb" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <input name="buttonColor" value={form.buttonColor} onChange={handleChange} style={{ width: '100%', padding: 8 }} placeholder="#2563eb" />
+            <input type="color" value={form.buttonColor} onChange={(e) => setForm(prev => ({ ...prev, buttonColor: e.target.value }))} style={{ width: 50, height: 40, border: '1px solid #ccc', cursor: 'pointer' }} />
+          </div>
+          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+            {['#2563eb', '#dc2626', '#059669', '#d97706', '#7c3aed', '#db2777', '#0891b2', '#65a30d'].map(color => (
+              <button
+                key={color}
+                type="button"
+                onClick={() => setForm(prev => ({ ...prev, buttonColor: color }))}
+                style={{
+                  width: 30,
+                  height: 30,
+                  backgroundColor: color,
+                  border: form.buttonColor === color ? '3px solid #000' : '1px solid #ccc',
+                  borderRadius: 4,
+                  cursor: 'pointer'
+                }}
+                title={color}
+              />
+            ))}
+          </div>
         </div>
         {error && <div style={{ color: 'red', marginBottom: 16 }}>{error}</div>}
         <button type="submit" disabled={loading} style={{ background: '#2563eb', color: '#fff', padding: '8px 20px', borderRadius: 6, border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>
