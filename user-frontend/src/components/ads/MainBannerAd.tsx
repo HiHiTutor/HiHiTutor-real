@@ -11,7 +11,7 @@ interface Ad {
   bgColor?: string;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_BASE || 'https://hi-hi-tutor-real-backend2.vercel.app/api';
+const API_URL = 'https://hi-hi-tutor-real-backend2.vercel.app/api';
 
 export default function MainBannerAd() {
   const [ads, setAds] = useState<Ad[]>([]);
