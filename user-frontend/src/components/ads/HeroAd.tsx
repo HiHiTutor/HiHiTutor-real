@@ -43,8 +43,25 @@ export default function HeroAd() {
   const current = ads[index];
 
   return (
-    <div className={`relative text-white py-10 px-6 h-[400px] flex items-center ${current.bgColor || 'bg-green-800'} transition-all duration-500`}>
-      <div>
+    <div className={`relative text-white py-10 px-6 h-[400px] flex items-center ${current.bgColor || 'bg-green-800'} transition-all duration-500`} style={{overflow: 'hidden'}}>
+      {/* 背景圖片 */}
+      {current.imageUrl && (
+        <img
+          src={current.imageUrl}
+          alt={current.title}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            opacity: 0.18,
+            zIndex: 0,
+          }}
+        />
+      )}
+      <div style={{position: 'relative', zIndex: 1}}>
         <h2 className="text-3xl font-bold mb-3">{current.title}</h2>
         <p className="mb-4">{current.description}</p>
         {current.link && (
@@ -67,7 +84,7 @@ export default function HeroAd() {
         )}
       </div>
       {/* 指示點 */}
-      <div className="absolute left-1/2 -translate-x-1/2 bottom-4 flex gap-2">
+      <div className="absolute left-1/2 -translate-x-1/2 bottom-4 flex gap-2" style={{zIndex: 2}}>
         {ads.map((_, i) => (
           <button
             key={i}
