@@ -9,6 +9,8 @@ interface Ad {
   isActive: boolean;
   order?: number;
   bgColor?: string;
+  buttonText?: string;
+  buttonColor?: string;
 }
 
 const API_URL = 'https://hi-hi-tutor-real-backend2.vercel.app/api';
@@ -46,8 +48,21 @@ export default function HeroAd() {
         <h2 className="text-3xl font-bold mb-3">{current.title}</h2>
         <p className="mb-4">{current.description}</p>
         {current.link && (
-          <a href={current.link} className="bg-yellow-400 text-black px-4 py-2 rounded hover:bg-yellow-500">
-            了解更多
+          <a
+            href={current.link}
+            style={{
+              background: current.buttonColor || '#2563eb',
+              color: '#fff',
+              padding: '8px 20px',
+              borderRadius: 6,
+              fontWeight: 'bold',
+              display: 'inline-block',
+              textDecoration: 'none',
+              transition: 'background 0.2s',
+            }}
+            className="hover:opacity-90"
+          >
+            {current.buttonText || '了解更多'}
           </a>
         )}
       </div>

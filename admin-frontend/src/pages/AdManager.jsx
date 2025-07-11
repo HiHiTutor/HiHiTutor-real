@@ -92,6 +92,8 @@ export default function AdManager() {
 
   const handleToggle = async (id) => {
     try {
+      console.log('🔄 切換廣告狀態:', id);
+      
       const token = localStorage.getItem('adminToken');
       const headers = {
         'Content-Type': 'application/json',
@@ -106,14 +108,27 @@ export default function AdManager() {
         headers
       });
       
+      console.log('📡 Toggle response status:', res.status);
+      
       if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(`HTTP error! status: ${res.status}, message: ${errorData.message || '未知錯誤'}`);
       }
       
-      fetchAds();
+      const result = await res.json();
+      console.log('✅ Toggle result:', result);
+      
+      // 立即更新本地狀態
+      setAds(prevAds => prevAds.map(ad => 
+        ad._id === id ? { ...ad, isActive: !ad.isActive } : ad
+      ));
+      
+      // 然後重新載入確保同步
+      setTimeout(() => fetchAds(), 500);
+      
     } catch (err) {
-      console.error('Error toggling ad:', err);
-      alert('切換狀態失敗');
+      console.error('❌ Error toggling ad:', err);
+      alert(`切換狀態失敗: ${err.message}`);
     }
   };
 
