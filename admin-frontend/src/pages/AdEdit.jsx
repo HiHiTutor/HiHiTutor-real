@@ -18,6 +18,7 @@ export default function AdEdit() {
     title: '',
     description: '',
     imageUrl: '',
+    bgColor: '#2563eb',
     link: '',
     isActive: true,
     buttonText: '了解更多',
@@ -26,6 +27,7 @@ export default function AdEdit() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   // 取得 id
   const id = window.location.pathname.split('/').pop();
@@ -45,6 +47,7 @@ export default function AdEdit() {
           title: data.title || '',
           description: data.description || '',
           imageUrl: data.imageUrl || '',
+          bgColor: data.bgColor || '#2563eb',
           link: data.link || '',
           isActive: data.isActive ?? true,
           buttonText: data.buttonText || '了解更多',
@@ -65,6 +68,31 @@ export default function AdEdit() {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const token = localStorage.getItem('adminToken');
+      const res = await fetch(`${API_BASE_URL}/upload`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.url) {
+        setForm((prev) => ({ ...prev, imageUrl: data.url }));
+      } else {
+        alert('圖片上傳失敗');
+      }
+    } catch (err) {
+      alert('圖片上傳失敗');
+    }
+    setUploading(false);
   };
 
   const handleSubmit = async (e) => {
@@ -112,11 +140,25 @@ export default function AdEdit() {
           <textarea name="description" value={form.description} onChange={handleChange} style={{ width: '100%', padding: 8, minHeight: 80 }} placeholder="例如：我們提供專業的導師配對服務，幫助你找到最適合的學習夥伴" />
         </div>
         <div style={{ marginBottom: 16 }}>
-          <label>圖片網址：</label>
+          <label>圖片：</label>
           <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>
             建議尺寸：Hero (1200x400px), MainBanner (800x200px), Sidebar (300x250px), Footer (200x100px)
           </div>
-          <input name="imageUrl" value={form.imageUrl} onChange={handleChange} style={{ width: '100%', padding: 8 }} placeholder="https://example.com/image.jpg" />
+          <input name="imageUrl" value={form.imageUrl} onChange={handleChange} style={{ width: '100%', padding: 8, marginBottom: 8 }} placeholder="https://example.com/image.jpg" />
+          <input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading} style={{ marginBottom: 8 }} />
+          {uploading && <div style={{ color: '#888', marginBottom: 8 }}>圖片上傳中...</div>}
+          {form.imageUrl && (
+            <div style={{ marginBottom: 8 }}>
+              <img src={form.imageUrl} alt="預覽" style={{ maxWidth: '100%', maxHeight: 120, borderRadius: 6, border: '1px solid #eee' }} />
+              <button type="button" onClick={() => setForm(prev => ({ ...prev, imageUrl: '' }))} style={{ marginLeft: 8, color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer' }}>移除圖片</button>
+            </div>
+          )}
+          {!form.imageUrl && (
+            <div style={{ marginTop: 8 }}>
+              <label>背景顏色：</label>
+              <input type="color" value={form.bgColor} onChange={e => setForm(prev => ({ ...prev, bgColor: e.target.value }))} style={{ width: 50, height: 40, border: '1px solid #ccc', cursor: 'pointer', marginLeft: 8 }} />
+            </div>
+          )}
         </div>
         <div style={{ marginBottom: 16 }}>
           <label>連結：</label>
