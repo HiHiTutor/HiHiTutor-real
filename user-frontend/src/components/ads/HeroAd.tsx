@@ -43,7 +43,13 @@ export default function HeroAd() {
   const current = ads[index];
 
   return (
-    <div className={`relative text-white py-10 px-6 h-[400px] flex items-center ${current.bgColor || 'bg-green-800'} transition-all duration-500`} style={{overflow: 'hidden'}}>
+    <div
+      className={`relative text-white py-10 px-6 h-[400px] flex items-center transition-all duration-500`}
+      style={{
+        overflow: 'hidden',
+        background: current.imageUrl ? undefined : (current.bgColor || '#2563eb'),
+      }}
+    >
       {/* 背景圖片 */}
       {current.imageUrl && (
         <img
@@ -56,7 +62,6 @@ export default function HeroAd() {
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            opacity: 0.18,
             zIndex: 0,
           }}
         />
