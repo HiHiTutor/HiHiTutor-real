@@ -20,7 +20,12 @@ export default function HeroAd() {
   useEffect(() => {
     fetch(`${API_URL}/ads?type=hero`)
       .then(res => res.json())
-      .then(data => setAds(Array.isArray(data) ? data : []));
+      .then(data => {
+        const ads = Array.isArray(data) ? data : [];
+        // 只顯示啟用的廣告
+        const activeAds = ads.filter(ad => ad.isActive !== false);
+        setAds(activeAds);
+      });
   }, []);
 
   useEffect(() => {
