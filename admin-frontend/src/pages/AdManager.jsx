@@ -11,10 +11,21 @@ const typeMap = {
   'footer-right': 'Footer-Right',
 };
 
+const typeOptions = [
+  { value: '', label: '全部類型' },
+  { value: 'hero', label: 'Hero' },
+  { value: 'main-banner', label: 'MainBanner' },
+  { value: 'sidebar-left', label: 'Sidebar-Left' },
+  { value: 'sidebar-right', label: 'Sidebar-Right' },
+  { value: 'footer-left', label: 'Footer-Left' },
+  { value: 'footer-right', label: 'Footer-Right' },
+];
+
 export default function AdManager() {
   const [ads, setAds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [filterType, setFilterType] = useState('');
 
   const fetchAds = async () => {
     setLoading(true);
@@ -109,12 +120,19 @@ export default function AdManager() {
   return (
     <div style={{ maxWidth: 1000, margin: '40px auto', padding: 24 }}>
       <h1 style={{ fontSize: 28, fontWeight: 'bold', marginBottom: 24 }}>廣告管理</h1>
-      <button
-        style={{ marginBottom: 20, background: '#2563eb', color: '#fff', padding: '8px 20px', borderRadius: 6, border: 'none', fontWeight: 'bold', cursor: 'pointer' }}
-        onClick={() => window.location.href = '/ad-create'}
-      >
-        ➕ 新增廣告
-      </button>
+      <div style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 16 }}>
+        <button
+          style={{ background: '#2563eb', color: '#fff', padding: '8px 20px', borderRadius: 6, border: 'none', fontWeight: 'bold', cursor: 'pointer' }}
+          onClick={() => window.location.href = '/ad-create'}
+        >
+          ➕ 新增廣告
+        </button>
+        <select value={filterType} onChange={e => setFilterType(e.target.value)} style={{ padding: 8, borderRadius: 6, border: '1px solid #ccc' }}>
+          {typeOptions.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      </div>
       {loading ? (
         <div>載入中...</div>
       ) : error ? (
@@ -132,7 +150,7 @@ export default function AdManager() {
             </tr>
           </thead>
           <tbody>
-            {ads.map(ad => (
+            {ads.filter(ad => !filterType || ad.type === filterType).map(ad => (
               <tr key={ad._id}>
                 <td style={{ padding: 8, border: '1px solid #eee' }}>{typeMap[ad.type] || ad.type}</td>
                 <td style={{ padding: 8, border: '1px solid #eee' }}>{ad.title}</td>

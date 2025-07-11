@@ -5,6 +5,7 @@ const API_URL = `${API_BASE_URL}/ads`;
 
 const typeOptions = [
   { value: 'hero', label: 'Hero' },
+  { value: 'main-banner', label: 'MainBanner' },
   { value: 'sidebar-left', label: 'Sidebar-Left' },
   { value: 'sidebar-right', label: 'Sidebar-Right' },
   { value: 'footer-left', label: 'Footer-Left' },
