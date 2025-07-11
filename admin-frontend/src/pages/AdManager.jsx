@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
-const API_URL = '/api/ads';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://hi-hi-tutor-real-backend2.vercel.app/api';
+const API_URL = `${API_BASE_URL}/ads`;
 
 const typeMap = {
   'hero': 'Hero',
@@ -18,11 +19,28 @@ export default function AdManager() {
   const fetchAds = async () => {
     setLoading(true);
     try {
-      const res = await fetch(API_URL);
+      const token = localStorage.getItem('adminToken');
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+      
+      const res = await fetch(API_URL, {
+        headers
+      });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
       const data = await res.json();
       setAds(data);
       setError('');
     } catch (err) {
+      console.error('Error fetching ads:', err);
       setError('讀取失敗');
     }
     setLoading(false);
@@ -34,13 +52,58 @@ export default function AdManager() {
 
   const handleDelete = async (id) => {
     if (!window.confirm('確定要刪除這個廣告？')) return;
-    await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-    fetchAds();
+    
+    try {
+      const token = localStorage.getItem('adminToken');
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+      
+      const res = await fetch(`${API_URL}/${id}`, { 
+        method: 'DELETE',
+        headers
+      });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
+      fetchAds();
+    } catch (err) {
+      console.error('Error deleting ad:', err);
+      alert('刪除失敗');
+    }
   };
 
   const handleToggle = async (id) => {
-    await fetch(`${API_URL}/${id}/toggle`, { method: 'PATCH' });
-    fetchAds();
+    try {
+      const token = localStorage.getItem('adminToken');
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+      
+      const res = await fetch(`${API_URL}/${id}/toggle`, { 
+        method: 'PATCH',
+        headers
+      });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
+      fetchAds();
+    } catch (err) {
+      console.error('Error toggling ad:', err);
+      alert('切換狀態失敗');
+    }
   };
 
   return (
