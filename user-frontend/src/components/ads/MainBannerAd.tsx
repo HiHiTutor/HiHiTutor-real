@@ -24,15 +24,10 @@ export default function MainBannerAd() {
   }, []);
 
   useEffect(() => {
-    if (ads.length > 1) {
-      const timer = setInterval(() => {
-        setIndex(prev => (prev + 1) % ads.length);
-      }, 3000);
-      return () => clearInterval(timer);
-    }
+    console.log('main-banner ads:', ads);
   }, [ads]);
 
-  if (!ads.length) return null;
+  if (!ads.length) return <div style={{color: 'red', textAlign: 'center'}}>（main-banner 無資料）</div>;
   const current = ads[index];
 
   return (
