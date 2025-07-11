@@ -10,7 +10,7 @@ import {
   EnvelopeIcon,
 } from '@heroicons/react/24/outline';
 import { SubjectBar } from './SubjectBar';
-import HeroAdCarousel from './ads/HeroAdCarousel';
+import HeroAd from './ads/HeroAd';
 
 interface User {
   id: string;
@@ -50,9 +50,9 @@ export default function HeroSection() {
 
   return (
     <section className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 items-start px-4 py-10 mb-12 max-sm:px-4 max-sm:py-6 max-[700px]:flex-col max-[700px]:gap-6">
-      {/* 左欄：Hero 輪播廣告 */}
+      {/* 左欄：Hero 廣告位 */}
       <div className="flex-1 max-sm:w-full max-[700px]:w-full">
-        <HeroAdCarousel />
+        <HeroAd />
       </div>
 
       {/* 右欄：熱門科目 */}

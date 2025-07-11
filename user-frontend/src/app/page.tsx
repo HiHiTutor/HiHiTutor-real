@@ -16,6 +16,7 @@ import TutorSection from '@/components/TutorSection';
 import Advertisement from '@/components/Advertisement';
 import CaseFilterBar from '@/components/CaseFilterBar';
 import { Tutor } from '@/types/tutor';
+import MainBannerAd from '@/components/ads/MainBannerAd';
 
 export default function Home() {
   const router = useRouter();
@@ -142,9 +143,9 @@ function HomeContent() {
         </div>
       </div>
       
-      {/* Hero 輪播廣告 */}
+      {/* MainBanner 廣告位 */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-        <HeroAdCarousel />
+        <MainBannerAd />
       </div>
       
       {/* 精選導師個案 */}
