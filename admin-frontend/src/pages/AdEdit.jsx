@@ -16,9 +16,12 @@ export default function AdEdit() {
   const [form, setForm] = useState({
     type: '',
     title: '',
+    description: '',
     imageUrl: '',
     link: '',
     isActive: true,
+    buttonText: '了解更多',
+    buttonColor: '#2563eb',
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -40,9 +43,12 @@ export default function AdEdit() {
         setForm({
           type: data.type || '',
           title: data.title || '',
+          description: data.description || '',
           imageUrl: data.imageUrl || '',
           link: data.link || '',
           isActive: data.isActive ?? true,
+          buttonText: data.buttonText || '了解更多',
+          buttonColor: data.buttonColor || '#2563eb',
         });
         setError('');
       } catch (err) {
@@ -102,17 +108,32 @@ export default function AdEdit() {
           <input name="title" value={form.title} onChange={handleChange} required style={{ width: '100%', padding: 8 }} />
         </div>
         <div style={{ marginBottom: 16 }}>
+          <label>描述：</label>
+          <textarea name="description" value={form.description} onChange={handleChange} style={{ width: '100%', padding: 8, minHeight: 80 }} placeholder="例如：我們提供專業的導師配對服務，幫助你找到最適合的學習夥伴" />
+        </div>
+        <div style={{ marginBottom: 16 }}>
           <label>圖片網址：</label>
-          <input name="imageUrl" value={form.imageUrl} onChange={handleChange} style={{ width: '100%', padding: 8 }} />
+          <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>
+            建議尺寸：Hero (1200x400px), MainBanner (800x200px), Sidebar (300x250px), Footer (200x100px)
+          </div>
+          <input name="imageUrl" value={form.imageUrl} onChange={handleChange} style={{ width: '100%', padding: 8 }} placeholder="https://example.com/image.jpg" />
         </div>
         <div style={{ marginBottom: 16 }}>
           <label>連結：</label>
-          <input name="link" value={form.link} onChange={handleChange} style={{ width: '100%', padding: 8 }} />
+          <input name="link" value={form.link} onChange={handleChange} style={{ width: '100%', padding: 8 }} placeholder="https://example.com" />
         </div>
         <div style={{ marginBottom: 16 }}>
           <label>
             <input type="checkbox" name="isActive" checked={form.isActive} onChange={handleChange} /> 啟用
           </label>
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <label>按鈕文字：</label>
+          <input name="buttonText" value={form.buttonText} onChange={handleChange} style={{ width: '100%', padding: 8 }} placeholder="例如：立即開始" />
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <label>按鈕顏色：</label>
+          <input name="buttonColor" value={form.buttonColor} onChange={handleChange} style={{ width: '100%', padding: 8 }} placeholder="#2563eb" />
         </div>
         {error && <div style={{ color: 'red', marginBottom: 16 }}>{error}</div>}
         <button type="submit" disabled={saving} style={{ background: '#2563eb', color: '#fff', padding: '8px 20px', borderRadius: 6, border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>

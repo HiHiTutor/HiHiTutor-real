@@ -143,8 +143,10 @@ export default function AdManager() {
             <tr style={{ background: '#f3f4f6' }}>
               <th style={{ padding: 8, border: '1px solid #eee' }}>類型</th>
               <th style={{ padding: 8, border: '1px solid #eee' }}>標題</th>
+              <th style={{ padding: 8, border: '1px solid #eee' }}>描述</th>
               <th style={{ padding: 8, border: '1px solid #eee' }}>圖片</th>
               <th style={{ padding: 8, border: '1px solid #eee' }}>連結</th>
+              <th style={{ padding: 8, border: '1px solid #eee' }}>按鈕</th>
               <th style={{ padding: 8, border: '1px solid #eee' }}>啟用</th>
               <th style={{ padding: 8, border: '1px solid #eee' }}>操作</th>
             </tr>
@@ -155,10 +157,21 @@ export default function AdManager() {
                 <td style={{ padding: 8, border: '1px solid #eee' }}>{typeMap[ad.type] || ad.type}</td>
                 <td style={{ padding: 8, border: '1px solid #eee' }}>{ad.title}</td>
                 <td style={{ padding: 8, border: '1px solid #eee' }}>
+                  {ad.description ? <div style={{ maxWidth: 200, fontSize: 12 }}>{ad.description}</div> : <span style={{ color: '#aaa' }}>無</span>}
+                </td>
+                <td style={{ padding: 8, border: '1px solid #eee' }}>
                   {ad.imageUrl ? <img src={ad.imageUrl} alt="ad" style={{ width: 60, height: 40, objectFit: 'cover', borderRadius: 4 }} /> : <span style={{ color: '#aaa' }}>無</span>}
                 </td>
                 <td style={{ padding: 8, border: '1px solid #eee' }}>
                   {ad.link ? <a href={ad.link} target="_blank" rel="noopener noreferrer">{ad.link}</a> : <span style={{ color: '#aaa' }}>無</span>}
+                </td>
+                <td style={{ padding: 8, border: '1px solid #eee' }}>
+                  <div style={{ fontSize: 12 }}>
+                    <div>文字: {ad.buttonText || '了解更多'}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      顏色: <div style={{ width: 16, height: 16, backgroundColor: ad.buttonColor || '#2563eb', border: '1px solid #ccc' }}></div>
+                    </div>
+                  </div>
                 </td>
                 <td style={{ padding: 8, border: '1px solid #eee', textAlign: 'center' }}>
                   <button onClick={() => handleToggle(ad._id)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20 }}>
