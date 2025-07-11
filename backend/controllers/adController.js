@@ -7,6 +7,19 @@ exports.getAds = async (req, res) => {
   res.json(ads);
 };
 
+// GET /api/ads/:id
+exports.getAd = async (req, res) => {
+  try {
+    const ad = await Ad.findById(req.params.id);
+    if (!ad) {
+      return res.status(404).json({ message: '廣告不存在' });
+    }
+    res.json(ad);
+  } catch (err) {
+    res.status(500).json({ message: '讀取失敗' });
+  }
+};
+
 // POST /api/ads
 exports.createAd = async (req, res) => {
   const newAd = new Ad(req.body);

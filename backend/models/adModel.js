@@ -14,6 +14,14 @@ const adSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
+  },
+  buttonText: {
+    type: String,
+    default: '了解更多'
+  },
+  buttonColor: {
+    type: String,
+    default: '#2563eb'
   }
 }, { timestamps: true });
 
