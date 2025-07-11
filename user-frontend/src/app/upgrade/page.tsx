@@ -39,7 +39,7 @@ export default function UpgradePage() {
     if (e.target.files && e.target.files.length > 0) {
       setFormData(prev => {
         const newFiles = [...prev.files];
-        newFiles[idx] = e.target.files[0];
+        newFiles[idx] = e.target.files![0];
         return { ...prev, files: newFiles };
       });
     }
