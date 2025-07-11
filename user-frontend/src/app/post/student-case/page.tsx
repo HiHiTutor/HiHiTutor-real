@@ -354,7 +354,7 @@ export default function PostStudentCase() {
               <>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    地區
+                    上堂地區
                   </label>
                   <Select onValueChange={(value) => {
                     const newRegions = selectedRegions.includes(value)
