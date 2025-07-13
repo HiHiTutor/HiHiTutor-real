@@ -14,6 +14,21 @@ import { usersAPI } from '../services/api';
 
 const CreateUser: React.FC = () => {
   const navigate = useNavigate();
+  // ====== 新增：科目與地區選項 ======
+  const CATEGORY_OPTIONS = [
+    '幼兒中文','幼兒英文','幼兒數學','拼音／注音','邏輯思維訓練','面試技巧訓練','幼稚園功課輔導',
+    '中文','英文','數學','常識','普通話','常識／STEM','其他全科補習',
+    '通識教育','物理','化學','生物','經濟','地理','歷史','中國歷史','BAFS','ICT','綜合科學','其他 DSE 專科補習','全科補習',
+    '繪畫','音樂（鋼琴、結他、小提琴等）','跳舞／舞蹈訓練','戲劇／演講','編程／STEM','外語（韓文／日文／法文／德文等）','魔術／棋藝','攝影／影片剪接',
+    '大學通識','大學統計與數學','經濟學','資訊科技','商科（會計、管理、市場學等）','工程科目','論文指導／報告協助',
+    '商務英文','生活英語會話','廣東話／普通話','興趣／第二語言學習','電腦技能（Excel／Photoshop 等）','考試準備（IELTS／TOEFL／JLPT）'
+  ];
+  const REGION_OPTIONS = [
+    '中環','上環','西環','西營盤','石塘咀','灣仔','銅鑼灣','金鐘','跑馬地','天后','大坑','北角','鰂魚涌','太古','西灣河','筲箕灣','柴灣','杏花邨',
+    '尖沙咀','佐敦','油麻地','旺角','太子','深水埗','長沙灣','紅磡','土瓜灣','何文田','九龍塘','新蒲崗','鑽石山','樂富','慈雲山','牛頭角','藍田','觀塘','油塘',
+    '沙田','馬鞍山','大圍','火炭','大埔','太和','粉嶺','上水','將軍澳','坑口','寶琳','康城','屯門','兆康','元朗','朗屏','天水圍','荃灣','葵芳','葵涌','青衣',
+    '東涌','梅窩','大澳','坪洲','長洲','南丫島','愉景灣','貝澳'
+  ];
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -21,21 +36,30 @@ const CreateUser: React.FC = () => {
     password: '',
     userType: 'student',
     tutorProfile: {
-      subjects: '', // 逗號分隔
-      sessionRate: ''
+      subjects: [], // 多選
+      sessionRate: '',
+      regions: [] // 多選
     }
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
     const { name, value } = e.target;
-    if (name === 'subjects' || name === 'sessionRate') {
+    if (name === 'subjects' || name === 'regions') {
       setFormData({
         ...formData,
         tutorProfile: {
           ...formData.tutorProfile,
           [name]: value
+        }
+      });
+    } else if (name === 'sessionRate') {
+      setFormData({
+        ...formData,
+        tutorProfile: {
+          ...formData.tutorProfile,
+          sessionRate: value
         }
       });
     } else {
@@ -55,8 +79,9 @@ const CreateUser: React.FC = () => {
       let submitData: any = { ...formData };
       if (formData.userType === 'tutor') {
         submitData.tutorProfile = {
-          subjects: formData.tutorProfile.subjects.split(',').map((s: string) => s.trim()).filter(Boolean),
-          sessionRate: Number(formData.tutorProfile.sessionRate)
+          subjects: formData.tutorProfile.subjects,
+          sessionRate: Number(formData.tutorProfile.sessionRate),
+          regions: formData.tutorProfile.regions
         };
       } else {
         delete submitData.tutorProfile;
@@ -139,13 +164,19 @@ const CreateUser: React.FC = () => {
             {formData.userType === 'tutor' && (
               <>
                 <TextField
-                  label="可教授科目 (用逗號分隔)"
+                  select
+                  label="可教授科目 (多選)"
                   name="subjects"
+                  SelectProps={{ multiple: true }}
                   value={formData.tutorProfile.subjects}
                   onChange={handleChange}
                   required
-                  helperText="例如: 英文, 數學, 通識"
-                />
+                  helperText="可多選，按住 Ctrl/Command 鍵選多個"
+                >
+                  {CATEGORY_OPTIONS.map((option) => (
+                    <MenuItem key={option} value={option}>{option}</MenuItem>
+                  ))}
+                </TextField>
                 <TextField
                   label="時薪 (sessionRate)"
                   name="sessionRate"
@@ -155,6 +186,20 @@ const CreateUser: React.FC = () => {
                   required
                   helperText="堂費不能少於 100 元"
                 />
+                <TextField
+                  select
+                  label="地區 (多選)"
+                  name="regions"
+                  SelectProps={{ multiple: true }}
+                  value={formData.tutorProfile.regions}
+                  onChange={handleChange}
+                  required
+                  helperText="可多選，按住 Ctrl/Command 鍵選多個"
+                >
+                  {REGION_OPTIONS.map((option) => (
+                    <MenuItem key={option} value={option}>{option}</MenuItem>
+                  ))}
+                </TextField>
               </>
             )}
 
