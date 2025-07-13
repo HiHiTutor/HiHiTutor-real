@@ -7,11 +7,12 @@ const TutorCase = require('../models/TutorCase');
 const SearchLog = require('../models/SearchLog');
 const connectDB = require('../config/db');
 const mongoose = require('mongoose');
+const shortid = require('shortid');
 
 // User Management
 const createUser = async (req, res) => {
   try {
-    const { name, email, phone, password, userType } = req.body;
+    const { name, email, phone, password, userType, tutorProfile } = req.body;
 
     // 檢查郵箱是否已存在
     const existingUser = await User.findOne({ email });
@@ -23,6 +24,25 @@ const createUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // 自動生成 userId
+    const userId = shortid.generate();
+    let tutorId = null;
+    let orgId = null;
+    let finalTutorProfile = undefined;
+
+    if (userType === 'tutor') {
+      tutorId = 'T' + Date.now();
+      // 自動補齊必填欄位
+      finalTutorProfile = {
+        subjects: (tutorProfile && tutorProfile.subjects && tutorProfile.subjects.length > 0) ? tutorProfile.subjects : ['未指定'],
+        sessionRate: (tutorProfile && tutorProfile.sessionRate) ? tutorProfile.sessionRate : 100,
+        ...tutorProfile
+      };
+    }
+    if (userType === 'organization') {
+      orgId = 'O' + Date.now();
+    }
+
     // 創建新用戶
     const user = new User({
       name,
@@ -31,6 +51,10 @@ const createUser = async (req, res) => {
       password: hashedPassword,
       userType,
       status: 'active',
+      userId,
+      tutorId,
+      orgId,
+      ...(finalTutorProfile ? { tutorProfile: finalTutorProfile } : {})
     });
 
     await user.save();

@@ -20,15 +20,30 @@ const CreateUser: React.FC = () => {
     phone: '',
     password: '',
     userType: 'student',
+    tutorProfile: {
+      subjects: '', // 逗號分隔
+      sessionRate: ''
+    }
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    if (name === 'subjects' || name === 'sessionRate') {
+      setFormData({
+        ...formData,
+        tutorProfile: {
+          ...formData.tutorProfile,
+          [name]: value
+        }
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,7 +52,16 @@ const CreateUser: React.FC = () => {
     setError(null);
 
     try {
-      const response = await usersAPI.createUser(formData);
+      let submitData = { ...formData };
+      if (formData.userType === 'tutor') {
+        submitData.tutorProfile = {
+          subjects: formData.tutorProfile.subjects.split(',').map(s => s.trim()).filter(Boolean),
+          sessionRate: Number(formData.tutorProfile.sessionRate)
+        };
+      } else {
+        delete submitData.tutorProfile;
+      }
+      const response = await usersAPI.createUser(submitData);
       if (response.data.success) {
         navigate('/users');
       } else {
@@ -110,6 +134,29 @@ const CreateUser: React.FC = () => {
               <MenuItem value="tutor">Tutor</MenuItem>
               <MenuItem value="organization">Organization</MenuItem>
             </TextField>
+
+            {/* Tutor 專用欄位 */}
+            {formData.userType === 'tutor' && (
+              <>
+                <TextField
+                  label="可教授科目 (用逗號分隔)"
+                  name="subjects"
+                  value={formData.tutorProfile.subjects}
+                  onChange={handleChange}
+                  required
+                  helperText="例如: 英文, 數學, 通識"
+                />
+                <TextField
+                  label="時薪 (sessionRate)"
+                  name="sessionRate"
+                  type="number"
+                  value={formData.tutorProfile.sessionRate}
+                  onChange={handleChange}
+                  required
+                  helperText="堂費不能少於 100 元"
+                />
+              </>
+            )}
 
             <Box sx={{ mt: 2 }}>
               <Button
