@@ -106,38 +106,11 @@ const CATEGORY_OPTIONS = {
   }
 };
 
-// 教學模式選項 - 暫時使用硬編碼，等 API 修復後改回動態獲取
-const TEACHING_MODE_OPTIONS = [
-  { 
-    value: 'in-person', 
-    label: '面授',
-    subCategories: [
-      { value: 'one-on-one', label: '一對一' },
-      { value: 'small-group', label: '小班教學' },
-      { value: 'large-center', label: '大型補習社' }
-    ]
-  },
-  { 
-    value: 'online', 
-    label: '網課',
-    subCategories: [] // 網課沒有子分類
-  },
-  { 
-    value: 'both', 
-    label: '皆可',
-    subCategories: [
-      { value: 'one-on-one', label: '一對一' },
-      { value: 'small-group', label: '小班教學' },
-      { value: 'large-center', label: '大型補習社' }
-    ]
-  }
-];
+// 教學模式選項 - 將從 API 獲取
+let TEACHING_MODE_OPTIONS: any[] = [];
 
-// 地區選項
-const REGION_OPTIONS = [
-  '中西區','灣仔','東區','南區','油尖旺','深水埗','九龍城','黃大仙','觀塘','荃灣',
-  '屯門','元朗','北區','大埔','西貢','沙田','葵青','離島','東涌','梅窩','大澳','坪洲','長洲','南丫島','愉景灣','貝澳'
-];
+// 地區選項 - 將從 API 獲取
+let REGION_OPTIONS: any[] = [];
 
 const CreateUser: React.FC = () => {
   const navigate = useNavigate();
@@ -153,32 +126,63 @@ const CreateUser: React.FC = () => {
       subCategory: '', // 子科目 (單選)
       subjects: [] as string[], // 科目 (多選)
       teachingMode: '', // 教學模式 (單選)
-      teachingSubMode: '', // 教學子模式 (單選)
+      teachingSubModes: [] as string[], // 教學子模式 (多選)
       sessionRate: '',
-      regions: [] as string[] // 多選
+      region: '', // 地區 (單選)
+      subRegions: [] as string[] // 子地區 (多選)
     }
   });
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [teachingModeOptions, setTeachingModeOptions] = useState<any[]>(TEACHING_MODE_OPTIONS);
+  const [teachingModeOptions, setTeachingModeOptions] = useState<any[]>([]);
+  const [regionOptions, setRegionOptions] = useState<any[]>([]);
 
-  // 暫時註解掉 API 調用，等後端修復後再啟用
-  // useEffect(() => {
-  //   const fetchTeachingModes = async () => {
-  //     try {
-  //       const response = await fetch(`${API_BASE_URL}/teaching-modes`);
-  //       if (response.ok) {
-  //         const data = await response.json();
-  //         setTeachingModeOptions(data);
-  //       }
-  //     } catch (error) {
-  //       console.error('Error fetching teaching modes:', error);
-  //     }
-  //   };
+  // 獲取教學模式和地區選項
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        // 暫時使用硬編碼的教學模式選項，等 API 修復後改回動態獲取
+        const teachingModes = [
+          { 
+            value: 'in-person', 
+            label: '面授',
+            subCategories: [
+              { value: 'one-on-one', label: '一對一' },
+              { value: 'small-group', label: '小班教學' },
+              { value: 'large-center', label: '大型補習社' }
+            ]
+          },
+          { 
+            value: 'online', 
+            label: '網課',
+            subCategories: [] // 網課沒有子分類
+          },
+          { 
+            value: 'both', 
+            label: '皆可',
+            subCategories: [
+              { value: 'one-on-one', label: '一對一' },
+              { value: 'small-group', label: '小班教學' },
+              { value: 'large-center', label: '大型補習社' }
+            ]
+          }
+        ];
+        setTeachingModeOptions(teachingModes);
 
-  //   fetchTeachingModes();
-  // }, []);
+        // 獲取地區選項
+        const response = await fetch(`${API_BASE_URL}/regions`);
+        if (response.ok) {
+          const data = await response.json();
+          setRegionOptions(data);
+        }
+      } catch (error) {
+        console.error('Error fetching options:', error);
+      }
+    };
+
+    fetchOptions();
+  }, []);
 
   // 獲取可用的子分類
   const getSubCategories = () => {
@@ -208,8 +212,9 @@ const CreateUser: React.FC = () => {
   // 檢查是否需要顯示地區選項
   const shouldShowRegions = () => {
     const mode = formData.tutorProfile.teachingMode;
-    const subMode = formData.tutorProfile.teachingSubMode;
-    return mode === 'in-person' || mode === 'both' || subMode === 'one-on-one' || subMode === 'small-group' || subMode === 'large-center';
+    const subModes = formData.tutorProfile.teachingSubModes;
+    return mode === 'in-person' || mode === 'both' || 
+           subModes.includes('one-on-one') || subModes.includes('small-group') || subModes.includes('large-center');
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
@@ -248,23 +253,32 @@ const CreateUser: React.FC = () => {
         tutorProfile: {
           ...formData.tutorProfile,
           teachingMode: value as string,
-          teachingSubMode: '' // 重置教學子模式
+          teachingSubModes: [] // 重置教學子模式
         }
       });
-    } else if (name === 'teachingSubMode') {
+    } else if (name === 'teachingSubModes') {
       setFormData({
         ...formData,
         tutorProfile: {
           ...formData.tutorProfile,
-          teachingSubMode: value as string
+          teachingSubModes: value as string[]
         }
       });
-    } else if (name === 'regions') {
+    } else if (name === 'region') {
       setFormData({
         ...formData,
         tutorProfile: {
           ...formData.tutorProfile,
-          regions: value as string[]
+          region: value as string,
+          subRegions: [] // 重置子地區
+        }
+      });
+    } else if (name === 'subRegions') {
+      setFormData({
+        ...formData,
+        tutorProfile: {
+          ...formData.tutorProfile,
+          subRegions: value as string[]
         }
       });
     } else if (name === 'sessionRate') {
@@ -296,9 +310,10 @@ const CreateUser: React.FC = () => {
           subCategory: formData.tutorProfile.subCategory,
           subjects: formData.tutorProfile.subjects,
           teachingMode: formData.tutorProfile.teachingMode,
-          teachingSubMode: formData.tutorProfile.teachingSubMode,
+          teachingSubModes: formData.tutorProfile.teachingSubModes,
           sessionRate: Number(formData.tutorProfile.sessionRate),
-          regions: formData.tutorProfile.regions
+          region: formData.tutorProfile.region,
+          subRegions: formData.tutorProfile.subRegions
         };
       } else {
         delete submitData.tutorProfile;
@@ -448,22 +463,24 @@ const CreateUser: React.FC = () => {
                   ))}
                 </TextField>
 
-                {/* 教學子模式 (僅面授或皆可顯示) */}
+                                {/* 教學子模式 (僅面授或皆可顯示) */}
                 {(formData.tutorProfile.teachingMode === 'in-person' || formData.tutorProfile.teachingMode === 'both') && (
                   <TextField
                     select
-                    label="教學子模式"
-                    name="teachingSubMode"
-                    value={formData.tutorProfile.teachingSubMode}
+                    label="教學子模式 (多選)"
+                    name="teachingSubModes"
+                    SelectProps={{ multiple: true }}
+                    value={formData.tutorProfile.teachingSubModes}
                     onChange={handleChange}
                     required
-                                                        >
-                     {teachingModeOptions.find((mode: any) => mode.value === formData.tutorProfile.teachingMode)?.subCategories?.map((subMode: any) => (
-                       <MenuItem key={subMode.value} value={subMode.value}>
-                         {subMode.label}
-                       </MenuItem>
-                     ))}
-                   </TextField>
+                    helperText="可多選，按住 Ctrl/Command 鍵選多個"
+                  >
+                    {teachingModeOptions.find((mode: any) => mode.value === formData.tutorProfile.teachingMode)?.subCategories?.map((subMode: any) => (
+                      <MenuItem key={subMode.value} value={subMode.value}>
+                        {subMode.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                 )}
 
                 <TextField
@@ -478,20 +495,42 @@ const CreateUser: React.FC = () => {
 
                 {/* 地區 (僅面授或特定子模式顯示) */}
                 {shouldShowRegions() && (
-                  <TextField
-                    select
-                    label="地區 (多選)"
-                    name="regions"
-                    SelectProps={{ multiple: true }}
-                    value={formData.tutorProfile.regions}
-                    onChange={handleChange}
-                    required
-                    helperText="可多選，按住 Ctrl/Command 鍵選多個"
-                  >
-                    {REGION_OPTIONS.map((option) => (
-                      <MenuItem key={option} value={option}>{option}</MenuItem>
-                    ))}
-                  </TextField>
+                  <>
+                    <TextField
+                      select
+                      label="地區"
+                      name="region"
+                      value={formData.tutorProfile.region}
+                      onChange={handleChange}
+                      required
+                    >
+                      {regionOptions.map((option: any) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.label}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+
+                    {/* 子地區 (多選) */}
+                    {formData.tutorProfile.region && formData.tutorProfile.region !== 'all-hong-kong' && (
+                      <TextField
+                        select
+                        label="子地區 (多選)"
+                        name="subRegions"
+                        SelectProps={{ multiple: true }}
+                        value={formData.tutorProfile.subRegions}
+                        onChange={handleChange}
+                        required
+                        helperText="可多選，按住 Ctrl/Command 鍵選多個"
+                      >
+                        {regionOptions.find((option: any) => option.value === formData.tutorProfile.region)?.regions?.map((subRegion: any) => (
+                          <MenuItem key={subRegion.value} value={subRegion.value}>
+                            {subRegion.label}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    )}
+                  </>
                 )}
               </>
             )}
