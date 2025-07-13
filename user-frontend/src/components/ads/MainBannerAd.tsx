@@ -39,7 +39,13 @@ export default function MainBannerAd() {
   return (
     <div
       className="relative text-white py-10 px-6 h-[400px] flex items-center transition-all duration-500"
-      style={{ backgroundColor: current.bgColor || '#b45309' }}
+      style={{
+        backgroundColor: current.bgColor || '#b45309',
+        backgroundImage: current.imageUrl ? `url(${current.imageUrl})` : undefined,
+        backgroundSize: current.imageUrl ? 'cover' : undefined,
+        backgroundPosition: current.imageUrl ? 'center' : undefined,
+        backgroundRepeat: current.imageUrl ? 'no-repeat' : undefined
+      }}
     >
       <div>
         <h2 className="text-3xl font-bold mb-3">{current.title}</h2>
