@@ -83,7 +83,7 @@ export default function AdManager() {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       
-      fetchAds();
+    fetchAds();
     } catch (err) {
       console.error('Error deleting ad:', err);
       alert('刪除失敗');
@@ -136,12 +136,12 @@ export default function AdManager() {
     <div style={{ maxWidth: 1000, margin: '40px auto', padding: 24 }}>
       <h1 style={{ fontSize: 28, fontWeight: 'bold', marginBottom: 24 }}>廣告管理</h1>
       <div style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 16 }}>
-        <button
+      <button
           style={{ background: '#2563eb', color: '#fff', padding: '8px 20px', borderRadius: 6, border: 'none', fontWeight: 'bold', cursor: 'pointer' }}
-          onClick={() => window.location.href = '/ad-create'}
-        >
-          ➕ 新增廣告
-        </button>
+        onClick={() => window.location.href = '/ad-create'}
+      >
+        ➕ 新增廣告
+      </button>
         <select value={filterType} onChange={e => setFilterType(e.target.value)} style={{ padding: 8, borderRadius: 6, border: '1px solid #ccc' }}>
           {typeOptions.map(opt => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>

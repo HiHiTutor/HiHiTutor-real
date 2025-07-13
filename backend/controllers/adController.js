@@ -42,16 +42,16 @@ exports.deleteAd = async (req, res) => {
 // PATCH /api/ads/:id/toggle
 exports.toggleAdStatus = async (req, res) => {
   try {
-    const ad = await Ad.findById(req.params.id);
+  const ad = await Ad.findById(req.params.id);
     if (!ad) {
       return res.status(404).json({ message: '廣告不存在' });
     }
     
-    ad.isActive = !ad.isActive;
-    await ad.save();
+  ad.isActive = !ad.isActive;
+  await ad.save();
     
     console.log(`✅ 廣告狀態已切換: ${ad._id} -> ${ad.isActive ? '啟用' : '停用'}`);
-    res.json(ad);
+  res.json(ad);
   } catch (err) {
     console.error('❌ Toggle ad status error:', err);
     res.status(500).json({ message: '切換狀態失敗' });
