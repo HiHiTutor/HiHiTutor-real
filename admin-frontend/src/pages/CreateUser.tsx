@@ -12,6 +12,8 @@ import {
 } from '@mui/material';
 import { usersAPI } from '../services/api';
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://hi-hi-tutor-real-backend2.vercel.app/api';
+
 // 課程分類選項
 const CATEGORY_OPTIONS = {
   'early-childhood': {
@@ -104,32 +106,8 @@ const CATEGORY_OPTIONS = {
   }
 };
 
-// 教學模式選項
-const TEACHING_MODE_OPTIONS = [
-  { 
-    value: 'in-person', 
-    label: '面授',
-    subCategories: [
-      { value: 'one-on-one', label: '一對一' },
-      { value: 'small-group', label: '小班教學' },
-      { value: 'large-center', label: '大型補習社' }
-    ]
-  },
-  { 
-    value: 'online', 
-    label: '網課',
-    subCategories: [] // 網課沒有子分類
-  },
-  { 
-    value: 'both', 
-    label: '皆可',
-    subCategories: [
-      { value: 'one-on-one', label: '一對一' },
-      { value: 'small-group', label: '小班教學' },
-      { value: 'large-center', label: '大型補習社' }
-    ]
-  }
-];
+// 教學模式選項 - 將從 API 獲取
+let TEACHING_MODE_OPTIONS: any[] = [];
 
 // 地區選項
 const REGION_OPTIONS = [
@@ -159,6 +137,25 @@ const CreateUser: React.FC = () => {
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [teachingModeOptions, setTeachingModeOptions] = useState<any[]>([]);
+
+  // 獲取教學模式選項
+  useEffect(() => {
+    const fetchTeachingModes = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/teaching-modes`);
+        if (response.ok) {
+          const data = await response.json();
+          setTeachingModeOptions(data);
+          TEACHING_MODE_OPTIONS = data; // 更新全域變數
+        }
+      } catch (error) {
+        console.error('Error fetching teaching modes:', error);
+      }
+    };
+
+    fetchTeachingModes();
+  }, []);
 
   // 獲取可用的子分類
   const getSubCategories = () => {
@@ -421,7 +418,7 @@ const CreateUser: React.FC = () => {
                   onChange={handleChange}
                   required
                 >
-                  {TEACHING_MODE_OPTIONS.map((mode) => (
+                  {teachingModeOptions.map((mode: any) => (
                     <MenuItem key={mode.value} value={mode.value}>
                       {mode.label}
                     </MenuItem>
@@ -437,13 +434,13 @@ const CreateUser: React.FC = () => {
                     value={formData.tutorProfile.teachingSubMode}
                     onChange={handleChange}
                     required
-                                     >
-                     {TEACHING_MODE_OPTIONS.find(mode => mode.value === formData.tutorProfile.teachingMode)?.subCategories?.map((subMode) => (
-                      <MenuItem key={subMode.value} value={subMode.value}>
-                        {subMode.label}
-                      </MenuItem>
-                    ))}
-                  </TextField>
+                                                        >
+                     {teachingModeOptions.find((mode: any) => mode.value === formData.tutorProfile.teachingMode)?.subCategories?.map((subMode: any) => (
+                       <MenuItem key={subMode.value} value={subMode.value}>
+                         {subMode.label}
+                       </MenuItem>
+                     ))}
+                   </TextField>
                 )}
 
                 <TextField

@@ -56,6 +56,7 @@ const tutorProfilesRouter = require('./routes/tutorProfiles');
 const searchRoutes = require('./routes/search');
 const smsRoutes = require('./routes/sms');
 const adRoutes = require('./routes/adRoutes');
+const teachingModesRouter = require('./routes/teachingModes');
 
 const app = express();
 
@@ -251,6 +252,7 @@ app.use('/api/search', searchRoutes);
 app.use('/api/debug', require('./routes/debug'));
 app.use('/api/sms', smsRoutes);
 app.use('/api/ads', adRoutes);
+app.use('/api/teaching-modes', teachingModesRouter);
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
