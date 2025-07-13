@@ -68,7 +68,14 @@ const uploadToS3 = async (req, res) => {
     
     console.log('🧾 上傳用戶 userId:', userId);
     
-    const key = `uploads/user-docs/${userId}/${timestamp}-${req.file.originalname}`;
+    // 根據 type 決定 S3 key 路徑
+    const type = req.body.type || '';
+    let key;
+    if (type === 'ad') {
+      key = `ads/${timestamp}-${sanitizeFileName(req.file.originalname)}`;
+    } else {
+      key = `uploads/user-docs/${userId}/${timestamp}-${sanitizeFileName(req.file.originalname)}`;
+    }
     console.log('📁 最終上傳用的檔名 key:', key);
 
     const command = new PutObjectCommand({

@@ -76,6 +76,7 @@ export default function AdEdit() {
     setUploading(true);
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('type', 'ad'); // 新增這行，讓後端知道這是廣告圖
     try {
       const token = localStorage.getItem('adminToken');
       const res = await fetch(`${API_BASE_URL}/upload`, {
