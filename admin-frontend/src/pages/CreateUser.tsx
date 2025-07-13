@@ -52,10 +52,10 @@ const CreateUser: React.FC = () => {
     setError(null);
 
     try {
-      let submitData = { ...formData };
+      let submitData: any = { ...formData };
       if (formData.userType === 'tutor') {
         submitData.tutorProfile = {
-          subjects: formData.tutorProfile.subjects.split(',').map(s => s.trim()).filter(Boolean),
+          subjects: formData.tutorProfile.subjects.split(',').map((s: string) => s.trim()).filter(Boolean),
           sessionRate: Number(formData.tutorProfile.sessionRate)
         };
       } else {
