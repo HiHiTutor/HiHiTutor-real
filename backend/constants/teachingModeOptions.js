@@ -13,6 +13,15 @@ const TEACHING_MODE_OPTIONS = [
     value: 'online', 
     label: '網課',
     subCategories: [] // 網課沒有子分類
+  },
+  { 
+    value: 'both', 
+    label: '皆可',
+    subCategories: [
+      { value: 'one-on-one', label: '一對一' },
+      { value: 'small-group', label: '小班教學' },
+      { value: 'large-center', label: '大型補習社' }
+    ]
   }
 ];
 
@@ -74,7 +83,7 @@ const getTeachingModeCategory = (modeCode) => {
 
 // 檢查是否需要顯示地區選項
 const shouldShowRegionForMode = (modeCode) => {
-  return modeCode === 'in-person' || 
+  return modeCode === 'in-person' || modeCode === 'both' || 
          ['one-on-one', 'small-group', 'large-center'].includes(modeCode);
 };
 
