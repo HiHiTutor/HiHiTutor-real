@@ -36,9 +36,9 @@ const CreateUser: React.FC = () => {
     password: '',
     userType: 'student',
     tutorProfile: {
-      subjects: [], // 多選
+      subjects: [] as string[], // 多選
       sessionRate: '',
-      regions: [] // 多選
+      regions: [] as string[] // 多選
     }
   });
   const [loading, setLoading] = useState(false);
@@ -46,12 +46,20 @@ const CreateUser: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
     const { name, value } = e.target;
-    if (name === 'subjects' || name === 'regions') {
+    if (name === 'subjects') {
       setFormData({
         ...formData,
         tutorProfile: {
           ...formData.tutorProfile,
-          [name]: value
+          subjects: value as string[]
+        }
+      });
+    } else if (name === 'regions') {
+      setFormData({
+        ...formData,
+        tutorProfile: {
+          ...formData.tutorProfile,
+          regions: value as string[]
         }
       });
     } else if (name === 'sessionRate') {
@@ -59,13 +67,13 @@ const CreateUser: React.FC = () => {
         ...formData,
         tutorProfile: {
           ...formData.tutorProfile,
-          sessionRate: value
+          sessionRate: value as string
         }
       });
     } else {
       setFormData({
         ...formData,
-        [name]: value
+        [name as string]: value as string
       });
     }
   };
