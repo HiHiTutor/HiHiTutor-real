@@ -9,6 +9,7 @@ interface Ad {
   isActive: boolean;
   order?: number;
   bgColor?: string;
+  buttonColor?: string; // 新增
 }
 
 const API_URL = 'https://hi-hi-tutor-real-backend2.vercel.app/api';
@@ -36,12 +37,19 @@ export default function MainBannerAd() {
   const current = ads[index];
 
   return (
-    <div className={`relative text-white py-10 px-6 h-[400px] flex items-center ${current.bgColor || 'bg-yellow-700'} transition-all duration-500`}>
+    <div
+      className="relative text-white py-10 px-6 h-[400px] flex items-center transition-all duration-500"
+      style={{ backgroundColor: current.bgColor || '#b45309' }}
+    >
       <div>
         <h2 className="text-3xl font-bold mb-3">{current.title}</h2>
         <p className="mb-4">{current.description}</p>
         {current.link && (
-          <a href={current.link} className="bg-yellow-400 text-black px-4 py-2 rounded hover:bg-yellow-500">
+          <a
+            href={current.link}
+            style={{ backgroundColor: current.buttonColor || '#facc15', color: '#000' }}
+            className="px-4 py-2 rounded hover:opacity-90"
+          >
             了解更多
           </a>
         )}
