@@ -167,11 +167,13 @@ const CreateUser: React.FC = () => {
     if (!category) return [];
 
     if (formData.tutorProfile.category === 'primary-secondary' && formData.tutorProfile.subCategory) {
-      const subCategory = category.subCategories?.find(sub => sub.value === formData.tutorProfile.subCategory);
+      const categoryWithSubCategories = category as { subCategories?: Array<{ value: string; label: string; subjects: Array<{ value: string; label: string }> }> };
+      const subCategory = categoryWithSubCategories.subCategories?.find(sub => sub.value === formData.tutorProfile.subCategory);
       return subCategory?.subjects || [];
     }
     
-    return category.subjects || [];
+    const categoryWithSubjects = category as { subjects: Array<{ value: string; label: string }> };
+    return categoryWithSubjects.subjects || [];
   };
 
   // 檢查是否需要顯示地區選項
