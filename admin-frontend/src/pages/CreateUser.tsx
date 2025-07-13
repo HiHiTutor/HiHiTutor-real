@@ -119,6 +119,15 @@ const TEACHING_MODE_OPTIONS = [
     value: 'online', 
     label: '網課',
     subCategories: [] // 網課沒有子分類
+  },
+  { 
+    value: 'both', 
+    label: '皆可',
+    subCategories: [
+      { value: 'one-on-one', label: '一對一' },
+      { value: 'small-group', label: '小班教學' },
+      { value: 'large-center', label: '大型補習社' }
+    ]
   }
 ];
 
@@ -180,7 +189,7 @@ const CreateUser: React.FC = () => {
   const shouldShowRegions = () => {
     const mode = formData.tutorProfile.teachingMode;
     const subMode = formData.tutorProfile.teachingSubMode;
-    return mode === 'in-person' || subMode === 'one-on-one' || subMode === 'small-group' || subMode === 'large-center';
+    return mode === 'in-person' || mode === 'both' || subMode === 'one-on-one' || subMode === 'small-group' || subMode === 'large-center';
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
@@ -419,8 +428,8 @@ const CreateUser: React.FC = () => {
                   ))}
                 </TextField>
 
-                {/* 教學子模式 (僅面授顯示) */}
-                {formData.tutorProfile.teachingMode === 'in-person' && (
+                {/* 教學子模式 (僅面授或皆可顯示) */}
+                {(formData.tutorProfile.teachingMode === 'in-person' || formData.tutorProfile.teachingMode === 'both') && (
                   <TextField
                     select
                     label="教學子模式"
@@ -428,8 +437,8 @@ const CreateUser: React.FC = () => {
                     value={formData.tutorProfile.teachingSubMode}
                     onChange={handleChange}
                     required
-                  >
-                    {TEACHING_MODE_OPTIONS.find(mode => mode.value === 'in-person')?.subCategories?.map((subMode) => (
+                                     >
+                     {TEACHING_MODE_OPTIONS.find(mode => mode.value === formData.tutorProfile.teachingMode)?.subCategories?.map((subMode) => (
                       <MenuItem key={subMode.value} value={subMode.value}>
                         {subMode.label}
                       </MenuItem>
