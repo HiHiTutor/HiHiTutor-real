@@ -106,8 +106,32 @@ const CATEGORY_OPTIONS = {
   }
 };
 
-// 教學模式選項 - 將從 API 獲取
-let TEACHING_MODE_OPTIONS: any[] = [];
+// 教學模式選項 - 暫時使用硬編碼，等 API 修復後改回動態獲取
+const TEACHING_MODE_OPTIONS = [
+  { 
+    value: 'in-person', 
+    label: '面授',
+    subCategories: [
+      { value: 'one-on-one', label: '一對一' },
+      { value: 'small-group', label: '小班教學' },
+      { value: 'large-center', label: '大型補習社' }
+    ]
+  },
+  { 
+    value: 'online', 
+    label: '網課',
+    subCategories: [] // 網課沒有子分類
+  },
+  { 
+    value: 'both', 
+    label: '皆可',
+    subCategories: [
+      { value: 'one-on-one', label: '一對一' },
+      { value: 'small-group', label: '小班教學' },
+      { value: 'large-center', label: '大型補習社' }
+    ]
+  }
+];
 
 // 地區選項
 const REGION_OPTIONS = [
@@ -137,25 +161,24 @@ const CreateUser: React.FC = () => {
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [teachingModeOptions, setTeachingModeOptions] = useState<any[]>([]);
+  const [teachingModeOptions, setTeachingModeOptions] = useState<any[]>(TEACHING_MODE_OPTIONS);
 
-  // 獲取教學模式選項
-  useEffect(() => {
-    const fetchTeachingModes = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/teaching-modes`);
-        if (response.ok) {
-          const data = await response.json();
-          setTeachingModeOptions(data);
-          TEACHING_MODE_OPTIONS = data; // 更新全域變數
-        }
-      } catch (error) {
-        console.error('Error fetching teaching modes:', error);
-      }
-    };
+  // 暫時註解掉 API 調用，等後端修復後再啟用
+  // useEffect(() => {
+  //   const fetchTeachingModes = async () => {
+  //     try {
+  //       const response = await fetch(`${API_BASE_URL}/teaching-modes`);
+  //       if (response.ok) {
+  //         const data = await response.json();
+  //         setTeachingModeOptions(data);
+  //       }
+  //     } catch (error) {
+  //       console.error('Error fetching teaching modes:', error);
+  //     }
+  //   };
 
-    fetchTeachingModes();
-  }, []);
+  //   fetchTeachingModes();
+  // }, []);
 
   // 獲取可用的子分類
   const getSubCategories = () => {
