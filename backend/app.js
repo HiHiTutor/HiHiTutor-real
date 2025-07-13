@@ -1,5 +1,5 @@
 console.log('🔥 App.js loaded: ', __filename);
-// Deployment trigger: 2024-03-22-2
+// Deployment trigger: 2024-03-22-3
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -113,7 +113,11 @@ const allowedOrigins = [
 // 使用 cors middleware
 app.use(cors({
   origin: function (origin, callback) {
+    console.log('🔥 CORS check - Origin:', origin);
+    console.log('🔥 CORS check - Allowed origins:', allowedOrigins);
+    
     if (!origin || allowedOrigins.includes(origin)) {
+      console.log('✅ CORS allowed for origin:', origin);
       callback(null, true);
     } else {
       console.log('❌ CORS blocked origin:', origin);
