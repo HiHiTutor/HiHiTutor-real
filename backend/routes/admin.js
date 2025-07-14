@@ -22,15 +22,14 @@ const {
 } = require('../controllers/adminController');
 const User = require('../models/User'); // Added missing import for User model
 const bcrypt = require('bcryptjs'); // Added missing import for bcrypt
-const TutorProfile = require('../models/TutorProfile');
 const TutorApplication = require('../models/TutorApplication');
 const Case = require('../models/Case');
 
 // Notifications route
 router.get('/notifications', verifyToken, isAdmin, async (req, res) => {
   try {
-    // 統計待審核的導師資料
-    const pendingTutorProfiles = await TutorProfile.countDocuments({ status: 'pending' });
+    // 統計待審核的導師資料（暫時設為0，因為冇TutorProfile model）
+    const pendingTutorProfiles = 0;
     
     // 統計待審核的導師申請
     const pendingTutorApplications = await TutorApplication.countDocuments({ status: 'pending' });
