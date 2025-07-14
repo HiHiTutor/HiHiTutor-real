@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs').promises;
 const path = require('path');
-const adminAuth = require('../middleware/adminAuth');
+const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 
 // 获取科目配置
-router.get('/categories', adminAuth, async (req, res) => {
+router.get('/categories', verifyToken, isAdmin, async (req, res) => {
   try {
     const categoryOptions = require('../constants/categoryOptions');
     res.json(categoryOptions);
@@ -15,7 +15,7 @@ router.get('/categories', adminAuth, async (req, res) => {
 });
 
 // 更新科目配置
-router.post('/categories', adminAuth, async (req, res) => {
+router.post('/categories', verifyToken, isAdmin, async (req, res) => {
   try {
     const { categories } = req.body;
     const filePath = path.join(__dirname, '../constants/categoryOptions.js');
@@ -31,7 +31,7 @@ router.post('/categories', adminAuth, async (req, res) => {
 });
 
 // 获取地区配置
-router.get('/regions', adminAuth, async (req, res) => {
+router.get('/regions', verifyToken, isAdmin, async (req, res) => {
   try {
     const regionOptions = require('../constants/regionOptions');
     res.json(regionOptions);
@@ -41,7 +41,7 @@ router.get('/regions', adminAuth, async (req, res) => {
 });
 
 // 更新地区配置
-router.post('/regions', adminAuth, async (req, res) => {
+router.post('/regions', verifyToken, isAdmin, async (req, res) => {
   try {
     const { regions } = req.body;
     const filePath = path.join(__dirname, '../constants/regionOptions.js');
@@ -57,7 +57,7 @@ router.post('/regions', adminAuth, async (req, res) => {
 });
 
 // 获取教学模式配置
-router.get('/teaching-modes', adminAuth, async (req, res) => {
+router.get('/teaching-modes', verifyToken, isAdmin, async (req, res) => {
   try {
     const { TEACHING_MODE_OPTIONS } = require('../constants/teachingModeOptions');
     res.json(TEACHING_MODE_OPTIONS);
@@ -67,7 +67,7 @@ router.get('/teaching-modes', adminAuth, async (req, res) => {
 });
 
 // 更新教学模式配置
-router.post('/teaching-modes', adminAuth, async (req, res) => {
+router.post('/teaching-modes', verifyToken, isAdmin, async (req, res) => {
   try {
     const { teachingModes } = req.body;
     const filePath = path.join(__dirname, '../constants/teachingModeOptions.js');
