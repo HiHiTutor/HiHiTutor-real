@@ -35,9 +35,28 @@ const isValidPhone = (phone) => {
 
 // 生成唯一 7 位 userId
 async function generateUserId() {
-  const lastUser = await User.findOne({ userId: { $exists: true } }).sort({ userId: -1 });
-  let newId = lastUser ? parseInt(lastUser.userId, 10) + 1 : 1000001;
-  return newId.toString().padStart(7, '0');
+  const latestUser = await User.find({
+    userId: { 
+      $exists: true,
+      $not: { $regex: /NaN|null|undefined/ },
+      $ne: '0000000'
+    }
+  }).sort({ userId: -1 }).limit(1);
+  
+  let nextUserId;
+  if (latestUser.length > 0 && latestUser[0].userId) {
+    const parsedId = parseInt(latestUser[0].userId, 10);
+    if (!isNaN(parsedId)) {
+      nextUserId = String(parsedId + 1).padStart(7, '0');
+    } else {
+      nextUserId = '1000001';
+    }
+  } else {
+    nextUserId = '1000001';
+  }
+  
+  console.log(`🔢 Generated userId: ${nextUserId}`);
+  return nextUserId;
 }
 
 // 生成唯一 2字母+4數字 tutorId
