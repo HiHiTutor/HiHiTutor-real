@@ -23,6 +23,7 @@ const validateUserUpdate = (data) => {
       addressProof: Joi.string().allow('', null)
     }),
     tutorProfile: Joi.object({
+      sessionRate: Joi.number().min(0),
       displayPublic: Joi.boolean(),
       teachingExperienceYears: Joi.number().min(0),
       subjects: Joi.array(),
