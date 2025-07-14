@@ -185,6 +185,16 @@ const RegionManager: React.FC = () => {
                     </IconButton>
                   </Box>
                 </Box>
+                {/* 子地區 chips 顯示 */}
+                <Box mt={2} display="flex" flexWrap="wrap">
+                  {(region as any).regions && (region as any).regions.length > 0 ? (
+                    (region as any).regions.map((sub: any) => (
+                      <Chip key={sub.value} label={sub.label} size="small" sx={{ mr: 1, mb: 1 }} />
+                    ))
+                  ) : (
+                    <Typography variant="body2" color="textSecondary">無子地區</Typography>
+                  )}
+                </Box>
               </CardContent>
             </Card>
           </Grid>
