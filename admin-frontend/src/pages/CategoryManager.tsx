@@ -67,7 +67,14 @@ const CategoryManager: React.FC = () => {
     try {
       setLoading(true);
       const response = await api.get('/admin/config/categories');
-      setCategories(response.data);
+      // Convert object to array format for frontend
+      const categoriesArray = Object.entries(response.data).map(([value, category]: [string, any]) => ({
+        value,
+        label: category.label,
+        subjects: category.subjects || [],
+        subCategories: category.subCategories || []
+      }));
+      setCategories(categoriesArray);
     } catch (err) {
       setError('Failed to load categories');
       console.error('Error loading categories:', err);
@@ -79,7 +86,17 @@ const CategoryManager: React.FC = () => {
   const saveCategories = async () => {
     try {
       setSaving(true);
-      await api.post('/admin/config/categories', { categories });
+      // Convert array back to object format for backend
+      const categoriesObject = categories.reduce((acc, category) => {
+        acc[category.value] = {
+          label: category.label,
+          subjects: category.subjects,
+          subCategories: category.subCategories
+        };
+        return acc;
+      }, {} as any);
+      
+      await api.post('/admin/config/categories', { categories: categoriesObject });
       setSuccess('Categories saved successfully');
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
