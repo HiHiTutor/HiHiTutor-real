@@ -32,7 +32,7 @@ const validateUserUpdate = (data) => {
       teachingMethods: Joi.array(),
       classType: Joi.array(),
       documents: Joi.array(),
-      applicationStatus: Joi.string().valid('pending', 'approved', 'rejected')
+      applicationStatus: Joi.string().valid('pending', 'approved', 'rejected', 'notApplied')
     }),
     subjects: Joi.array(),
     teachingAreas: Joi.array(),
