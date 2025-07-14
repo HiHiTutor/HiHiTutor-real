@@ -140,6 +140,53 @@ const createUser = async (req, res) => {
   }
 };
 
+// 臨時測試端點：測試 userId 生成邏輯
+const testUserIdGeneration = async (req, res) => {
+  try {
+    console.log('🧪 測試 userId 生成邏輯...');
+    
+    let nextUserId = '1000001';
+    
+    try {
+      // 查找所有有效的數字 userId
+      const allUsers = await User.find({
+        userId: { 
+          $exists: true,
+          $ne: null,
+          $ne: undefined,
+          $regex: /^\d+$/
+        }
+      }).select('userId').lean();
+      
+      console.log('📊 找到的用戶數量:', allUsers.length);
+      console.log('📋 所有 userId:', allUsers.map(user => user.userId));
+      
+      if (allUsers.length > 0) {
+        // 找出最大的 userId
+        const maxUserId = Math.max(...allUsers.map(user => parseInt(user.userId, 10)));
+        console.log('🔢 最大 userId 數值:', maxUserId);
+        
+        if (!isNaN(maxUserId) && maxUserId > 0) {
+          nextUserId = String(maxUserId + 1).padStart(7, '0');
+        }
+      }
+    } catch (error) {
+      console.error('Error generating userId:', error);
+    }
+    
+    console.log(`🔢 生成的 userId: ${nextUserId}`);
+    
+    res.json({
+      success: true,
+      generatedUserId: nextUserId,
+      message: 'userId 生成測試完成'
+    });
+  } catch (error) {
+    console.error('Error in testUserIdGeneration:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 const getAllUsers = async (req, res) => {
   try {
     const { page = 1, limit = 10, role, status, search, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
