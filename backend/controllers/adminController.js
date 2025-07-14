@@ -67,10 +67,25 @@ const createUser = async (req, res) => {
     }
 
     // 自動產生不重複的 userId
-    const latestUser = await User.find().sort({ userId: -1 }).limit(1);
-    const nextUserId = latestUser.length > 0
-      ? String(Number(latestUser[0].userId) + 1).padStart(7, '0')
-      : '1000001';
+    const latestUser = await User.find({
+      userId: { 
+        $exists: true,
+        $not: { $regex: /NaN|null|undefined/ },
+        $ne: '0000000'
+      }
+    }).sort({ userId: -1 }).limit(1);
+    
+    let nextUserId;
+    if (latestUser.length > 0 && latestUser[0].userId) {
+      const parsedId = parseInt(latestUser[0].userId, 10);
+      if (!isNaN(parsedId)) {
+        nextUserId = String(parsedId + 1).padStart(7, '0');
+      } else {
+        nextUserId = '1000001';
+      }
+    } else {
+      nextUserId = '1000001';
+    }
     let tutorId = null;
     let orgId = null;
     let finalTutorProfile = undefined;
