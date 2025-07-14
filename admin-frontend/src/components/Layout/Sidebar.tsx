@@ -7,6 +7,7 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
+  Badge,
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
@@ -17,6 +18,7 @@ import {
   Search as SearchIcon,
   Campaign as CampaignIcon,
 } from '@mui/icons-material';
+import { useNotifications } from '../../hooks/useNotifications';
 
 const drawerWidth = 240;
 
@@ -24,20 +26,21 @@ interface SidebarProps {
   open: boolean;
 }
 
-const menuItems = [
-  { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-  { text: 'Users', icon: <PeopleIcon />, path: '/users' },
-  { text: 'Cases', icon: <DescriptionIcon />, path: '/cases' },
-  { text: '廣告管理', icon: <CampaignIcon />, path: '/AdManager' },
-  { text: 'Statistics', icon: <BarChartIcon />, path: '/statistics' },
-  { text: '搜尋統計', icon: <SearchIcon />, path: '/search-statistics' },
-  { text: '導師申請審核', icon: <SchoolIcon />, path: '/tutor-applications' },
-  { text: '導師資料審批', icon: <SchoolIcon />, path: '/tutor-profile-approvals' },
-];
-
 const Sidebar: React.FC<SidebarProps> = ({ open }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { notifications } = useNotifications();
+
+  const menuItems = [
+    { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
+    { text: 'Users', icon: <PeopleIcon />, path: '/users' },
+    { text: 'Cases', icon: <DescriptionIcon />, path: '/cases', badge: notifications?.openCases },
+    { text: '廣告管理', icon: <CampaignIcon />, path: '/AdManager' },
+    { text: 'Statistics', icon: <BarChartIcon />, path: '/statistics' },
+    { text: '搜尋統計', icon: <SearchIcon />, path: '/search-statistics' },
+    { text: '導師申請審核', icon: <SchoolIcon />, path: '/tutor-applications', badge: notifications?.pendingTutorApplications },
+    { text: '導師資料審批', icon: <SchoolIcon />, path: '/tutor-profile-approvals', badge: notifications?.pendingTutorProfiles },
+  ];
 
   return (
     <Drawer
@@ -80,7 +83,26 @@ const Sidebar: React.FC<SidebarProps> = ({ open }) => {
             onClick={() => navigate(item.path)}
             selected={location.pathname === item.path}
           >
-            <ListItemIcon>{item.icon}</ListItemIcon>
+            <ListItemIcon>
+              {item.badge ? (
+                <Badge 
+                  badgeContent={item.badge} 
+                  color="error"
+                  sx={{
+                    '& .MuiBadge-badge': {
+                      backgroundColor: '#f44336',
+                      color: 'white',
+                      fontWeight: 'bold',
+                      fontSize: '0.75rem',
+                    }
+                  }}
+                >
+                  {item.icon}
+                </Badge>
+              ) : (
+                item.icon
+              )}
+            </ListItemIcon>
             <ListItemText primary={item.text} />
           </ListItem>
         ))}

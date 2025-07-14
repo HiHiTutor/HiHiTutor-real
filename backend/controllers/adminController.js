@@ -1279,6 +1279,75 @@ const getMatchingStats = async (req, res) => {
   }
 };
 
+// 獲取管理員通知數據
+const getAdminNotifications = async (req, res) => {
+  try {
+    console.log('🔔 獲取管理員通知數據...');
+    
+    // 獲取各種待處理的事務數量
+    const [
+      pendingTutorProfiles,
+      pendingTutorApplications,
+      pendingUserUpgrades,
+      openCases
+    ] = await Promise.all([
+      // 待審核的導師個人資料
+      User.countDocuments({ 
+        userType: 'tutor', 
+        profileStatus: 'pending' 
+      }),
+      
+      // 待審核的導師申請
+      User.countDocuments({ 
+        userType: 'student',
+        upgradeRequested: true,
+        userType: { $ne: 'tutor' }
+      }),
+      
+      // 待升級的用戶
+      User.countDocuments({ 
+        upgradeRequested: true,
+        userType: { $ne: 'tutor' }
+      }),
+      
+      // 開放的案例
+      Promise.all([
+        StudentCase.countDocuments({ status: 'open' }),
+        TutorCase.countDocuments({ status: 'open' })
+      ]).then(([studentCases, tutorCases]) => studentCases + tutorCases)
+    ]);
+    
+    const totalNotifications = pendingTutorProfiles + pendingTutorApplications + pendingUserUpgrades + openCases;
+    
+    console.log('📊 通知統計:', {
+      pendingTutorProfiles,
+      pendingTutorApplications,
+      pendingUserUpgrades,
+      openCases,
+      totalNotifications
+    });
+    
+    res.json({
+      success: true,
+      data: {
+        total: totalNotifications,
+        pendingTutorProfiles,
+        pendingTutorApplications,
+        pendingUserUpgrades,
+        openCases,
+        lastUpdated: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('❌ 獲取通知數據失敗:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Internal server error',
+      error: error.message 
+    });
+  }
+};
+
 module.exports = {
   // User Management
   createUser,
@@ -1301,5 +1370,8 @@ module.exports = {
   getSubjectStats,
   getPlatformStats,
   getSearchStats,
-  getMatchingStats
+  getMatchingStats,
+  
+  // Notifications
+  getAdminNotifications
 }; 

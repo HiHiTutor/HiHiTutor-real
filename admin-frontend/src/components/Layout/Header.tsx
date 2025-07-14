@@ -7,6 +7,7 @@ import {
   Badge,
   Menu,
   MenuItem,
+  Tooltip,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -15,6 +16,7 @@ import {
 } from '@mui/icons-material';
 import { useAppDispatch } from '../../hooks/redux';
 import { logout } from '../../store/slices/authSlice';
+import { useNotifications } from '../../hooks/useNotifications';
 
 interface HeaderProps {
   open: boolean;
@@ -24,6 +26,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ open, toggleDrawer }) => {
   const dispatch = useAppDispatch();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const { notifications } = useNotifications();
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -63,11 +66,23 @@ const Header: React.FC<HeaderProps> = ({ open, toggleDrawer }) => {
         <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
           HiHiTutor Admin
         </Typography>
-        <IconButton color="inherit">
-          <Badge badgeContent={4} color="secondary">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
+        <Tooltip title={`${notifications?.total || 0} 個待處理事項`}>
+          <IconButton color="inherit">
+            <Badge 
+              badgeContent={notifications?.total || 0} 
+              color="error"
+              sx={{
+                '& .MuiBadge-badge': {
+                  backgroundColor: '#f44336',
+                  color: 'white',
+                  fontWeight: 'bold',
+                }
+              }}
+            >
+              <NotificationsIcon />
+            </Badge>
+          </IconButton>
+        </Tooltip>
         <IconButton
           size="large"
           aria-label="account of current user"

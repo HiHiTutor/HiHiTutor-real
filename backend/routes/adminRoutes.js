@@ -5,7 +5,8 @@ const {
   createUser, 
   getUserById, 
   updateUser,
-  testUserIdGeneration 
+  testUserIdGeneration,
+  getAdminNotifications
 } = require('../controllers/adminController');
 const { login } = require('../controllers/adminAuthController');
 const { verifyToken } = require('../middleware/authMiddleware');
@@ -21,5 +22,8 @@ router.put('/users/:id', verifyToken, updateUser);
 
 // 測試端點
 router.get('/test/userid-generation', verifyToken, testUserIdGeneration);
+
+// 通知端點
+router.get('/notifications', verifyToken, getAdminNotifications);
 
 module.exports = router; 
