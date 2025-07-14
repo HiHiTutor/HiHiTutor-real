@@ -43,7 +43,14 @@ const validateUserUpdate = (data) => {
     introduction: Joi.string().allow(''),
     qualifications: Joi.array(),
     hourlyRate: Joi.number().min(0),
-    availableTime: Joi.array()
+    availableTime: Joi.array(),
+    isVip: Joi.boolean(),
+    vipLevel: Joi.number().min(0).max(2),
+    isTop: Joi.boolean(),
+    topLevel: Joi.number().min(0).max(2),
+    isPaid: Joi.boolean(),
+    paymentType: Joi.string().valid('free', 'basic', 'premium', 'vip'),
+    promotionLevel: Joi.number().min(0).max(5)
   });
 
   return schema.validate(data);

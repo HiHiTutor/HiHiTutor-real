@@ -16,6 +16,8 @@ import {
   MenuItem,
   CircularProgress,
   Alert,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { usersAPI } from '../services/api';
@@ -33,6 +35,13 @@ interface EditFormData {
   status: 'active' | 'pending' | 'blocked';
   avatar: string;
   isActive: boolean;
+  isVip?: boolean;
+  vipLevel?: number;
+  isTop?: boolean;
+  topLevel?: number;
+  isPaid?: boolean;
+  paymentType?: 'free' | 'basic' | 'premium' | 'vip';
+  promotionLevel?: number;
   organizationDocuments: {
     businessRegistration: string;
     addressProof: string;
@@ -67,11 +76,18 @@ const UserDetail: React.FC = () => {
     name: '',
     email: '',
     phone: '',
-    userType: 'student',
     role: 'user',
+    userType: 'student',
     status: 'active',
     avatar: '',
     isActive: true,
+    isVip: false,
+    vipLevel: 0,
+    isTop: false,
+    topLevel: 0,
+    isPaid: false,
+    paymentType: 'free',
+    promotionLevel: 0,
     organizationDocuments: {
       businessRegistration: '',
       addressProof: ''
@@ -140,6 +156,13 @@ const UserDetail: React.FC = () => {
         status: userData.status || 'active',
         avatar: userData.avatar || '',
         isActive: userData.status === 'active',
+        isVip: userData.isVip || false,
+        vipLevel: userData.vipLevel || 0,
+        isTop: userData.isTop || false,
+        topLevel: userData.topLevel || 0,
+        isPaid: userData.isPaid || false,
+        paymentType: userData.paymentType || 'free',
+        promotionLevel: userData.promotionLevel || 0,
         organizationDocuments: userData.organizationDocuments || {
           businessRegistration: '',
           addressProof: ''
@@ -232,6 +255,10 @@ const UserDetail: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+    if (name === 'vipLevel' || name === 'topLevel' || name === 'promotionLevel') {
+      setEditForm(prev => ({ ...prev, [name]: Number(value) }));
+      return;
+    }
     if (name === 'userId' || name === 'tutorId') {
       setEditForm(prev => ({ ...prev, [name]: value }));
       return;
@@ -718,6 +745,73 @@ const UserDetail: React.FC = () => {
               <MenuItem value="pending">待審核</MenuItem>
               <MenuItem value="blocked">已封鎖</MenuItem>
             </TextField>
+            <TextField
+              select
+              label="付費類型"
+              fullWidth
+              value={editForm.paymentType}
+              onChange={handleInputChange}
+              name="paymentType"
+            >
+              <MenuItem value="free">免費</MenuItem>
+              <MenuItem value="basic">基本</MenuItem>
+              <MenuItem value="premium">高級</MenuItem>
+              <MenuItem value="vip">VIP</MenuItem>
+            </TextField>
+            <TextField
+              label="推廣等級"
+              type="number"
+              fullWidth
+              value={editForm.promotionLevel}
+              onChange={handleInputChange}
+              name="promotionLevel"
+              inputProps={{ min: 0, max: 5 }}
+              helperText="推廣等級：0-5"
+            />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={editForm.isVip || false}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, isVip: e.target.checked }))}
+                  />
+                }
+                label="VIP用戶"
+              />
+              {editForm.isVip && (
+                <TextField
+                  label="VIP等級"
+                  type="number"
+                  value={editForm.vipLevel}
+                  onChange={handleInputChange}
+                  name="vipLevel"
+                  inputProps={{ min: 0, max: 2 }}
+                  helperText="VIP等級：0-2"
+                />
+              )}
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={editForm.isTop || false}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, isTop: e.target.checked }))}
+                  />
+                }
+                label="置頂用戶"
+              />
+              {editForm.isTop && (
+                <TextField
+                  label="置頂等級"
+                  type="number"
+                  value={editForm.topLevel}
+                  onChange={handleInputChange}
+                  name="topLevel"
+                  inputProps={{ min: 0, max: 2 }}
+                  helperText="置頂等級：0-2"
+                />
+              )}
+            </Box>
           </Box>
         </DialogContent>
         <DialogActions>
