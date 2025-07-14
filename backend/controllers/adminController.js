@@ -7,7 +7,36 @@ const TutorCase = require('../models/TutorCase');
 const SearchLog = require('../models/SearchLog');
 const connectDB = require('../config/db');
 const mongoose = require('mongoose');
-const shortid = require('shortid');
+
+// 生成唯一 7 位 userId
+async function generateUserId() {
+  const lastUser = await User.findOne({ userId: { $exists: true } }).sort({ userId: -1 });
+  let newId = lastUser ? parseInt(lastUser.userId, 10) + 1 : 1000001;
+  return newId.toString().padStart(7, '0');
+}
+// 生成唯一 2字母+4數字 tutorId
+async function generateTutorId() {
+  const lastTutor = await User.findOne({ tutorId: { $exists: true } }).sort({ tutorId: -1 });
+  let prefix = 'AA';
+  let number = 1;
+  if (lastTutor && lastTutor.tutorId) {
+    prefix = lastTutor.tutorId.slice(0, 2);
+    number = parseInt(lastTutor.tutorId.slice(2), 10) + 1;
+    if (number > 9999) {
+      const firstChar = prefix.charCodeAt(0);
+      const secondChar = prefix.charCodeAt(1);
+      if (secondChar < 90) { // 'Z'
+        prefix = String.fromCharCode(firstChar, secondChar + 1);
+      } else if (firstChar < 90) {
+        prefix = String.fromCharCode(firstChar + 1, 65); // 65 = 'A'
+      } else {
+        throw new Error('tutorId 已達上限');
+      }
+      number = 1;
+    }
+  }
+  return `${prefix}${number.toString().padStart(4, '0')}`;
+}
 
 // User Management
 const createUser = async (req, res) => {
@@ -24,14 +53,14 @@ const createUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // 自動生成 userId
-    const userId = shortid.generate();
+    // 正確生成 userId
+    const userId = await generateUserId();
     let tutorId = null;
     let orgId = null;
     let finalTutorProfile = undefined;
 
     if (userType === 'tutor') {
-      tutorId = 'T' + Date.now();
+      tutorId = await generateTutorId();
       // 自動補齊必填欄位
       finalTutorProfile = {
         subjects: (tutorProfile && tutorProfile.subjects && tutorProfile.subjects.length > 0) ? tutorProfile.subjects : ['未指定'],
