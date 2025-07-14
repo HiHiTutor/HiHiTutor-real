@@ -67,7 +67,7 @@ const createUser = async (req, res) => {
     }
 
     // 自動產生不重複的 userId
-    const latestUser = await User.find().sort({ userId: -1 }).limit(1).toArray();
+    const latestUser = await User.find().sort({ userId: -1 }).limit(1);
     const nextUserId = latestUser.length > 0
       ? String(Number(latestUser[0].userId) + 1).padStart(7, '0')
       : '1000001';
