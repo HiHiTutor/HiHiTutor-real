@@ -11,7 +11,15 @@ const mongoose = require('mongoose');
 // 生成唯一 7 位 userId
 async function generateUserId() {
   const lastUser = await User.findOne({ userId: { $exists: true } }).sort({ userId: -1 });
-  let newId = lastUser ? parseInt(lastUser.userId, 10) + 1 : 1000001;
+  let newId = 1000001; // 默認起始值
+  
+  if (lastUser && lastUser.userId) {
+    const parsedId = parseInt(lastUser.userId, 10);
+    if (!isNaN(parsedId)) {
+      newId = parsedId + 1;
+    }
+  }
+  
   return newId.toString().padStart(7, '0');
 }
 // 生成唯一 2字母+4數字 tutorId
