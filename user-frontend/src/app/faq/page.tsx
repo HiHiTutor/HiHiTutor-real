@@ -4,12 +4,12 @@ import { useState } from 'react';
 
 const faqData = [
   {
-    question: '如何成為 HiHiTutor 的導師？',
-    answer: '您可以註冊成為學生帳號後，申請導師升級，提交學歷證明並通過審核，即可成為導師。',
+    question: '「尋導師」流程',
+    answer: `第一步: 根據學習需要，篩選最合適導師\n\n方法1 – 自助搜尋導師\n前往「導師列表 」[連結](https://www.hihitutor.com/tutors) 自行篩選合適導師, 並按 “立即預約上堂”，配對專員會盡快為你協調課堂安排。\n\n方法2 – 招募導師\n前往「發帖尋導師」[連結](https://www.hihitutor.com/post/student-case) 並填寫課堂要求，配對專員核實後，會協助刊登於本平台的「補習個案」[連結](https://www.hihitutor.com/find-student-cases)。配對專員將與有興趣申請個案的導師接洽課堂安排。\n\n方法3 – 直接聯絡配對專員\nWhatsApp [連結](https://wa.me/95011159) 與配對專員直接聯絡，核實課堂資料後，配對專員會為你建議合適導師，並協助接洽課堂安排。\n\n第二步: 確認上堂細節\n當家長/學生確認課堂詳情後，包括導師、上堂時間、地點、堂費等，本平台會代收第一堂堂費作為配對及留位費用。本平台收取相關費用後，則協助家長/學生和導師雙方協助交換聯絡資料，雙方根據協定時間開始上上第一堂。而由第二堂開始，堂費則直接交予導師，而交付方式則由家長/學生與導師自行協定。原則上，家長/學生在配對過程中是完全無須繳交任何額外費用。`,
   },
   {
-    question: '如何發布找導師的個案？',
-    answer: '登入後點擊「我要搵導師」，填寫您想找的科目、時間、地區等資料即可發布。',
+    question: '「招學生」流程',
+    answer: '未完成~~',
   },
   {
     question: '如何支付學費？',
@@ -124,42 +124,6 @@ export default function FAQPage() {
           </p>
         </div>
       </div>
-      <div className="w-full flex justify-center mt-10">
-        <button
-          onClick={() => setShowAbout(!showAbout)}
-          className="bg-white text-black border border-gray-300 rounded-md px-4 py-2 shadow hover:bg-gray-50 transition"
-        >
-          {showAbout ? '▲ 關於我們' : '▼ 關於我們'}
-        </button>
-      </div>
-      {showAbout && (
-        <div className="w-full flex justify-center mt-6">
-          <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-3xl text-gray-800">
-            <h2 className="text-2xl font-bold mb-4">關於我們</h2>
-            <p className="mb-4">HiHiTutor 致力於為學生和導師搭建最優質的教學平台</p>
-            <h3 className="text-xl font-semibold mt-6 mb-2">我們的使命</h3>
-            <ul className="list-disc list-inside mb-4 space-y-1">
-              <li>為學生提供最適合的導師配對</li>
-              <li>為導師創造公平的教學機會</li>
-              <li>建立安全、透明的教學環境</li>
-              <li>推動教育資源的公平分配</li>
-            </ul>
-            <h3 className="text-xl font-semibold mt-6 mb-2">我們的特色</h3>
-            <ul className="list-disc list-inside mb-4 space-y-1">
-              <li><strong>智能配對：</strong>根據學生的需求和導師的專長，提供最適合的配對建議</li>
-              <li><strong>品質保證：</strong>嚴格的導師審核制度，確保教學品質</li>
-              <li><strong>安全支付：</strong>安全的支付系統，保障雙方權益</li>
-              <li><strong>專業支援：</strong>專業的客服團隊，隨時為您解決問題</li>
-            </ul>
-            <h3 className="text-xl font-semibold mt-6 mb-2">我們的團隊</h3>
-            <p className="mb-4">
-              HiHiTutor 由一群熱愛教育的專業人士組成，我們擁有豐富的教育經驗和技術背景，致力於為您提供最好的服務。
-            </p>
-            <h3 className="text-xl font-semibold mt-6 mb-2">加入我們</h3>
-            <p>無論您是想要尋找導師的學生，還是想要分享知識的導師，都歡迎加入 HiHiTutor 的大家庭。</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 } 
