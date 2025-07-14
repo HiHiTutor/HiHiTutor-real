@@ -19,8 +19,8 @@ const validateUserUpdate = (data) => {
     avatar: Joi.string().allow(''),
     isActive: Joi.boolean(),
     organizationDocuments: Joi.object({
-      businessRegistration: Joi.string().allow(''),
-      addressProof: Joi.string().allow('')
+      businessRegistration: Joi.string().allow('', null),
+      addressProof: Joi.string().allow('', null)
     }),
     tutorProfile: Joi.object({
       displayPublic: Joi.boolean(),
