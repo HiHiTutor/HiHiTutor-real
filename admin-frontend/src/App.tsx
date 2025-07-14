@@ -18,6 +18,9 @@ import TutorProfileApprovals from './pages/TutorProfileApprovals';
 import AdManager from './pages/AdManager';
 import AdCreate from './pages/AdCreate';
 import AdEdit from './pages/AdEdit';
+import CategoryManager from './pages/CategoryManager';
+import RegionManager from './pages/RegionManager';
+import ModeManager from './pages/ModeManager';
 
 // Protected Route component
 const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
@@ -56,6 +59,9 @@ const App: React.FC = () => {
       <Route path="/AdManager" element={<ProtectedRoute element={<Layout><AdManager /></Layout>} />} />
       <Route path="/ad-create" element={<ProtectedRoute element={<Layout><AdCreate /></Layout>} />} />
       <Route path="/ad-edit/:id" element={<ProtectedRoute element={<Layout><AdEdit /></Layout>} />} />
+      <Route path="/category-manager" element={<ProtectedRoute element={<Layout><CategoryManager /></Layout>} />} />
+      <Route path="/region-manager" element={<ProtectedRoute element={<Layout><RegionManager /></Layout>} />} />
+      <Route path="/mode-manager" element={<ProtectedRoute element={<Layout><ModeManager /></Layout>} />} />
       
       {/* Fallback route */}
       <Route path="*" element={<NotFound />} />

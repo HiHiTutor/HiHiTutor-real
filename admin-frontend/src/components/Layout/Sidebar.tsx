@@ -17,6 +17,9 @@ import {
   School as SchoolIcon,
   Search as SearchIcon,
   Campaign as CampaignIcon,
+  Category as CategoryIcon,
+  LocationOn as LocationIcon,
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { useNotifications } from '../../hooks/useNotifications';
 
@@ -40,6 +43,9 @@ const Sidebar: React.FC<SidebarProps> = ({ open }) => {
     { text: '搜尋統計', icon: <SearchIcon />, path: '/search-statistics' },
     { text: '導師申請審核', icon: <SchoolIcon />, path: '/tutor-applications', badge: notifications?.pendingTutorApplications },
     { text: '導師資料審批', icon: <SchoolIcon />, path: '/tutor-profile-approvals', badge: notifications?.pendingTutorProfiles },
+    { text: '科目管理', icon: <CategoryIcon />, path: '/category-manager' },
+    { text: '地區管理', icon: <LocationIcon />, path: '/region-manager' },
+    { text: '教學模式管理', icon: <SettingsIcon />, path: '/mode-manager' },
   ];
 
   return (
