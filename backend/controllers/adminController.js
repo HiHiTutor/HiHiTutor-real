@@ -70,22 +70,39 @@ const createUser = async (req, res) => {
     const latestUser = await User.find({
       userId: { 
         $exists: true,
-        $not: { $regex: /NaN|null|undefined/ },
-        $ne: '0000000'
+        $ne: null,
+        $ne: undefined
       }
     }).sort({ userId: -1 }).limit(1);
     
     let nextUserId;
     if (latestUser.length > 0 && latestUser[0].userId) {
       const parsedId = parseInt(latestUser[0].userId, 10);
-      if (!isNaN(parsedId)) {
+      if (!isNaN(parsedId) && parsedId > 0) {
         nextUserId = String(parsedId + 1).padStart(7, '0');
       } else {
-        nextUserId = '1000001';
+        // 如果解析失敗或值為 0，查找最大的有效 userId
+        const maxUser = await User.find({
+          userId: { 
+            $exists: true,
+            $ne: null,
+            $ne: undefined,
+            $regex: /^\d+$/
+          }
+        }).sort({ userId: -1 }).limit(1);
+        
+        if (maxUser.length > 0 && maxUser[0].userId) {
+          const maxId = parseInt(maxUser[0].userId, 10);
+          nextUserId = String(maxId + 1).padStart(7, '0');
+        } else {
+          nextUserId = '1000001';
+        }
       }
     } else {
       nextUserId = '1000001';
     }
+    
+    console.log(`🔢 Generated userId: ${nextUserId}`);
     let tutorId = null;
     let orgId = null;
     let finalTutorProfile = undefined;
