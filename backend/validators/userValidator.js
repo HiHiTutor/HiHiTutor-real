@@ -2,6 +2,8 @@ const Joi = require('joi');
 
 const validateUserUpdate = (data) => {
   const schema = Joi.object({
+    userId: Joi.string().allow(''),
+    tutorId: Joi.string().allow(''),
     name: Joi.string().min(2).max(50),
     email: Joi.string().email(),
     phone: Joi.string().pattern(/^[0-9+\-\s()]*$/),
