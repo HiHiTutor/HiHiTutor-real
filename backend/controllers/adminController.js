@@ -49,10 +49,6 @@ const createUser = async (req, res) => {
       return res.status(400).json({ message: 'Email already exists' });
     }
 
-    // 加密密碼
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
     // 正確生成 userId
     const userId = await generateUserId();
     let tutorId = null;
@@ -72,12 +68,12 @@ const createUser = async (req, res) => {
       orgId = 'O' + Date.now();
     }
 
-    // 創建新用戶
+    // 創建新用戶 - 密碼會由 User model 的 pre-save middleware 自動加密
     const user = new User({
       name,
       email,
       phone,
-      password: hashedPassword,
+      password, // 明文密碼，讓 pre-save middleware 處理加密
       userType,
       status: 'active',
       userId,
