@@ -16,11 +16,15 @@ import {
   TextField,
   MenuItem,
   CircularProgress,
+  TableSortLabel,
 } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { usersAPI } from '../services/api';
 import { setUsers, setLoading, setError } from '../store/slices/userSlice';
 import AddIcon from '@mui/icons-material/Add';
+
+type SortField = 'userId' | 'name' | 'email' | 'phone' | 'role' | 'status' | 'createdAt';
+type SortOrder = 'asc' | 'desc';
 
 const Users: React.FC = () => {
   const navigate = useNavigate();
@@ -31,6 +35,8 @@ const Users: React.FC = () => {
   const [roleFilter, setRoleFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [totalCount, setTotalCount] = useState(0);
+  const [sortField, setSortField] = useState<SortField>('createdAt');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -41,6 +47,8 @@ const Users: React.FC = () => {
           limit: rowsPerPage,
           role: roleFilter,
           search: searchQuery,
+          sortBy: sortField,
+          sortOrder: sortOrder,
         });
         if (response.data && response.data.users) {
           dispatch(setUsers(response.data.users));
@@ -58,7 +66,14 @@ const Users: React.FC = () => {
     };
 
     fetchUsers();
-  }, [dispatch, page, rowsPerPage, roleFilter, searchQuery]);
+  }, [dispatch, page, rowsPerPage, roleFilter, searchQuery, sortField, sortOrder]);
+
+  const handleSort = (field: SortField) => {
+    const isAsc = sortField === field && sortOrder === 'asc';
+    setSortOrder(isAsc ? 'desc' : 'asc');
+    setSortField(field);
+    setPage(0);
+  };
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -156,13 +171,69 @@ const Users: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Role</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Created At</TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortField === 'userId'}
+                  direction={sortField === 'userId' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('userId')}
+                >
+                  ID
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortField === 'name'}
+                  direction={sortField === 'name' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('name')}
+                >
+                  Name
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortField === 'email'}
+                  direction={sortField === 'email' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('email')}
+                >
+                  Email
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortField === 'phone'}
+                  direction={sortField === 'phone' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('phone')}
+                >
+                  Phone
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortField === 'role'}
+                  direction={sortField === 'role' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('role')}
+                >
+                  Role
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortField === 'status'}
+                  direction={sortField === 'status' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('status')}
+                >
+                  Status
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortField === 'createdAt'}
+                  direction={sortField === 'createdAt' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('createdAt')}
+                >
+                  Created At
+                </TableSortLabel>
+              </TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>

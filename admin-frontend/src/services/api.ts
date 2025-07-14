@@ -129,6 +129,8 @@ export const usersAPI = {
     limit?: number;
     role?: string;
     search?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
   }) => {
     return api.get<UserResponse>(`/admin/users`, { params });
   },

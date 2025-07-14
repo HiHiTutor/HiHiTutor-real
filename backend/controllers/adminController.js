@@ -104,7 +104,7 @@ const createUser = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
-    const { page = 1, limit = 10, role, status, search } = req.query;
+    const { page = 1, limit = 10, role, status, search, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
     const query = {};
 
     // 使用 userType 來過濾用戶類型（student, tutor, organization, admin）
@@ -126,16 +126,24 @@ const getAllUsers = async (req, res) => {
       ];
     }
 
+    // 驗證排序欄位
+    const allowedSortFields = ['userId', 'name', 'email', 'phone', 'role', 'status', 'createdAt'];
+    const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'createdAt';
+    const validSortOrder = sortOrder === 'asc' ? 1 : -1;
+
     console.log('🔍 用戶查詢參數:', {
       page: parseInt(page),
       limit: parseInt(limit),
       role,
       status,
       search,
+      sortBy: validSortBy,
+      sortOrder: validSortOrder,
       query
     });
 
     const users = await User.find(query)
+      .sort({ [validSortBy]: validSortOrder })
       .skip((page - 1) * limit)
       .limit(parseInt(limit))
       .select('-password')
@@ -148,6 +156,8 @@ const getAllUsers = async (req, res) => {
       limit: parseInt(limit),
       total,
       returnedUsers: users.length,
+      sortBy: validSortBy,
+      sortOrder: validSortOrder,
       query
     });
 
