@@ -37,7 +37,7 @@ interface Subject {
 interface SubCategory {
   id: string;
   name: string;
-  subjects: string[];
+  subjects: Subject[];
 }
 
 interface Category {
@@ -290,8 +290,65 @@ const CategoryManager: React.FC = () => {
                   </Box>
                 </Box>
 
+                {/* 子分類層級顯示 */}
+                <Typography variant="subtitle2" color="textSecondary" gutterBottom sx={{ fontWeight: 700, mt: 2 }}>
+                  子分類 (Sub Categories)
+                </Typography>
+                <Box>
+                  {category.subCategories.length === 0 && (
+                    <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>暫無子分類</Typography>
+                  )}
+                  {category.subCategories.map((subCategory, subCategoryIndex) => (
+                    <Card key={subCategory.id} variant="outlined" sx={{ mb: 2, ml: 2, boxShadow: 0 }}>
+                      <CardContent sx={{ pb: 1, pt: 1 }}>
+                        <Box display="flex" justifyContent="space-between" alignItems="center">
+                          <Box>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{subCategory.name}</Typography>
+                            <Typography variant="caption" color="textSecondary">ID: {subCategory.id}</Typography>
+                          </Box>
+                          <Box>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleEditSubCategory(categoryIndex, subCategoryIndex)}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              color="error"
+                              onClick={() => handleDeleteSubCategory(categoryIndex, subCategoryIndex)}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Box>
+                        </Box>
+                        <Box mt={1} mb={1} display="flex" flexWrap="wrap" sx={{ ml: 2 }}>
+                          {subCategory.subjects && subCategory.subjects.length > 0 ? (
+                            subCategory.subjects.map((subject) => (
+                              <Chip key={subject.value} label={subject.label} size="small" sx={{ mr: 1, mb: 1 }} />
+                            ))
+                          ) : (
+                            <Typography variant="body2" color="textSecondary">無科目</Typography>
+                          )}
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </Box>
+                <Button
+                  size="small"
+                  startIcon={<AddIcon />}
+                  onClick={() => handleAddSubCategory(categoryIndex)}
+                  sx={{ ml: 2 }}
+                >
+                  新增子分類
+                </Button>
+
+                <Divider sx={{ my: 2 }} />
+
+                {/* 課程分類本身的科目（如有） */}
                 <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                  科目 (Subjects)
+                  分類直屬科目 (Subjects)
                 </Typography>
                 <Box mb={2}>
                   {category.subjects.map((subject, subjectIndex) => (
@@ -311,44 +368,6 @@ const CategoryManager: React.FC = () => {
                     新增科目
                   </Button>
                 </Box>
-
-                <Divider sx={{ my: 2 }} />
-
-                <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                  子分類 (Sub Categories)
-                </Typography>
-                <List dense>
-                  {category.subCategories.map((subCategory, subCategoryIndex) => (
-                    <ListItem key={subCategory.id} sx={{ px: 0 }}>
-                      <ListItemText
-                        primary={subCategory.name}
-                        secondary={`ID: ${subCategory.id} | 科目: ${subCategory.subjects.join(', ')}`}
-                      />
-                      <ListItemSecondaryAction>
-                        <IconButton
-                          size="small"
-                          onClick={() => handleEditSubCategory(categoryIndex, subCategoryIndex)}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => handleDeleteSubCategory(categoryIndex, subCategoryIndex)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </ListItemSecondaryAction>
-                    </ListItem>
-                  ))}
-                </List>
-                <Button
-                  size="small"
-                  startIcon={<AddIcon />}
-                  onClick={() => handleAddSubCategory(categoryIndex)}
-                >
-                  新增子分類
-                </Button>
               </CardContent>
             </Card>
           </Grid>
@@ -419,14 +438,17 @@ const CategoryManager: React.FC = () => {
               />
               <TextField
                 fullWidth
-                label="科目列表 (用逗號分隔)"
-                value={editingSubCategory.subjects.join(', ')}
+                label="科目列表 (用逗號分隔，格式：value:label)"
+                value={editingSubCategory.subjects.map(s => `${s.value}:${s.label}`).join(', ')}
                 onChange={(e) => setEditingSubCategory({
                   ...editingSubCategory,
-                  subjects: e.target.value.split(',').map(s => s.trim()).filter(s => s)
+                  subjects: e.target.value.split(',').map(s => {
+                    const [value, label] = s.split(':').map(str => str.trim());
+                    return value && label ? { value, label } : null;
+                  }).filter(Boolean) as Subject[]
                 })}
                 margin="normal"
-                helperText="例如: primary-chinese, primary-english, primary-math"
+                helperText="例如: primary-chinese:中文, primary-english:英文, primary-math:數學"
               />
             </Box>
           )}
