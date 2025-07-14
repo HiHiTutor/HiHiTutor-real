@@ -303,8 +303,8 @@ const CategoryManager: React.FC = () => {
                       <CardContent sx={{ pb: 1, pt: 1 }}>
                         <Box display="flex" justifyContent="space-between" alignItems="center">
                           <Box>
-                            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{subCategory.name}</Typography>
-                            <Typography variant="caption" color="textSecondary">ID: {subCategory.id}</Typography>
+                            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{(subCategory as any).label || subCategory.name}</Typography>
+                            <Typography variant="caption" color="textSecondary">ID: {(subCategory as any).value || subCategory.id}</Typography>
                           </Box>
                           <Box>
                             <IconButton
