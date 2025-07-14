@@ -5,6 +5,8 @@ export * from './case';
 export interface User {
   _id: string;
   id: string;
+  userId?: string;
+  tutorId?: string;
   name: string;
   email: string;
   phone: string;

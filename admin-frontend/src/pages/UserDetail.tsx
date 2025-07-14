@@ -23,6 +23,8 @@ import { setSelectedUser } from '../store/slices/userSlice';
 import { User } from '../types';
 
 interface EditFormData {
+  userId?: string;
+  tutorId?: string;
   name: string;
   email: string;
   phone: string;
@@ -60,6 +62,8 @@ const UserDetail: React.FC = () => {
   const { selectedUser } = useAppSelector((state) => state.users);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editForm, setEditForm] = useState<EditFormData>({
+    userId: '',
+    tutorId: '',
     name: '',
     email: '',
     phone: '',
@@ -126,6 +130,8 @@ const UserDetail: React.FC = () => {
       
       dispatch(setSelectedUser(userData as User));
       setEditForm({
+        userId: userData.userId || '',
+        tutorId: userData.tutorId || '',
         name: userData.name || '',
         email: userData.email || '',
         phone: userData.phone || '',
@@ -226,6 +232,10 @@ const UserDetail: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+    if (name === 'userId' || name === 'tutorId') {
+      setEditForm(prev => ({ ...prev, [name]: value }));
+      return;
+    }
     if (name === 'role') {
       setEditForm(prev => ({
         ...prev,
@@ -637,6 +647,13 @@ const UserDetail: React.FC = () => {
         <DialogContent>
           <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
+              label="用戶編號"
+              fullWidth
+              value={editForm.userId}
+              onChange={handleInputChange}
+              name="userId"
+            />
+            <TextField
               label="姓名"
               fullWidth
               value={editForm.name}
@@ -657,6 +674,15 @@ const UserDetail: React.FC = () => {
               onChange={handleInputChange}
               name="phone"
             />
+            {editForm.userType === 'tutor' && (
+              <TextField
+                label="導師編號"
+                fullWidth
+                value={editForm.tutorId}
+                onChange={handleInputChange}
+                name="tutorId"
+              />
+            )}
             <TextField
               select
               label="用戶類型"
