@@ -5,7 +5,7 @@ import { useState } from 'react';
 const faqData = [
   {
     question: '「尋導師」流程',
-    answer: `第一步: 根據學習需要，篩選最合適導師\n\n方法1 – 自助搜尋導師\n前往「導師列表 」[連結](https://www.hihitutor.com/tutors) 自行篩選合適導師, 並按 “立即預約上堂”，配對專員會盡快為你協調課堂安排。\n\n方法2 – 招募導師\n前往「發帖尋導師」[連結](https://www.hihitutor.com/post/student-case) 並填寫課堂要求，配對專員核實後，會協助刊登於本平台的「補習個案」[連結](https://www.hihitutor.com/find-student-cases)。配對專員將與有興趣申請個案的導師接洽課堂安排。\n\n方法3 – 直接聯絡配對專員\nWhatsApp [連結](https://wa.me/95011159) 與配對專員直接聯絡，核實課堂資料後，配對專員會為你建議合適導師，並協助接洽課堂安排。\n\n第二步: 確認上堂細節\n當家長/學生確認課堂詳情後，包括導師、上堂時間、地點、堂費等，本平台會代收第一堂堂費作為配對及留位費用。本平台收取相關費用後，則協助家長/學生和導師雙方協助交換聯絡資料，雙方根據協定時間開始上上第一堂。而由第二堂開始，堂費則直接交予導師，而交付方式則由家長/學生與導師自行協定。原則上，家長/學生在配對過程中是完全無須繳交任何額外費用。`,
+    answer: null, // 由JSX渲染
   },
   {
     question: '「招學生」流程',
@@ -102,7 +102,36 @@ export default function FAQPage() {
               {openIndex === index && (
                 <div className="px-6 pb-4">
                   <div className="text-gray-600 whitespace-pre-line">
-                    {faq.answer}
+                    {faq.question === '「尋導師」流程' ? (
+                      <>
+                        <div>第一步: 根據學習需要，篩選最合適導師</div>
+                        <br />
+                        <div>方法1 – 自助搜尋導師</div>
+                        <div>
+                          前往
+                          <a href="https://www.hihitutor.com/tutors" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mx-1">導師列表</a>
+                          自行篩選合適導師, 並按 “立即預約上堂”，配對專員會盡快為你協調課堂安排。
+                        </div>
+                        <br />
+                        <div>方法2 – 招募導師</div>
+                        <div>
+                          前往
+                          <a href="https://www.hihitutor.com/post/student-case" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mx-1">發帖尋導師</a>
+                          並填寫課堂要求，配對專員核實後，會協助刊登於本平台的「補習個案」。配對專員將與有興趣申請個案的導師接洽課堂安排。
+                        </div>
+                        <br />
+                        <div>方法3 – 直接聯絡配對專員</div>
+                        <div>
+                          <a href="https://api.whatsapp.com/send?phone=85295011159&text=我想搵導師唔該!" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mx-1">WhatsApp</a>
+                          與配對專員直接聯絡，核實課堂資料後，配對專員會為你建議合適導師，並協助接洽課堂安排。
+                        </div>
+                        <br />
+                        <div>第二步: 確認上堂細節</div>
+                        <div>
+                          當家長/學生確認課堂詳情後，包括導師、上堂時間、地點、堂費等，本平台會代收第一堂堂費作為配對及留位費用。本平台收取相關費用後，則協助家長/學生和導師雙方協助交換聯絡資料，雙方根據協定時間開始上上第一堂。而由第二堂開始，堂費則直接交予導師，而交付方式則由家長/學生與導師自行協定。原則上，家長/學生在配對過程中是完全無須繳交任何額外費用。
+                        </div>
+                      </>
+                    ) : faq.answer}
                   </div>
                 </div>
               )}
