@@ -69,20 +69,6 @@ export default function AboutPage() {
             <p className="text-gray-600">
               無論您是想要尋找導師的學生，還是想要分享知識的導師，都歡迎加入 HiHiTutor 的大家庭。
             </p>
-            <div className="mt-6 flex justify-center space-x-4">
-              <a
-                href="/find-tutor"
-                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
-              >
-                尋找導師
-              </a>
-              <a
-                href="/find-student"
-                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700"
-              >
-                成為導師
-              </a>
-            </div>
           </section>
         </div>
       </div>
