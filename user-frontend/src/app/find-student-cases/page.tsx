@@ -237,6 +237,15 @@ function FindStudentCasesPageContent() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-12 py-8 bg-gradient-to-br from-blue-50 to-white min-h-screen">
+      <div className="flex items-center gap-3 mb-8">
+        <div className="bg-blue-500 p-3 rounded-full">
+          <span className="text-2xl text-white">📄</span>
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold text-blue-900 border-l-4 border-blue-500 pl-4">補習個案</h1>
+          <p className="text-blue-600 mt-1">尋找適合的補習個案</p>
+        </div>
+      </div>
       <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-blue-100">
         <CaseFilterBar onFilter={handleFilter} fetchUrl="/find-tutor-cases" />
       </div>
