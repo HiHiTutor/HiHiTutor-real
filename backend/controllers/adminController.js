@@ -66,8 +66,11 @@ const createUser = async (req, res) => {
       return res.status(400).json({ message: 'Email already exists' });
     }
 
-    // 正確生成 userId
-    const userId = await generateUserId();
+    // 自動產生不重複的 userId
+    const latestUser = await User.find().sort({ userId: -1 }).limit(1).toArray();
+    const nextUserId = latestUser.length > 0
+      ? String(Number(latestUser[0].userId) + 1).padStart(7, '0')
+      : '1000001';
     let tutorId = null;
     let orgId = null;
     let finalTutorProfile = undefined;
@@ -93,7 +96,7 @@ const createUser = async (req, res) => {
       password, // 明文密碼，讓 pre-save middleware 處理加密
       userType,
       status: 'active',
-      userId,
+      userId: nextUserId,
       tutorId,
       orgId,
       ...(finalTutorProfile ? { tutorProfile: finalTutorProfile } : {})
