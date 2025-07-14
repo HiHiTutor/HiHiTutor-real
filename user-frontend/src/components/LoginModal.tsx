@@ -18,7 +18,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
+    identifier: '',
     password: ''
   });
 
@@ -27,7 +27,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
     setIsLoading(true);
 
     try {
-      const response = await authApi.login(formData.email, formData.password);
+      const response = await authApi.login(formData.identifier, formData.password);
       
       // authApi.login 返回的是用戶資料和 token
       localStorage.setItem('token', response.token);
@@ -66,12 +66,12 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="email">電郵或電話</Label>
+            <Label htmlFor="identifier">電郵或電話</Label>
             <Input
-              id="email"
-              name="email"
-              type="email"
-              value={formData.email}
+              id="identifier"
+              name="identifier"
+              type="text"
+              value={formData.identifier}
               onChange={handleInputChange}
               placeholder="請輸入你的電子郵件或電話"
               required
