@@ -67,39 +67,29 @@ const createUser = async (req, res) => {
     }
 
     // 自動產生不重複的 userId
-    const latestUser = await User.find({
-      userId: { 
-        $exists: true,
-        $ne: null,
-        $ne: undefined
-      }
-    }).sort({ userId: -1 }).limit(1);
+    let nextUserId = '1000001';
     
-    let nextUserId;
-    if (latestUser.length > 0 && latestUser[0].userId) {
-      const parsedId = parseInt(latestUser[0].userId, 10);
-      if (!isNaN(parsedId) && parsedId > 0) {
-        nextUserId = String(parsedId + 1).padStart(7, '0');
-      } else {
-        // 如果解析失敗或值為 0，查找最大的有效 userId
-        const maxUser = await User.find({
-          userId: { 
-            $exists: true,
-            $ne: null,
-            $ne: undefined,
-            $regex: /^\d+$/
-          }
-        }).sort({ userId: -1 }).limit(1);
-        
-        if (maxUser.length > 0 && maxUser[0].userId) {
-          const maxId = parseInt(maxUser[0].userId, 10);
-          nextUserId = String(maxId + 1).padStart(7, '0');
-        } else {
-          nextUserId = '1000001';
+    try {
+      // 查找所有有效的數字 userId
+      const allUsers = await User.find({
+        userId: { 
+          $exists: true,
+          $ne: null,
+          $ne: undefined,
+          $regex: /^\d+$/
+        }
+      }).select('userId').lean();
+      
+      if (allUsers.length > 0) {
+        // 找出最大的 userId
+        const maxUserId = Math.max(...allUsers.map(user => parseInt(user.userId, 10)));
+        if (!isNaN(maxUserId) && maxUserId > 0) {
+          nextUserId = String(maxUserId + 1).padStart(7, '0');
         }
       }
-    } else {
-      nextUserId = '1000001';
+    } catch (error) {
+      console.error('Error generating userId:', error);
+      // 如果出錯，使用預設值
     }
     
     console.log(`🔢 Generated userId: ${nextUserId}`);
