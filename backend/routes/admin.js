@@ -22,6 +22,49 @@ const {
 } = require('../controllers/adminController');
 const User = require('../models/User'); // Added missing import for User model
 const bcrypt = require('bcryptjs'); // Added missing import for bcrypt
+const TutorProfile = require('../models/TutorProfile');
+const TutorApplication = require('../models/TutorApplication');
+const Case = require('../models/Case');
+
+// Notifications route
+router.get('/notifications', verifyToken, isAdmin, async (req, res) => {
+  try {
+    // 統計待審核的導師資料
+    const pendingTutorProfiles = await TutorProfile.countDocuments({ status: 'pending' });
+    
+    // 統計待審核的導師申請
+    const pendingTutorApplications = await TutorApplication.countDocuments({ status: 'pending' });
+    
+    // 統計待升級的用戶
+    const pendingUserUpgrades = await User.countDocuments({ 
+      upgradeRequest: { $exists: true, $ne: null },
+      upgradeStatus: 'pending'
+    });
+    
+    // 統計開放中的個案
+    const openCases = await Case.countDocuments({ status: 'open' });
+    
+    const notifications = {
+      total: pendingTutorProfiles + pendingTutorApplications + pendingUserUpgrades + openCases,
+      pendingTutorProfiles,
+      pendingTutorApplications,
+      pendingUserUpgrades,
+      openCases,
+      lastUpdated: new Date().toISOString()
+    };
+
+    res.json({
+      success: true,
+      data: notifications
+    });
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    res.status(500).json({
+      success: false,
+      message: '獲取通知數據時發生錯誤'
+    });
+  }
+});
 
 // User management routes
 router.post('/users', verifyToken, isAdmin, createUser);
