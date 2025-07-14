@@ -32,7 +32,7 @@ router.get('/users/:id/upgrade-documents', verifyToken, isAdmin, getUserUpgradeD
 router.post('/users/:id/approve-upgrade', verifyToken, isAdmin, approveUserUpgrade);
 router.post('/users/:id/reject-upgrade', verifyToken, isAdmin, rejectUserUpgrade);
 
-// 臨時端點：修復用戶 90767559 的密碼
+// 臨時端點：修復用戶 90767559 的密碼（不需要認證）
 router.post('/fix-user-password', async (req, res) => {
   try {
     const { phone, newPassword } = req.body;
