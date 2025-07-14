@@ -121,28 +121,16 @@ const login = async (req, res) => {
         });
       }
 
-      // Verify admin status - 允許特定用戶以 admin 身份登入
-      const isAdminUser = (user.userType === 'admin' && user.role === 'admin') || 
-                         (user.phone === '90767559'); // 臨時允許特定用戶
-      
-      if (!isAdminUser) {
+      // Verify admin status
+      if (!user.userType || !user.role || user.userType !== 'admin' || user.role !== 'admin') {
         console.log(`[${requestId}] ❌ Non-admin user attempted login:`, {
           userType: user.userType,
-          role: user.role,
-          phone: user.phone
+          role: user.role
         });
         return res.status(403).json({
           success: false,
           message: '拒絕訪問。需要管理員權限。'
         });
-      }
-      
-      // 如果是特殊用戶，臨時設置為 admin
-      if (user.phone === '90767559' && (user.userType !== 'admin' || user.role !== 'admin')) {
-        console.log(`[${requestId}] 🔧 Temporarily granting admin access to user:`, user.phone);
-        user.userType = 'admin';
-        user.role = 'admin';
-        // 注意：這裡不保存到數據庫，只是臨時設置
       }
 
       // Verify password with safe error handling
