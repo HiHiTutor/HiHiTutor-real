@@ -185,6 +185,16 @@ const ModeManager: React.FC = () => {
                     </IconButton>
                   </Box>
                 </Box>
+                {/* 子選項 chips 顯示 */}
+                <Box mt={2} display="flex" flexWrap="wrap">
+                  {(mode as any).subCategories && (mode as any).subCategories.length > 0 ? (
+                    (mode as any).subCategories.map((sub: any) => (
+                      <Chip key={sub.value} label={sub.label} size="small" sx={{ mr: 1, mb: 1 }} />
+                    ))
+                  ) : (
+                    <Typography variant="body2" color="textSecondary">無子選項</Typography>
+                  )}
+                </Box>
               </CardContent>
             </Card>
           </Grid>
