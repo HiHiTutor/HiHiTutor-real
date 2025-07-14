@@ -66,14 +66,14 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="email">電子郵件</Label>
+            <Label htmlFor="email">電郵或電話</Label>
             <Input
               id="email"
               name="email"
               type="email"
               value={formData.email}
               onChange={handleInputChange}
-              placeholder="請輸入您的電子郵件"
+              placeholder="請輸入你的電子郵件或電話"
               required
             />
           </div>
