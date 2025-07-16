@@ -22,15 +22,15 @@ class SMSService {
       console.log('🔐 Client ID:', this.clientId ? '已設置' : '未設置');
       console.log('🔐 Client Secret:', this.clientSecret ? '已設置' : '未設置');
       
-      const payload = {
-        grant_type: 'client_credentials',
-        client_id: this.clientId,
-        client_secret: this.clientSecret
-      };
+      // 使用 URLSearchParams 將 body 正確編碼
+      const params = new URLSearchParams();
+      params.append('grant_type', 'client_credentials');
+      params.append('client_id', this.clientId);
+      params.append('client_secret', this.clientSecret);
 
-      const response = await axios.post(`${this.authURL}/oauth/token`, payload, {
+      const response = await axios.post(`${this.authURL}/oauth/token`, params, {
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/x-www-form-urlencoded'
         },
         timeout: 10000
       });
