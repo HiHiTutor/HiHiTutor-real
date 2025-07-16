@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { authApi } from '@/services/api';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -39,8 +40,15 @@ export default function LoginPage() {
       const loginEvent = new Event('login');
       window.dispatchEvent(loginEvent);
       
+      // 檢查是否有重定向參數
+      const redirectTo = searchParams.get('redirect');
+      
       setTimeout(() => {
-        router.push('/');
+        if (redirectTo) {
+          router.push(redirectTo);
+        } else {
+          router.push('/');
+        }
       }, 100);
     } catch (err) {
       console.error('登入錯誤:', err);
