@@ -365,7 +365,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
 
   const getSubjectOptions = () => {
     const category = CATEGORY_OPTIONS.find(c => c.value === filters.category);
-    if (!category) return [];
+    if (!category) return [{ value: 'unlimited', label: '不限' }];
     
     let subjects: { value: string; label: string }[] = [];
     
@@ -379,19 +379,23 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       subjects = category.subjects || [];
     }
     
-    return subjects;
+    return [
+      { value: 'unlimited', label: '不限' },
+      ...subjects
+    ];
   };
 
   const shouldShowSubjects = () => {
     const category = CATEGORY_OPTIONS.find(c => c.value === filters.category);
     if (!category || category.value === 'unlimited') return false;
 
-    // 如果有子分類，需要選擇子分類後才顯示科目
-    if (category.subCategories) {
-      return filters.subCategory && filters.subCategory.length > 0;
+    // 只有"中小學教育"有子分類，其他分類直接顯示科目
+    if (category.value === 'primary-secondary') {
+      // 如果有子分類，需要選擇子分類後才顯示科目
+      return filters.subCategory && filters.subCategory !== 'unlimited';
     }
 
-    // 如果沒有子分類但有科目，直接顯示科目
+    // 其他分類直接顯示科目
     return category.subjects && category.subjects.length > 0;
   };
 
@@ -606,8 +610,8 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                 </select>
               </div>
 
-              {/* 子分類選擇 */}
-              {filters.category && getSubOptions().length > 0 && (
+              {/* 子分類選擇 - 只在選擇"中小學教育"後顯示 */}
+              {filters.category === 'primary-secondary' && getSubOptions().length > 0 && (
                 <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
                   <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">子分類</label>
                   <select
@@ -624,8 +628,8 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                 </div>
               )}
 
-              {/* 科目選擇 */}
-              {shouldShowSubjects() && (
+              {/* 科目選擇 - 只在選擇課程分類後顯示 */}
+              {filters.category !== 'unlimited' && shouldShowSubjects() && (
                 <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
                   <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">科目</label>
                   <Listbox
