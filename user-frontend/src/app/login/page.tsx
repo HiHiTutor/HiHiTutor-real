@@ -43,13 +43,14 @@ function LoginPageContent() {
       // 檢查是否有重定向參數
       const redirectTo = searchParams.get('redirect');
       
-      setTimeout(() => {
-        if (redirectTo) {
-          router.push(redirectTo);
-        } else {
-          router.push('/');
-        }
-      }, 100);
+      console.log('登入成功，重定向到:', redirectTo || '/');
+      
+      // 立即跳轉，不使用 setTimeout
+      if (redirectTo) {
+        router.push(redirectTo);
+      } else {
+        router.push('/');
+      }
     } catch (err) {
       console.error('登入錯誤:', err);
       setError(err instanceof Error ? err.message : '登入時發生錯誤，請稍後再試');
