@@ -21,12 +21,12 @@ class SMSService {
       console.log('🔐 使用認證 URL:', this.authURL);
       console.log('🔐 Client ID:', this.clientId ? '已設置' : '未設置');
       console.log('🔐 Client Secret:', this.clientSecret ? '已設置' : '未設置');
-      
+
       // 使用 URLSearchParams 將 body 正確編碼
       const params = new URLSearchParams();
       params.append('grant_type', 'client_credentials');
       params.append('client_id', this.clientId);
-      params.append('client_secret', this.clientSecret);
+      params.append('secret', this.clientSecret); // ✅ 正確 key
 
       const response = await axios.post(`${this.authURL}/oauth/token`, params, {
         headers: {
@@ -37,7 +37,7 @@ class SMSService {
 
       console.log('✅ 訪問令牌獲取成功');
       console.log('🔐 響應狀態:', response.status);
-      return response.data.access_token;
+      return response.data.jwt || response.data.access_token;
     } catch (error) {
       console.error('❌ 獲取訪問令牌失敗:', {
         message: error.message,
