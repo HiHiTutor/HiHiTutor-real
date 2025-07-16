@@ -7,7 +7,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import About from './pages/About';
-import Contact from './pages/Contact';
+// import Contact from './pages/Contact'; // 已廢除 contact 頁面
 import Legal from './pages/Legal';
 import Articles from './pages/Articles';
 import ArticleDetail from './pages/ArticleDetail';
@@ -30,7 +30,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
+          {/* <Route path="/contact" element={<Contact />} /> */} {/* 已廢除 contact 頁面 */}
           <Route path="/legal" element={<Legal />} />
           <Route path="/articles" element={<Articles />} />
           <Route path="/articles/:id" element={<ArticleDetail />} />
