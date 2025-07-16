@@ -411,13 +411,13 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     //   }
     // }
     
-    // 分類 - 不顯示"不限"
-    if (filters.category && filters.category !== 'unlimited') {
-      const categoryOption = CATEGORY_OPTIONS.find(c => c.value === filters.category);
-      if (categoryOption) {
-        selected.push({ key: 'category', label: categoryOption.label, value: filters.category });
-      }
-    }
+    // 分類 - 永遠不顯示在已選項目中
+    // if (filters.category && filters.category !== 'unlimited') {
+    //   const categoryOption = CATEGORY_OPTIONS.find(c => c.value === filters.category);
+    //   if (categoryOption) {
+    //     selected.push({ key: 'category', label: categoryOption.label, value: filters.category });
+    //   }
+    // }
     
     // 子分類 - 不顯示"不限"
     if (filters.subCategory && filters.subCategory !== 'unlimited') {
