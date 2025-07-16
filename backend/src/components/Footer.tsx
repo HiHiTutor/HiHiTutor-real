@@ -42,9 +42,9 @@ const Footer = () => {
             <Link href="/about" className="text-gray-600 hover:text-gray-900">
               關於我們
             </Link>
-            <Link href="/contact" className="text-gray-600 hover:text-gray-900">
+            <a href="https://wa.me/85295011159" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-gray-900">
               聯絡方式
-            </Link>
+            </a>
             <Link href="/terms" className="text-gray-600 hover:text-gray-900">
               服務條款
             </Link>
