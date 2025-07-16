@@ -211,7 +211,9 @@ router.get('/', async (req, res) => {
   console.log('📥 Received request to /api/find-student-cases');
   
   try {
-    const { featured, limit, search, category, subCategory, region, regions, modes } = req.query;
+    const { featured, limit, search, category, subCategory, region, regions, modes, subjects } = req.query;
+    
+    console.log('🔍 查詢參數:', { featured, limit, search, category, subCategory, region, regions, modes, subjects });
     
     // 構建查詢條件
     const query = {};
@@ -234,24 +236,74 @@ router.get('/', async (req, res) => {
       query.subCategory = subCategory;
     }
 
+    // 如果有科目篩選
+    if (subjects && subjects.length > 0) {
+      const subjectArray = Array.isArray(subjects) ? subjects : [subjects];
+      console.log('📚 科目篩選條件:', subjectArray);
+      
+      // 檢查 subjects 字段（數組）或 subject 字段（字符串）
+      const subjectConditions = subjectArray.map(subject => ({
+        $or: [
+          { subjects: { $in: [subject] } },
+          { subject: subject }
+        ]
+      }));
+      
+      if (query.$or) {
+        // 如果已經有 $or 條件，需要合併
+        const existingOr = query.$or;
+        query.$and = [
+          { $or: existingOr },
+          { $or: subjectConditions }
+        ];
+        delete query.$or;
+      } else {
+        query.$or = subjectConditions;
+      }
+    }
+
     // 如果有地區篩選
     if (
       (region && region !== 'unlimited') ||
       (regions && regions !== 'unlimited')
     ) {
       const regionValue = region !== 'unlimited' ? region : regions;
-      query.$or = [
+      const regionConditions = [
         { region: regionValue },
         { regions: regionValue }
       ];
+      
+      if (query.$or) {
+        // 如果已經有 $or 條件，需要合併
+        const existingOr = query.$or;
+        query.$and = [
+          { $or: existingOr },
+          { $or: regionConditions }
+        ];
+        delete query.$or;
+      } else {
+        query.$or = regionConditions;
+      }
     }
 
     // 如果有教學模式篩選
     if (modes && modes !== 'unlimited') {
-      query.$or = [
+      const modeConditions = [
         { mode: modes },
         { modes: modes }
       ];
+      
+      if (query.$or) {
+        // 如果已經有 $or 條件，需要合併
+        const existingOr = query.$or;
+        query.$and = [
+          { $or: existingOr },
+          { $or: modeConditions }
+        ];
+        delete query.$or;
+      } else {
+        query.$or = modeConditions;
+      }
     }
 
     // 如果是特色案例
