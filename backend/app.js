@@ -40,7 +40,7 @@ const casesRouter = require('./routes/cases');
 const findTutorCases = require('./routes/findTutorCases');
 const findStudentCases = require('./routes/findStudentCases');
 const articlesRoutes = require('./routes/articles');
-const contactRoutes = require('./routes/contact');
+// const contactRoutes = require('./routes/contact'); // 已廢除 contact 頁面
 const faqRoutes = require('./routes/faq');
 const authRoutes = require('./routes/auth');
 const userRouter = require('./routes/user');
@@ -244,7 +244,7 @@ app.use('/api/tutor-cases', tutorCasesRouter);
 app.use('/api/user', userRouter);
 app.use('/api/applications', applicationRouter);
 app.use('/api/case-applications', caseApplicationRouter);
-app.use('/api/contact', contactRoutes);
+// app.use('/api/contact', contactRoutes); // 已廢除 contact 頁面
 app.use('/api/faq', faqRoutes);
 app.use('/api/articles', articlesRoutes);
 app.use('/api/regions', regionsRouter);

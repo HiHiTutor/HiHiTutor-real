@@ -102,7 +102,7 @@ app.use('/api/cases', caseRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/hot-subjects', hotSubjectRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/contact', contactRoutes);
+// app.use('/api/contact', contactRoutes); // 已廢除 contact 頁面
 app.use('/api/tutor-applications', tutorApplicationRoutes);
 app.use('/api/case-applications', caseApplicationRoutes);
 app.use('/api/applications', applicationRoutes);
