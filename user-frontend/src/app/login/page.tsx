@@ -52,9 +52,9 @@ function LoginPageContent() {
       
       // 立即跳轉，不使用 setTimeout
       if (redirectTo) {
-        router.push(redirectTo);
+        router.replace(redirectTo);
       } else {
-        router.push('/');
+        router.replace('/');
       }
     } catch (err) {
       console.error('登入錯誤:', err);

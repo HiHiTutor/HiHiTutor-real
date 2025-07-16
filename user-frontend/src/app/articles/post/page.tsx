@@ -16,7 +16,7 @@ export default function ArticlePostPage() {
       
       if (!token || !userData) {
         // 未登入 ➝ 跳轉至登入頁，並保存目標頁面
-        router.push('/login?redirect=/articles/post')
+        router.replace('/login?redirect=/articles/post')
         return
       }
 
@@ -25,16 +25,16 @@ export default function ArticlePostPage() {
         if (user.userType !== 'tutor') {
           // 已登入但不是導師 ➝ 跳去升級頁並提示
           alert('只有導師可以投稿文章，請先升級為導師')
-          router.push('/upgrade')
+          router.replace('/upgrade')
           return
         }
         
         // 用戶是導師，允許訪問
         setIsAuthorized(true)
-      } catch (error) {
-        console.error('解析用戶資料失敗:', error)
-        router.push('/login?redirect=/articles/post')
-      }
+             } catch (error) {
+         console.error('解析用戶資料失敗:', error)
+         router.replace('/login?redirect=/articles/post')
+       }
     }
 
     // 立即檢查
