@@ -21,7 +21,6 @@ export default function FindStudentCaseDetailPage() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [showError, setShowError] = useState(false);
-  const [showLoginMessage, setShowLoginMessage] = useState(false);
 
   useEffect(() => {
     // 從 localStorage 獲取完整的用戶資料
@@ -185,11 +184,8 @@ export default function FindStudentCaseDetailPage() {
   // 處理申請按鈕點擊
   const handleApplyClick = () => {
     if (!user) {
-      // 未登入：顯示訊息並跳轉到登入頁面
-      setShowLoginMessage(true);
-      setTimeout(() => {
-        router.push('/login');
-      }, 3000);
+      // 未登入：直接跳轉到登入頁面
+      router.push('/login');
       return;
     }
 
@@ -207,7 +203,7 @@ export default function FindStudentCaseDetailPage() {
 
   // 獲取按鈕文字
   const getButtonText = () => {
-    if (!user) return '📱 申請此個案';
+    if (!user) return '登入並申請個案';
     if (user.userType === 'student') return '立即申請成為導師';
     return '📱 申請此個案';
   };
@@ -255,14 +251,6 @@ export default function FindStudentCaseDetailPage() {
             >
               {getButtonText()}
               </button>
-            
-            {showLoginMessage && (
-              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-yellow-700 text-sm">
-                  請先登入，3秒後自動跳轉到登入頁面...
-                </p>
-              </div>
-            )}
             
             {showError && (
               <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
