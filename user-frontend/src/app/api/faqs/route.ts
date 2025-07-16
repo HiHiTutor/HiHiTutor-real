@@ -1,3 +1,6 @@
+// 強制動態渲染
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const backendRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/faqs`, { cache: 'no-store' });

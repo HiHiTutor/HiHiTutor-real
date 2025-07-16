@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+// 強制動態渲染
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: Request) {
   try {
     // 獲取查詢參數
