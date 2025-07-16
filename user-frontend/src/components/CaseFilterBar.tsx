@@ -627,7 +627,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
               {/* 科目選擇 - 只在選擇課程分類後顯示 */}
               {filters.category !== 'unlimited' && shouldShowSubjects() && (
                 <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">科目</label>
+                  <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm"></label>
                   <Listbox
                     value={filters.subjects}
                     onChange={(value) => handleFilterChange('subjects', value)}
