@@ -54,6 +54,11 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
     }));
   };
 
+  const handleForgotPassword = () => {
+    onClose();
+    router.push('/forgot-password');
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -91,6 +96,17 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
             />
           </div>
 
+          {/* 忘記密碼連結 */}
+          <div className="text-right">
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+            >
+              忘記密碼？
+            </button>
+          </div>
+
           <div className="flex flex-col space-y-3 pt-4">
             <Button 
               type="submit" 
@@ -114,11 +130,12 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
           </div>
         </form>
 
-        <div className="mt-6 text-center">
+        {/* 稍後再說連結 */}
+        <div className="text-center mt-4">
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-sm"
+            className="text-sm text-gray-500 hover:text-gray-700"
           >
             稍後再說
           </button>
