@@ -49,6 +49,31 @@ class SMSService {
     }
   }
 
+  // 發送 SMS 簡訊
+  async sendSMS(accessToken, smsData) {
+    try {
+      console.log('📱 SMS 發送參數:', smsData);
+
+      const response = await axios.post(`https://api.sms.to/sms/send`, smsData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
+        timeout: 15000
+      });
+
+      console.log('✅ SMS 發送成功:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ SMS 發送失敗:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      throw new Error('SMS.to 發送失敗: ' + error.message);
+    }
+  }
+
   // 發送 SMS 驗證碼
   async sendVerificationSMS(phoneNumber, otp, senderId = null) {
     try {
@@ -75,24 +100,13 @@ class SMSService {
         from: senderId || 'default'
       });
 
-      // 發送 SMS
-      const response = await axios.post(`${this.baseURL}/messages/sms`, smsData, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
-        },
-        timeout: 15000 // 15秒超時
-      });
-
-      console.log('✅ SMS 發送成功:', {
-        status: response.status,
-        data: response.data
-      });
+      // 使用新的 sendSMS 函數發送
+      const result = await this.sendSMS(accessToken, smsData);
 
       return {
         success: true,
         message: 'SMS sent successfully',
-        data: response.data,
+        data: result,
         otp: otp
       };
 
