@@ -241,9 +241,40 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
 
   const handleFilter = () => {
     const params = new URLSearchParams();
-    if (filters.category && filters.category !== 'unlimited') params.set('category', filters.category);
-    if (filters.subCategory && filters.subCategory !== 'unlimited') params.set('subCategory', filters.subCategory);
-    filters.subjects.forEach(subject => params.append('subjects', subject));
+    
+    // 課程分類
+    if (filters.category && filters.category !== 'unlimited') {
+      params.set('category', filters.category);
+    }
+
+    // 子分類
+    if (filters.subCategory && filters.subCategory !== 'unlimited') {
+      params.set('subCategory', filters.subCategory);
+    }
+
+    // 科目
+    if (filters.subjects.length > 0) {
+      filters.subjects.forEach(subject => params.append('subjects', subject));
+    } else {
+      // 若冇揀科目 → 自動傳出該子分類下所有科目
+      const category = CATEGORY_OPTIONS.find(c => c.value === filters.category);
+      if (category) {
+        let subjects: { value: string; label: string }[] = [];
+        
+        if (category.subCategories && filters.subCategory && filters.subCategory !== 'unlimited') {
+          const subCategory = category.subCategories.find(sc => sc.value === filters.subCategory);
+          subjects = subCategory?.subjects || [];
+        } else if (category.subCategories && filters.subCategory === 'unlimited') {
+          subjects = category.subCategories.flatMap(sc => sc.subjects || []);
+        } else {
+          subjects = category.subjects || [];
+        }
+        
+        subjects.forEach(subject => params.append('subjects', subject.value));
+      }
+    }
+
+    // 其他篩選條件
     filters.mode.forEach(mode => {
       if (mode !== 'unlimited') params.append('mode', mode);
     });
@@ -334,7 +365,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
 
   const getSubjectOptions = () => {
     const category = CATEGORY_OPTIONS.find(c => c.value === filters.category);
-    if (!category) return [{ value: 'unlimited', label: '不限' }];
+    if (!category) return [];
     
     let subjects: { value: string; label: string }[] = [];
     
@@ -348,10 +379,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       subjects = category.subjects || [];
     }
     
-    return [
-      { value: 'unlimited', label: '不限' },
-      ...subjects
-    ];
+    return subjects;
   };
 
   const shouldShowSubjects = () => {
