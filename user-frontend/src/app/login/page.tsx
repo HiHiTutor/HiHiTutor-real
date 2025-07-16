@@ -37,6 +37,11 @@ function LoginPageContent() {
       localStorage.setItem('user', JSON.stringify(userData));
       localStorage.setItem('userType', userData.userType);
       
+      // 立即設置用戶狀態到全局，避免等待 useUser hook 重新獲取
+      if (typeof window !== 'undefined') {
+        (window as any).__USER_DATA__ = userData;
+      }
+      
       const loginEvent = new Event('login');
       window.dispatchEvent(loginEvent);
       

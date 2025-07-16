@@ -13,6 +13,15 @@ export function useUser() {
   const [isLoading, setIsLoading] = useState(true)
 
   const fetchUser = async () => {
+    // 優先使用全局用戶資料（如果存在）
+    if (typeof window !== 'undefined' && (window as any).__USER_DATA__) {
+      console.log('🔍 使用全局用戶資料:', (window as any).__USER_DATA__)
+      setUser((window as any).__USER_DATA__)
+      setIsLoading(false)
+      // 清除全局資料，避免重複使用
+      delete (window as any).__USER_DATA__
+      return
+    }
     try {
       const token = localStorage.getItem('token')
       if (!token) {
