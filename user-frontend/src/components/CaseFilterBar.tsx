@@ -57,7 +57,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     category: 'unlimited', // 預設為不限
     subCategory: '', // 預設為請選擇
     subjects: [],
-    mode: ['unlimited'], // 預設為不限
+    mode: [], // 預設為空數組
     regions: ['unlimited'], // 預設為不限，改為單選
     subRegions: ['unlimited'], // 預設為不限
     priceRange: 'unlimited' // 預設為不限
@@ -276,7 +276,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
 
     // 其他篩選條件
     filters.mode.forEach(mode => {
-      if (mode !== 'unlimited') params.append('mode', mode);
+      params.append('mode', mode);
     });
     filters.regions.forEach(region => {
       if (region !== 'unlimited') params.append('regions', region);
@@ -437,9 +437,8 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       }
     });
     
-    // 教學模式 - 不顯示"不限"
+    // 教學模式
     filters.mode.forEach(mode => {
-      if (mode === 'unlimited') return;
       const modeOption = TEACHING_MODE_OPTIONS.find(m => m.value === mode);
       if (modeOption) {
         selected.push({ key: 'mode', label: modeOption.label, value: mode });
@@ -503,9 +502,6 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
           break;
         case 'mode':
           newFilters.mode = prev.mode.filter(m => m !== value);
-          if (newFilters.mode.length === 0) {
-            newFilters.mode = ['unlimited'];
-          }
           break;
         case 'regions':
           newFilters.regions = ['unlimited'];
@@ -532,9 +528,9 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     setFilters({
       target: autoTarget,
       category: 'unlimited',
-      subCategory: 'unlimited',
+      subCategory: '',
       subjects: [],
-      mode: ['unlimited'],
+      mode: [],
       regions: ['unlimited'],
       subRegions: ['unlimited'],
       priceRange: 'unlimited'

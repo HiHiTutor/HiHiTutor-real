@@ -1,11 +1,6 @@
 // 教學模式選項
 export const TEACHING_MODE_OPTIONS = [
   { 
-    value: 'unlimited', 
-    label: '不限',
-    subCategories: []
-  },
-  { 
     value: 'in-person', 
     label: '面授',
     subCategories: [
