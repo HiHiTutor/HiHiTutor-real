@@ -1,5 +1,5 @@
 console.log('🔥 App.js loaded: ', __filename);
-// Deployment trigger: 2024-03-22-3
+// Deployment trigger: 2024-07-17-1 - CORS fix
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -136,12 +136,22 @@ app.use(cors({
 
 // Handle OPTIONS preflight requests for all routes
 app.options('*', (req, res) => {
-  res.header('Access-Control-Allow-Origin', req.headers.origin);
-  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept, X-Requested-With');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Max-Age', '86400');
-  res.sendStatus(204);
+  const origin = req.headers.origin;
+  console.log('🔥 OPTIONS preflight request from origin:', origin);
+  
+  // Check if origin is allowed
+  if (!origin || allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept, X-Requested-With');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Max-Age', '86400');
+    console.log('✅ OPTIONS preflight allowed for origin:', origin);
+    res.sendStatus(204);
+  } else {
+    console.log('❌ OPTIONS preflight blocked for origin:', origin);
+    res.status(403).json({ error: 'CORS not allowed' });
+  }
 });
 
 // Body parsing middleware - BEFORE routes
