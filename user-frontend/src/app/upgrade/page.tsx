@@ -221,8 +221,10 @@ export default function UpgradePage() {
         throw new Error(errorData.message || "申請失敗");
       }
 
+      console.log("✅ 申請成功，顯示彈出視窗");
       setShowSuccessModal(true);
       setTimeout(() => {
+        console.log("🔄 5秒後自動跳轉到首頁");
         router.push("/");
       }, 5000);
     } catch (err) {
@@ -429,27 +431,34 @@ export default function UpgradePage() {
         </div>
       </div>
 
+      {/* 調試信息 */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed top-4 right-4 bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-2 rounded z-50">
+          showSuccessModal: {showSuccessModal.toString()}
+        </div>
+      )}
+
       {/* 成功彈出視窗 */}
       {showSuccessModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-md mx-4 text-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 sm:p-8 w-full max-w-sm sm:max-w-md mx-auto text-center shadow-xl">
             <div className="mb-4">
-              <svg className="h-16 w-16 text-green-500 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-12 w-12 sm:h-16 sm:w-16 text-green-500 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 leading-tight">
               申請已成功遞交，請等待管理員批核
             </h3>
-            <p className="text-sm text-gray-600 mb-6">
+            <p className="text-xs sm:text-sm text-gray-600 mb-6 leading-relaxed">
               將於5秒後返回首頁，或請
-              <Link href="/" className="text-indigo-600 hover:text-indigo-800 font-medium">
+              <Link href="/" className="text-indigo-600 hover:text-indigo-800 font-medium underline">
                 按此返回
               </Link>
             </p>
             <button
               onClick={() => router.push("/")}
-              className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors"
+              className="w-full bg-indigo-600 text-white py-3 px-4 rounded-md hover:bg-indigo-700 transition-colors text-sm sm:text-base font-medium"
             >
               立即返回首頁
             </button>
