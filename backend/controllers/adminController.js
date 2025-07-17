@@ -189,16 +189,19 @@ const testUserIdGeneration = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
-    const { page = 1, limit = 10, role, status, search, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+    const { page = 1, limit = 10, role, userType, status, search, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
     const query = {};
 
-    // 使用 userType 來過濾用戶類型（student, tutor, organization, admin）
+    // 使用 role 來過濾管理員
     if (role) {
       if (role === 'admin') {
         query.role = 'admin'; // admin 用戶的 role 是 'admin'
-      } else {
-        query.userType = role; // student, tutor, organization 用戶的 userType 是對應值
       }
+    }
+
+    // 使用 userType 來過濾用戶類型（student, tutor, organization）
+    if (userType) {
+      query.userType = userType;
     }
     
     if (status) query.status = status;
@@ -220,6 +223,7 @@ const getAllUsers = async (req, res) => {
       page: parseInt(page),
       limit: parseInt(limit),
       role,
+      userType,
       status,
       search,
       sortBy: validSortBy,

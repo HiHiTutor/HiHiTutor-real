@@ -33,6 +33,7 @@ const Users: React.FC = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [roleFilter, setRoleFilter] = useState('');
+  const [userTypeFilter, setUserTypeFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [totalCount, setTotalCount] = useState(0);
   const [sortField, setSortField] = useState<SortField>('createdAt');
@@ -46,6 +47,7 @@ const Users: React.FC = () => {
           page: page + 1,
           limit: rowsPerPage,
           role: roleFilter,
+          userType: userTypeFilter,
           search: searchQuery,
           sortBy: sortField,
           sortOrder: sortOrder,
@@ -66,7 +68,7 @@ const Users: React.FC = () => {
     };
 
     fetchUsers();
-  }, [dispatch, page, rowsPerPage, roleFilter, searchQuery, sortField, sortOrder]);
+  }, [dispatch, page, rowsPerPage, roleFilter, userTypeFilter, searchQuery, sortField, sortOrder]);
 
   const handleSort = (field: SortField) => {
     const isAsc = sortField === field && sortOrder === 'asc';
@@ -163,7 +165,8 @@ const Users: React.FC = () => {
           size="small"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          sx={{ width: 200 }}
+          placeholder="Search name, email, userId..."
+          sx={{ width: 250 }}
         />
         <TextField
           select
@@ -172,13 +175,24 @@ const Users: React.FC = () => {
           size="small"
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
-          sx={{ width: 150 }}
+          sx={{ width: 120 }}
         >
           <MenuItem value="">All Roles</MenuItem>
+          <MenuItem value="admin">Admin</MenuItem>
+        </TextField>
+        <TextField
+          select
+          label="User Type"
+          variant="outlined"
+          size="small"
+          value={userTypeFilter}
+          onChange={(e) => setUserTypeFilter(e.target.value)}
+          sx={{ width: 150 }}
+        >
+          <MenuItem value="">All User Types</MenuItem>
           <MenuItem value="student">Student</MenuItem>
           <MenuItem value="tutor">Tutor</MenuItem>
           <MenuItem value="organization">Organization</MenuItem>
-          <MenuItem value="admin">Admin</MenuItem>
         </TextField>
       </Box>
 

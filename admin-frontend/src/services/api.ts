@@ -128,6 +128,7 @@ export const usersAPI = {
     page?: number;
     limit?: number;
     role?: string;
+    userType?: string;
     search?: string;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
