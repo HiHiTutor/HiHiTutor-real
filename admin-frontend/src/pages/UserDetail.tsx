@@ -18,6 +18,8 @@ import {
   Alert,
   FormControlLabel,
   Checkbox,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { usersAPI } from '../services/api';
@@ -52,6 +54,26 @@ interface EditFormData {
     specialties: string[];
     documents: string[];
     applicationStatus: 'pending' | 'approved' | 'rejected';
+    gender?: 'male' | 'female';
+    birthDate?: string;
+    teachingExperienceYears?: number;
+    educationLevel?: string;
+    subjects?: string[];
+    examResults?: Array<{
+      subject: string;
+      grade: string;
+    }>;
+    teachingAreas?: string[];
+    availableTime?: Array<{
+      day: string;
+      time: string;
+    }>;
+    teachingMethods?: string[];
+    classType?: string[];
+    sessionRate?: number;
+    introduction?: string;
+    courseFeatures?: string;
+    avatarUrl?: string;
   };
   subjects: string[];
   teachingAreas: string[];
@@ -70,6 +92,7 @@ const UserDetail: React.FC = () => {
   const dispatch = useAppDispatch();
   const { selectedUser } = useAppSelector((state) => state.users);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editTabValue, setEditTabValue] = useState(0);
   const [editForm, setEditForm] = useState<EditFormData>({
     userId: '',
     tutorId: '',
@@ -167,13 +190,27 @@ const UserDetail: React.FC = () => {
           businessRegistration: '',
           addressProof: ''
         },
-        tutorProfile: userData.tutorProfile || {
-          education: '',
-          experience: '',
-          specialties: [],
-          documents: [],
-          applicationStatus: 'pending'
-        },
+            tutorProfile: userData.tutorProfile || {
+      education: '',
+      experience: '',
+      specialties: [],
+      documents: [],
+      applicationStatus: 'pending',
+      gender: undefined,
+      birthDate: '',
+      teachingExperienceYears: 0,
+      educationLevel: '',
+      subjects: [],
+      examResults: [],
+      teachingAreas: [],
+      availableTime: [],
+      teachingMethods: [],
+      classType: [],
+      sessionRate: 0,
+      introduction: '',
+      courseFeatures: '',
+      avatarUrl: ''
+    },
         subjects: userData.subjects || [],
         teachingAreas: userData.teachingAreas || [],
         teachingMethods: userData.teachingMethods || [],
@@ -731,152 +768,342 @@ const UserDetail: React.FC = () => {
       <Dialog
         open={isEditDialogOpen}
         onClose={() => setIsEditDialogOpen(false)}
-        maxWidth="sm"
+        maxWidth="md"
         fullWidth
       >
         <DialogTitle>編輯用戶</DialogTitle>
         <DialogContent>
-          <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField
-              label="用戶編號"
-              fullWidth
-              value={editForm.userId}
-              onChange={handleInputChange}
-              name="userId"
-            />
-            <TextField
-              label="姓名"
-              fullWidth
-              value={editForm.name}
-              onChange={handleInputChange}
-              name="name"
-            />
-            <TextField
-              label="Email"
-              fullWidth
-              value={editForm.email}
-              onChange={handleInputChange}
-              name="email"
-            />
-            <TextField
-              label="電話"
-              fullWidth
-              value={editForm.phone}
-              onChange={handleInputChange}
-              name="phone"
-            />
-            {editForm.userType === 'tutor' && (
+          <Tabs 
+            value={editTabValue} 
+            onChange={(e, newValue) => setEditTabValue(newValue)}
+            sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}
+          >
+            <Tab label="基本資料" />
+            {editForm.userType === 'tutor' && <Tab label="導師資料" />}
+            <Tab label="詳細資料" />
+          </Tabs>
+          
+          {/* 基本資料標籤頁 */}
+          {editTabValue === 0 && (
+            <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
               <TextField
-                label="導師編號"
+                label="用戶編號"
                 fullWidth
-                value={editForm.tutorId}
+                value={editForm.userId}
                 onChange={handleInputChange}
-                name="tutorId"
+                name="userId"
               />
-            )}
-            <TextField
-              select
-              label="用戶類型"
-              fullWidth
-              value={editForm.userType}
-              onChange={handleInputChange}
-              name="userType"
-            >
-              <MenuItem value="student">學生</MenuItem>
-              <MenuItem value="tutor">導師</MenuItem>
-              <MenuItem value="organization">機構</MenuItem>
-            </TextField>
-            <TextField
-              select
-              label="角色"
-              fullWidth
-              value={editForm.role}
-              onChange={handleInputChange}
-              name="role"
-            >
-              <MenuItem value="user">用戶</MenuItem>
-              <MenuItem value="admin">管理員</MenuItem>
-            </TextField>
-            <TextField
-              select
-              label="狀態"
-              fullWidth
-              value={editForm.status}
-              onChange={handleInputChange}
-              name="status"
-            >
-              <MenuItem value="active">啟用</MenuItem>
-              <MenuItem value="pending">待審核</MenuItem>
-              <MenuItem value="blocked">已封鎖</MenuItem>
-            </TextField>
-            <TextField
-              select
-              label="付費類型"
-              fullWidth
-              value={editForm.paymentType}
-              onChange={handleInputChange}
-              name="paymentType"
-            >
-              <MenuItem value="free">免費</MenuItem>
-              <MenuItem value="basic">基本</MenuItem>
-              <MenuItem value="premium">高級</MenuItem>
-              <MenuItem value="vip">VIP</MenuItem>
-            </TextField>
-            <TextField
-              label="推廣等級"
-              type="number"
-              fullWidth
-              value={editForm.promotionLevel}
-              onChange={handleInputChange}
-              name="promotionLevel"
-              inputProps={{ min: 0, max: 5 }}
-              helperText="推廣等級：0-5"
-            />
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={editForm.isVip || false}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, isVip: e.target.checked }))}
-                  />
-                }
-                label="VIP用戶"
+              <TextField
+                label="姓名"
+                fullWidth
+                value={editForm.name}
+                onChange={handleInputChange}
+                name="name"
               />
-              {editForm.isVip && (
+              <TextField
+                label="Email"
+                fullWidth
+                value={editForm.email}
+                onChange={handleInputChange}
+                name="email"
+              />
+              <TextField
+                label="電話"
+                fullWidth
+                value={editForm.phone}
+                onChange={handleInputChange}
+                name="phone"
+              />
+              {editForm.userType === 'tutor' && (
                 <TextField
-                  label="VIP等級"
-                  type="number"
-                  value={editForm.vipLevel}
+                  label="導師編號"
+                  fullWidth
+                  value={editForm.tutorId}
                   onChange={handleInputChange}
-                  name="vipLevel"
-                  inputProps={{ min: 0, max: 2 }}
-                  helperText="VIP等級：0-2"
+                  name="tutorId"
                 />
               )}
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={editForm.isTop || false}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, isTop: e.target.checked }))}
-                  />
-                }
-                label="置頂用戶"
+              <TextField
+                select
+                label="用戶類型"
+                fullWidth
+                value={editForm.userType}
+                onChange={handleInputChange}
+                name="userType"
+              >
+                <MenuItem value="student">學生</MenuItem>
+                <MenuItem value="tutor">導師</MenuItem>
+                <MenuItem value="organization">機構</MenuItem>
+              </TextField>
+              <TextField
+                select
+                label="角色"
+                fullWidth
+                value={editForm.role}
+                onChange={handleInputChange}
+                name="role"
+              >
+                <MenuItem value="user">用戶</MenuItem>
+                <MenuItem value="admin">管理員</MenuItem>
+              </TextField>
+              <TextField
+                select
+                label="狀態"
+                fullWidth
+                value={editForm.status}
+                onChange={handleInputChange}
+                name="status"
+              >
+                <MenuItem value="active">啟用</MenuItem>
+                <MenuItem value="pending">待審核</MenuItem>
+                <MenuItem value="blocked">已封鎖</MenuItem>
+              </TextField>
+              <TextField
+                select
+                label="付費類型"
+                fullWidth
+                value={editForm.paymentType}
+                onChange={handleInputChange}
+                name="paymentType"
+              >
+                <MenuItem value="free">免費</MenuItem>
+                <MenuItem value="basic">基本</MenuItem>
+                <MenuItem value="premium">高級</MenuItem>
+                <MenuItem value="vip">VIP</MenuItem>
+              </TextField>
+              <TextField
+                label="推廣等級"
+                type="number"
+                fullWidth
+                value={editForm.promotionLevel}
+                onChange={handleInputChange}
+                name="promotionLevel"
+                inputProps={{ min: 0, max: 5 }}
+                helperText="推廣等級：0-5"
               />
-              {editForm.isTop && (
-                <TextField
-                  label="置頂等級"
-                  type="number"
-                  value={editForm.topLevel}
-                  onChange={handleInputChange}
-                  name="topLevel"
-                  inputProps={{ min: 0, max: 2 }}
-                  helperText="置頂等級：0-2"
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={editForm.isVip || false}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, isVip: e.target.checked }))}
+                    />
+                  }
+                  label="VIP用戶"
                 />
-              )}
+                {editForm.isVip && (
+                  <TextField
+                    label="VIP等級"
+                    type="number"
+                    value={editForm.vipLevel}
+                    onChange={handleInputChange}
+                    name="vipLevel"
+                    inputProps={{ min: 0, max: 2 }}
+                    helperText="VIP等級：0-2"
+                  />
+                )}
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={editForm.isTop || false}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, isTop: e.target.checked }))}
+                    />
+                  }
+                  label="置頂用戶"
+                />
+                {editForm.isTop && (
+                  <TextField
+                    label="置頂等級"
+                    type="number"
+                    value={editForm.topLevel}
+                    onChange={handleInputChange}
+                    name="topLevel"
+                    inputProps={{ min: 0, max: 2 }}
+                    helperText="置頂等級：0-2"
+                  />
+                )}
+              </Box>
             </Box>
-          </Box>
+          )}
+          
+          {/* 導師資料標籤頁 */}
+          {editTabValue === 1 && editForm.userType === 'tutor' && (
+            <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <TextField
+                select
+                label="性別"
+                fullWidth
+                value={editForm.tutorProfile.gender || ''}
+                onChange={(e) => setEditForm(prev => ({
+                  ...prev,
+                  tutorProfile: {
+                    ...prev.tutorProfile,
+                    gender: e.target.value as 'male' | 'female' | undefined
+                  }
+                }))}
+              >
+                <MenuItem value="">未選擇</MenuItem>
+                <MenuItem value="male">男</MenuItem>
+                <MenuItem value="female">女</MenuItem>
+              </TextField>
+              
+              <TextField
+                label="出生日期"
+                type="date"
+                fullWidth
+                value={editForm.tutorProfile.birthDate || ''}
+                onChange={(e) => setEditForm(prev => ({
+                  ...prev,
+                  tutorProfile: {
+                    ...prev.tutorProfile,
+                    birthDate: e.target.value
+                  }
+                }))}
+                InputLabelProps={{ shrink: true }}
+              />
+              
+              <TextField
+                label="教學經驗年數"
+                type="number"
+                fullWidth
+                value={editForm.tutorProfile.teachingExperienceYears || 0}
+                onChange={(e) => setEditForm(prev => ({
+                  ...prev,
+                  tutorProfile: {
+                    ...prev.tutorProfile,
+                    teachingExperienceYears: parseInt(e.target.value) || 0
+                  }
+                }))}
+                inputProps={{ min: 0, max: 50 }}
+              />
+              
+              <TextField
+                label="學歷等級"
+                fullWidth
+                value={editForm.tutorProfile.educationLevel || ''}
+                onChange={(e) => setEditForm(prev => ({
+                  ...prev,
+                  tutorProfile: {
+                    ...prev.tutorProfile,
+                    educationLevel: e.target.value
+                  }
+                }))}
+              />
+              
+              <TextField
+                label="堂費 (HK$)"
+                type="number"
+                fullWidth
+                value={editForm.tutorProfile.sessionRate || 0}
+                onChange={(e) => setEditForm(prev => ({
+                  ...prev,
+                  tutorProfile: {
+                    ...prev.tutorProfile,
+                    sessionRate: parseInt(e.target.value) || 0
+                  }
+                }))}
+                inputProps={{ min: 100 }}
+                helperText="最低堂費：HK$ 100"
+              />
+              
+              <TextField
+                select
+                label="申請狀態"
+                fullWidth
+                value={editForm.tutorProfile.applicationStatus}
+                onChange={(e) => setEditForm(prev => ({
+                  ...prev,
+                  tutorProfile: {
+                    ...prev.tutorProfile,
+                    applicationStatus: e.target.value as 'pending' | 'approved' | 'rejected'
+                  }
+                }))}
+              >
+                <MenuItem value="pending">待審核</MenuItem>
+                <MenuItem value="approved">已批准</MenuItem>
+                <MenuItem value="rejected">已拒絕</MenuItem>
+              </TextField>
+              
+              <TextField
+                label="自我介紹"
+                multiline
+                rows={4}
+                fullWidth
+                value={editForm.tutorProfile.introduction || ''}
+                onChange={(e) => setEditForm(prev => ({
+                  ...prev,
+                  tutorProfile: {
+                    ...prev.tutorProfile,
+                    introduction: e.target.value
+                  }
+                }))}
+              />
+              
+              <TextField
+                label="課程特色"
+                multiline
+                rows={3}
+                fullWidth
+                value={editForm.tutorProfile.courseFeatures || ''}
+                onChange={(e) => setEditForm(prev => ({
+                  ...prev,
+                  tutorProfile: {
+                    ...prev.tutorProfile,
+                    courseFeatures: e.target.value
+                  }
+                }))}
+              />
+            </Box>
+          )}
+          
+          {/* 詳細資料標籤頁 */}
+          {editTabValue === 2 && (
+            <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <TextField
+                label="自我介紹"
+                multiline
+                rows={4}
+                fullWidth
+                value={editForm.introduction || ''}
+                onChange={handleInputChange}
+                name="introduction"
+              />
+              
+              <TextField
+                label="評分"
+                type="number"
+                fullWidth
+                value={editForm.rating || 0}
+                onChange={handleInputChange}
+                name="rating"
+                inputProps={{ min: 0, max: 5, step: 0.1 }}
+                helperText="評分：0-5"
+              />
+              
+              <TextField
+                label="時薪 (HK$)"
+                type="number"
+                fullWidth
+                value={editForm.hourlyRate || 0}
+                onChange={handleInputChange}
+                name="hourlyRate"
+                inputProps={{ min: 0 }}
+              />
+              
+              <TextField
+                label="教學經驗"
+                type="number"
+                fullWidth
+                value={editForm.experience || 0}
+                onChange={handleInputChange}
+                name="experience"
+                inputProps={{ min: 0 }}
+                helperText="教學經驗年數"
+              />
+            </Box>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsEditDialogOpen(false)}>取消</Button>
