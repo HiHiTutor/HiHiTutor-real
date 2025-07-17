@@ -58,6 +58,7 @@ const smsRoutes = require('./routes/sms');
 const adRoutes = require('./routes/adRoutes');
 const adminConfigRoutes = require('./routes/adminConfig');
 const superAdminRoutes = require('./routes/superAdmin');
+const fixIndexRoutes = require('./routes/fixIndex');
 // const teachingModesRouter = require('./routes/teachingModes'); // 暫時註解掉
 
 const app = express();
@@ -256,6 +257,7 @@ app.use('/api/sms', smsRoutes);
 app.use('/api/ads', adRoutes);
 app.use('/api/admin/config', adminConfigRoutes);
 app.use('/api/super-admin', superAdminRoutes);
+app.use('/api/fix', fixIndexRoutes);
 // app.use('/api/teaching-modes', teachingModesRouter); // 暫時註解掉
 
 // Serve uploaded files
