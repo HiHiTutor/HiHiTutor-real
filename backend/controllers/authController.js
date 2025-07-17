@@ -387,6 +387,13 @@ const register = async (req, res) => {
         userId
       };
 
+      // 只有 userType === 'tutor' 才加入 tutorId
+      if (userType === 'tutor') {
+        const tutorId = await generateTutorId();
+        userData.tutorId = tutorId;
+        console.log('🎓 為導師用戶生成 tutorId:', tutorId);
+      }
+
       // 當 userType 為 student 時，不設置 tutorProfile，讓它使用預設值
       // 當 userType 為 organization 時，也不設置 tutorProfile
 
