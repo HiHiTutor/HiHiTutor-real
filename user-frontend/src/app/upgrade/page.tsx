@@ -30,6 +30,7 @@ export default function UpgradePage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>("");
   const [availableSubjects, setAvailableSubjects] = useState<SubjectOption[]>([]);
@@ -220,9 +221,9 @@ export default function UpgradePage() {
         throw new Error(errorData.message || "申請失敗");
       }
 
-      setMessage("✅ 申請已成功提交！我們已收到您的導師申請，後台管理員將會審核您的資料。審核結果將通過電郵通知您，請耐心等待。");
+      setShowSuccessModal(true);
       setTimeout(() => {
-        router.push("/profile");
+        router.push("/");
       }, 5000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "提交失敗，請稍後再試");
@@ -427,6 +428,34 @@ export default function UpgradePage() {
           </form>
         </div>
       </div>
+
+      {/* 成功彈出視窗 */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md mx-4 text-center">
+            <div className="mb-4">
+              <svg className="h-16 w-16 text-green-500 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+              申請已成功遞交，請等待管理員批核
+            </h3>
+            <p className="text-sm text-gray-600 mb-6">
+              將於5秒後返回首頁，或請
+              <Link href="/" className="text-indigo-600 hover:text-indigo-800 font-medium">
+                按此返回
+              </Link>
+            </p>
+            <button
+              onClick={() => router.push("/")}
+              className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors"
+            >
+              立即返回首頁
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 
