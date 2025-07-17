@@ -12,38 +12,33 @@ import { toast } from 'react-hot-toast';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
-import { CalendarIcon, Upload } from 'lucide-react';
+import { CalendarIcon, Upload, X, Plus, Edit, Eye, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { tutorApi } from '@/services/api';
 import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 import REGION_OPTIONS from '@/constants/regionOptions';
 import TEACHING_MODE_OPTIONS from '@/constants/teachingModeOptions';
 
-// 可授課時間
-const AVAILABLE_TIMES = [
-  '星期一 上午',
-  '星期一 下午',
-  '星期一 晚上',
-  '星期二 上午',
-  '星期二 下午',
-  '星期二 晚上',
-  '星期三 上午',
-  '星期三 下午',
-  '星期三 晚上',
-  '星期四 上午',
-  '星期四 下午',
-  '星期四 晚上',
-  '星期五 上午',
-  '星期五 下午',
-  '星期五 晚上',
-  '星期六 上午',
-  '星期六 下午',
-  '星期六 晚上',
-  '星期日 上午',
-  '星期日 下午',
-  '星期日 晚上'
+// 時間段選項
+const TIME_SLOTS = [
+  { value: '08:00-12:00', label: '08:00 - 12:00' },
+  { value: '12:00-18:00', label: '12:00 - 18:00' },
+  { value: '18:00-21:00', label: '18:00 - 21:00' }
+];
+
+// 星期選項
+const WEEKDAYS = [
+  { value: 'monday', label: '星期一' },
+  { value: 'tuesday', label: '星期二' },
+  { value: 'wednesday', label: '星期三' },
+  { value: 'thursday', label: '星期四' },
+  { value: 'friday', label: '星期五' },
+  { value: 'saturday', label: '星期六' },
+  { value: 'sunday', label: '星期日' }
 ];
 
 interface TutorProfile {
@@ -65,7 +60,7 @@ interface TutorProfile {
   courseFeatures: string;
   documents: {
     idCard: string;
-    educationCert: string;
+    educationCert: string[];
   };
   profileStatus?: 'pending' | 'approved' | 'rejected';
   remarks?: string;
@@ -111,7 +106,7 @@ export default function TutorDashboardPage() {
     courseFeatures: '',
     documents: {
       idCard: '',
-      educationCert: ''
+      educationCert: []
     }
   });
   const [loading, setLoading] = useState(true);
@@ -123,6 +118,19 @@ export default function TutorDashboardPage() {
 
   // 添加部分保存的狀態
   const [savingSection, setSavingSection] = useState<string | null>(null);
+
+  // 新增狀態管理
+  const [showSubjectEditor, setShowSubjectEditor] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string>('');
+  const [newSubjects, setNewSubjects] = useState<string[]>([]);
+  const [selectedTeachingMode, setSelectedTeachingMode] = useState<string>('');
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+  const [selectedWeekday, setSelectedWeekday] = useState<string>('');
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('');
+  const [newAvailableTimes, setNewAvailableTimes] = useState<string[]>([]);
+  const [showIdCard, setShowIdCard] = useState(false);
+  const [publicCertificates, setPublicCertificates] = useState<string[]>([]);
 
   useEffect(() => {
     fetchTutorProfile();
@@ -147,6 +155,8 @@ export default function TutorDashboardPage() {
 
       const data = await tutorApi.getProfile();
       setFormData(data);
+      setNewSubjects(data.subjects || []);
+      setNewAvailableTimes(data.availableTime || []);
     } catch (error) {
       console.error('獲取資料失敗:', error);
       toast.error(error instanceof Error ? error.message : '獲取資料失敗，請稍後再試');
@@ -167,7 +177,6 @@ export default function TutorDashboardPage() {
       await tutorApi.updateProfile(formData);
       
       toast.success('資料已提交審核，請等待管理員審批');
-      // 重新獲取資料以更新審批狀態
       await fetchTutorProfile();
     } catch (error) {
       console.error('Error updating tutor profile:', error);
@@ -186,13 +195,11 @@ export default function TutorDashboardPage() {
       const formData = new FormData();
       formData.append('avatar', file);
 
-      // 從 localStorage 獲取 token
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('未登入');
       }
 
-      // 從 localStorage 獲取 userId
       const userStr = localStorage.getItem('user');
       if (!userStr) {
         throw new Error('找不到用戶資料');
@@ -223,13 +230,11 @@ export default function TutorDashboardPage() {
       const formData = new FormData();
       formData.append('file', file);
 
-      // 從 localStorage 獲取 token
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('未登入');
       }
 
-      // 使用 Next.js API 路由上傳文件
       const response = await fetch('/api/upload', {
         method: 'POST',
         headers: {
@@ -241,13 +246,25 @@ export default function TutorDashboardPage() {
       if (!response.ok) throw new Error('上傳文件失敗');
       
       const data = await response.json();
-      setFormData(prev => ({
-        ...prev,
-        documents: {
-          ...prev.documents,
-          [type]: data.url
-        }
-      }));
+      
+      if (type === 'idCard') {
+        setFormData((prev: TutorProfile) => ({
+          ...prev,
+          documents: {
+            ...prev.documents,
+            idCard: data.url
+          }
+        }));
+      } else {
+        setFormData((prev: TutorProfile) => ({
+          ...prev,
+          documents: {
+            ...prev.documents,
+            educationCert: [...(prev.documents.educationCert || []), data.url]
+          }
+        }));
+      }
+      
       toast.success('文件上傳成功');
     } catch (error) {
       console.error('Error uploading document:', error);
@@ -263,18 +280,15 @@ export default function TutorDashboardPage() {
     if (type === 'day') setBirthDay(value);
 
     if (type === 'year' || type === 'month') {
-      // 如果年份或月份改變，重置日期
       setBirthDay(undefined);
     }
 
-    // 當所有值都存在時，更新 formData
     if (birthYear && birthMonth && birthDay) {
       const newDate = new Date(birthYear, birthMonth - 1, birthDay);
-      setFormData({ ...formData, birthDate: newDate });
+      setFormData((prev: TutorProfile) => ({ ...prev, birthDate: newDate }));
     }
   };
 
-  // 部分保存函數
   const handleSectionSave = async (section: string, data: Partial<TutorProfile>) => {
     try {
       setSavingSection(section);
@@ -284,9 +298,7 @@ export default function TutorDashboardPage() {
       }
 
       await tutorApi.updateProfile(data);
-
-      toast.success('資料已提交審核，請等待管理員審批');
-      // 重新獲取資料以更新審批狀態
+      toast.success('成功提交更新，等待管理員審批');
       await fetchTutorProfile();
     } catch (error) {
       console.error('更新失敗:', error);
@@ -296,12 +308,84 @@ export default function TutorDashboardPage() {
     }
   };
 
+  // 科目選擇相關函數
+  const handleCategoryChange = (categoryValue: string) => {
+    setSelectedCategory(categoryValue);
+    setSelectedSubCategory('');
+  };
+
+  const handleSubCategoryChange = (subCategoryValue: string) => {
+    setSelectedSubCategory(subCategoryValue);
+  };
+
+  const handleSubjectToggle = (subjectValue: string) => {
+    setNewSubjects((prev: string[]) => 
+      prev.includes(subjectValue) 
+        ? prev.filter(s => s !== subjectValue)
+        : [...prev, subjectValue]
+    );
+  };
+
+  const handleSubjectSave = () => {
+    setFormData((prev: TutorProfile) => ({ ...prev, subjects: newSubjects }));
+    setShowSubjectEditor(false);
+  };
+
+  // 教學模式相關函數
+  const handleTeachingModeChange = (mode: string) => {
+    setSelectedTeachingMode(mode);
+    if (mode !== 'in-person') {
+      setSelectedLocations([]);
+    }
+  };
+
+  const handleLocationToggle = (locationValue: string) => {
+    setSelectedLocations((prev: string[]) => 
+      prev.includes(locationValue) 
+        ? prev.filter(l => l !== locationValue)
+        : [...prev, locationValue]
+    );
+  };
+
+  // 時間選擇相關函數
+  const handleAddTimeSlot = () => {
+    if (selectedWeekday && selectedTimeSlot) {
+      const weekdayLabel = WEEKDAYS.find(w => w.value === selectedWeekday)?.label;
+      const timeLabel = TIME_SLOTS.find(t => t.value === selectedTimeSlot)?.label;
+      const newTimeSlot = `${weekdayLabel} ${timeLabel}`;
+      
+      if (!newAvailableTimes.includes(newTimeSlot)) {
+        setNewAvailableTimes((prev: string[]) => [...prev, newTimeSlot]);
+      }
+      
+      setSelectedWeekday('');
+      setSelectedTimeSlot('');
+    }
+  };
+
+  const handleRemoveTimeSlot = (timeSlot: string) => {
+    setNewAvailableTimes((prev: string[]) => prev.filter(t => t !== timeSlot));
+  };
+
+  const handleTimeSave = () => {
+    setFormData((prev: TutorProfile) => ({ ...prev, availableTime: newAvailableTimes }));
+  };
+
+  // 證書公開性切換
+  const handleCertificateVisibility = (certUrl: string) => {
+    setPublicCertificates((prev: string[]) => 
+      prev.includes(certUrl) 
+        ? prev.filter(c => c !== certUrl)
+        : [...prev, certUrl]
+    );
+  };
+
   if (loading) {
     return <div className="container mx-auto py-8 text-center">載入中...</div>;
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 px-4 max-w-6xl">
       {/* 審批狀態顯示 */}
       {formData.profileStatus && formData.profileStatus !== 'approved' && (
         <Card className="mb-6">
@@ -383,17 +467,6 @@ export default function TutorDashboardPage() {
                 <p className="text-sm text-gray-500">
                   建議上傳正方形照片，大小不超過 2MB
                 </p>
-                {formData.avatar && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => router.push('/tutor/avatar-editor')}
-                    className="mt-2"
-                  >
-                    調整頭像位置
-                  </Button>
-                )}
               </div>
             </div>
 
@@ -435,7 +508,6 @@ export default function TutorDashboardPage() {
             <div className="space-y-2">
               <Label>出生日期</Label>
               <div className="grid grid-cols-3 gap-4">
-                {/* 年份選擇 */}
                 <Select
                   value={birthYear?.toString() || ''}
                   onValueChange={(value) => handleBirthDateChange('year', parseInt(value))}
@@ -452,7 +524,6 @@ export default function TutorDashboardPage() {
                   </SelectContent>
                 </Select>
 
-                {/* 月份選擇 */}
                 <Select
                   value={birthMonth?.toString() || ''}
                   onValueChange={(value) => handleBirthDateChange('month', parseInt(value))}
@@ -470,7 +541,6 @@ export default function TutorDashboardPage() {
                   </SelectContent>
                 </Select>
 
-                {/* 日期選擇 */}
                 <Select
                   value={birthDay?.toString() || ''}
                   onValueChange={(value) => handleBirthDateChange('day', parseInt(value))}
@@ -489,28 +559,7 @@ export default function TutorDashboardPage() {
                 </Select>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* 教學資料 */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>教學資料</CardTitle>
-            <Button
-              type="button"
-              onClick={() => handleSectionSave('teaching', {
-                subjects: formData.subjects,
-                teachingMethods: formData.teachingMethods,
-                teachingAreas: formData.teachingAreas,
-                availableTime: formData.availableTime,
-                hourlyRate: formData.hourlyRate,
-              })}
-              disabled={savingSection === 'teaching'}
-            >
-              {savingSection === 'teaching' ? '保存中...' : '保存'}
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-6">
             {/* 學歷 */}
             <div className="space-y-2">
               <Label htmlFor="education">學歷</Label>
@@ -536,71 +585,6 @@ export default function TutorDashboardPage() {
               />
             </div>
 
-            {/* 教授科目 */}
-            <div className="space-y-2">
-              <Label>教授科目</Label>
-              <div className="grid grid-cols-2 gap-4">
-                {CATEGORY_OPTIONS.map((category) => (
-                  <div key={category.value} className="space-y-2">
-                    <div className="font-medium">{category.label}</div>
-                    {category.subjects && category.subjects.map((subject) => (
-                      <div key={subject.value} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={subject.value}
-                          checked={formData.subjects.includes(subject.value)}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              setFormData(prev => ({
-                                ...prev,
-                                subjects: [...prev.subjects, subject.value]
-                              }));
-                            } else {
-                              setFormData(prev => ({
-                                ...prev,
-                                subjects: prev.subjects.filter(s => s !== subject.value)
-                              }));
-                            }
-                          }}
-                        />
-                        <Label htmlFor={subject.value} className="text-sm">
-                          {subject.label}
-                        </Label>
-                      </div>
-                    ))}
-                    {category.subCategories && category.subCategories.map((subCategory) => (
-                      <div key={subCategory.value} className="ml-4 space-y-1">
-                        <div className="font-medium text-sm">{subCategory.label}</div>
-                        {subCategory.subjects.map((subject) => (
-                          <div key={subject.value} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={subject.value}
-                              checked={formData.subjects.includes(subject.value)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setFormData(prev => ({
-                                    ...prev,
-                                    subjects: [...prev.subjects, subject.value]
-                                  }));
-                                } else {
-                                  setFormData(prev => ({
-                                    ...prev,
-                                    subjects: prev.subjects.filter(s => s !== subject.value)
-                                  }));
-                                }
-                              }}
-                            />
-                            <Label htmlFor={subject.value} className="text-sm">
-                              {subject.label}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </div>
-
             {/* 相關科目公開試成績 */}
             <div className="space-y-2">
               <Label htmlFor="examResults">相關科目公開試成績</Label>
@@ -612,98 +596,229 @@ export default function TutorDashboardPage() {
                 required
               />
             </div>
+          </CardContent>
+        </Card>
 
-            {/* 上堂地區 */}
+        {/* 教學資料 */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>教學資料</CardTitle>
+            <Button
+              type="button"
+              onClick={() => handleSectionSave('teaching', {
+                subjects: formData.subjects,
+                teachingMethods: formData.teachingMethods,
+                teachingAreas: formData.teachingAreas,
+                availableTime: formData.availableTime,
+                hourlyRate: formData.hourlyRate,
+              })}
+              disabled={savingSection === 'teaching'}
+            >
+              {savingSection === 'teaching' ? '保存中...' : '保存'}
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* 教授科目 */}
             <div className="space-y-4">
-              <Label>上堂地區</Label>
-              <div className="grid grid-cols-2 gap-4">
-                {REGION_OPTIONS.map((region) => (
-                  <div key={region.value} className="space-y-2">
-                    <div className="font-medium">{region.label}</div>
-                    {region.regions.map((area) => (
-                      <div key={area.value} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={area.value}
-                          checked={formData.teachingAreas.includes(area.value)}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              setFormData(prev => ({
-                                ...prev,
-                                teachingAreas: [...prev.teachingAreas, area.value]
-                              }));
-                            } else {
-                              setFormData(prev => ({
-                                ...prev,
-                                teachingAreas: prev.teachingAreas.filter(a => a !== area.value)
-                              }));
+              <div className="flex items-center justify-between">
+                <Label>教授科目</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSubjectEditor(true)}
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  更改
+                </Button>
+              </div>
+              
+              {/* 顯示當前科目 */}
+              <div className="space-y-2">
+                <p className="text-sm text-gray-600">當前可教授科目：</p>
+                <div className="flex flex-wrap gap-2">
+                  {formData.subjects.length > 0 ? (
+                    formData.subjects.map((subject) => {
+                      // 找到科目標籤
+                      let subjectLabel = subject;
+                      for (const category of CATEGORY_OPTIONS) {
+                        if (category.subjects) {
+                          const found = category.subjects.find(s => s.value === subject);
+                          if (found) {
+                            subjectLabel = `${category.label} > ${found.label}`;
+                            break;
+                          }
+                        }
+                        if (category.subCategories) {
+                          for (const subCategory of category.subCategories) {
+                            const found = subCategory.subjects.find(s => s.value === subject);
+                            if (found) {
+                              subjectLabel = `${category.label} > ${subCategory.label} > ${found.label}`;
+                              break;
                             }
-                          }}
-                        />
-                        <Label htmlFor={area.value} className="text-sm">
-                          {area.label}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                ))}
+                          }
+                        }
+                      }
+                      return (
+                        <Badge key={subject} variant="secondary">
+                          {subjectLabel}
+                        </Badge>
+                      );
+                    })
+                  ) : (
+                    <p className="text-gray-500">暫無可教授科目</p>
+                  )}
+                </div>
               </div>
             </div>
+
+            {/* 教學模式 */}
+            <div className="space-y-4">
+              <Label>教學模式</Label>
+              <Select value={selectedTeachingMode} onValueChange={handleTeachingModeChange}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="選擇教學模式" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TEACHING_MODE_OPTIONS.map((mode) => (
+                    <SelectItem key={mode.value} value={mode.value}>
+                      {mode.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* 已選教學模式 */}
+              <div className="flex flex-wrap gap-2">
+                {formData.teachingMethods.map((method) => {
+                  const methodLabel = TEACHING_MODE_OPTIONS.find(m => m.value === method)?.label || method;
+                  return (
+                    <Badge key={method} variant="secondary">
+                      {methodLabel}
+                    </Badge>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 上堂地點（僅面授時顯示） */}
+            {selectedTeachingMode === 'in-person' && (
+              <div className="space-y-4">
+                <Label>上堂地點</Label>
+                <div className="grid grid-cols-2 gap-4">
+                  {REGION_OPTIONS.filter(region => region.value !== 'unlimited').map((region) => (
+                    <div key={region.value} className="space-y-2">
+                      <div className="font-medium">{region.label}</div>
+                      {region.regions.map((area) => (
+                        <div key={area.value} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={area.value}
+                            checked={selectedLocations.includes(area.value)}
+                            onCheckedChange={() => handleLocationToggle(area.value)}
+                          />
+                          <Label htmlFor={area.value} className="text-sm">
+                            {area.label}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+
+                {/* 已選地點 */}
+                <div className="flex flex-wrap gap-2">
+                  {selectedLocations.map((location) => {
+                    let locationLabel = location;
+                    for (const region of REGION_OPTIONS) {
+                      const found = region.regions.find(r => r.value === location);
+                      if (found) {
+                        locationLabel = `${region.label} > ${found.label}`;
+                        break;
+                      }
+                    }
+                    return (
+                      <Badge key={location} variant="secondary">
+                        {locationLabel}
+                      </Badge>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* 上堂時間 */}
-            <div className="space-y-2">
-              <Label>上堂時間</Label>
-              <div className="grid grid-cols-2 gap-4">
-                {AVAILABLE_TIMES.map((time) => (
-                  <div key={time} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={time}
-                      checked={formData.availableTime.includes(time)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setFormData({
-                            ...formData,
-                            availableTime: [...formData.availableTime, time]
-                          });
-                        } else {
-                          setFormData({
-                            ...formData,
-                            availableTime: formData.availableTime.filter((t) => t !== time)
-                          });
-                        }
-                      }}
-                    />
-                    <Label htmlFor={time}>{time}</Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* 上堂形式 */}
             <div className="space-y-4">
-              <Label>上堂形式</Label>
-              <div className="grid grid-cols-2 gap-4">
-                {TEACHING_MODE_OPTIONS.map((method) => (
-                  <div key={method.value} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={method.value}
-                      checked={formData.teachingMethods.includes(method.value)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setFormData(prev => ({
-                            ...prev,
-                            teachingMethods: [...prev.teachingMethods, method.value]
-                          }));
-                        } else {
-                          setFormData(prev => ({
-                            ...prev,
-                            teachingMethods: prev.teachingMethods.filter(m => m !== method.value)
-                          }));
-                        }
-                      }}
-                    />
-                    <Label htmlFor={method.value}>{method.label}</Label>
-                  </div>
-                ))}
+              <Label>上堂時間</Label>
+              
+              {/* 時間選擇器 */}
+              <div className="flex gap-4 items-end">
+                <div className="flex-1">
+                  <Label className="text-sm">星期</Label>
+                  <Select value={selectedWeekday} onValueChange={setSelectedWeekday}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="選擇星期" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {WEEKDAYS.map((day) => (
+                        <SelectItem key={day.value} value={day.value}>
+                          {day.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex-1">
+                  <Label className="text-sm">時間段</Label>
+                  <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="選擇時間" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TIME_SLOTS.map((slot) => (
+                        <SelectItem key={slot.value} value={slot.value}>
+                          {slot.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAddTimeSlot}
+                  disabled={!selectedWeekday || !selectedTimeSlot}
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {/* 已選時間 */}
+              <div className="space-y-2">
+                <p className="text-sm text-gray-600">已選時間：</p>
+                <div className="flex flex-wrap gap-2">
+                  {newAvailableTimes.map((timeSlot) => (
+                    <Badge key={timeSlot} variant="secondary" className="flex items-center gap-1">
+                      {timeSlot}
+                      <X 
+                        className="w-3 h-3 cursor-pointer" 
+                        onClick={() => handleRemoveTimeSlot(timeSlot)}
+                      />
+                    </Badge>
+                  ))}
+                </div>
+                {newAvailableTimes.length > 0 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleTimeSave}
+                  >
+                    保存時間設置
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -771,10 +886,7 @@ export default function TutorDashboardPage() {
             <Button
               type="button"
               onClick={() => handleSectionSave('documents', {
-                documents: {
-                  idCard: formData.documents.idCard,
-                  educationCert: formData.documents.educationCert,
-                },
+                documents: formData.documents,
               })}
               disabled={savingSection === 'documents'}
             >
@@ -783,7 +895,7 @@ export default function TutorDashboardPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             {/* 身份證 */}
-            <div className="space-y-2">
+            <div className="space-y-4">
               <Label htmlFor="idCard">身份證</Label>
               <Input
                 id="idCard"
@@ -794,12 +906,36 @@ export default function TutorDashboardPage() {
                 required
               />
               {formData.documents.idCard && (
-                <p className="text-sm text-green-600">已上傳</p>
+                <div className="space-y-2">
+                  <p className="text-sm text-green-600">已上傳</p>
+                  <div className="relative w-48 h-32 border rounded-lg overflow-hidden">
+                    <Image
+                      src={formData.documents.idCard}
+                      alt="身份證"
+                      fill
+                      className={cn(
+                        "object-cover",
+                        !showIdCard && "blur-sm"
+                      )}
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowIdCard(!showIdCard)}
+                      >
+                        {showIdCard ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showIdCard ? '隱藏' : '查看'}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
 
             {/* 學歷證書 */}
-            <div className="space-y-2">
+            <div className="space-y-4">
               <Label htmlFor="educationCert">學歷證書</Label>
               <Input
                 id="educationCert"
@@ -809,13 +945,183 @@ export default function TutorDashboardPage() {
                 disabled={uploading}
                 required
               />
-              {formData.documents.educationCert && (
-                <p className="text-sm text-green-600">已上傳</p>
+              {formData.documents.educationCert && formData.documents.educationCert.length > 0 && (
+                <div className="space-y-4">
+                  <p className="text-sm text-green-600">已上傳 {formData.documents.educationCert.length} 個文件</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {formData.documents.educationCert.map((cert, index) => (
+                      <div key={index} className="space-y-2">
+                        <div className="relative w-full h-48 border rounded-lg overflow-hidden">
+                          <Image
+                            src={cert}
+                            alt={`證書 ${index + 1}`}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`cert-${index}`}
+                            checked={publicCertificates.includes(cert)}
+                            onCheckedChange={() => handleCertificateVisibility(cert)}
+                          />
+                          <Label htmlFor={`cert-${index}`} className="text-sm">
+                            公開此證書（其他用戶可見，個人信息會被模糊處理）
+                          </Label>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
           </CardContent>
         </Card>
       </form>
+
+      {/* 科目編輯對話框 */}
+      <Dialog open={showSubjectEditor} onOpenChange={setShowSubjectEditor}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>更改教授科目</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            {/* 分類選擇 */}
+            <div className="space-y-4">
+              <Label>課程分類</Label>
+              <Select value={selectedCategory} onValueChange={handleCategoryChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="選擇課程分類" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORY_OPTIONS.map((category) => (
+                    <SelectItem key={category.value} value={category.value}>
+                      {category.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 子分類選擇 */}
+            {selectedCategory && CATEGORY_OPTIONS.find(c => c.value === selectedCategory)?.subCategories && (
+              <div className="space-y-4">
+                <Label>子分類</Label>
+                <Select value={selectedSubCategory} onValueChange={handleSubCategoryChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="選擇子分類" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORY_OPTIONS.find(c => c.value === selectedCategory)?.subCategories?.map((subCategory) => (
+                      <SelectItem key={subCategory.value} value={subCategory.value}>
+                        {subCategory.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* 科目選擇 */}
+            {selectedCategory && (
+              <div className="space-y-4">
+                <Label>科目</Label>
+                <div className="grid grid-cols-2 gap-4">
+                  {(() => {
+                    const category = CATEGORY_OPTIONS.find(c => c.value === selectedCategory);
+                    if (!category) return null;
+
+                    if (category.subjects) {
+                      return category.subjects.map((subject) => (
+                        <div key={subject.value} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={subject.value}
+                            checked={newSubjects.includes(subject.value)}
+                            onCheckedChange={() => handleSubjectToggle(subject.value)}
+                          />
+                          <Label htmlFor={subject.value} className="text-sm">
+                            {subject.label}
+                          </Label>
+                        </div>
+                      ));
+                    }
+
+                    if (category.subCategories && selectedSubCategory) {
+                      const subCategory = category.subCategories.find(sc => sc.value === selectedSubCategory);
+                      if (subCategory) {
+                        return subCategory.subjects.map((subject) => (
+                          <div key={subject.value} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={subject.value}
+                              checked={newSubjects.includes(subject.value)}
+                              onCheckedChange={() => handleSubjectToggle(subject.value)}
+                            />
+                            <Label htmlFor={subject.value} className="text-sm">
+                              {subject.label}
+                            </Label>
+                          </div>
+                        ));
+                      }
+                    }
+
+                    return null;
+                  })()}
+                </div>
+              </div>
+            )}
+
+            {/* 已選科目 */}
+            <div className="space-y-2">
+              <Label>已選科目</Label>
+              <div className="flex flex-wrap gap-2">
+                {newSubjects.map((subject) => {
+                  let subjectLabel = subject;
+                  for (const category of CATEGORY_OPTIONS) {
+                    if (category.subjects) {
+                      const found = category.subjects.find(s => s.value === subject);
+                      if (found) {
+                        subjectLabel = `${category.label} > ${found.label}`;
+                        break;
+                      }
+                    }
+                    if (category.subCategories) {
+                      for (const subCategory of category.subCategories) {
+                        const found = subCategory.subjects.find(s => s.value === subject);
+                        if (found) {
+                          subjectLabel = `${category.label} > ${subCategory.label} > ${found.label}`;
+                          break;
+                        }
+                      }
+                    }
+                  }
+                  return (
+                    <Badge key={subject} variant="secondary">
+                      {subjectLabel}
+                    </Badge>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 操作按鈕 */}
+            <div className="flex justify-end space-x-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowSubjectEditor(false)}
+              >
+                取消
+              </Button>
+              <Button
+                type="button"
+                onClick={handleSubjectSave}
+              >
+                保存
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 } 
