@@ -10,8 +10,8 @@ export interface User {
   name: string;
   email: string;
   phone: string;
-  role: 'user' | 'admin';
-  userType: 'student' | 'tutor' | 'admin' | 'organization';
+  role: 'user' | 'admin' | 'super_admin';
+  userType: 'student' | 'tutor' | 'admin' | 'super_admin' | 'organization';
   status: 'active' | 'pending' | 'blocked';
   createdAt: string;
   avatar: string;

@@ -315,12 +315,24 @@ const updateUser = async (req, res) => {
 
     // 檢查是否嘗試將用戶升級為管理員
     if (req.body && (req.body.userType === 'admin' || req.body.role === 'admin')) {
-      // 確保當前用戶是管理員
+      // 確保當前用戶是管理員或超級管理員
       const currentUser = await User.findById(req.user.id);
-      if (!currentUser || currentUser.userType !== 'admin') {
+      if (!currentUser || (currentUser.userType !== 'admin' && currentUser.userType !== 'super_admin')) {
         return res.status(403).json({ 
           success: false,
           message: 'Only administrators can create other administrators' 
+        });
+      }
+    }
+
+    // 檢查是否嘗試將用戶升級為超級管理員
+    if (req.body && (req.body.userType === 'super_admin' || req.body.role === 'super_admin')) {
+      // 只有超級管理員可以創建其他超級管理員
+      const currentUser = await User.findById(req.user.id);
+      if (!currentUser || currentUser.userType !== 'super_admin') {
+        return res.status(403).json({ 
+          success: false,
+          message: 'Only super administrators can create other super administrators' 
         });
       }
     }
@@ -329,7 +341,10 @@ const updateUser = async (req, res) => {
       ...req.body,
       // 如果設置為管理員，確保兩個字段都正確設置
       ...(req.body && req.body.userType === 'admin' ? { role: 'admin', status: 'active' } : {}),
-      ...(req.body && req.body.role === 'admin' ? { userType: 'admin', status: 'active' } : {})
+      ...(req.body && req.body.role === 'admin' ? { userType: 'admin', status: 'active' } : {}),
+      // 如果設置為超級管理員，確保兩個字段都正確設置
+      ...(req.body && req.body.userType === 'super_admin' ? { role: 'super_admin', status: 'active' } : {}),
+      ...(req.body && req.body.role === 'super_admin' ? { userType: 'super_admin', status: 'active' } : {})
     };
 
     // 支援通過 userId 或 MongoDB _id 查找用戶
@@ -491,6 +506,97 @@ const rejectUserUpgrade = async (req, res) => {
   } catch (error) {
     console.error('Error rejecting user upgrade:', error);
     res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// 刪除用戶 - 只有超級管理員可以執行
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    // 檢查當前用戶是否為超級管理員
+    const currentUser = await User.findById(req.user.id);
+    if (!currentUser || currentUser.role !== 'super_admin') {
+      return res.status(403).json({
+        success: false,
+        message: '只有超級管理員可以刪除用戶'
+      });
+    }
+
+    // 檢查是否嘗試刪除自己
+    if (id === req.user.id) {
+      return res.status(400).json({
+        success: false,
+        message: '不能刪除自己的帳號'
+      });
+    }
+
+    // 支援通過 userId 或 MongoDB _id 查找用戶
+    let userToDelete;
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      // 如果是 MongoDB ObjectId，直接使用
+      userToDelete = await User.findById(id);
+    } else {
+      // 如果不是 ObjectId，假設是 userId
+      userToDelete = await User.findOne({ userId: id });
+    }
+
+    if (!userToDelete) {
+      return res.status(404).json({
+        success: false,
+        message: '用戶不存在'
+      });
+    }
+
+    // 檢查是否嘗試刪除其他超級管理員
+    if (userToDelete.role === 'super_admin' && userToDelete._id.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: '不能刪除其他超級管理員'
+      });
+    }
+
+    // 記錄刪除操作
+    console.log('🗑️ 用戶刪除操作:', {
+      deletedBy: {
+        id: currentUser._id,
+        name: currentUser.name,
+        email: currentUser.email,
+        role: currentUser.role
+      },
+      deletedUser: {
+        id: userToDelete._id,
+        name: userToDelete.name,
+        email: userToDelete.email,
+        role: userToDelete.role,
+        userType: userToDelete.userType
+      },
+      reason: reason || '未提供原因',
+      timestamp: new Date().toISOString()
+    });
+
+    // 執行刪除操作
+    await User.findByIdAndDelete(userToDelete._id);
+
+    res.json({
+      success: true,
+      message: '用戶刪除成功',
+      data: {
+        deletedUserId: userToDelete._id,
+        deletedUserName: userToDelete.name,
+        deletedUserEmail: userToDelete.email,
+        deletedAt: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ 刪除用戶失敗:', error);
+    res.status(500).json({
+      success: false,
+      message: '刪除用戶失敗',
+      error: error.message
+    });
   }
 };
 
@@ -1358,6 +1464,7 @@ module.exports = {
   getAllUsers,
   getUserById,
   updateUser,
+  deleteUser,
   getUserUpgradeDocuments,
   approveUserUpgrade,
   rejectUserUpgrade,

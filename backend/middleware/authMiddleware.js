@@ -24,11 +24,24 @@ const isAdmin = (req, res, next) => {
     return res.status(401).json({ message: '未經過身份驗證' });
   }
 
-  if (req.user.userType !== 'admin' || req.user.role !== 'admin') {
+  if ((req.user.userType !== 'admin' && req.user.userType !== 'super_admin') || 
+      (req.user.role !== 'admin' && req.user.role !== 'super_admin')) {
     return res.status(403).json({ message: '需要管理員權限' });
   }
 
   next();
 };
 
-module.exports = { verifyToken, isAdmin }; 
+const isSuperAdmin = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ message: '未經過身份驗證' });
+  }
+
+  if (req.user.userType !== 'super_admin' || req.user.role !== 'super_admin') {
+    return res.status(403).json({ message: '需要超級管理員權限' });
+  }
+
+  next();
+};
+
+module.exports = { verifyToken, isAdmin, isSuperAdmin }; 

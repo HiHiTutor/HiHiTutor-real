@@ -153,6 +153,8 @@ const Users: React.FC = () => {
         return 'success';
       case 'admin':
         return 'error';
+      case 'super_admin':
+        return 'error';
       default:
         return 'default';
     }

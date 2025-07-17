@@ -44,12 +44,12 @@ const userSchema = new mongoose.Schema({
   },
   userType: {
     type: String,
-    enum: ['student', 'tutor', 'organization', 'admin'],
+    enum: ['student', 'tutor', 'organization', 'admin', 'super_admin'],
     required: true
   },
   role: {
     type: String,
-    enum: ['user', 'admin'],
+    enum: ['user', 'admin', 'super_admin'],
     default: 'user'
   },
   avatar: {

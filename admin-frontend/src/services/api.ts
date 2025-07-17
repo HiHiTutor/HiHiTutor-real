@@ -157,6 +157,15 @@ export const usersAPI = {
     }
     return api.post<User>(`/admin/users/${id}/approve-upgrade`, { role });
   },
+
+  deleteUser: (id: string, reason?: string) => {
+    if (!id) {
+      throw new Error('User ID is required');
+    }
+    return api.delete(`/admin/users/${id}`, { 
+      data: { reason } 
+    });
+  },
 };
 
 // Cases API

@@ -122,7 +122,9 @@ const login = async (req, res) => {
       }
 
       // Verify admin status
-      if (!user.userType || !user.role || user.userType !== 'admin' || user.role !== 'admin') {
+      if (!user.userType || !user.role || 
+          (user.userType !== 'admin' && user.userType !== 'super_admin') || 
+          (user.role !== 'admin' && user.role !== 'super_admin')) {
         console.log(`[${requestId}] ❌ Non-admin user attempted login:`, {
           userType: user.userType,
           role: user.role

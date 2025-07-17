@@ -51,7 +51,7 @@ const Login: React.FC = () => {
         throw new Error(response.data.message || 'Login failed');
       }
 
-      if (response.data.user?.userType !== 'admin') {
+      if (response.data.user?.userType !== 'admin' && response.data.user?.userType !== 'super_admin') {
         throw new Error('Access denied. Admin privileges required.');
       }
       

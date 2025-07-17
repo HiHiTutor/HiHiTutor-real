@@ -21,6 +21,7 @@ import {
   Tabs,
   Tab,
 } from '@mui/material';
+import { usePermissions } from '../hooks/usePermissions';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { usersAPI } from '../services/api';
 import { setSelectedUser } from '../store/slices/userSlice';
@@ -32,8 +33,8 @@ interface EditFormData {
   name: string;
   email: string;
   phone: string;
-  userType: 'student' | 'tutor' | 'organization' | 'admin';
-  role: 'user' | 'admin';
+  userType: 'student' | 'tutor' | 'organization' | 'admin' | 'super_admin';
+  role: 'user' | 'admin' | 'super_admin';
   status: 'active' | 'pending' | 'blocked';
   avatar: string;
   isActive: boolean;
@@ -91,7 +92,10 @@ const UserDetail: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { selectedUser } = useAppSelector((state) => state.users);
+  const { canDeleteUsers } = usePermissions();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleteReason, setDeleteReason] = useState('');
   const [editTabValue, setEditTabValue] = useState(0);
   const [editForm, setEditForm] = useState<EditFormData>({
     userId: '',
@@ -336,6 +340,28 @@ const UserDetail: React.FC = () => {
     }
   };
 
+  const handleDeleteUser = async () => {
+    if (!id) return;
+    
+    try {
+      setLoading(true);
+      await usersAPI.deleteUser(id, deleteReason);
+      setSuccess('用戶刪除成功');
+      setIsDeleteDialogOpen(false);
+      setDeleteReason('');
+      
+      // 延遲導航，讓用戶看到成功消息
+      setTimeout(() => {
+        navigate('/users');
+      }, 2000);
+    } catch (error: any) {
+      console.error('Error deleting user:', error);
+      setError(error.response?.data?.message || '刪除用戶失敗');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -430,11 +456,17 @@ const UserDetail: React.FC = () => {
               </Grid>
               <Grid item xs={8}>
                 <Chip 
-                  label={selectedUser.userType === 'tutor' ? '導師' : 
+                  label={selectedUser.userType === 'super_admin' ? '超級管理員' : 
+                         selectedUser.userType === 'admin' ? '管理員' : 
+                         selectedUser.userType === 'tutor' ? '導師' : 
                          selectedUser.userType === 'student' ? '學生' : 
                          selectedUser.userType === 'organization' ? '機構' : 
                          selectedUser.userType} 
-                  color="primary" 
+                  color={selectedUser.userType === 'super_admin' ? 'error' : 
+                         selectedUser.userType === 'admin' ? 'secondary' : 
+                         selectedUser.userType === 'tutor' ? 'primary' : 
+                         selectedUser.userType === 'student' ? 'info' : 
+                         selectedUser.userType === 'organization' ? 'success' : 'default'} 
                 />
               </Grid>
               <Grid item xs={4}>
@@ -442,8 +474,10 @@ const UserDetail: React.FC = () => {
               </Grid>
               <Grid item xs={8}>
                 <Chip 
-                  label={selectedUser.role === 'admin' ? '管理員' : '用戶'} 
-                  color="secondary" 
+                  label={selectedUser.role === 'super_admin' ? '超級管理員' : 
+                         selectedUser.role === 'admin' ? '管理員' : '用戶'} 
+                  color={selectedUser.role === 'super_admin' ? 'error' : 
+                         selectedUser.role === 'admin' ? 'secondary' : 'default'} 
                 />
               </Grid>
               <Grid item xs={4}>
@@ -474,13 +508,22 @@ const UserDetail: React.FC = () => {
                 </>
               )}
             </Grid>
-            <Box sx={{ mt: 2 }}>
+            <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
               <Button
                 variant="contained"
                 onClick={() => setIsEditDialogOpen(true)}
               >
                 編輯用戶
               </Button>
+              {canDeleteUsers && (
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={() => setIsDeleteDialogOpen(true)}
+                >
+                  刪除用戶
+                </Button>
+              )}
             </Box>
           </Paper>
         </Grid>
@@ -834,6 +877,8 @@ const UserDetail: React.FC = () => {
                 <MenuItem value="student">學生</MenuItem>
                 <MenuItem value="tutor">導師</MenuItem>
                 <MenuItem value="organization">機構</MenuItem>
+                <MenuItem value="admin">管理員</MenuItem>
+                <MenuItem value="super_admin">超級管理員</MenuItem>
               </TextField>
               <TextField
                 select
@@ -845,6 +890,7 @@ const UserDetail: React.FC = () => {
               >
                 <MenuItem value="user">用戶</MenuItem>
                 <MenuItem value="admin">管理員</MenuItem>
+                <MenuItem value="super_admin">超級管理員</MenuItem>
               </TextField>
               <TextField
                 select
@@ -1109,6 +1155,46 @@ const UserDetail: React.FC = () => {
           <Button onClick={() => setIsEditDialogOpen(false)}>取消</Button>
           <Button onClick={handleSubmit} variant="contained">
             儲存
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* 刪除用戶確認對話框 */}
+      <Dialog open={isDeleteDialogOpen} onClose={() => setIsDeleteDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          <Typography variant="h6" color="error">
+            確認刪除用戶
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <Typography sx={{ mb: 2 }}>
+            您確定要刪除用戶 <strong>{selectedUser?.name}</strong> ({selectedUser?.email}) 嗎？
+          </Typography>
+          <Typography color="error" sx={{ mb: 2 }}>
+            此操作無法撤銷，用戶的所有數據將被永久刪除。
+          </Typography>
+          <TextField
+            label="刪除原因（可選）"
+            multiline
+            rows={3}
+            fullWidth
+            value={deleteReason}
+            onChange={(e) => setDeleteReason(e.target.value)}
+            placeholder="請說明刪除此用戶的原因..."
+            helperText="建議填寫刪除原因以便記錄"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsDeleteDialogOpen(false)}>
+            取消
+          </Button>
+          <Button 
+            onClick={handleDeleteUser} 
+            variant="contained" 
+            color="error"
+            disabled={loading}
+          >
+            {loading ? '刪除中...' : '確認刪除'}
           </Button>
         </DialogActions>
       </Dialog>

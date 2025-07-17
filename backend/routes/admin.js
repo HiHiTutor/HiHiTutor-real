@@ -6,6 +6,7 @@ const {
   getAllUsers,
   getUserById,
   updateUser,
+  deleteUser,
   getUserUpgradeDocuments,
   approveUserUpgrade,
   rejectUserUpgrade,
@@ -70,6 +71,7 @@ router.post('/users', verifyToken, isAdmin, createUser);
 router.get('/users', verifyToken, isAdmin, getAllUsers);
 router.get('/users/:id', verifyToken, isAdmin, getUserById);
 router.put('/users/:id', verifyToken, isAdmin, updateUser);
+router.delete('/users/:id', verifyToken, isAdmin, deleteUser); // 只有超級管理員可以刪除用戶
 router.get('/users/:id/upgrade-documents', verifyToken, isAdmin, getUserUpgradeDocuments);
 router.post('/users/:id/approve-upgrade', verifyToken, isAdmin, approveUserUpgrade);
 router.post('/users/:id/reject-upgrade', verifyToken, isAdmin, rejectUserUpgrade);
