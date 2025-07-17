@@ -12,6 +12,13 @@ interface FormData {
   files: File[];
 }
 
+interface SubjectOption {
+  value: string;
+  label: string;
+  category: string;
+  subCategory?: string;
+}
+
 export default function UpgradePage() {
   const [formData, setFormData] = useState<FormData>({
     education: "",
@@ -23,8 +30,14 @@ export default function UpgradePage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string>("");
+  const [availableSubjects, setAvailableSubjects] = useState<SubjectOption[]>([]);
   const router = useRouter();
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
+
+  // 過濾掉"不限"選項
+  const filteredCategories = CATEGORY_OPTIONS.filter(cat => cat.value !== 'unlimited');
 
   useEffect(() => {
     // 檢查用戶是否已登入
@@ -35,6 +48,48 @@ export default function UpgradePage() {
     }
   }, [router]);
 
+  // 當選擇課程分類時，更新可選科目
+  useEffect(() => {
+    if (selectedCategory) {
+      const category = filteredCategories.find(cat => cat.value === selectedCategory);
+      if (category) {
+        if (category.subCategories) {
+          // 如果有子分類，先清空科目列表
+          setAvailableSubjects([]);
+          setSelectedSubCategory("");
+        } else {
+          // 如果沒有子分類，直接顯示科目
+          const subjects = category.subjects?.map(subject => ({
+            ...subject,
+            category: category.label
+          })) || [];
+          setAvailableSubjects(subjects);
+        }
+      }
+    } else {
+      setAvailableSubjects([]);
+      setSelectedSubCategory("");
+    }
+  }, [selectedCategory]);
+
+  // 當選擇子分類時，更新可選科目
+  useEffect(() => {
+    if (selectedCategory && selectedSubCategory) {
+      const category = filteredCategories.find(cat => cat.value === selectedCategory);
+      if (category?.subCategories) {
+        const subCategory = category.subCategories.find(sub => sub.value === selectedSubCategory);
+        if (subCategory) {
+          const subjects = subCategory.subjects.map(subject => ({
+            ...subject,
+            category: category.label,
+            subCategory: subCategory.label
+          }));
+          setAvailableSubjects(subjects);
+        }
+      }
+    }
+  }, [selectedCategory, selectedSubCategory]);
+
   const handleFileChange = (idx: number, e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setFormData(prev => {
@@ -44,9 +99,11 @@ export default function UpgradePage() {
       });
     }
   };
+
   const handleAddFileInput = () => {
     setFileInputs((prev) => [...prev, prev.length]);
   };
+
   const handleRemoveFileInput = (idx: number) => {
     setFileInputs((prev) => prev.filter((_, i) => i !== idx));
     setFormData((prev) => {
@@ -62,6 +119,29 @@ export default function UpgradePage() {
         ? prev.subjects.filter(s => s !== subject)
         : [...prev.subjects, subject]
     }));
+  };
+
+  const removeSelectedSubject = (subjectValue: string) => {
+    setFormData(prev => ({
+      ...prev,
+      subjects: prev.subjects.filter(s => s !== subjectValue)
+    }));
+  };
+
+  const getSubjectLabel = (subjectValue: string) => {
+    for (const category of filteredCategories) {
+      if (category.subjects) {
+        const subject = category.subjects.find(s => s.value === subjectValue);
+        if (subject) return subject.label;
+      }
+      if (category.subCategories) {
+        for (const subCategory of category.subCategories) {
+          const subject = subCategory.subjects.find(s => s.value === subjectValue);
+          if (subject) return subject.label;
+        }
+      }
+    }
+    return subjectValue;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -202,48 +282,96 @@ export default function UpgradePage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   可教授科目（可多選）
                 </label>
-                <div className="space-y-4">
-                  {CATEGORY_OPTIONS.map((category) => (
-                    <div key={category.value} className="border rounded-lg p-4">
-                      <h3 className="font-medium text-gray-900 mb-3">{category.label}</h3>
-                      {category.subCategories ? (
-                        // 如果有子類別，顯示子類別
-                        category.subCategories.map((subCategory) => (
-                          <div key={subCategory.value} className="mb-4 last:mb-0">
-                            <h4 className="text-sm font-medium text-gray-700 mb-2">{subCategory.label}</h4>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                              {subCategory.subjects.map((subject) => (
-                                <label key={subject.value} className="flex items-center space-x-2">
-                                  <input
-                                    type="checkbox"
-                                    checked={formData.subjects.includes(subject.value)}
-                                    onChange={() => handleSubjectChange(subject.value)}
-                                    className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                  />
-                                  <span className="text-sm text-gray-700">{subject.label}</span>
-                                </label>
-                              ))}
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        // 如果沒有子類別，直接顯示科目
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                          {category.subjects?.map((subject) => (
-                            <label key={subject.value} className="flex items-center space-x-2">
-                              <input
-                                type="checkbox"
-                                checked={formData.subjects.includes(subject.value)}
-                                onChange={() => handleSubjectChange(subject.value)}
-                                className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                              />
-                              <span className="text-sm text-gray-700">{subject.label}</span>
-                            </label>
-                          ))}
-                        </div>
-                      )}
+                
+                {/* 已選選項 */}
+                {formData.subjects.length > 0 && (
+                  <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">已選科目：</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {formData.subjects.map((subject) => (
+                        <span
+                          key={subject}
+                          className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800"
+                        >
+                          {getSubjectLabel(subject)}
+                          <button
+                            type="button"
+                            onClick={() => removeSelectedSubject(subject)}
+                            className="ml-2 text-indigo-600 hover:text-indigo-800"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
                     </div>
-                  ))}
+                  </div>
+                )}
+
+                {/* 下拉式選擇 */}
+                <div className="space-y-3">
+                  {/* 課程分類選擇 */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      課程分類
+                    </label>
+                    <select
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    >
+                      <option value="">請選擇課程分類</option>
+                      {filteredCategories.map((category) => (
+                        <option key={category.value} value={category.value}>
+                          {category.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* 子分類選擇（如果有） */}
+                  {selectedCategory && filteredCategories.find(cat => cat.value === selectedCategory)?.subCategories && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        子分類
+                      </label>
+                      <select
+                        value={selectedSubCategory}
+                        onChange={(e) => setSelectedSubCategory(e.target.value)}
+                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                      >
+                        <option value="">請選擇子分類</option>
+                        {filteredCategories
+                          .find(cat => cat.value === selectedCategory)
+                          ?.subCategories?.map((subCategory) => (
+                            <option key={subCategory.value} value={subCategory.value}>
+                              {subCategory.label}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* 科目選擇 */}
+                  {availableSubjects.length > 0 && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        可選科目
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {availableSubjects.map((subject) => (
+                          <label key={subject.value} className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              checked={formData.subjects.includes(subject.value)}
+                              onChange={() => handleSubjectChange(subject.value)}
+                              className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                            />
+                            <span className="text-sm text-gray-700">{subject.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
