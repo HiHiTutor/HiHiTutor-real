@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -35,9 +35,40 @@ const Users: React.FC = () => {
   const [roleFilter, setRoleFilter] = useState('');
   const [userTypeFilter, setUserTypeFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchInput, setSearchInput] = useState(''); // 用於輸入框顯示
   const [totalCount, setTotalCount] = useState(0);
   const [sortField, setSortField] = useState<SortField>('createdAt');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+
+  // Debounced search function
+  const debouncedSearch = useCallback(
+    (() => {
+      let timeoutId: NodeJS.Timeout;
+      return (query: string) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          setSearchQuery(query);
+          setPage(0); // Reset to first page when searching
+        }, 500); // 500ms delay
+      };
+    })(),
+    []
+  );
+
+  // Handle search input change
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchInput(value);
+    debouncedSearch(value);
+  };
+
+  // Handle Enter key press
+  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      setSearchQuery(searchInput);
+      setPage(0);
+    }
+  };
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -163,10 +194,11 @@ const Users: React.FC = () => {
           label="Search"
           variant="outlined"
           size="small"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search name, email, userId..."
-          sx={{ width: 250 }}
+          value={searchInput}
+          onChange={handleSearchChange}
+          onKeyPress={handleSearchKeyPress}
+          placeholder="Search name, email, userId... (Press Enter to search)"
+          sx={{ width: 300 }}
         />
         <TextField
           select
