@@ -1,5 +1,5 @@
 console.log('🔥 App.js loaded: ', __filename);
-// Deployment trigger: 2024-07-17-1 - CORS fix
+// Deployment trigger: 2024-07-17-2 - CORS emergency fix
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -98,33 +98,9 @@ morgan.token('request-body', (req) => {
 
 app.use(morgan(':method :url :status :response-time ms - :request-body'));
 
-// CORS configuration
-// 允許的網域清單
-const allowedOrigins = [
-  'https://www.hihitutor.com',                       // 正式前台
-  'https://api.hihitutor.com',                       // 正式 API 自身 call（如 SSR 或內部跳轉）
-  'https://hi-hi-tutor-real-backend2.vercel.app',    // develop backend URL
-  'https://hi-hi-tutor-real.vercel.app',             // 現有 Vercel 部署
-  'https://hi-hi-tutor-real-admin-frontend.vercel.app', // 現有 admin frontend
-  'http://localhost:3000',                           // local frontend
-  'http://localhost:3001',                           // local admin frontend
-  'https://hi-hi-tutor-real-hag1t6leo-hihitutors-projects.vercel.app' // 新增 Vercel 前端
-];
-
-// 使用 cors middleware
+// CORS configuration - Simplified for immediate fix
 app.use(cors({
-  origin: function (origin, callback) {
-    console.log('🔥 CORS check - Origin:', origin);
-    console.log('🔥 CORS check - Allowed origins:', allowedOrigins);
-    
-    if (!origin || allowedOrigins.includes(origin)) {
-      console.log('✅ CORS allowed for origin:', origin);
-      callback(null, true);
-    } else {
-      console.log('❌ CORS blocked origin:', origin);
-      callback(new Error('Not allowed by CORS: ' + origin));
-    }
-  },
+  origin: true, // Allow all origins temporarily
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept', 'X-Requested-With'],
   exposedHeaders: ['Content-Length', 'X-Requested-With'],
@@ -133,6 +109,16 @@ app.use(cors({
   optionsSuccessStatus: 204,
   maxAge: 86400 // 24 hours
 }));
+
+// Additional CORS headers for all responses
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept, X-Requested-With');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Max-Age', '86400');
+  next();
+});
 
 // Handle OPTIONS preflight requests for all routes
 app.options('*', (req, res) => {
