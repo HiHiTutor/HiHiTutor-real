@@ -154,9 +154,22 @@ export default function TutorDashboardPage() {
       }
 
       const data = await tutorApi.getProfile();
-      setFormData(data);
-      setNewSubjects(data.subjects || []);
-      setNewAvailableTimes(data.availableTime || []);
+      console.log('Fetched tutor profile data:', data); // 調試用
+      console.log('Subjects from API:', data.subjects); // 調試用
+      
+      // 確保科目數據正確設置
+      const subjects = data.subjects || [];
+      const availableTime = data.availableTime || [];
+      
+      console.log('Processed subjects:', subjects); // 調試用
+      
+      setFormData({
+        ...data,
+        subjects: subjects,
+        availableTime: availableTime
+      });
+      setNewSubjects(subjects);
+      setNewAvailableTimes(availableTime);
     } catch (error) {
       console.error('獲取資料失敗:', error);
       toast.error(error instanceof Error ? error.message : '獲取資料失敗，請稍後再試');
@@ -637,7 +650,7 @@ export default function TutorDashboardPage() {
               <div className="space-y-2">
                 <p className="text-sm text-gray-600">當前可教授科目：</p>
                 <div className="flex flex-wrap gap-2">
-                  {formData.subjects.length > 0 ? (
+                  {formData.subjects && formData.subjects.length > 0 ? (
                     formData.subjects.map((subject) => {
                       // 找到科目標籤
                       let subjectLabel = subject;
