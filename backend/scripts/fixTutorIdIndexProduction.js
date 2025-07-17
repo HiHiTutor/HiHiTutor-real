@@ -34,34 +34,24 @@ async function fixTutorIdIndexProduction() {
       }
     }
 
-    // 重新創建正確的 sparse + unique 索引
-    console.log('🔧 創建新的 tutorId sparse + unique 索引...');
-    await users.createIndex(
-      { tutorId: 1 }, 
-      { 
-        unique: true, 
-        sparse: true,
-        name: 'tutorId_sparse_unique'
-      }
-    );
-
-    console.log('✅ 成功創建 tutorId sparse + unique 索引');
-
     // 檢查是否有重複的 null tutorId 值
     console.log('🔍 檢查是否有重複的 null tutorId 值...');
     const nullTutorIdUsers = await users.find({ tutorId: null }).toArray();
     console.log(`📊 找到 ${nullTutorIdUsers.length} 個 tutorId 為 null 的用戶`);
 
     if (nullTutorIdUsers.length > 1) {
-      console.log('⚠️ 發現多個 tutorId 為 null 的用戶，這可能導致索引問題');
+      console.log('⚠️ 發現多個 tutorId 為 null 的用戶，這是正常的（學生和機構用戶）');
       console.log('📋 這些用戶的 ID:', nullTutorIdUsers.map(u => u._id));
     }
+
+    // 不再創建 tutorId 的唯一索引，因為學生和機構用戶的 tutorId 都是 null
+    console.log('✅ 已移除所有 tutorId 索引，不再創建唯一約束');
 
     console.log('✅ tutorId 索引修復完成');
     
     return {
       success: true,
-      message: 'tutorId 索引修復完成',
+      message: 'tutorId 索引修復完成 - 已移除所有唯一約束',
       deletedIndexes: tutorIdIndexes.length,
       nullTutorIdCount: nullTutorIdUsers.length
     };
