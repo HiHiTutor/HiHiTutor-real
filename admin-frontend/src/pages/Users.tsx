@@ -23,7 +23,7 @@ import { usersAPI } from '../services/api';
 import { setUsers, setLoading, setError } from '../store/slices/userSlice';
 import AddIcon from '@mui/icons-material/Add';
 
-type SortField = 'userId' | 'name' | 'email' | 'phone' | 'role' | 'status' | 'createdAt';
+type SortField = 'userId' | 'name' | 'email' | 'phone' | 'role' | 'userType' | 'tutorId' | 'status' | 'createdAt';
 type SortOrder = 'asc' | 'desc';
 
 const Users: React.FC = () => {
@@ -104,6 +104,21 @@ const Users: React.FC = () => {
       case 'pending':
         return 'warning';
       case 'blocked':
+        return 'error';
+      default:
+        return 'default';
+    }
+  };
+
+  const getUserTypeColor = (userType: string | undefined) => {
+    switch (userType) {
+      case 'student':
+        return 'primary';
+      case 'tutor':
+        return 'secondary';
+      case 'organization':
+        return 'success';
+      case 'admin':
         return 'error';
       default:
         return 'default';
@@ -218,6 +233,24 @@ const Users: React.FC = () => {
               </TableCell>
               <TableCell>
                 <TableSortLabel
+                  active={sortField === 'userType'}
+                  direction={sortField === 'userType' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('userType')}
+                >
+                  User Type
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortField === 'tutorId'}
+                  direction={sortField === 'tutorId' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('tutorId')}
+                >
+                  Tutor ID
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
                   active={sortField === 'status'}
                   direction={sortField === 'status' ? sortOrder : 'asc'}
                   onClick={() => handleSort('status')}
@@ -250,6 +283,16 @@ const Users: React.FC = () => {
                     color={getRoleColor(user.role)}
                     size="small"
                   />
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={user.userType || 'N/A'}
+                    color={getUserTypeColor(user.userType)}
+                    size="small"
+                  />
+                </TableCell>
+                <TableCell>
+                  {user.tutorId || 'N/A'}
                 </TableCell>
                 <TableCell>
                   <Chip

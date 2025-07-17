@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
 // 連接數據庫
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/hihitutor', {
+mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://hihitutoredu:HKP-01668@hihitutorcluster.1scf1xj.mongodb.net/HiHiTutorReally?retryWrites=true&w=majority&appName=HiHiTutorCluster', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -61,6 +61,14 @@ const getRandomClassTypes = () => {
   return shuffled.slice(0, count);
 };
 
+// 生成隨機香港電話號碼
+const generateRandomPhone = () => {
+  const prefixes = ['9', '6', '5'];
+  const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+  const number = Math.floor(Math.random() * 9000000) + 1000000;
+  return `${prefix}${number}`;
+};
+
 // 生成隨機考試成績
 const getRandomExamResults = (userSubjects) => {
   return userSubjects.map(subject => ({
@@ -85,22 +93,22 @@ const getRandomAvailableTime = () => {
   return availableTime;
 };
 
-// 生成 15 個 tutor
+// 生成 50 個 tutor
 const generateTutors = async () => {
   const tutors = [];
   
-  for (let i = 1; i <= 15; i++) {
+  for (let i = 0; i < 50; i++) {
     const userSubjects = getRandomSubjects();
-    const tutorId = `TUTOR${String(i).padStart(3, '0')}`;
-    const userId = `USER${String(i + 100).padStart(3, '0')}`;
+    const tutorId = `T${String(100 + i).padStart(5, '0')}`;
+    const userId = String(1000100 + i);
     
     const tutor = {
       userId: userId,
       tutorId: tutorId,
-      name: `導師${i}`,
-      email: `tutor${i}@example.com`,
-      phone: `2${String(Math.floor(Math.random() * 9000000) + 1000000)}`, // 8位數字
-      password: 'password123', // 會被 bcrypt 加密
+      name: `Tutor ${i + 1}`,
+      email: `tutor${userId}@example.com`,
+      phone: generateRandomPhone(),
+      password: bcrypt.hashSync('88888888', 10),
       userType: 'tutor',
       role: 'user',
       avatar: '/avatars/default.png',
@@ -124,9 +132,9 @@ const generateTutors = async () => {
         avatarUrl: '/avatars/default.png',
         applicationStatus: 'approved'
       },
-      rating: Math.random() * 5, // 0-5分
+      rating: Math.round((Math.random() * 2 + 3) * 10) / 10, // 3.0-5.0，小數點後一位
       isTop: Math.random() > 0.8, // 20% 是置頂
-      isVip: Math.random() > 0.9, // 10% 是VIP
+      isVip: Math.random() > 0.7, // 30% 是VIP
       totalReviews: Math.floor(Math.random() * 50), // 0-49個評價
       profileStatus: 'approved',
       remarks: ''
@@ -141,7 +149,7 @@ const generateTutors = async () => {
 // 執行生成
 const main = async () => {
   try {
-    console.log('開始生成 15 個 tutor 用戶...');
+    console.log('開始生成 50 個 tutor 用戶...');
     
     const tutors = await generateTutors();
     

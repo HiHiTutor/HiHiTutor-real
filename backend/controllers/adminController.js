@@ -212,7 +212,7 @@ const getAllUsers = async (req, res) => {
     }
 
     // 驗證排序欄位
-    const allowedSortFields = ['userId', 'name', 'email', 'phone', 'role', 'status', 'createdAt'];
+    const allowedSortFields = ['userId', 'name', 'email', 'phone', 'role', 'userType', 'tutorId', 'status', 'createdAt'];
     const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'createdAt';
     const validSortOrder = sortOrder === 'asc' ? 1 : -1;
 
