@@ -27,6 +27,26 @@ export interface User {
     specialties: string[];
     documents: string[];
     applicationStatus: 'pending' | 'approved' | 'rejected';
+    gender?: 'male' | 'female';
+    birthDate?: string;
+    teachingExperienceYears?: number;
+    educationLevel?: string;
+    subjects?: string[];
+    examResults?: Array<{
+      subject: string;
+      grade: string;
+    }>;
+    teachingAreas?: string[];
+    availableTime?: Array<{
+      day: string;
+      time: string;
+    }>;
+    teachingMethods?: string[];
+    classType?: string[];
+    sessionRate?: number;
+    introduction?: string;
+    courseFeatures?: string;
+    avatarUrl?: string;
   };
   subjects?: string[];
   teachingAreas?: string[];

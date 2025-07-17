@@ -457,18 +457,92 @@ const UserDetail: React.FC = () => {
               </Typography>
               <Divider sx={{ my: 2 }} />
               <Grid container spacing={2}>
-                <Grid item xs={4}>
-                  <Typography color="textSecondary">學歷</Typography>
-                </Grid>
-                <Grid item xs={8}>
-                  <Typography>{selectedUser.tutorProfile.education || '未填寫'}</Typography>
-                </Grid>
-                <Grid item xs={4}>
-                  <Typography color="textSecondary">教學經驗</Typography>
-                </Grid>
-                <Grid item xs={8}>
-                  <Typography>{selectedUser.tutorProfile.experience || '未填寫'}</Typography>
-                </Grid>
+                {/* 性別 */}
+                {selectedUser.tutorProfile.gender && (
+                  <>
+                    <Grid item xs={4}>
+                      <Typography color="textSecondary">性別</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Chip
+                        label={selectedUser.tutorProfile.gender === 'male' ? '男' : '女'}
+                        color="primary"
+                        size="small"
+                      />
+                    </Grid>
+                  </>
+                )}
+                
+                {/* 導師科目 - 優先顯示 tutorProfile 中的 subjects */}
+                {selectedUser.tutorProfile.subjects && selectedUser.tutorProfile.subjects.length > 0 && (
+                  <>
+                    <Grid item xs={4}>
+                      <Typography color="textSecondary">可教授科目</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {selectedUser.tutorProfile.subjects.map((subject, index) => (
+                          <Chip key={index} label={subject} size="small" variant="outlined" />
+                        ))}
+                      </Box>
+                    </Grid>
+                  </>
+                )}
+                
+                {/* 如果 tutorProfile 中沒有 subjects，則顯示根級別的 subjects */}
+                {(!selectedUser.tutorProfile.subjects || selectedUser.tutorProfile.subjects.length === 0) && 
+                 selectedUser.subjects && selectedUser.subjects.length > 0 && (
+                  <>
+                    <Grid item xs={4}>
+                      <Typography color="textSecondary">可教授科目</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {selectedUser.subjects.map((subject, index) => (
+                          <Chip key={index} label={subject} size="small" variant="outlined" />
+                        ))}
+                      </Box>
+                    </Grid>
+                  </>
+                )}
+                
+                {/* 教學經驗年數 */}
+                {selectedUser.tutorProfile.teachingExperienceYears !== undefined && (
+                  <>
+                    <Grid item xs={4}>
+                      <Typography color="textSecondary">教學經驗</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Typography>{selectedUser.tutorProfile.teachingExperienceYears} 年</Typography>
+                    </Grid>
+                  </>
+                )}
+                
+                {/* 學歷 */}
+                {selectedUser.tutorProfile.educationLevel && (
+                  <>
+                    <Grid item xs={4}>
+                      <Typography color="textSecondary">學歷</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Typography>{selectedUser.tutorProfile.educationLevel}</Typography>
+                    </Grid>
+                  </>
+                )}
+                
+                {/* 堂費 */}
+                {selectedUser.tutorProfile.sessionRate && (
+                  <>
+                    <Grid item xs={4}>
+                      <Typography color="textSecondary">堂費</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Typography>HK$ {selectedUser.tutorProfile.sessionRate}</Typography>
+                    </Grid>
+                  </>
+                )}
+                
+                {/* 申請狀態 */}
                 <Grid item xs={4}>
                   <Typography color="textSecondary">申請狀態</Typography>
                 </Grid>
@@ -483,20 +557,8 @@ const UserDetail: React.FC = () => {
                     size="small"
                   />
                 </Grid>
-                {selectedUser.subjects && selectedUser.subjects.length > 0 && (
-                  <>
-                    <Grid item xs={4}>
-                      <Typography color="textSecondary">可教授科目</Typography>
-                    </Grid>
-                    <Grid item xs={8}>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        {selectedUser.subjects.map((subject, index) => (
-                          <Chip key={index} label={subject} size="small" variant="outlined" />
-                        ))}
-                      </Box>
-                    </Grid>
-                  </>
-                )}
+                
+                {/* 評分 */}
                 {selectedUser.rating !== undefined && (
                   <>
                     <Grid item xs={4}>
@@ -507,7 +569,9 @@ const UserDetail: React.FC = () => {
                     </Grid>
                   </>
                 )}
-                {selectedUser.hourlyRate && (
+                
+                {/* 時薪 (如果與堂費不同) */}
+                {selectedUser.hourlyRate && selectedUser.hourlyRate !== selectedUser.tutorProfile.sessionRate && (
                   <>
                     <Grid item xs={4}>
                       <Typography color="textSecondary">時薪</Typography>
