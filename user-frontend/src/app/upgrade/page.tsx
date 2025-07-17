@@ -220,10 +220,10 @@ export default function UpgradePage() {
         throw new Error(errorData.message || "申請失敗");
       }
 
-      setMessage("申請已成功提交！");
+      setMessage("✅ 申請已成功提交！我們已收到您的導師申請，後台管理員將會審核您的資料。審核結果將通過電郵通知您，請耐心等待。");
       setTimeout(() => {
         router.push("/profile");
-      }, 2000);
+      }, 5000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "提交失敗，請稍後再試");
     } finally {
@@ -246,8 +246,16 @@ export default function UpgradePage() {
               </div>
             )}
             {message && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <p className="text-green-600 text-center">{message}</p>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                <div className="flex items-center justify-center mb-3">
+                  <div className="flex-shrink-0">
+                    <svg className="h-8 w-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                </div>
+                <p className="text-green-800 text-center text-lg font-medium">{message}</p>
+                <p className="text-green-600 text-center text-sm mt-2">即將跳轉到個人資料頁面...</p>
               </div>
             )}
 
