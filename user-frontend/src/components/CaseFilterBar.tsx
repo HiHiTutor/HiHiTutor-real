@@ -624,6 +624,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                   onChange={(e) => handleFilterChange('category', e.target.value)}
                   className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
                 >
+                  <option value="unlimited">不限</option>
                   {CATEGORY_OPTIONS.map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
