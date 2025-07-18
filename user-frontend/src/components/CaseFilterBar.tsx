@@ -264,12 +264,18 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
         let subjects: { value: string; label: string }[] = [];
         
         if (category.subCategories && filters.subCategory && filters.subCategory !== '' && filters.subCategory !== 'unlimited') {
+          // 有選擇具體子分類
           const subCategory = category.subCategories.find(sc => sc.value === filters.subCategory);
           subjects = subCategory?.subjects || [];
+          console.log('🔍 使用具體子分類科目:', subjects.map(s => s.value));
         } else if (category.subCategories && (filters.subCategory === 'unlimited' || filters.subCategory === '')) {
+          // 子分類是不限或未選擇，使用所有子分類的科目
           subjects = category.subCategories.flatMap(sc => sc.subjects || []);
+          console.log('🔍 使用所有子分類科目:', subjects.map(s => s.value));
         } else {
+          // 沒有子分類，直接使用分類的科目
           subjects = category.subjects || [];
+          console.log('🔍 使用分類直接科目:', subjects.map(s => s.value));
         }
         
         subjects.forEach(subject => params.append('subjects', subject.value));
