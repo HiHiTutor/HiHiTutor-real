@@ -713,10 +713,7 @@ const getAllTutors = async (req, res) => {
               if (subjects) {
                 const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
                 const intersection = subjectArray.filter(subject => 
-                  categorySubjects.some(catSubject => 
-                    (typeof subject === 'string' && typeof catSubject === 'string' && subject.toLowerCase().includes(catSubject.toLowerCase())) ||
-                    (typeof catSubject === 'string' && typeof subject === 'string' && catSubject.toLowerCase().includes(subject.toLowerCase()))
-                  )
+                  categorySubjects.includes(subject)
                 );
                 if (intersection.length > 0) {
                   query['tutorProfile.subjects'] = { $in: intersection };
@@ -727,18 +724,8 @@ const getAllTutors = async (req, res) => {
                   tutors = [];
                 }
               } else {
-                // 如果沒有科目過濾，使用分類的科目進行模糊匹配
-                const categoryConditions = categorySubjects.map(subject => ({
-                  'tutorProfile.subjects': { $regex: subject, $options: 'i' }
-                }));
-                
-                // 如果已經有 $or 條件，合併它們
-                if (query.$or) {
-                  query.$or = [...query.$or, ...categoryConditions];
-                } else {
-                  query.$or = categoryConditions;
-                }
-                
+                // 如果沒有科目過濾，直接使用分類的科目進行精確匹配
+                query['tutorProfile.subjects'] = { $in: categorySubjects };
                 console.log(`🔍 使用分類科目過濾: ${categorySubjects.join(', ')}`);
               }
             } else {
