@@ -301,6 +301,8 @@ const getAllTutors = async (req, res) => {
           } else {
             console.log(`⚠️ 未找到分類 ${category} 對應的科目`);
           }
+        } else if (category === 'unlimited') {
+          console.log('🎯 分類設為 unlimited，跳過分類過濾');
         }
         
         // 精選導師過濾 - 實現加權隨機選擇
@@ -700,7 +702,7 @@ const getAllTutors = async (req, res) => {
           }
           
           // 分類過濾
-          if (category) {
+          if (category && category !== 'unlimited') {
             console.log(`🎯 分類過濾: ${category}`);
             // 根據分類獲取對應的科目列表
             const categorySubjects = getCategorySubjects(category);
@@ -742,6 +744,8 @@ const getAllTutors = async (req, res) => {
             } else {
               console.log(`⚠️ 未找到分類 ${category} 對應的科目`);
             }
+          } else if (category === 'unlimited') {
+            console.log('🎯 分類設為 unlimited，跳過分類過濾');
           }
           
           console.log('🔍 查詢條件:', JSON.stringify(query, null, 2));

@@ -258,7 +258,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     } else {
       // 若冇揀科目 → 自動傳出該子分類下所有科目
       const category = CATEGORY_OPTIONS.find(c => c.value === filters.category);
-      if (category) {
+      if (category && filters.category !== 'unlimited') {
         let subjects: { value: string; label: string }[] = [];
         
         if (category.subCategories && filters.subCategory && filters.subCategory !== '' && filters.subCategory !== 'unlimited') {
@@ -274,22 +274,37 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       }
     }
 
-    // 其他篩選條件
+    // 其他篩選條件 - 只添加非unlimited的值
     filters.mode.forEach(mode => {
-      params.append('mode', mode);
+      if (mode !== 'unlimited') {
+        params.append('mode', mode);
+      }
     });
     filters.regions.forEach(region => {
-      if (region !== 'unlimited') params.append('regions', region);
+      if (region !== 'unlimited') {
+        params.append('regions', region);
+      }
     });
     filters.subRegions.forEach(subRegion => {
-      if (subRegion !== 'unlimited') params.append('subRegions', subRegion);
+      if (subRegion !== 'unlimited') {
+        params.append('subRegions', subRegion);
+      }
     });
-    if (filters.priceRange && filters.priceRange !== 'unlimited') params.set('priceRange', filters.priceRange);
+    if (filters.priceRange && filters.priceRange !== 'unlimited') {
+      params.set('priceRange', filters.priceRange);
+    }
 
     // 直接用 usePathname 判斷
     const isTutorPage = pathname === "/tutors";
     const targetRoute = isTutorPage ? "/tutors" : "/find-student-cases";
-    router.push(params.toString() ? `${targetRoute}?${params.toString()}` : targetRoute);
+    
+    // 如果沒有任何有效參數，直接跳轉到乾淨的URL
+    if (params.toString() === '') {
+      router.push(targetRoute);
+    } else {
+      router.push(`${targetRoute}?${params.toString()}`);
+    }
+    
     if (onFilter) {
       onFilter(filters);
     }
