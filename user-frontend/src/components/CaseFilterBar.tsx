@@ -242,9 +242,10 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   const handleFilter = () => {
     const params = new URLSearchParams();
     
-    // 課程分類
+    // 課程分類 - 確保正確添加分類參數
     if (filters.category && filters.category !== 'unlimited') {
       params.set('category', filters.category);
+      console.log('🔍 添加分類參數:', filters.category);
     }
 
     // 子分類
@@ -255,10 +256,11 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     // 科目
     if (filters.subjects.length > 0) {
       filters.subjects.forEach(subject => params.append('subjects', subject));
-    } else {
+      console.log('🔍 添加用戶選擇的科目:', filters.subjects);
+    } else if (filters.category && filters.category !== 'unlimited') {
       // 若冇揀科目 → 自動傳出該子分類下所有科目
       const category = CATEGORY_OPTIONS.find(c => c.value === filters.category);
-      if (category && filters.category !== 'unlimited') {
+      if (category) {
         let subjects: { value: string; label: string }[] = [];
         
         if (category.subCategories && filters.subCategory && filters.subCategory !== '' && filters.subCategory !== 'unlimited') {
@@ -271,6 +273,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
         }
         
         subjects.forEach(subject => params.append('subjects', subject.value));
+        console.log('🔍 自動添加分類科目:', subjects.map(s => s.value));
       }
     }
 
@@ -297,6 +300,8 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     // 直接用 usePathname 判斷
     const isTutorPage = pathname === "/tutors";
     const targetRoute = isTutorPage ? "/tutors" : "/find-student-cases";
+    
+    console.log('🔍 最終URL參數:', params.toString());
     
     // 如果沒有任何有效參數，直接跳轉到乾淨的URL
     if (params.toString() === '') {
