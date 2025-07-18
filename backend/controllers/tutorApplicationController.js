@@ -194,6 +194,11 @@ const reviewTutorApplication = async (req, res) => {
             userType: 'tutor',
             tutorId: tutorId,
             'tutorProfile.applicationStatus': 'approved',
+            'tutorProfile.subjects': application.subjects, // 保存申請中的科目信息
+            'tutorProfile.educationLevel': application.education, // 保存教育背景
+            'tutorProfile.teachingExperienceYears': 1, // 默認教學經驗
+            'tutorProfile.sessionRate': 200, // 默認堂費
+            'tutorProfile.displayPublic': true, // 公開顯示
             profileStatus: 'approved',
             remarks: remarks || '審核通過'
           }
@@ -365,6 +370,11 @@ const approveTutorApplication = async (req, res) => {
           userType: 'tutor',
           tutorId: tutorId,
           'tutorProfile.applicationStatus': 'approved',
+          'tutorProfile.subjects': application.subjects, // 保存申請中的科目信息
+          'tutorProfile.educationLevel': application.education, // 保存教育背景
+          'tutorProfile.teachingExperienceYears': 1, // 默認教學經驗
+          'tutorProfile.sessionRate': 200, // 默認堂費
+          'tutorProfile.displayPublic': true, // 公開顯示
           profileStatus: 'approved',
           remarks: remarks || '審核通過'
         }
