@@ -7,6 +7,7 @@ const TutorCase = require('../models/TutorCase');
 const SearchLog = require('../models/SearchLog');
 const connectDB = require('../config/db');
 const mongoose = require('mongoose');
+const { generateUniqueTutorId } = require('../utils/tutorUtils');
 
 // 生成唯一 7 位 userId
 async function generateUserId() {
@@ -31,28 +32,9 @@ async function generateUserId() {
   console.log(`🔢 Generated userId: ${newId.toString().padStart(7, '0')}`);
   return newId.toString().padStart(7, '0');
 }
-// 生成唯一 2字母+4數字 tutorId
+// 使用 generateUniqueTutorId 函數替代原有的 generateTutorId
 async function generateTutorId() {
-  const lastTutor = await User.findOne({ tutorId: { $exists: true } }).sort({ tutorId: -1 });
-  let prefix = 'AA';
-  let number = 1;
-  if (lastTutor && lastTutor.tutorId) {
-    prefix = lastTutor.tutorId.slice(0, 2);
-    number = parseInt(lastTutor.tutorId.slice(2), 10) + 1;
-    if (number > 9999) {
-      const firstChar = prefix.charCodeAt(0);
-      const secondChar = prefix.charCodeAt(1);
-      if (secondChar < 90) { // 'Z'
-        prefix = String.fromCharCode(firstChar, secondChar + 1);
-      } else if (firstChar < 90) {
-        prefix = String.fromCharCode(firstChar + 1, 65); // 65 = 'A'
-      } else {
-        throw new Error('tutorId 已達上限');
-      }
-      number = 1;
-    }
-  }
-  return `${prefix}${number.toString().padStart(4, '0')}`;
+  return await generateUniqueTutorId(User);
 }
 
 // User Management
