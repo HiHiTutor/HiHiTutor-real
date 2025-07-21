@@ -389,14 +389,24 @@ const getAllTutors = async (req, res) => {
               
               // 將前3個提升為VIP
               const promotedVipTutors = sortedRegularTutors.slice(0, Math.min(3, sortedRegularTutors.length));
+              promotedVipTutors.forEach(tutor => {
+                tutor.isVip = true;
+                tutor.isTop = false;
+              });
               vipTutors.push(...promotedVipTutors);
               
               // 將接下來5個提升為置頂
               const promotedTopTutors = sortedRegularTutors.slice(3, Math.min(8, sortedRegularTutors.length));
+              promotedTopTutors.forEach(tutor => {
+                tutor.isTop = true;
+                tutor.isVip = false;
+              });
               topTutors.push(...promotedTopTutors);
               
               // 更新普通導師列表
               const remainingRegularTutors = sortedRegularTutors.slice(8);
+              regularTutors.length = 0;
+              regularTutors.push(...remainingRegularTutors);
               
               console.log(`✅ 自動提升了 ${promotedVipTutors.length} 個VIP導師和 ${promotedTopTutors.length} 個置頂導師`);
             }
@@ -644,10 +654,18 @@ const getAllTutors = async (req, res) => {
             
             // 將前3個提升為VIP
             const promotedVipTutors = sortedRegularTutors.slice(0, Math.min(3, sortedRegularTutors.length));
+            promotedVipTutors.forEach(tutor => {
+              tutor.isVip = true;
+              tutor.isTop = false;
+            });
             vipTutors.push(...promotedVipTutors);
             
             // 將接下來5個提升為置頂
             const promotedTopTutors = sortedRegularTutors.slice(3, Math.min(8, sortedRegularTutors.length));
+            promotedTopTutors.forEach(tutor => {
+              tutor.isTop = true;
+              tutor.isVip = false;
+            });
             topTutors.push(...promotedTopTutors);
             
             console.log(`✅ Fallback: 自動提升了 ${promotedVipTutors.length} 個VIP導師和 ${promotedTopTutors.length} 個置頂導師`);
