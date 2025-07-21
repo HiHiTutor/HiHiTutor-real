@@ -380,6 +380,27 @@ const getAllTutors = async (req, res) => {
             const targetCount = parseInt(limit) || 8;
             const selectedTutors = [];
             
+            // 如果沒有VIP或置頂導師，自動提升一些導師
+            if (vipTutors.length === 0 && topTutors.length === 0 && regularTutors.length > 0) {
+              console.log('🔄 沒有VIP或置頂導師，自動提升一些導師...');
+              
+              // 按評分排序，選擇評分最高的導師
+              const sortedRegularTutors = regularTutors.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+              
+              // 將前3個提升為VIP
+              const promotedVipTutors = sortedRegularTutors.slice(0, Math.min(3, sortedRegularTutors.length));
+              vipTutors.push(...promotedVipTutors);
+              
+              // 將接下來5個提升為置頂
+              const promotedTopTutors = sortedRegularTutors.slice(3, Math.min(8, sortedRegularTutors.length));
+              topTutors.push(...promotedTopTutors);
+              
+              // 更新普通導師列表
+              const remainingRegularTutors = sortedRegularTutors.slice(8);
+              
+              console.log(`✅ 自動提升了 ${promotedVipTutors.length} 個VIP導師和 ${promotedTopTutors.length} 個置頂導師`);
+            }
+            
             // 計算各類型導師的目標數量
             const vipCount = Math.ceil(targetCount * 0.5);  // 50% VIP
             const topCount = Math.ceil(targetCount * 0.3);  // 30% 置頂
@@ -390,26 +411,23 @@ const getAllTutors = async (req, res) => {
             console.log(`- 置頂: ${topCount} 個`);
             console.log(`- 普通: ${regularCount} 個`);
             
-            // 隨機選擇 VIP 導師
+            // 選擇 VIP 導師
             if (vipTutors.length > 0) {
-              const shuffledVip = vipTutors.sort(() => Math.random() - 0.5);
-              const selectedVip = shuffledVip.slice(0, Math.min(vipCount, vipTutors.length));
+              const selectedVip = vipTutors.slice(0, Math.min(vipCount, vipTutors.length));
               selectedTutors.push(...selectedVip);
               console.log(`✅ 選擇了 ${selectedVip.length} 個 VIP 導師`);
             }
             
-            // 隨機選擇置頂導師
+            // 選擇置頂導師
             if (topTutors.length > 0) {
-              const shuffledTop = topTutors.sort(() => Math.random() - 0.5);
-              const selectedTop = shuffledTop.slice(0, Math.min(topCount, topTutors.length));
+              const selectedTop = topTutors.slice(0, Math.min(topCount, topTutors.length));
               selectedTutors.push(...selectedTop);
               console.log(`✅ 選擇了 ${selectedTop.length} 個置頂導師`);
             }
             
-            // 隨機選擇普通導師
+            // 選擇普通導師
             if (regularTutors.length > 0) {
-              const shuffledRegular = regularTutors.sort(() => Math.random() - 0.5);
-              const selectedRegular = shuffledRegular.slice(0, Math.min(regularCount, regularTutors.length));
+              const selectedRegular = regularTutors.slice(0, Math.min(regularCount, regularTutors.length));
               selectedTutors.push(...selectedRegular);
               console.log(`✅ 選擇了 ${selectedRegular.length} 個普通導師`);
             }
@@ -617,6 +635,24 @@ const getAllTutors = async (req, res) => {
           const targetCount = parseInt(limit) || 8;
           const selectedTutors = [];
           
+          // 如果沒有VIP或置頂導師，自動提升一些導師
+          if (vipTutors.length === 0 && topTutors.length === 0 && regularTutors.length > 0) {
+            console.log('🔄 Fallback: 沒有VIP或置頂導師，自動提升一些導師...');
+            
+            // 按評分排序，選擇評分最高的導師
+            const sortedRegularTutors = regularTutors.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+            
+            // 將前3個提升為VIP
+            const promotedVipTutors = sortedRegularTutors.slice(0, Math.min(3, sortedRegularTutors.length));
+            vipTutors.push(...promotedVipTutors);
+            
+            // 將接下來5個提升為置頂
+            const promotedTopTutors = sortedRegularTutors.slice(3, Math.min(8, sortedRegularTutors.length));
+            topTutors.push(...promotedTopTutors);
+            
+            console.log(`✅ Fallback: 自動提升了 ${promotedVipTutors.length} 個VIP導師和 ${promotedTopTutors.length} 個置頂導師`);
+          }
+          
           // 計算各類型導師的目標數量
           const vipCount = Math.ceil(targetCount * 0.5);  // 50% VIP
           const topCount = Math.ceil(targetCount * 0.3);  // 30% 置頂
@@ -627,26 +663,23 @@ const getAllTutors = async (req, res) => {
           console.log(`- 置頂: ${topCount} 個`);
           console.log(`- 普通: ${regularCount} 個`);
           
-          // 隨機選擇 VIP 導師
+          // 選擇 VIP 導師
           if (vipTutors.length > 0) {
-            const shuffledVip = vipTutors.sort(() => Math.random() - 0.5);
-            const selectedVip = shuffledVip.slice(0, Math.min(vipCount, vipTutors.length));
+            const selectedVip = vipTutors.slice(0, Math.min(vipCount, vipTutors.length));
             selectedTutors.push(...selectedVip);
             console.log(`✅ Fallback 選擇了 ${selectedVip.length} 個 VIP 導師`);
           }
           
-          // 隨機選擇置頂導師
+          // 選擇置頂導師
           if (topTutors.length > 0) {
-            const shuffledTop = topTutors.sort(() => Math.random() - 0.5);
-            const selectedTop = shuffledTop.slice(0, Math.min(topCount, topTutors.length));
+            const selectedTop = topTutors.slice(0, Math.min(topCount, topTutors.length));
             selectedTutors.push(...selectedTop);
             console.log(`✅ Fallback 選擇了 ${selectedTop.length} 個置頂導師`);
           }
           
-          // 隨機選擇普通導師
+          // 選擇普通導師
           if (regularTutors.length > 0) {
-            const shuffledRegular = regularTutors.sort(() => Math.random() - 0.5);
-            const selectedRegular = shuffledRegular.slice(0, Math.min(regularCount, regularTutors.length));
+            const selectedRegular = regularTutors.slice(0, Math.min(regularCount, regularTutors.length));
             selectedTutors.push(...selectedRegular);
             console.log(`✅ Fallback 選擇了 ${selectedRegular.length} 個普通導師`);
           }
