@@ -161,8 +161,8 @@ const Users: React.FC = () => {
   };
 
   const handleViewUser = (userId: string | undefined) => {
-    if (!userId) {
-      console.error('Invalid user ID');
+    if (!userId || userId === 'undefined' || userId === 'null') {
+      console.error('Invalid user ID:', userId);
       return;
     }
     navigate(`/users/${userId}`);
@@ -321,7 +321,7 @@ const Users: React.FC = () => {
           <TableBody>
             {(users || []).map((user) => (
               <TableRow key={user._id}>
-                <TableCell>{(user as any).userId || user.id || user._id}</TableCell>
+                <TableCell>{(user as any).userId || user.id || user._id || 'N/A'}</TableCell>
                 <TableCell>{user.name}</TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.phone}</TableCell>
@@ -356,7 +356,14 @@ const Users: React.FC = () => {
                   <Button
                     variant="outlined"
                     size="small"
-                    onClick={() => handleViewUser((user as any).userId || user.id || user._id)}
+                    onClick={() => {
+                      const userId = (user as any).userId || user.id || user._id;
+                      if (userId && userId !== 'undefined' && userId !== 'null') {
+                        handleViewUser(userId);
+                      } else {
+                        console.error('Invalid user ID for user:', user);
+                      }
+                    }}
                   >
                     View
                   </Button>

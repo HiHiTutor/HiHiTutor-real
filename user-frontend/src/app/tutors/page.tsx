@@ -45,10 +45,10 @@ function TutorsPageContent() {
       const params = new URLSearchParams();
       if (searchQuery) params.append('search', searchQuery);
       
-      // 從 URL 參數讀取所有篩選條件
-      const subjectsFromUrl = searchParams.getAll('subjects');
-      const regionsFromUrl = searchParams.getAll('regions');
-      const modesFromUrl = searchParams.getAll('modes');
+      // 從 URL 參數讀取所有篩選條件，去重
+      const subjectsFromUrl = [...new Set(searchParams.getAll('subjects'))];
+      const regionsFromUrl = [...new Set(searchParams.getAll('regions'))];
+      const modesFromUrl = [...new Set(searchParams.getAll('modes'))];
       const categoryFromUrl = searchParams.get('category');
       
       console.log('🔍 URL 參數:', {
@@ -149,8 +149,10 @@ function TutorsPageContent() {
       setSearchQuery(search);
     }
     if (subjects && subjects.length > 0) {
-      setSelectedSubjects(subjects);
-      console.log('🔍 設置 selectedSubjects:', subjects);
+      // 去重後設置
+      const uniqueSubjects = [...new Set(subjects)];
+      setSelectedSubjects(uniqueSubjects);
+      console.log('🔍 設置 selectedSubjects:', uniqueSubjects);
     } else {
       setSelectedSubjects([]);
     }
@@ -265,7 +267,10 @@ function TutorsPageContent() {
             }
             if (filters.subjects && filters.subjects.length > 0) {
               setSelectedSubjects(filters.subjects);
-              newSearchParams.append('subjects', filters.subjects.join(','));
+              // 分別添加每個subject，避免逗號分隔導致的重複問題
+              filters.subjects.forEach((subject: string) => {
+                newSearchParams.append('subjects', subject);
+              });
             }
             if (filters.regions && filters.regions.length > 0) {
               const filteredRegions = filters.regions.filter((region: string) => region !== 'unlimited');

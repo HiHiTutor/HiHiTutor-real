@@ -172,7 +172,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       target,
       category: searchParams.get('category') || 'unlimited',
       subCategory: searchParams.get('subCategory') || 'unlimited',
-      subjects: searchParams.getAll('subjects').length > 0 ? searchParams.getAll('subjects') : [],
+      subjects: searchParams.getAll('subjects').length > 0 ? [...new Set(searchParams.getAll('subjects'))] : [],
       mode: searchParams.getAll('mode').length > 0 ? searchParams.getAll('mode') : ['unlimited'],
       regions: searchParams.getAll('regions').length > 0 ? searchParams.getAll('regions') : ['unlimited'],
       subRegions: searchParams.getAll('subRegions').length > 0 ? searchParams.getAll('subRegions') : ['unlimited'],
