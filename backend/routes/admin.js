@@ -243,6 +243,59 @@ router.get('/fix-tutor-status', async (req, res) => {
   }
 });
 
+// 新增：檢查導師資料庫狀態
+router.get('/check-tutor-status', async (req, res) => {
+  try {
+    console.log('🔍 檢查導師資料庫狀態...');
+    
+    // 獲取所有導師
+    const allTutors = await User.find({ 
+      userType: 'tutor',
+      isActive: true,
+      status: 'active'
+    }).sort({ rating: -1 });
+    
+    console.log(`📊 找到 ${allTutors.length} 個活躍導師`);
+    
+    // 檢查VIP和置頂導師
+    const vipTutors = allTutors.filter(t => t.isVip);
+    const topTutors = allTutors.filter(t => t.isTop);
+    
+    console.log(`📈 VIP導師: ${vipTutors.length} 個`);
+    console.log(`📈 置頂導師: ${topTutors.length} 個`);
+    
+    // 顯示前10個導師的詳細信息
+    const top10Tutors = allTutors.slice(0, 10).map(t => ({
+      tutorId: t.tutorId,
+      name: t.name,
+      rating: t.rating,
+      isVip: t.isVip,
+      isTop: t.isTop,
+      userType: t.userType,
+      isActive: t.isActive,
+      status: t.status
+    }));
+    
+    res.json({
+      success: true,
+      totalTutors: allTutors.length,
+      vipCount: vipTutors.length,
+      topCount: topTutors.length,
+      top10Tutors: top10Tutors,
+      vipTutors: vipTutors.map(t => ({ tutorId: t.tutorId, name: t.name, rating: t.rating })),
+      topTutors: topTutors.map(t => ({ tutorId: t.tutorId, name: t.name, rating: t.rating }))
+    });
+    
+  } catch (error) {
+    console.error('❌ 檢查導師狀態時出錯:', error);
+    res.status(500).json({
+      success: false,
+      message: '檢查導師狀態時出錯',
+      error: error.message
+    });
+  }
+});
+
 // Case management routes
 router.post('/cases', verifyToken, isAdmin, createCase);
 router.get('/cases', verifyToken, isAdmin, getAllCases);
