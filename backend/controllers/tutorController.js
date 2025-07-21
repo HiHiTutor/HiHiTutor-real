@@ -695,12 +695,6 @@ const getAllTutors = async (req, res) => {
             ];
           }
           
-          // 科目過濾
-          if (subjects) {
-            const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
-            query['tutorProfile.subjects'] = { $in: subjectArray };
-          }
-          
           // 分類過濾
           if (category && category !== 'unlimited') {
             console.log(`🎯 分類過濾: ${category}`);
@@ -733,6 +727,13 @@ const getAllTutors = async (req, res) => {
             }
           } else if (category === 'unlimited') {
             console.log('🎯 分類設為 unlimited，跳過分類過濾');
+            
+            // 如果沒有分類過濾，但有科目過濾，直接使用科目過濾
+            if (subjects) {
+              const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
+              query['tutorProfile.subjects'] = { $in: subjectArray };
+              console.log(`🔍 直接使用科目過濾: ${subjectArray.join(', ')}`);
+            }
           }
           
           console.log('🔍 查詢條件:', JSON.stringify(query, null, 2));
