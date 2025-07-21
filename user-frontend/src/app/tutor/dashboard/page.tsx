@@ -385,12 +385,35 @@ export default function TutorDashboardPage() {
   };
 
   // 證書公開性切換
-  const handleCertificateVisibility = (certUrl: string) => {
-    setPublicCertificates((prev: string[]) => 
-      prev.includes(certUrl) 
-        ? prev.filter(c => c !== certUrl)
-        : [...prev, certUrl]
-    );
+  const handleCertificateVisibility = async (certUrl: string) => {
+    const newPublicCertificates = publicCertificates.includes(certUrl) 
+      ? publicCertificates.filter(c => c !== certUrl)
+      : [...publicCertificates, certUrl];
+    
+    setPublicCertificates(newPublicCertificates);
+    
+    try {
+      const response = await fetch('/api/tutor/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          publicCertificates: newPublicCertificates
+        })
+      });
+      
+      if (response.ok) {
+        toast.success('證書公開設定已更新');
+      } else {
+        const error = await response.json();
+        toast.error(error.message || '更新失敗');
+      }
+    } catch (error) {
+      console.error('更新公開證書失敗:', error);
+      toast.error('更新失敗，請稍後再試');
+    }
   };
 
   if (loading) {
@@ -444,6 +467,8 @@ export default function TutorDashboardPage() {
                 education: formData.education,
                 experience: formData.experience,
                 examResults: formData.examResults,
+                qualifications: formData.qualifications,
+                courseFeatures: formData.courseFeatures,
               })}
               disabled={savingSection === 'personal'}
             >
@@ -608,6 +633,39 @@ export default function TutorDashboardPage() {
                 placeholder="請填寫你的公開試成績..."
                 required
               />
+            </div>
+
+            {/* 專業資格 */}
+            <div className="space-y-2">
+              <Label htmlFor="qualifications">專業資格</Label>
+              <Textarea
+                id="qualifications"
+                value={formData.qualifications.join('\n')}
+                onChange={(e) => setFormData({ 
+                  ...formData, 
+                  qualifications: e.target.value.split('\n').filter(q => q.trim()) 
+                })}
+                placeholder="請填寫你的專業資格，每行一個...&#10;例如：&#10;香港大學教育學士&#10;IELTS 8.0&#10;Registered Teacher"
+                rows={4}
+              />
+              <p className="text-sm text-gray-500">
+                請每行填寫一個專業資格，例如：學歷、證書、認證等
+              </p>
+            </div>
+
+            {/* 課程特點 */}
+            <div className="space-y-2">
+              <Label htmlFor="courseFeatures">課程特點</Label>
+              <Textarea
+                id="courseFeatures"
+                value={formData.courseFeatures}
+                onChange={(e) => setFormData({ ...formData, courseFeatures: e.target.value })}
+                placeholder="請描述你的課程特點，例如：&#10;- 互動式教學&#10;- 個性化學習計劃&#10;- 豐富的練習材料&#10;- 定期進度評估"
+                rows={4}
+              />
+              <p className="text-sm text-gray-500">
+                描述你的教學特色和課程優勢，讓學生更了解你的教學風格
+              </p>
             </div>
           </CardContent>
         </Card>

@@ -175,8 +175,16 @@ const userSchema = new mongoose.Schema({
     introduction: {
       type: String
     },
+    qualifications: {
+      type: [String],
+      default: []
+    },
     courseFeatures: {
       type: String
+    },
+    publicCertificates: {
+      type: [String],
+      default: []
     },
     documents: [{
       type: {

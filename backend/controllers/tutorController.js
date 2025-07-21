@@ -998,11 +998,12 @@ const getTutorByTutorId = async (req, res) => {
       experience: user.tutorProfile?.teachingExperienceYears || 0,
       introduction: user.tutorProfile?.introduction || '',
       education: user.tutorProfile?.educationLevel || '',
-      qualifications: user.tutorProfile?.documents?.map(doc => doc.type) || [],
+      qualifications: user.tutorProfile?.qualifications || [],
       hourlyRate: user.tutorProfile?.sessionRate || 0,
       availableTime: user.tutorProfile?.availableTime?.map(time => `${time.day} ${time.time}`.trim()) || [],
       examResults: user.tutorProfile?.examResults?.map(exam => `${exam.subject} ${exam.grade}`) || [],
       courseFeatures: user.tutorProfile?.courseFeatures || '',
+      publicCertificates: user.tutorProfile?.publicCertificates || [],
       rating: user.rating || 0
     };
     
@@ -1268,7 +1269,7 @@ const getTutorProfile = async (req, res) => {
       experience: user.tutorProfile?.teachingExperienceYears || 0,
       introduction: user.tutorProfile?.introduction || '',
       education: user.tutorProfile?.educationLevel || '',
-      qualifications: user.tutorProfile?.documents?.map(doc => doc.type) || [],
+      qualifications: user.tutorProfile?.qualifications || [],
       hourlyRate: user.tutorProfile?.sessionRate || 0,
       availableTime: user.tutorProfile?.availableTime?.map(time => `${time.day} ${time.time}`.trim()) || [],
       avatar: user.avatar || user.tutorProfile?.avatarUrl || '',
@@ -1407,15 +1408,11 @@ const updateTutorProfile = async (req, res) => {
       }
     }
     
-    // 處理 qualifications - 將字符串數組轉換為 documents 對象數組
+    // 處理 qualifications - 直接保存為字符串數組
     if (updateData.qualifications !== undefined) {
-      if (Array.isArray(updateData.qualifications)) {
-        const documents = updateData.qualifications.map(qual => ({
-          type: qual,
-          url: ''
-        }));
-        updateObject['tutorProfile.documents'] = documents;
-      }
+      updateObject['tutorProfile.qualifications'] = Array.isArray(updateData.qualifications) 
+        ? updateData.qualifications 
+        : [];
     }
 
     // 處理 documents - 身份證和學歷證書
@@ -1426,6 +1423,13 @@ const updateTutorProfile = async (req, res) => {
       if (updateData.documents.educationCert !== undefined) {
         updateObject['documents.educationCert'] = updateData.documents.educationCert;
       }
+    }
+
+    // 處理公開證書
+    if (updateData.publicCertificates !== undefined) {
+      updateObject['tutorProfile.publicCertificates'] = Array.isArray(updateData.publicCertificates) 
+        ? updateData.publicCertificates 
+        : [];
     }
 
     console.log('📝 更新對象:', updateObject);
