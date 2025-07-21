@@ -67,7 +67,26 @@ function FindStudentCasesPageContent() {
         setLoading(true);
         console.log("🔍 正在獲取補習個案資料...");
         
-        const result = await caseApi.searchByTarget('find-student');
+        // 從 URL 參數構建查詢條件
+        const search = searchParams.get('search');
+        const category = searchParams.get('category');
+        const subCategory = searchParams.get('subCategory');
+        const subjects = searchParams.getAll('subjects');
+        const regions = searchParams.getAll('regions');
+        const modes = searchParams.getAll('modes');
+        
+        // 構建 API 參數
+        const apiParams: any = {};
+        if (search) apiParams.search = search;
+        if (category && category !== 'unlimited') apiParams.category = category;
+        if (subCategory && subCategory !== 'unlimited') apiParams.subCategory = subCategory;
+        if (subjects.length > 0) apiParams.subjects = subjects;
+        if (regions.length > 0 && !(regions.length === 1 && regions[0] === 'unlimited')) apiParams.regions = regions;
+        if (modes.length > 0 && !(modes.length === 1 && modes[0] === 'unlimited')) apiParams.modes = modes;
+        
+        console.log("🔍 API 參數：", apiParams);
+        
+        const result = await caseApi.searchByTarget('find-student', apiParams);
         console.log("📦 成功獲取補習個案：", result);
         
         // 處理回應數據
@@ -75,112 +94,21 @@ function FindStudentCasesPageContent() {
         console.log("📊 個案數據：", casesData);
         
         setAllCases(casesData);
-        console.log("✅ 已保存個案資料到 allCases，數量：", casesData.length);
+        setCases(casesData); // 直接設置顯示的個案
+        console.log("✅ 已保存個案資料，數量：", casesData.length);
       } catch (error) {
         console.error('❌ 獲取補習個案時發生錯誤：', error);
         setAllCases([]);
+        setCases([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchAllCases();
-  }, []);
+  }, [searchParams]); // 依賴 searchParams，當 URL 參數改變時重新獲取
 
-  // 當 URL 參數改變時，從 allCases 中過濾
-  useEffect(() => {
-    if (allCases.length === 0) return;
-
-    console.log("🔍 URL 參數改變，開始過濾個案資料");
-    console.log("📊 總個案數量：", allCases.length);
-    
-    // 從 URL 獲取搜尋參數
-    const search = searchParams.get('search');
-    const category = searchParams.get('category');
-    const subCategory = searchParams.get('subCategory');
-    const subject = searchParams.get('subject');
-    const subjects = searchParams.getAll('subjects'); // 獲取多個科目參數
-    const regions = searchParams.getAll('regions'); // 獲取多個地區參數
-    const modes = searchParams.getAll('modes'); // 獲取多個教學模式參數
-
-    console.log("🔍 搜尋參數：", {
-      search,
-      category,
-      subCategory,
-      subject,
-      subjects,
-      regions,
-      modes
-    });
-
-    // 檢查是否有任何篩選條件
-    const hasFilters = search || category || subCategory || subject || (subjects && subjects.length > 0) || (regions && regions.length > 0) || (modes && modes.length > 0);
-    
-    console.log("🔍 是否有篩選條件：", hasFilters);
-
-    // 從 allCases 過濾
-    const filtered = allCases.filter((caseItem: any) => {
-      // 搜尋過濾
-      if (search && search.trim()) {
-        const searchLower = typeof search === 'string' ? search.toLowerCase() : '';
-        const matchesSearch = 
-          (caseItem.title && typeof caseItem.title === 'string' && caseItem.title.toLowerCase().includes(searchLower)) ||
-          (caseItem.subjects && Array.isArray(caseItem.subjects) && caseItem.subjects.filter((s: any) => typeof s === 'string').some((s: string) => s.toLowerCase().includes(searchLower)));
-        if (!matchesSearch) {
-          console.log("❌ 不符合搜尋條件：", { search, caseItem: caseItem.title });
-          return false;
-        }
-      }
-
-      // 地區篩選
-      if (
-        regions &&
-        regions.length > 0 &&
-        !(regions.length === 1 && regions[0] === 'unlimited')
-      ) {
-        const caseRegions = Array.isArray(caseItem.regions) ? caseItem.regions.filter((r: any) => typeof r === 'string').map((r: string) => r.toLowerCase()) : [];
-        const filterRegions = Array.isArray(regions) ? regions.filter((r: any) => typeof r === 'string').map((r: string) => r.toLowerCase()) : [];
-        const hasMatchingRegion = caseRegions.some((caseRegion: string) => 
-          filterRegions.some((filterRegion: string) => caseRegion.includes(filterRegion))
-        );
-        if (!hasMatchingRegion) {
-          console.log("❌ 地區不匹配：", { caseTitle: caseItem.title, caseRegions, filterRegions });
-          return false;
-        }
-      }
-      
-      // 教學模式篩選
-      if (
-        modes &&
-        modes.length > 0 &&
-        !(modes.length === 1 && modes[0] === 'unlimited')
-      ) {
-        const caseModes = Array.isArray(caseItem.modes) ? caseItem.modes.filter((m: any) => typeof m === 'string').map((m: string) => m.toLowerCase()) : [];
-        const filterModes = Array.isArray(modes) ? modes.filter((m: any) => typeof m === 'string').map((m: string) => m.toLowerCase()) : [];
-        const hasMatchingMode = caseModes.some((caseMode: string) => 
-          filterModes.some((filterMode: string) => caseMode.includes(filterMode))
-        );
-        if (!hasMatchingMode) {
-          console.log("❌ 教學模式不匹配：", { caseTitle: caseItem.title, caseModes, filterModes });
-          return false;
-        }
-      }
-
-      console.log("✅ 個案符合所有條件：", caseItem.title);
-      return true;
-    });
-
-    console.log("🔍 過濾後結果：", {
-      totalCases: allCases.length,
-      filteredCount: filtered.length,
-      filteredCases: filtered.map((c: any) => ({ title: c.title, id: c.id }))
-    });
-
-    // 更新顯示的個案 - 暫時顯示所有個案以便調試
-    setCases(filtered);
-    setCurrentPage(1);
-    setHasMore(false); // 暫時關閉分頁
-  }, [searchParams, allCases]);
+  // 移除重複的客戶端篩選邏輯，現在直接使用服務器端篩選
 
   const handleFilter = (filters: any) => {
     console.log("🔍 篩選條件：", filters);
