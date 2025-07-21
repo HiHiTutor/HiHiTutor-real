@@ -136,6 +136,113 @@ router.post('/fix-user-password', async (req, res) => {
   }
 });
 
+// 新增：檢查和修復導師VIP/置頂狀態
+router.get('/fix-tutor-status', async (req, res) => {
+  try {
+    console.log('🔧 開始檢查和修復導師狀態...');
+    
+    // 獲取所有導師
+    const allTutors = await User.find({ 
+      role: 'tutor',
+      isActive: true,
+      status: 'approved'
+    }).sort({ rating: -1 });
+    
+    console.log(`📊 找到 ${allTutors.length} 個活躍導師`);
+    
+    // 檢查當前VIP和置頂導師數量
+    const vipCount = allTutors.filter(t => t.isVip).length;
+    const topCount = allTutors.filter(t => t.isTop).length;
+    
+    console.log(`📈 當前狀態: VIP=${vipCount}, 置頂=${topCount}`);
+    
+    // 如果沒有VIP或置頂導師，自動設置
+    if (vipCount === 0 && topCount === 0 && allTutors.length > 0) {
+      console.log('🔄 沒有VIP或置頂導師，開始自動設置...');
+      
+      const updates = [];
+      
+      // 設置前3個為VIP
+      for (let i = 0; i < Math.min(3, allTutors.length); i++) {
+        const tutor = allTutors[i];
+        if (!tutor.isVip) {
+          updates.push({
+            updateOne: {
+              filter: { _id: tutor._id },
+              update: { 
+                $set: { 
+                  isVip: true, 
+                  isTop: false 
+                } 
+              }
+            }
+          });
+          console.log(`✅ 設置 ${tutor.tutorId || tutor.name} 為VIP`);
+        }
+      }
+      
+      // 設置接下來5個為置頂
+      for (let i = 3; i < Math.min(8, allTutors.length); i++) {
+        const tutor = allTutors[i];
+        if (!tutor.isTop) {
+          updates.push({
+            updateOne: {
+              filter: { _id: tutor._id },
+              update: { 
+                $set: { 
+                  isTop: true, 
+                  isVip: false 
+                } 
+              }
+            }
+          });
+          console.log(`✅ 設置 ${tutor.tutorId || tutor.name} 為置頂`);
+        }
+      }
+      
+      // 批量更新資料庫
+      if (updates.length > 0) {
+        const result = await User.bulkWrite(updates);
+        console.log(`🎉 成功更新 ${result.modifiedCount} 個導師`);
+      }
+    }
+    
+    // 重新獲取更新後的導師列表
+    const updatedTutors = await User.find({ 
+      role: 'tutor',
+      isActive: true,
+      status: 'approved'
+    }).sort({ rating: -1 }).limit(10);
+    
+    const finalVipCount = updatedTutors.filter(t => t.isVip).length;
+    const finalTopCount = updatedTutors.filter(t => t.isTop).length;
+    
+    console.log(`📊 修復後狀態: VIP=${finalVipCount}, 置頂=${finalTopCount}`);
+    
+    res.json({
+      success: true,
+      message: '導師狀態修復完成',
+      before: { vip: vipCount, top: topCount },
+      after: { vip: finalVipCount, top: finalTopCount },
+      topTutors: updatedTutors.slice(0, 5).map(t => ({
+        tutorId: t.tutorId,
+        name: t.name,
+        rating: t.rating,
+        isVip: t.isVip,
+        isTop: t.isTop
+      }))
+    });
+    
+  } catch (error) {
+    console.error('❌ 修復導師狀態時出錯:', error);
+    res.status(500).json({
+      success: false,
+      message: '修復導師狀態時出錯',
+      error: error.message
+    });
+  }
+});
+
 // Case management routes
 router.post('/cases', verifyToken, isAdmin, createCase);
 router.get('/cases', verifyToken, isAdmin, getAllCases);
