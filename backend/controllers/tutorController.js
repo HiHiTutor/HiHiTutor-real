@@ -1177,6 +1177,8 @@ const getTutorDetail = async (req, res) => {
       availableTime: tutor.tutorProfile?.availableTime?.map(time => `${time.day} ${time.time}`.trim()) || [],
       examResults: tutor.tutorProfile?.examResults?.map(exam => `${exam.subject} ${exam.grade}`) || [],
       courseFeatures: tutor.tutorProfile?.courseFeatures || '',
+      // 暫時回傳空的公開證書陣列，後續可以根據實際需求修改
+      publicCertificates: [],
       rating: tutor.rating || 0,
       createdAt: tutor.createdAt,
       updatedAt: tutor.updatedAt

@@ -19,6 +19,7 @@ export interface Tutor {
   availableTime?: string[];
   examResults?: string[];
   courseFeatures?: string;
+  publicCertificates?: string[];
   isVip?: boolean;
   isTop?: boolean;
   region?: string;
