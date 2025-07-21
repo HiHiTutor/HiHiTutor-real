@@ -60,7 +60,7 @@ interface TutorProfile {
   courseFeatures: string;
   documents: {
     idCard: string;
-    educationCert: string[];
+    educationCert: string | string[];
   };
   profileStatus?: 'pending' | 'approved' | 'rejected';
   remarks?: string;
@@ -958,33 +958,65 @@ export default function TutorDashboardPage() {
                 disabled={uploading}
                 required
               />
-              {formData.documents.educationCert && formData.documents.educationCert.length > 0 && (
+              {formData.documents.educationCert && (
                 <div className="space-y-4">
-                  <p className="text-sm text-green-600">已上傳 {formData.documents.educationCert.length} 個文件</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {formData.documents.educationCert.map((cert, index) => (
-                      <div key={index} className="space-y-2">
+                  {/* 確保 educationCert 是陣列 */}
+                  {Array.isArray(formData.documents.educationCert) ? (
+                    formData.documents.educationCert.length > 0 && (
+                      <>
+                        <p className="text-sm text-green-600">已上傳 {formData.documents.educationCert.length} 個文件</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {formData.documents.educationCert.map((cert, index) => (
+                            <div key={index} className="space-y-2">
+                              <div className="relative w-full h-48 border rounded-lg overflow-hidden">
+                                <Image
+                                  src={cert}
+                                  alt={`證書 ${index + 1}`}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`cert-${index}`}
+                                  checked={publicCertificates.includes(cert)}
+                                  onCheckedChange={() => handleCertificateVisibility(cert)}
+                                />
+                                <Label htmlFor={`cert-${index}`} className="text-sm">
+                                  公開此證書（其他用戶可見，個人信息會被模糊處理）
+                                </Label>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )
+                  ) : (
+                    // 如果是單一字串，顯示為單個證書
+                    formData.documents.educationCert && (
+                      <div className="space-y-2">
+                        <p className="text-sm text-green-600">已上傳 1 個文件</p>
                         <div className="relative w-full h-48 border rounded-lg overflow-hidden">
                           <Image
-                            src={cert}
-                            alt={`證書 ${index + 1}`}
+                            src={formData.documents.educationCert}
+                            alt="證書"
                             fill
                             className="object-cover"
                           />
                         </div>
                         <div className="flex items-center space-x-2">
                           <Checkbox
-                            id={`cert-${index}`}
-                            checked={publicCertificates.includes(cert)}
-                            onCheckedChange={() => handleCertificateVisibility(cert)}
+                            id="cert-0"
+                            checked={publicCertificates.includes(formData.documents.educationCert as string)}
+                            onCheckedChange={() => handleCertificateVisibility(formData.documents.educationCert as string)}
                           />
-                          <Label htmlFor={`cert-${index}`} className="text-sm">
+                          <Label htmlFor="cert-0" className="text-sm">
                             公開此證書（其他用戶可見，個人信息會被模糊處理）
                           </Label>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    )
+                  )}
                 </div>
               )}
             </div>
