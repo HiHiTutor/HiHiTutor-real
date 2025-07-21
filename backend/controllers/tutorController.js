@@ -814,13 +814,26 @@ const getAllTutors = async (req, res) => {
           // 執行查詢
           const dbTutors = await User.find(query)
             .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId')
-            .sort({ rating: -1, createdAt: -1 })
             .limit(parseInt(limit) || 50);
           
-          console.log(`✅ 從資料庫找到 ${dbTutors.length} 位導師`);
+          // 按優先級排序：VIP > 置頂 > 普通，然後按評分排序
+          const sortedTutors = dbTutors.sort((a, b) => {
+            // 首先按 VIP 狀態排序
+            if (a.isVip && !b.isVip) return -1;
+            if (!a.isVip && b.isVip) return 1;
+            
+            // 然後按置頂狀態排序
+            if (a.isTop && !b.isTop) return -1;
+            if (!a.isTop && b.isTop) return 1;
+            
+            // 最後按評分排序
+            return (b.rating || 0) - (a.rating || 0);
+          });
+          
+          console.log(`✅ 從資料庫找到 ${sortedTutors.length} 位導師`);
           
           // 格式化資料庫結果
-          tutors = dbTutors.map(tutor => ({
+          tutors = sortedTutors.map(tutor => ({
             _id: tutor._id,
             userId: tutor._id,
             tutorId: tutor.tutorId,
