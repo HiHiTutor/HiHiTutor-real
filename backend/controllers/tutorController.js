@@ -428,13 +428,24 @@ const getAllTutors = async (req, res) => {
               }
             }
             
-            // 最終隨機排序
-            const finalShuffled = selectedTutors.sort(() => Math.random() - 0.5);
+            // 按優先級排序：VIP > 置頂 > 普通，然後按評分排序
+            const finalSorted = selectedTutors.sort((a, b) => {
+              // 首先按 VIP 狀態排序
+              if (a.isVip && !b.isVip) return -1;
+              if (!a.isVip && b.isVip) return 1;
+              
+              // 然後按置頂狀態排序
+              if (a.isTop && !b.isTop) return -1;
+              if (!a.isTop && b.isTop) return 1;
+              
+              // 最後按評分排序
+              return (b.rating || 0) - (a.rating || 0);
+            });
             
-            console.log(`🎉 最終選擇了 ${finalShuffled.length} 個導師`);
+            console.log(`🎉 最終選擇了 ${finalSorted.length} 個導師，按優先級排序`);
             
             // 格式化結果
-            tutors = finalShuffled.map(tutor => ({
+            tutors = finalSorted.map(tutor => ({
               _id: tutor._id,
               userId: tutor._id,
               tutorId: tutor.tutorId,
@@ -654,13 +665,24 @@ const getAllTutors = async (req, res) => {
             }
           }
           
-          // 最終隨機排序
-          const finalShuffled = selectedTutors.sort(() => Math.random() - 0.5);
+          // 按優先級排序：VIP > 置頂 > 普通，然後按評分排序
+          const finalSorted = selectedTutors.sort((a, b) => {
+            // 首先按 VIP 狀態排序
+            if (a.isVip && !b.isVip) return -1;
+            if (!a.isVip && b.isVip) return 1;
+            
+            // 然後按置頂狀態排序
+            if (a.isTop && !b.isTop) return -1;
+            if (!a.isTop && b.isTop) return 1;
+            
+            // 最後按評分排序
+            return (b.rating || 0) - (a.rating || 0);
+          });
           
-          console.log(`🎉 Fallback 最終選擇了 ${finalShuffled.length} 個導師`);
+          console.log(`🎉 Fallback 最終選擇了 ${finalSorted.length} 個導師，按優先級排序`);
           
           // 格式化結果
-          tutors = finalShuffled.map(tutor => ({
+          tutors = finalSorted.map(tutor => ({
             _id: tutor._id,
             userId: tutor._id,
             tutorId: tutor.tutorId,
