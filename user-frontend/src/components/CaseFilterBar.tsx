@@ -448,10 +448,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   const getSelectedOptions = () => {
     const selected: { key: string; label: string; value: string }[] = [];
     
-    // 搜尋關鍵字
-    if (filters.search && filters.search.trim()) {
-      selected.push({ key: 'search', label: `搜尋: ${filters.search}`, value: filters.search });
-    }
+
     
     // 目標 - 不顯示在已選項目中
     // if (filters.target) {
@@ -538,9 +535,6 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       const newFilters = { ...prev };
       
       switch (key) {
-        case 'search':
-          newFilters.search = '';
-          break;
         case 'category':
           newFilters.category = 'unlimited';
           newFilters.subCategory = 'unlimited';
@@ -644,18 +638,6 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
 
             {/* 篩選選項 */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-sm:gap-3 max-[700px]:grid-cols-2 max-[700px]:gap-4">
-              {/* 搜尋輸入欄 */}
-              <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
-                <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">搜尋</label>
-                <input
-                  type="text"
-                  value={filters.search}
-                  onChange={(e) => handleFilterChange('search', e.target.value)}
-                  placeholder="輸入關鍵字"
-                  className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
-                />
-              </div>
-
               {/* 分類選擇 */}
               <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
                 <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">課程分類</label>
