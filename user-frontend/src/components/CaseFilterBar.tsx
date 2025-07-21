@@ -55,7 +55,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   const [filters, setFilters] = useState<FilterState>({
     target: '',
     category: 'unlimited', // 預設為不限
-    subCategory: '', // 預設為請選擇
+    subCategory: 'unlimited', // 預設為不限
     subjects: [],
     mode: [], // 預設為空數組
     regions: ['unlimited'], // 預設為不限，改為單選
@@ -191,10 +191,17 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   }, [currentTarget]);
 
   const handleFilterChange = (key: keyof FilterState, value: any) => {
-    setFilters(prev => ({
-      ...prev,
-      [key]: value
-    }));
+    setFilters(prev => {
+      const newFilters = { ...prev, [key]: value };
+      
+      // 當課程分類改變時，清空子分類和科目選擇
+      if (key === 'category') {
+        newFilters.subCategory = 'unlimited';
+        newFilters.subjects = [];
+      }
+      
+      return newFilters;
+    });
   };
 
   const handleSubjectChange = (subject: string) => {
@@ -248,7 +255,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       console.log('🔍 添加分類參數:', filters.category);
     }
 
-    // 子分類
+    // 子分類 - 只有選擇具體子分類時才添加參數
     if (filters.subCategory && filters.subCategory !== 'unlimited') {
       params.set('subCategory', filters.subCategory);
     }
@@ -263,13 +270,13 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       if (category) {
         let subjects: { value: string; label: string }[] = [];
         
-        if (category.subCategories && filters.subCategory && filters.subCategory !== '' && filters.subCategory !== 'unlimited') {
+        if (category.subCategories && filters.subCategory && filters.subCategory !== 'unlimited') {
           // 有選擇具體子分類
           const subCategory = category.subCategories.find(sc => sc.value === filters.subCategory);
           subjects = subCategory?.subjects || [];
           console.log('🔍 使用具體子分類科目:', subjects.map(s => s.value));
-        } else if (category.subCategories && (filters.subCategory === 'unlimited' || filters.subCategory === '')) {
-          // 子分類是不限或未選擇，使用所有子分類的科目
+        } else if (category.subCategories && filters.subCategory === 'unlimited') {
+          // 子分類是不限，使用所有子分類的科目
           subjects = category.subCategories.flatMap(sc => sc.subjects || []);
           console.log('🔍 使用所有子分類科目:', subjects.map(s => s.value));
         } else {
@@ -282,11 +289,12 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
         console.log('🔍 自動添加分類科目:', subjects.map(s => s.value));
       }
     }
+    // 如果課程分類是不限，不添加任何科目參數（清除之前的科目參數）
 
     // 其他篩選條件 - 只添加非unlimited的值
     filters.mode.forEach(mode => {
       if (mode !== 'unlimited') {
-        params.append('mode', mode);
+        params.append('modes', mode);
       }
     });
     filters.regions.forEach(region => {
@@ -384,29 +392,30 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     const category = CATEGORY_OPTIONS.find(c => c.value === filters.category);
     const subOptions = category?.subCategories || [];
     return [
-      { value: '', label: '請選擇' },
+      { value: 'unlimited', label: '不限' },
       ...subOptions
     ];
   };
 
   const getSubjectOptions = () => {
     const category = CATEGORY_OPTIONS.find(c => c.value === filters.category);
-    if (!category) return [{ value: '', label: '請選擇' }];
+    if (!category) return [{ value: 'unlimited', label: '不限' }];
     
     let subjects: { value: string; label: string }[] = [];
     
-    if (category.subCategories && filters.subCategory && filters.subCategory !== '' && filters.subCategory !== 'unlimited') {
+    if (category.subCategories && filters.subCategory && filters.subCategory !== 'unlimited') {
+      // 只顯示選中子分類的科目
       const subCategory = category.subCategories.find(sc => sc.value === filters.subCategory);
       subjects = subCategory?.subjects || [];
-    } else if (category.subCategories && (filters.subCategory === 'unlimited' || filters.subCategory === '')) {
-      // 如果選擇"不限"子分類或"請選擇"，顯示所有子分類的科目
+    } else if (category.subCategories && filters.subCategory === 'unlimited') {
+      // 如果選擇"不限"子分類，顯示所有子分類的科目
       subjects = category.subCategories.flatMap(sc => sc.subjects || []);
     } else {
       subjects = category.subjects || [];
     }
     
     return [
-      { value: '', label: '請選擇' },
+      { value: 'unlimited', label: '不限' },
       ...subjects
     ];
   };
@@ -417,8 +426,8 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
 
     // 只有"中小學教育"有子分類，其他分類直接顯示科目
     if (category.value === 'primary-secondary') {
-      // 如果有子分類，需要選擇子分類後才顯示科目
-      return filters.subCategory && filters.subCategory !== '';
+      // 如果有子分類，需要選擇具體的子分類後才顯示科目（不包括"不限"）
+      return filters.subCategory && filters.subCategory !== '' && filters.subCategory !== 'unlimited';
     }
 
     // 其他分類直接顯示科目
@@ -554,7 +563,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     setFilters({
       target: autoTarget,
       category: 'unlimited',
-      subCategory: '',
+      subCategory: 'unlimited',
       subjects: [],
       mode: [],
       regions: ['unlimited'],
@@ -651,7 +660,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                 </div>
               )}
 
-              {/* 科目選擇 - 只在選擇課程分類後顯示 */}
+              {/* 科目選擇 - 只在選擇課程分類後顯示，且子分類不是"不限" */}
               {filters.category !== 'unlimited' && shouldShowSubjects() && (
                 <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
                   <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">科目</label>
