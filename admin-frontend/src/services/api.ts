@@ -130,6 +130,7 @@ export const usersAPI = {
     role?: string;
     userType?: string;
     search?: string;
+    searchType?: string;
     sortBy?: string;
     sortOrder?: 'asc' | 'desc';
   }) => {

@@ -17,14 +17,19 @@ import {
   MenuItem,
   CircularProgress,
   TableSortLabel,
+  Grid,
 } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { usersAPI } from '../services/api';
 import { setUsers, setLoading, setError } from '../store/slices/userSlice';
 import AddIcon from '@mui/icons-material/Add';
+import StarIcon from '@mui/icons-material/Star';
+import VerifiedIcon from '@mui/icons-material/Verified';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 
-type SortField = 'userId' | 'name' | 'email' | 'phone' | 'role' | 'userType' | 'tutorId' | 'status' | 'createdAt';
+type SortField = 'userId' | 'name' | 'email' | 'phone' | 'role' | 'userType' | 'tutorId' | 'status' | 'createdAt' | 'isVip' | 'isTop' | 'rating';
 type SortOrder = 'asc' | 'desc';
+type SearchType = 'all' | 'name' | 'email' | 'phone' | 'tutorId' | 'userId';
 
 const Users: React.FC = () => {
   const navigate = useNavigate();
@@ -36,6 +41,7 @@ const Users: React.FC = () => {
   const [userTypeFilter, setUserTypeFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchInput, setSearchInput] = useState(''); // 用於輸入框顯示
+  const [searchType, setSearchType] = useState<SearchType>('all'); // 搜尋類型
   const [totalCount, setTotalCount] = useState(0);
   const [sortField, setSortField] = useState<SortField>('createdAt');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
@@ -80,6 +86,7 @@ const Users: React.FC = () => {
           role: roleFilter,
           userType: userTypeFilter,
           search: searchQuery,
+          searchType: searchType, // 添加搜尋類型
           sortBy: sortField,
           sortOrder: sortOrder,
         });
@@ -99,13 +106,12 @@ const Users: React.FC = () => {
     };
 
     fetchUsers();
-  }, [dispatch, page, rowsPerPage, roleFilter, userTypeFilter, searchQuery, sortField, sortOrder]);
+  }, [dispatch, page, rowsPerPage, roleFilter, userTypeFilter, searchQuery, searchType, sortField, sortOrder]);
 
   const handleSort = (field: SortField) => {
     const isAsc = sortField === field && sortOrder === 'asc';
     setSortOrder(isAsc ? 'desc' : 'asc');
     setSortField(field);
-    setPage(0);
   };
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -119,12 +125,10 @@ const Users: React.FC = () => {
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'student':
+      case 'admin':
+        return 'error';
+      case 'user':
         return 'primary';
-      case 'tutor':
-        return 'secondary';
-      case 'organization':
-        return 'success';
       default:
         return 'default';
     }
@@ -134,10 +138,10 @@ const Users: React.FC = () => {
     switch (status) {
       case 'active':
         return 'success';
+      case 'inactive':
+        return 'error';
       case 'pending':
         return 'warning';
-      case 'blocked':
-        return 'error';
       default:
         return 'default';
     }
@@ -145,27 +149,39 @@ const Users: React.FC = () => {
 
   const getUserTypeColor = (userType: string | undefined) => {
     switch (userType) {
-      case 'student':
-        return 'primary';
       case 'tutor':
+        return 'primary';
+      case 'student':
         return 'secondary';
       case 'organization':
-        return 'success';
-      case 'admin':
-        return 'error';
-      case 'super_admin':
-        return 'error';
+        return 'info';
       default:
         return 'default';
     }
   };
 
   const handleViewUser = (userId: string | undefined) => {
-    if (!userId || userId === 'undefined' || userId === 'null') {
-      console.error('Invalid user ID:', userId);
-      return;
+    if (userId) {
+      navigate(`/users/${userId}`);
     }
-    navigate(`/users/${userId}`);
+  };
+
+  // 獲取搜尋欄位的placeholder
+  const getSearchPlaceholder = () => {
+    switch (searchType) {
+      case 'name':
+        return '搜尋姓名...';
+      case 'email':
+        return '搜尋電郵...';
+      case 'phone':
+        return '搜尋電話...';
+      case 'tutorId':
+        return '搜尋導師ID (如: TU0100)...';
+      case 'userId':
+        return '搜尋用戶ID...';
+      default:
+        return '搜尋姓名、電郵、電話、導師ID...';
+    }
   };
 
   if (loading) {
@@ -191,43 +207,69 @@ const Users: React.FC = () => {
       </Box>
 
       {/* Filters */}
-      <Box sx={{ mb: 3, display: 'flex', gap: 2 }}>
-        <TextField
-          label="Search"
-          variant="outlined"
-          size="small"
-          value={searchInput}
-          onChange={handleSearchChange}
-          onKeyPress={handleSearchKeyPress}
-          placeholder="Search name, email, userId... (Press Enter to search)"
-          sx={{ width: 300 }}
-        />
-        <TextField
-          select
-          label="Role"
-          variant="outlined"
-          size="small"
-          value={roleFilter}
-          onChange={(e) => setRoleFilter(e.target.value)}
-          sx={{ width: 120 }}
-        >
-          <MenuItem value="">All Roles</MenuItem>
-          <MenuItem value="admin">Admin</MenuItem>
-        </TextField>
-        <TextField
-          select
-          label="User Type"
-          variant="outlined"
-          size="small"
-          value={userTypeFilter}
-          onChange={(e) => setUserTypeFilter(e.target.value)}
-          sx={{ width: 150 }}
-        >
-          <MenuItem value="">All User Types</MenuItem>
-          <MenuItem value="student">Student</MenuItem>
-          <MenuItem value="tutor">Tutor</MenuItem>
-          <MenuItem value="organization">Organization</MenuItem>
-        </TextField>
+      <Box sx={{ mb: 3 }}>
+        <Grid container spacing={2} alignItems="center">
+          <Grid item>
+            <TextField
+              select
+              label="搜尋類型"
+              variant="outlined"
+              size="small"
+              value={searchType}
+              onChange={(e) => setSearchType(e.target.value as SearchType)}
+              sx={{ width: 150 }}
+            >
+              <MenuItem value="all">全部欄位</MenuItem>
+              <MenuItem value="name">姓名</MenuItem>
+              <MenuItem value="email">電郵</MenuItem>
+              <MenuItem value="phone">電話</MenuItem>
+              <MenuItem value="tutorId">導師ID</MenuItem>
+              <MenuItem value="userId">用戶ID</MenuItem>
+            </TextField>
+          </Grid>
+          <Grid item>
+            <TextField
+              label="搜尋"
+              variant="outlined"
+              size="small"
+              value={searchInput}
+              onChange={handleSearchChange}
+              onKeyPress={handleSearchKeyPress}
+              placeholder={getSearchPlaceholder()}
+              sx={{ width: 300 }}
+            />
+          </Grid>
+          <Grid item>
+            <TextField
+              select
+              label="Role"
+              variant="outlined"
+              size="small"
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              sx={{ width: 120 }}
+            >
+              <MenuItem value="">All Roles</MenuItem>
+              <MenuItem value="admin">Admin</MenuItem>
+            </TextField>
+          </Grid>
+          <Grid item>
+            <TextField
+              select
+              label="User Type"
+              variant="outlined"
+              size="small"
+              value={userTypeFilter}
+              onChange={(e) => setUserTypeFilter(e.target.value)}
+              sx={{ width: 150 }}
+            >
+              <MenuItem value="">All User Types</MenuItem>
+              <MenuItem value="student">Student</MenuItem>
+              <MenuItem value="tutor">Tutor</MenuItem>
+              <MenuItem value="organization">Organization</MenuItem>
+            </TextField>
+          </Grid>
+        </Grid>
       </Box>
 
       <TableContainer component={Paper}>
@@ -299,6 +341,33 @@ const Users: React.FC = () => {
               </TableCell>
               <TableCell>
                 <TableSortLabel
+                  active={sortField === 'isVip'}
+                  direction={sortField === 'isVip' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('isVip')}
+                >
+                  VIP等級
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortField === 'isTop'}
+                  direction={sortField === 'isTop' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('isTop')}
+                >
+                  置頂等級
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortField === 'rating'}
+                  direction={sortField === 'rating' ? sortOrder : 'asc'}
+                  onClick={() => handleSort('rating')}
+                >
+                  評分
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
                   active={sortField === 'status'}
                   direction={sortField === 'status' ? sortOrder : 'asc'}
                   onClick={() => handleSort('status')}
@@ -341,6 +410,50 @@ const Users: React.FC = () => {
                 </TableCell>
                 <TableCell>
                   {user.tutorId || 'N/A'}
+                </TableCell>
+                <TableCell>
+                  {(user as any).isVip ? (
+                    <Chip
+                      icon={<VerifiedIcon />}
+                      label="VIP"
+                      color="warning"
+                      size="small"
+                    />
+                  ) : (
+                    <Chip
+                      label="普通"
+                      color="default"
+                      size="small"
+                    />
+                  )}
+                </TableCell>
+                <TableCell>
+                  {(user as any).isTop ? (
+                    <Chip
+                      icon={<TrendingUpIcon />}
+                      label="置頂"
+                      color="info"
+                      size="small"
+                    />
+                  ) : (
+                    <Chip
+                      label="普通"
+                      color="default"
+                      size="small"
+                    />
+                  )}
+                </TableCell>
+                <TableCell>
+                  {(user as any).rating ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <StarIcon sx={{ color: 'gold', fontSize: 16 }} />
+                      <Typography variant="body2">
+                        {(user as any).rating.toFixed(1)}
+                      </Typography>
+                    </Box>
+                  ) : (
+                    'N/A'
+                  )}
                 </TableCell>
                 <TableCell>
                   <Chip

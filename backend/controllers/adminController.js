@@ -171,7 +171,7 @@ const testUserIdGeneration = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
-    const { page = 1, limit = 10, role, userType, status, search, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+    const { page = 1, limit = 10, role, userType, status, search, searchType, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
     const query = {};
 
     // 使用 role 來過濾管理員
@@ -188,16 +188,50 @@ const getAllUsers = async (req, res) => {
     
     if (status) query.status = status;
     
+    // 根據搜尋類型構建搜尋條件
     if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
-        { userId: { $regex: search, $options: 'i' } }, // 也搜尋 userId
-      ];
+      if (searchType && searchType !== 'all') {
+        // 特定欄位搜尋
+        switch (searchType) {
+          case 'name':
+            query.name = { $regex: search, $options: 'i' };
+            break;
+          case 'email':
+            query.email = { $regex: search, $options: 'i' };
+            break;
+          case 'phone':
+            query.phone = { $regex: search, $options: 'i' };
+            break;
+          case 'tutorId':
+            query.tutorId = { $regex: search, $options: 'i' };
+            break;
+          case 'userId':
+            query.userId = { $regex: search, $options: 'i' };
+            break;
+          default:
+            // 如果是不認識的搜尋類型，使用全部欄位搜尋
+            query.$or = [
+              { name: { $regex: search, $options: 'i' } },
+              { email: { $regex: search, $options: 'i' } },
+              { phone: { $regex: search, $options: 'i' } },
+              { tutorId: { $regex: search, $options: 'i' } },
+              { userId: { $regex: search, $options: 'i' } },
+            ];
+        }
+      } else {
+        // 全部欄位搜尋
+        query.$or = [
+          { name: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } },
+          { phone: { $regex: search, $options: 'i' } },
+          { tutorId: { $regex: search, $options: 'i' } },
+          { userId: { $regex: search, $options: 'i' } },
+        ];
+      }
     }
 
     // 驗證排序欄位
-    const allowedSortFields = ['userId', 'name', 'email', 'phone', 'role', 'userType', 'tutorId', 'status', 'createdAt'];
+    const allowedSortFields = ['userId', 'name', 'email', 'phone', 'role', 'userType', 'tutorId', 'status', 'createdAt', 'isVip', 'isTop', 'rating'];
     const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'createdAt';
     const validSortOrder = sortOrder === 'asc' ? 1 : -1;
 
@@ -208,6 +242,7 @@ const getAllUsers = async (req, res) => {
       userType,
       status,
       search,
+      searchType,
       sortBy: validSortBy,
       sortOrder: validSortOrder,
       query
