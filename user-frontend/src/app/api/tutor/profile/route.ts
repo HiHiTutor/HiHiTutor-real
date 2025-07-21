@@ -13,7 +13,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const baseURL = process.env.NEXT_PUBLIC_API_BASE || 'https://hi-hi-tutor-real-backend2.vercel.app';
-    const apiUrl = `${baseURL}/api/tutor/profile`;
+    const apiUrl = `${baseURL}/api/tutors/profile`;
     
     console.log('🔍 代理導師資料更新請求:', apiUrl);
     console.log('📦 更新資料:', body);
