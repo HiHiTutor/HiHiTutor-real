@@ -143,9 +143,9 @@ router.get('/fix-tutor-status', async (req, res) => {
     
     // 獲取所有導師
     const allTutors = await User.find({ 
-      role: 'tutor',
+      userType: 'tutor',
       isActive: true,
-      status: 'approved'
+      status: 'active'
     }).sort({ rating: -1 });
     
     console.log(`📊 找到 ${allTutors.length} 個活躍導師`);
@@ -209,9 +209,9 @@ router.get('/fix-tutor-status', async (req, res) => {
     
     // 重新獲取更新後的導師列表
     const updatedTutors = await User.find({ 
-      role: 'tutor',
+      userType: 'tutor',
       isActive: true,
-      status: 'approved'
+      status: 'active'
     }).sort({ rating: -1 }).limit(10);
     
     const finalVipCount = updatedTutors.filter(t => t.isVip).length;
