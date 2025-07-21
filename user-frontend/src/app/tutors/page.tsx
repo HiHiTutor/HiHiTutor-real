@@ -257,10 +257,10 @@ function TutorsPageContent() {
               setSearchQuery(filters.search);
               newSearchParams.append('search', filters.search);
             }
-            if (filters.category) {
+            if (filters.category && filters.category !== 'unlimited') {
               newSearchParams.append('category', filters.category);
             }
-            if (filters.subCategory) {
+            if (filters.subCategory && filters.subCategory !== 'unlimited') {
               newSearchParams.append('subCategory', filters.subCategory);
             }
             if (filters.subjects && filters.subjects.length > 0) {
@@ -268,12 +268,18 @@ function TutorsPageContent() {
               newSearchParams.append('subjects', filters.subjects.join(','));
             }
             if (filters.regions && filters.regions.length > 0) {
-              setSelectedAreas(filters.regions);
-              newSearchParams.append('regions', filters.regions.join(','));
+              const filteredRegions = filters.regions.filter((region: string) => region !== 'unlimited');
+              if (filteredRegions.length > 0) {
+                setSelectedAreas(filteredRegions);
+                newSearchParams.append('regions', filteredRegions.join(','));
+              }
             }
             if (filters.mode && filters.mode.length > 0) {
-              setSelectedMethods(filters.mode);
-              newSearchParams.append('modes', filters.mode.join(','));
+              const filteredModes = filters.mode.filter((mode: string) => mode !== 'unlimited');
+              if (filteredModes.length > 0) {
+                setSelectedMethods(filteredModes);
+                newSearchParams.append('modes', filteredModes.join(','));
+              }
             }
             
             // 更新 URL
