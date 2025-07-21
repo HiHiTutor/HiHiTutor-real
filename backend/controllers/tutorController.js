@@ -1249,13 +1249,14 @@ const getTutorProfile = async (req, res) => {
       });
     }
 
-    // 獲取該用戶的所有上傳記錄
-    const uploadLogs = await UploadLog.find({ 
-      userId: user._id 
+    // 獲取該用戶的證書上傳記錄
+    const certificateLogs = await UploadLog.find({ 
+      userId: user._id,
+      type: { $in: ['document', 'image'] } // 只獲取證書類型的文件
     }).sort({ createdAt: -1 });
 
     console.log('✅ 導師 profile 獲取成功:', user.name);
-    console.log('📁 上傳記錄數量:', uploadLogs.length);
+    console.log('📁 證書記錄數量:', certificateLogs.length);
 
     // 回傳符合前端期望的格式
     res.json({
@@ -1278,11 +1279,13 @@ const getTutorProfile = async (req, res) => {
       courseFeatures: user.tutorProfile?.courseFeatures || '',
       documents: {
         idCard: user.documents?.idCard || '',
-        educationCert: user.documents?.educationCert || ''
+        educationCert: Array.isArray(user.documents?.educationCert) 
+          ? user.documents.educationCert 
+          : (user.documents?.educationCert ? [user.documents.educationCert] : [])
       },
       profileStatus: user.profileStatus || 'approved',
       remarks: user.remarks || '',
-      uploadLogs: uploadLogs.map(log => ({
+      certificateLogs: certificateLogs.map(log => ({
         _id: log._id,
         fileUrl: log.fileUrl,
         type: log.type,
@@ -1421,7 +1424,11 @@ const updateTutorProfile = async (req, res) => {
         updateObject['documents.idCard'] = updateData.documents.idCard;
       }
       if (updateData.documents.educationCert !== undefined) {
-        updateObject['documents.educationCert'] = updateData.documents.educationCert;
+        // 確保 educationCert 是陣列格式
+        const educationCert = Array.isArray(updateData.documents.educationCert) 
+          ? updateData.documents.educationCert 
+          : [updateData.documents.educationCert];
+        updateObject['documents.educationCert'] = educationCert;
       }
     }
 

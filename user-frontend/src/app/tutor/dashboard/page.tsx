@@ -166,7 +166,11 @@ export default function TutorDashboardPage() {
       setFormData({
         ...data,
         subjects: subjects,
-        availableTime: availableTime
+        availableTime: availableTime,
+        documents: {
+          idCard: data.documents?.idCard || '',
+          educationCert: data.certificateLogs?.map((log: any) => log.fileUrl) || data.documents?.educationCert || []
+        }
       });
       setNewSubjects(subjects);
       setNewAvailableTimes(availableTime);
@@ -273,7 +277,9 @@ export default function TutorDashboardPage() {
           ...prev,
           documents: {
             ...prev.documents,
-            educationCert: [...(prev.documents.educationCert || []), data.url]
+            educationCert: Array.isArray(prev.documents.educationCert) 
+              ? [...prev.documents.educationCert, data.url]
+              : [data.url]
           }
         }));
       }
