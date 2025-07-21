@@ -101,7 +101,7 @@ function FindStudentCasesPageContent() {
     const subject = searchParams.get('subject');
     const subjects = searchParams.getAll('subjects'); // 獲取多個科目參數
     const regions = searchParams.getAll('regions'); // 獲取多個地區參數
-    const modes = searchParams.getAll('mode'); // 獲取多個教學模式參數
+    const modes = searchParams.getAll('modes'); // 獲取多個教學模式參數
 
     console.log("🔍 搜尋參數：", {
       search,
@@ -195,8 +195,20 @@ function FindStudentCasesPageContent() {
         params.append('subjects', subject);
       });
     }
-    if (filters.region) params.set('region', filters.region);
-    if (filters.mode) params.set('mode', filters.mode);
+    if (filters.regions && filters.regions.length > 0) {
+      filters.regions.forEach((region: string) => {
+        if (region !== 'unlimited') {
+          params.append('regions', region);
+        }
+      });
+    }
+    if (filters.mode && filters.mode.length > 0) {
+      filters.mode.forEach((mode: string) => {
+        if (mode !== 'unlimited') {
+          params.append('modes', mode);
+        }
+      });
+    }
     
     // 更新 URL
     const newUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
@@ -247,7 +259,7 @@ function FindStudentCasesPageContent() {
         </div>
       </div>
       <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-blue-100">
-        <CaseFilterBar onFilter={handleFilter} fetchUrl="/find-tutor-cases" />
+        <CaseFilterBar onFilter={handleFilter} fetchUrl="/find-student-cases" />
       </div>
 
       {loading ? (

@@ -14,6 +14,7 @@ import SearchTabBar from './SearchTabBar';
 
 interface FilterState {
   target: string;
+  search: string; // 添加搜尋字段
   category: string;
   subCategory: string;
   subjects: string[];
@@ -54,6 +55,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   const pathname = usePathname();
   const [filters, setFilters] = useState<FilterState>({
     target: '',
+    search: '', // 添加搜尋字段
     category: 'unlimited', // 預設為不限
     subCategory: 'unlimited', // 預設為不限
     subjects: [],
@@ -170,6 +172,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
 
     setFilters({
       target,
+      search: searchParams.get('search') || '', // 初始化搜尋字段
       category: searchParams.get('category') || 'unlimited',
       subCategory: searchParams.get('subCategory') || 'unlimited',
       subjects: searchParams.getAll('subjects').length > 0 ? [...new Set(searchParams.getAll('subjects'))] : [],
@@ -248,6 +251,12 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
 
   const handleFilter = () => {
     const params = new URLSearchParams();
+    
+    // 搜尋參數
+    if (filters.search && filters.search.trim()) {
+      params.set('search', filters.search.trim());
+      console.log('🔍 添加搜尋參數:', filters.search);
+    }
     
     // 課程分類 - 確保正確添加分類參數
     if (filters.category && filters.category !== 'unlimited') {
@@ -333,6 +342,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     const autoTarget = getAutoTarget(); // 保持自動設定的目標值
     setFilters({
       target: autoTarget,
+      search: '', // 重置搜尋字段
       category: 'unlimited',
       subCategory: 'unlimited',
       subjects: [],
@@ -438,6 +448,11 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   const getSelectedOptions = () => {
     const selected: { key: string; label: string; value: string }[] = [];
     
+    // 搜尋關鍵字
+    if (filters.search && filters.search.trim()) {
+      selected.push({ key: 'search', label: `搜尋: ${filters.search}`, value: filters.search });
+    }
+    
     // 目標 - 不顯示在已選項目中
     // if (filters.target) {
     //   const targetOption = TARGET_OPTIONS.find(t => t.value === filters.target);
@@ -523,6 +538,9 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       const newFilters = { ...prev };
       
       switch (key) {
+        case 'search':
+          newFilters.search = '';
+          break;
         case 'category':
           newFilters.category = 'unlimited';
           newFilters.subCategory = 'unlimited';
@@ -562,6 +580,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     const autoTarget = getAutoTarget(); // 保持自動設定的目標值
     setFilters({
       target: autoTarget,
+      search: '', // 重置搜尋字段
       category: 'unlimited',
       subCategory: 'unlimited',
       subjects: [],
@@ -625,6 +644,18 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
 
             {/* 篩選選項 */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-sm:gap-3 max-[700px]:grid-cols-2 max-[700px]:gap-4">
+              {/* 搜尋輸入欄 */}
+              <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
+                <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">搜尋</label>
+                <input
+                  type="text"
+                  value={filters.search}
+                  onChange={(e) => handleFilterChange('search', e.target.value)}
+                  placeholder="輸入關鍵字"
+                  className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
+                />
+              </div>
+
               {/* 分類選擇 */}
               <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
                 <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">課程分類</label>
@@ -903,7 +934,6 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                   ))}
                 </select>
               </div>
-
 
             </div>
           </div>
