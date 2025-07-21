@@ -507,6 +507,58 @@ const UserDetail: React.FC = () => {
                   </Grid>
                 </>
               )}
+              
+              {/* VIP等級 */}
+              <Grid item xs={4}>
+                <Typography color="textSecondary">VIP等級</Typography>
+              </Grid>
+              <Grid item xs={8}>
+                {(selectedUser as any).isVip ? (
+                  <Chip
+                    label="VIP"
+                    color="warning"
+                    size="small"
+                  />
+                ) : (
+                  <Chip
+                    label="普通"
+                    color="default"
+                    size="small"
+                  />
+                )}
+              </Grid>
+              
+              {/* 置頂等級 */}
+              <Grid item xs={4}>
+                <Typography color="textSecondary">置頂等級</Typography>
+              </Grid>
+              <Grid item xs={8}>
+                {(selectedUser as any).isTop ? (
+                  <Chip
+                    label="置頂"
+                    color="info"
+                    size="small"
+                  />
+                ) : (
+                  <Chip
+                    label="普通"
+                    color="default"
+                    size="small"
+                  />
+                )}
+              </Grid>
+              
+              {/* 評分 */}
+              {(selectedUser as any).rating !== undefined && (
+                <>
+                  <Grid item xs={4}>
+                    <Typography color="textSecondary">評分</Typography>
+                  </Grid>
+                  <Grid item xs={8}>
+                    <Typography>{(selectedUser as any).rating.toFixed(1)} / 5.0</Typography>
+                  </Grid>
+                </>
+              )}
             </Grid>
             <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
               <Button
@@ -926,6 +978,16 @@ const UserDetail: React.FC = () => {
                 name="promotionLevel"
                 inputProps={{ min: 0, max: 5 }}
                 helperText="推廣等級：0-5"
+              />
+              <TextField
+                label="評分"
+                type="number"
+                fullWidth
+                value={editForm.rating}
+                onChange={handleInputChange}
+                name="rating"
+                inputProps={{ min: 0, max: 5, step: 0.1 }}
+                helperText="評分：0.0-5.0"
               />
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <FormControlLabel
