@@ -81,10 +81,10 @@ function HomeContent() {
     const searchParams = new URLSearchParams();
     
     // 處理不同的參數名稱映射
-    if (rest.category) {
+    if (rest.category && rest.category !== 'unlimited') {
       searchParams.append('category', rest.category);
     }
-    if (rest.subCategory) {
+    if (rest.subCategory && rest.subCategory !== 'unlimited') {
       searchParams.append('subCategory', rest.subCategory);
     }
     if (rest.subjects && Array.isArray(rest.subjects) && rest.subjects.length > 0) {
@@ -96,15 +96,15 @@ function HomeContent() {
     
     // 處理教學模式參數
     if (rest.modes && Array.isArray(rest.modes) && rest.modes.length > 0) {
-      rest.modes.forEach((mode: string) => searchParams.append('modes', mode));
+      rest.modes.filter((mode: string) => mode !== 'unlimited').forEach((mode: string) => searchParams.append('modes', mode));
     } else if (rest.mode && Array.isArray(rest.mode) && rest.mode.length > 0) {
-      rest.mode.forEach((mode: string) => searchParams.append('modes', mode));
+      rest.mode.filter((mode: string) => mode !== 'unlimited').forEach((mode: string) => searchParams.append('modes', mode));
     }
     
     // 處理地區參數
     if (rest.regions && Array.isArray(rest.regions) && rest.regions.length > 0) {
-      rest.regions.forEach((region: string) => searchParams.append('regions', region));
-    } else if (rest.region) {
+      rest.regions.filter((region: string) => region !== 'unlimited').forEach((region: string) => searchParams.append('regions', region));
+    } else if (rest.region && rest.region !== 'unlimited') {
       searchParams.append('regions', rest.region);
     }
 
