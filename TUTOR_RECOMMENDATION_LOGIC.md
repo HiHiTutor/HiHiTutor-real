@@ -7,10 +7,10 @@
 ## 🎲 推薦邏輯設計
 
 ### 目標配置
-- **總數量**: 8 個導師
-- **VIP 導師**: 5 個（分批輪播）
-- **置頂導師**: 2-3 個（評分優先）
-- **普通導師**: 0-1 個（補足名額）
+- **總數量**: 不限制（支持分頁瀏覽）
+- **VIP 導師**: 分批輪播（每批5個，隨機選擇頁面）
+- **置頂導師**: 所有置頂導師（按評分排序）
+- **普通導師**: 所有普通導師（按評分排序）
 
 ### 核心算法
 
@@ -36,25 +36,17 @@ const vipSelected = sortedVip.slice(vipStartIndex, vipEndIndex);
 // 按評分排序
 const sortedTop = topTutors.sort((a, b) => (b.rating || 0) - (a.rating || 0));
 
-// 計算剩餘名額，最多選擇3個置頂導師
-const remainingSlots = targetCount - selectedTutors.length;
-const topCount = Math.min(3, remainingSlots, sortedTop.length);
-
-const topSelected = sortedTop.slice(0, topCount);
+// 選擇所有置頂導師
+selectedTutors.push(...sortedTop);
 ```
 
-#### 3. 普通導師補足名額
+#### 3. 普通導師選擇
 ```javascript
 // 按評分排序
 const sortedNormal = normalTutors.sort((a, b) => (b.rating || 0) - (a.rating || 0));
 
-// 計算剩餘名額
-const remainingSlots = targetCount - selectedTutors.length;
-
-if (remainingSlots > 0) {
-  const normalSelected = sortedNormal.slice(0, remainingSlots);
-  selectedTutors.push(...normalSelected);
-}
+// 選擇所有普通導師
+selectedTutors.push(...sortedNormal);
 ```
 
 ## 🔄 輪播機制
@@ -123,7 +115,7 @@ const finalSorted = selectedTutors.sort((a, b) => {
 
 ### 關鍵參數
 ```javascript
-queryParams={{ featured: 'true', limit: '8' }}
+queryParams={{ featured: 'true' }}
 ```
 
 ## 🎯 效果預期
@@ -133,6 +125,7 @@ queryParams={{ featured: 'true', limit: '8' }}
 - VIP 導師有穩定的曝光機會
 - 置頂導師有優先展示權
 - 普通導師也有機會被推薦
+- 支持分頁瀏覽，可以查看所有導師
 
 ### 導師公平性
 - VIP 導師按評分分批輪播，避免總是同一批人

@@ -371,7 +371,7 @@ const getAllTutors = async (req, res) => {
             }
             
             // 🎯 實現分批輪播 + 置頂保障機制
-            const targetCount = parseInt(limit) || 8;
+            // 對於 featured=true，我們不限制數量，讓前端處理分頁
             const selectedTutors = [];
             
             // 1. VIP 導師：分批輪播選擇（每批5個）
@@ -401,17 +401,13 @@ const getAllTutors = async (req, res) => {
               });
             }
             
-            // 2. 置頂導師：選擇評分最高的2-3個
+            // 2. 置頂導師：選擇評分最高的導師（不限制數量）
             if (topTutors.length > 0) {
               // 按評分排序
               const sortedTop = topTutors.sort((a, b) => (b.rating || 0) - (a.rating || 0));
               
-              // 計算剩餘名額，最多選擇3個置頂導師
-              const remainingSlots = targetCount - selectedTutors.length;
-              const topCount = Math.min(3, remainingSlots, sortedTop.length);
-              
-              const topSelected = sortedTop.slice(0, topCount);
-              selectedTutors.push(...topSelected);
+              // 選擇所有置頂導師
+              selectedTutors.push(...sortedTop);
               
               console.log(`⭐ 置頂導師選擇:`);
               console.log(`- 選擇數量: ${topSelected.length} 個`);
@@ -420,47 +416,23 @@ const getAllTutors = async (req, res) => {
               });
             }
             
-            // 3. 普通導師：補足剩餘名額
+            // 3. 普通導師：選擇所有普通導師
             if (normalTutors.length > 0) {
               // 按評分排序
               const sortedNormal = normalTutors.sort((a, b) => (b.rating || 0) - (a.rating || 0));
               
-              // 計算剩餘名額
-              const remainingSlots = targetCount - selectedTutors.length;
+              // 選擇所有普通導師
+              selectedTutors.push(...sortedNormal);
               
-              if (remainingSlots > 0) {
-                const normalSelected = sortedNormal.slice(0, remainingSlots);
-                selectedTutors.push(...normalSelected);
-                
-                console.log(`📚 普通導師選擇:`);
-                console.log(`- 選擇數量: ${normalSelected.length} 個`);
-                normalSelected.forEach((tutor, index) => {
-                  console.log(`  ${index + 1}. ${tutor.name} (評分: ${tutor.rating || 0})`);
-                });
-              }
+              console.log(`📚 普通導師選擇:`);
+              console.log(`- 選擇數量: ${sortedNormal.length} 個`);
+              sortedNormal.forEach((tutor, index) => {
+                console.log(`  ${index + 1}. ${tutor.name} (評分: ${tutor.rating || 0})`);
+              });
             }
             
-            // 如果還不夠目標數量，從剩餘導師中隨機補充
-            if (selectedTutors.length < targetCount) {
-              const allTutors = [...vipTutors, ...topTutors, ...normalTutors];
-              const remainingTutors = allTutors.filter(tutor => 
-                !selectedTutors.some(selected => selected._id.toString() === tutor._id.toString())
-              );
-              
-              if (remainingTutors.length > 0) {
-                // 按評分排序後隨機選擇
-                const sortedRemaining = remainingTutors.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-                const needed = targetCount - selectedTutors.length;
-                const additional = sortedRemaining.slice(0, Math.min(needed, sortedRemaining.length));
-                selectedTutors.push(...additional);
-                
-                console.log(`🔄 補充導師選擇:`);
-                console.log(`- 補充數量: ${additional.length} 個`);
-                additional.forEach((tutor, index) => {
-                  console.log(`  ${index + 1}. ${tutor.name} (評分: ${tutor.rating || 0})`);
-                });
-              }
-            }
+            // 移除補充邏輯，因為我們現在選擇所有導師
+            console.log(`📊 總計選擇了 ${selectedTutors.length} 個導師`);
             
             // 按優先級排序：VIP > 置頂 > 普通，然後按評分排序
             const finalSorted = selectedTutors.sort((a, b) => {
