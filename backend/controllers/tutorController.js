@@ -1164,8 +1164,8 @@ const getTutorDetail = async (req, res) => {
       updatedAt: tutor.updatedAt,
       // 新增：用戶升級做導師時填寫的欄位
       tutorProfile: {
-        teachingMode: tutor.tutorProfile?.teachingMode || '',
-        teachingSubModes: tutor.tutorProfile?.teachingSubModes || [],
+        teachingMode: tutor.tutorProfile?.teachingMethods?.[0] || '', // 使用第一個教學方法作為主要形式
+        teachingSubModes: tutor.tutorProfile?.teachingMethods || [], // 使用 teachingMethods 作為教學方式
         sessionRate: tutor.tutorProfile?.sessionRate || 0,
         region: tutor.tutorProfile?.region || '',
         subRegions: tutor.tutorProfile?.subRegions || [],
