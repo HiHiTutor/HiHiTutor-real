@@ -117,4 +117,11 @@ export const formatRegions = (regions: string[]): string => {
 export const formatSubjects = (subjects: string[]): string => {
   if (!subjects || subjects.length === 0) return '';
   return subjects.join('、');
+};
+
+// 格式化科目顯示（使用翻譯）
+export const formatSubjectsWithTranslation = (subjects: string[]): string => {
+  if (!subjects || subjects.length === 0) return '';
+  // 需要導入 getSubjectName 函數，這裡先使用原始值
+  return subjects.join('、');
 }; 

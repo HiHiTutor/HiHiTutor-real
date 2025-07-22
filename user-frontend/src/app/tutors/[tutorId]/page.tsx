@@ -265,6 +265,15 @@ export default function TutorDetailPage() {
                       </span>
                     </div>
                   )}
+                  
+                  {tutor.tutorProfile?.subjects && tutor.tutorProfile.subjects.length > 0 && (
+                    <div className="flex items-start">
+                      <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">可教科目：</span>
+                      <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
+                        {tutor.tutorProfile.subjects.map(subject => getSubjectName(subject)).join('、')}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
