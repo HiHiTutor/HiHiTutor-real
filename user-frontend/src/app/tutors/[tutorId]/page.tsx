@@ -188,59 +188,92 @@ export default function TutorDetailPage() {
           )}
 
           {/* 教學資訊 */}
-          {(tutor.tutorProfile?.teachingMode || tutor.tutorProfile?.sessionRate || tutor.tutorProfile?.region) && (
-            <Card>
-              <CardContent className="pt-6 max-sm:pt-4 max-[700px]:pt-5">
-                <h2 className="text-xl font-semibold mb-4 max-sm:text-lg max-sm:mb-3 max-[700px]:text-lg max-[700px]:mb-3">教學資訊</h2>
-                <div className="space-y-3 max-sm:space-y-2 max-[700px]:space-y-2">
-                  {tutor.tutorProfile?.teachingMode && (
-                    <div className="flex items-start">
-                      <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">補習形式：</span>
-                      <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
-                        {getTeachingModeDisplay(tutor.tutorProfile.teachingMode)}
-                      </span>
-                    </div>
-                  )}
-                  
-                  {tutor.tutorProfile?.teachingSubModes && tutor.tutorProfile.teachingSubModes.length > 0 && (
-                    <div className="flex items-start">
-                      <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">教學方式：</span>
-                      <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
-                        {formatTeachingSubModes(tutor.tutorProfile.teachingSubModes)}
-                      </span>
-                    </div>
-                  )}
-                  
-                  {tutor.tutorProfile?.sessionRate && (
-                    <div className="flex items-start">
-                      <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">每堂收費：</span>
-                      <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
-                        ${tutor.tutorProfile.sessionRate}
-                      </span>
-                    </div>
-                  )}
-                  
-                  {tutor.tutorProfile?.region && (
-                    <div className="flex items-start">
-                      <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">主要地區：</span>
-                      <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
-                        {getRegionDisplay(tutor.tutorProfile.region)}
-                      </span>
-                    </div>
-                  )}
-                  
-                  {tutor.tutorProfile?.subRegions && tutor.tutorProfile.subRegions.length > 0 && (
-                    <div className="flex items-start">
-                      <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">教授地區：</span>
-                      <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
-                        {formatRegions(tutor.tutorProfile.subRegions)}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          <Card>
+            <CardContent className="pt-6 max-sm:pt-4 max-[700px]:pt-5">
+              <h2 className="text-xl font-semibold mb-4 max-sm:text-lg max-sm:mb-3 max-[700px]:text-lg max-[700px]:mb-3">教學資訊</h2>
+              <div className="space-y-3 max-sm:space-y-2 max-[700px]:space-y-2">
+                {tutor.tutorProfile?.teachingMode ? (
+                  <div className="flex items-start">
+                    <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">補習形式：</span>
+                    <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
+                      {getTeachingModeDisplay(tutor.tutorProfile.teachingMode)}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-start">
+                    <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">補習形式：</span>
+                    <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
+                      暫未設定
+                    </span>
+                  </div>
+                )}
+                
+                {tutor.tutorProfile?.teachingSubModes && tutor.tutorProfile.teachingSubModes.length > 0 ? (
+                  <div className="flex items-start">
+                    <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">教學方式：</span>
+                    <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
+                      {formatTeachingSubModes(tutor.tutorProfile.teachingSubModes)}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-start">
+                    <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">教學方式：</span>
+                    <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
+                      暫未設定
+                    </span>
+                  </div>
+                )}
+                
+                {tutor.tutorProfile?.sessionRate ? (
+                  <div className="flex items-start">
+                    <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">每堂收費：</span>
+                    <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
+                      ${tutor.tutorProfile.sessionRate}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-start">
+                    <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">每堂收費：</span>
+                    <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
+                      暫未設定
+                    </span>
+                  </div>
+                )}
+                
+                {tutor.tutorProfile?.region ? (
+                  <div className="flex items-start">
+                    <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">主要地區：</span>
+                    <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
+                      {getRegionDisplay(tutor.tutorProfile.region)}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-start">
+                    <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">主要地區：</span>
+                    <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
+                      暫未設定
+                    </span>
+                  </div>
+                )}
+                
+                {tutor.tutorProfile?.subRegions && tutor.tutorProfile.subRegions.length > 0 ? (
+                  <div className="flex items-start">
+                    <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">教授地區：</span>
+                    <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
+                      {formatRegions(tutor.tutorProfile.subRegions)}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-start">
+                    <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">教授地區：</span>
+                    <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
+                      暫未設定
+                    </span>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
 
           {/* 課程分類 */}
           {(tutor.tutorProfile?.category || tutor.tutorProfile?.subCategory) && (
