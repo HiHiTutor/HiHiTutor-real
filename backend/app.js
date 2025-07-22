@@ -127,19 +127,14 @@ app.options('*', (req, res) => {
   const origin = req.headers.origin;
   console.log('🔥 OPTIONS preflight request from origin:', origin);
   
-  // Check if origin is allowed
-  if (!origin || allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
-    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept, X-Requested-With');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Max-Age', '86400');
-    console.log('✅ OPTIONS preflight allowed for origin:', origin);
-    res.sendStatus(204);
-  } else {
-    console.log('❌ OPTIONS preflight blocked for origin:', origin);
-    res.status(403).json({ error: 'CORS not allowed' });
-  }
+  // Allow all origins for now (since we're using origin: true in cors config)
+  res.header('Access-Control-Allow-Origin', origin);
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept, X-Requested-With');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Max-Age', '86400');
+  console.log('✅ OPTIONS preflight allowed for origin:', origin);
+  res.sendStatus(204);
 });
 
 // Body parsing middleware - BEFORE routes
