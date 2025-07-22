@@ -127,66 +127,6 @@ export default function TutorDetailPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="pt-6 max-sm:pt-4 max-[700px]:pt-5">
-              <h2 className="text-xl font-semibold mb-4 max-sm:text-lg max-sm:mb-3 max-[700px]:text-lg max-[700px]:mb-3">簡介</h2>
-              <p className="text-muted-foreground whitespace-pre-line max-sm:text-sm max-[700px]:text-sm">
-                {tutor.introduction}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6 max-sm:pt-4 max-[700px]:pt-5">
-              <h2 className="text-xl font-semibold mb-4 max-sm:text-lg max-sm:mb-3 max-[700px]:text-lg max-[700px]:mb-3">學歷</h2>
-              <p className="text-muted-foreground max-sm:text-sm max-[700px]:text-sm">{tutor.education}</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6 max-sm:pt-4 max-[700px]:pt-5">
-              <h2 className="text-xl font-semibold mb-4 max-sm:text-lg max-sm:mb-3 max-[700px]:text-lg max-[700px]:mb-3">專業資格</h2>
-              <ul className="list-disc list-inside text-muted-foreground max-sm:text-sm max-[700px]:text-sm">
-                {(tutor.qualifications || []).map((qualification, index) => (
-                  <li key={index}>{qualification}</li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-
-          {/* 課程特點 */}
-          {tutor.courseFeatures && (
-            <Card>
-              <CardContent className="pt-6 max-sm:pt-4 max-[700px]:pt-5">
-                <h2 className="text-xl font-semibold mb-4 max-sm:text-lg max-sm:mb-3 max-[700px]:text-lg max-[700px]:mb-3">課程特點</h2>
-                <p className="text-muted-foreground whitespace-pre-line max-sm:text-sm max-[700px]:text-sm">
-                  {tutor.courseFeatures}
-                </p>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* 公開證書 */}
-          {tutor.publicCertificates && tutor.publicCertificates.length > 0 && (
-            <Card>
-              <CardContent className="pt-6 max-sm:pt-4 max-[700px]:pt-5">
-                <h2 className="text-xl font-semibold mb-4 max-sm:text-lg max-sm:mb-3 max-[700px]:text-lg max-[700px]:mb-3">公開證書</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {tutor.publicCertificates.map((cert: string, index: number) => (
-                    <div key={index} className="relative w-full h-48 border rounded-lg overflow-hidden">
-                      <Image
-                        src={cert}
-                        alt={`公開證書 ${index + 1}`}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
           {/* 教學資訊 */}
           <Card>
             <CardContent className="pt-6 max-sm:pt-4 max-[700px]:pt-5">
@@ -274,6 +214,66 @@ export default function TutorDetailPage() {
               </div>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardContent className="pt-6 max-sm:pt-4 max-[700px]:pt-5">
+              <h2 className="text-xl font-semibold mb-4 max-sm:text-lg max-sm:mb-3 max-[700px]:text-lg max-[700px]:mb-3">簡介</h2>
+              <p className="text-muted-foreground whitespace-pre-line max-sm:text-sm max-[700px]:text-sm">
+                {tutor.introduction}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6 max-sm:pt-4 max-[700px]:pt-5">
+              <h2 className="text-xl font-semibold mb-4 max-sm:text-lg max-sm:mb-3 max-[700px]:text-lg max-[700px]:mb-3">學歷</h2>
+              <p className="text-muted-foreground max-sm:text-sm max-[700px]:text-sm">{tutor.education}</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6 max-sm:pt-4 max-[700px]:pt-5">
+              <h2 className="text-xl font-semibold mb-4 max-sm:text-lg max-sm:mb-3 max-[700px]:text-lg max-[700px]:mb-3">專業資格</h2>
+              <ul className="list-disc list-inside text-muted-foreground max-sm:text-sm max-[700px]:text-sm">
+                {(tutor.qualifications || []).map((qualification, index) => (
+                  <li key={index}>{qualification}</li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+
+          {/* 課程特點 */}
+          {tutor.courseFeatures && (
+            <Card>
+              <CardContent className="pt-6 max-sm:pt-4 max-[700px]:pt-5">
+                <h2 className="text-xl font-semibold mb-4 max-sm:text-lg max-sm:mb-3 max-[700px]:text-lg max-[700px]:mb-3">課程特點</h2>
+                <p className="text-muted-foreground whitespace-pre-line max-sm:text-sm max-[700px]:text-sm">
+                  {tutor.courseFeatures}
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* 公開證書 */}
+          {tutor.publicCertificates && tutor.publicCertificates.length > 0 && (
+            <Card>
+              <CardContent className="pt-6 max-sm:pt-4 max-[700px]:pt-5">
+                <h2 className="text-xl font-semibold mb-4 max-sm:text-lg max-sm:mb-3 max-[700px]:text-lg max-[700px]:mb-3">公開證書</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {tutor.publicCertificates.map((cert: string, index: number) => (
+                    <div key={index} className="relative w-full h-48 border rounded-lg overflow-hidden">
+                      <Image
+                        src={cert}
+                        alt={`公開證書 ${index + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* 課程分類 */}
           {(tutor.tutorProfile?.category || tutor.tutorProfile?.subCategory) && (
