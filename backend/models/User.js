@@ -186,6 +186,28 @@ const userSchema = new mongoose.Schema({
       type: [String],
       default: []
     },
+    // 新增：用戶升級做導師時填寫的欄位
+    teachingMode: {
+      type: String,
+      enum: ['online', 'in-person', 'both']
+    },
+    teachingSubModes: {
+      type: [String],
+      default: []
+    },
+    region: {
+      type: String
+    },
+    subRegions: {
+      type: [String],
+      default: []
+    },
+    category: {
+      type: String
+    },
+    subCategory: {
+      type: String
+    },
     documents: [{
       type: {
         type: String

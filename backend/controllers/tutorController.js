@@ -1182,7 +1182,27 @@ const getTutorDetail = async (req, res) => {
       publicCertificates: [],
       rating: tutor.rating || 0,
       createdAt: tutor.createdAt,
-      updatedAt: tutor.updatedAt
+      updatedAt: tutor.updatedAt,
+      // 新增：用戶升級做導師時填寫的欄位
+      tutorProfile: {
+        teachingMode: tutor.tutorProfile?.teachingMode || '',
+        teachingSubModes: tutor.tutorProfile?.teachingSubModes || [],
+        sessionRate: tutor.tutorProfile?.sessionRate || 0,
+        region: tutor.tutorProfile?.region || '',
+        subRegions: tutor.tutorProfile?.subRegions || [],
+        category: tutor.tutorProfile?.category || '',
+        subCategory: tutor.tutorProfile?.subCategory || '',
+        subjects: tutor.tutorProfile?.subjects || [],
+        education: tutor.tutorProfile?.educationLevel || '',
+        experience: tutor.tutorProfile?.teachingExperienceYears || 0
+      },
+      // 新增：導師申請資料
+      tutorApplication: {
+        education: tutor.tutorProfile?.educationLevel || '',
+        experience: tutor.tutorProfile?.teachingExperienceYears || 0,
+        subjects: tutor.tutorProfile?.subjects || [],
+        documents: [] // 公開 API 不顯示證書清單
+      }
     };
 
     res.json({
@@ -1290,7 +1310,27 @@ const getTutorProfile = async (req, res) => {
         fileUrl: log.fileUrl,
         type: log.type,
         createdAt: log.createdAt
-      }))
+      })),
+      // 新增：用戶升級做導師時填寫的欄位
+      tutorProfile: {
+        teachingMode: user.tutorProfile?.teachingMode || '',
+        teachingSubModes: user.tutorProfile?.teachingSubModes || [],
+        sessionRate: user.tutorProfile?.sessionRate || 0,
+        region: user.tutorProfile?.region || '',
+        subRegions: user.tutorProfile?.subRegions || [],
+        category: user.tutorProfile?.category || '',
+        subCategory: user.tutorProfile?.subCategory || '',
+        subjects: user.tutorProfile?.subjects || [],
+        education: user.tutorProfile?.educationLevel || '',
+        experience: user.tutorProfile?.teachingExperienceYears || 0
+      },
+      // 新增：導師申請資料
+      tutorApplication: {
+        education: user.tutorProfile?.educationLevel || '',
+        experience: user.tutorProfile?.teachingExperienceYears || 0,
+        subjects: user.tutorProfile?.subjects || [],
+        documents: certificateLogs.map(log => log.fileUrl)
+      }
     });
   } catch (error) {
     console.error('❌ 獲取導師 profile 錯誤:', {
