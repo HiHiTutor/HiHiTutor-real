@@ -132,11 +132,11 @@ export default function TutorDetailPage() {
             <CardContent className="pt-6 max-sm:pt-4 max-[700px]:pt-5">
               <h2 className="text-xl font-semibold mb-4 max-sm:text-lg max-sm:mb-3 max-[700px]:text-lg max-[700px]:mb-3">教學資訊</h2>
               <div className="space-y-3 max-sm:space-y-2 max-[700px]:space-y-2">
-                {tutor.tutorProfile?.teachingMode ? (
+                {tutor.teachingMethods && tutor.teachingMethods.length > 0 ? (
                   <div className="flex items-start">
                     <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">補習形式：</span>
                     <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
-                      {getTeachingModeDisplay(tutor.tutorProfile.teachingMode)}
+                      {getTeachingModeDisplay(tutor.teachingMethods[0])}
                     </span>
                   </div>
                 ) : (
@@ -148,11 +148,11 @@ export default function TutorDetailPage() {
                   </div>
                 )}
                 
-                {tutor.tutorProfile?.teachingSubModes && tutor.tutorProfile.teachingSubModes.length > 0 ? (
+                {tutor.teachingMethods && tutor.teachingMethods.length > 0 ? (
                   <div className="flex items-start">
                     <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">教學方式：</span>
                     <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
-                      {formatTeachingSubModes(tutor.tutorProfile.teachingSubModes)}
+                      {formatTeachingSubModes(tutor.teachingMethods)}
                     </span>
                   </div>
                 ) : (
@@ -164,11 +164,11 @@ export default function TutorDetailPage() {
                   </div>
                 )}
                 
-                {tutor.tutorProfile?.sessionRate ? (
+                {tutor.hourlyRate ? (
                   <div className="flex items-start">
                     <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">每堂收費：</span>
                     <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
-                      ${tutor.tutorProfile.sessionRate}
+                      ${tutor.hourlyRate}
                     </span>
                   </div>
                 ) : (
@@ -180,11 +180,11 @@ export default function TutorDetailPage() {
                   </div>
                 )}
                 
-                {tutor.tutorProfile?.region ? (
+                {tutor.teachingAreas && tutor.teachingAreas.length > 0 ? (
                   <div className="flex items-start">
                     <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">主要地區：</span>
                     <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
-                      {getRegionDisplay(tutor.tutorProfile.region)}
+                      {getRegionDisplay(tutor.teachingAreas[0])}
                     </span>
                   </div>
                 ) : (
@@ -196,11 +196,11 @@ export default function TutorDetailPage() {
                   </div>
                 )}
                 
-                {tutor.tutorProfile?.subRegions && tutor.tutorProfile.subRegions.length > 0 ? (
+                {tutor.teachingAreas && tutor.teachingAreas.length > 1 ? (
                   <div className="flex items-start">
                     <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">教授地區：</span>
                     <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
-                      {formatRegions(tutor.tutorProfile.subRegions)}
+                      {formatRegions(tutor.teachingAreas)}
                     </span>
                   </div>
                 ) : (
