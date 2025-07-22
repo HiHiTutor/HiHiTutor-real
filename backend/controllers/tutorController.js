@@ -374,29 +374,17 @@ const getAllTutors = async (req, res) => {
             // 對於 featured=true，我們不限制數量，讓前端處理分頁
             const selectedTutors = [];
             
-            // 1. VIP 導師：分批輪播選擇（每批5個）
+            // 1. VIP 導師：選擇所有 VIP 導師（按評分排序）
             if (vipTutors.length > 0) {
               // 按評分排序
               const sortedVip = vipTutors.sort((a, b) => (b.rating || 0) - (a.rating || 0));
               
-              // 計算分頁參數
-              const vipPageSize = 5;
-              const vipTotalPages = Math.ceil(sortedVip.length / vipPageSize);
-              
-              // 隨機選擇一個分頁（實現輪播效果）
-              const vipPageIndex = Math.floor(Math.random() * vipTotalPages);
-              const vipStartIndex = vipPageIndex * vipPageSize;
-              const vipEndIndex = Math.min(vipStartIndex + vipPageSize, sortedVip.length);
-              
-              const vipSelected = sortedVip.slice(vipStartIndex, vipEndIndex);
-              selectedTutors.push(...vipSelected);
+              // 選擇所有 VIP 導師
+              selectedTutors.push(...sortedVip);
               
               console.log(`👑 VIP 導師選擇:`);
-              console.log(`- 總頁數: ${vipTotalPages}`);
-              console.log(`- 選擇頁面: ${vipPageIndex + 1}`);
-              console.log(`- 選擇範圍: ${vipStartIndex + 1}-${vipEndIndex}`);
-              console.log(`- 選擇數量: ${vipSelected.length} 個`);
-              vipSelected.forEach((tutor, index) => {
+              console.log(`- 選擇數量: ${sortedVip.length} 個`);
+              sortedVip.forEach((tutor, index) => {
                 console.log(`  ${index + 1}. ${tutor.name} (評分: ${tutor.rating || 0})`);
               });
             }

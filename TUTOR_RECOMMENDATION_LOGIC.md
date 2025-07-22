@@ -8,27 +8,19 @@
 
 ### 目標配置
 - **總數量**: 不限制（支持分頁瀏覽）
-- **VIP 導師**: 分批輪播（每批5個，隨機選擇頁面）
+- **VIP 導師**: 所有 VIP 導師（按評分排序）
 - **置頂導師**: 所有置頂導師（按評分排序）
 - **普通導師**: 所有普通導師（按評分排序）
 
 ### 核心算法
 
-#### 1. VIP 導師分批輪播
+#### 1. VIP 導師選擇
 ```javascript
 // 按評分排序
 const sortedVip = vipTutors.sort((a, b) => (b.rating || 0) - (a.rating || 0));
 
-// 計算分頁參數
-const vipPageSize = 5;
-const vipTotalPages = Math.ceil(sortedVip.length / vipPageSize);
-
-// 隨機選擇一個分頁（實現輪播效果）
-const vipPageIndex = Math.floor(Math.random() * vipTotalPages);
-const vipStartIndex = vipPageIndex * vipPageSize;
-const vipEndIndex = Math.min(vipStartIndex + vipPageSize, sortedVip.length);
-
-const vipSelected = sortedVip.slice(vipStartIndex, vipEndIndex);
+// 選擇所有 VIP 導師
+selectedTutors.push(...sortedVip);
 ```
 
 #### 2. 置頂導師評分優先
@@ -128,9 +120,9 @@ queryParams={{ featured: 'true' }}
 - 支持分頁瀏覽，可以查看所有導師
 
 ### 導師公平性
-- VIP 導師按評分分批輪播，避免總是同一批人
+- VIP 導師按評分排序，高評分者優先
 - 置頂導師按評分排序，高評分者優先
-- 普通導師有補充曝光機會
+- 普通導師按評分排序，高評分者優先
 
 ### 系統穩定性
 - 多重容錯機制確保系統穩定運行
@@ -142,10 +134,7 @@ queryParams={{ featured: 'true' }}
 系統會輸出詳細的選擇過程：
 ```
 👑 VIP 導師選擇:
-- 總頁數: 10
-- 選擇頁面: 3
-- 選擇範圍: 11-15
-- 選擇數量: 5 個
+- 選擇數量: 15 個
   1. 張老師 (評分: 4.9)
   2. 李老師 (評分: 4.8)
   ...
@@ -159,7 +148,7 @@ queryParams={{ featured: 'true' }}
 📚 普通導師選擇:
 - 選擇數量: 0 個
 
-🎉 最終選擇了 8 個導師，按優先級排序
+🎉 最終選擇了 18 個導師，按優先級排序
 📋 最終導師列表:
   1. 張老師 (👑 VIP, 評分: 4.9)
   2. 李老師 (👑 VIP, 評分: 4.8)
