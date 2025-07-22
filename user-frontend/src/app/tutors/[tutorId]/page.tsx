@@ -180,37 +180,24 @@ export default function TutorDetailPage() {
                   </div>
                 )}
                 
-                {tutor.teachingAreas && tutor.teachingAreas.length > 0 ? (
-                  <div className="flex items-start">
-                    <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">主要地區：</span>
-                    <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
-                      {getRegionDisplay(tutor.teachingAreas[0])}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex items-start">
-                    <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">主要地區：</span>
-                    <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
-                      暫未設定
-                    </span>
-                  </div>
-                )}
-                
-                {tutor.teachingAreas && tutor.teachingAreas.length > 1 ? (
+                {tutor.teachingMethods && tutor.teachingMethods.length > 0 && 
+                 (tutor.teachingMethods.includes('in-person') || tutor.teachingMethods.includes('both')) && 
+                 tutor.teachingAreas && tutor.teachingAreas.length > 0 ? (
                   <div className="flex items-start">
                     <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">教授地區：</span>
                     <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
                       {formatRegions(tutor.teachingAreas)}
                     </span>
                   </div>
-                ) : (
+                ) : tutor.teachingMethods && tutor.teachingMethods.length > 0 && 
+                    (tutor.teachingMethods.includes('in-person') || tutor.teachingMethods.includes('both')) ? (
                   <div className="flex items-start">
                     <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">教授地區：</span>
                     <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
                       暫未設定
                     </span>
                   </div>
-                )}
+                ) : null}
               </div>
             </CardContent>
           </Card>
