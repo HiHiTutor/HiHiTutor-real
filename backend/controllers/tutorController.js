@@ -613,7 +613,7 @@ const getAllTutors = async (req, res) => {
           }
           
           // 加權隨機選擇邏輯
-          const targetCount = parseInt(limit) || 8;
+          const targetCount = parseInt(limit) || 50; // 改為50，不限制為8
           const selectedTutors = [];
           
           // 如果沒有VIP或置頂導師，自動提升一些導師
@@ -783,9 +783,17 @@ const getAllTutors = async (req, res) => {
           console.log('🔍 查詢條件:', JSON.stringify(query, null, 2));
           
           // 執行查詢
-          const dbTutors = await User.find(query)
-            .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId')
-            .limit(parseInt(limit) || 50);
+          let dbTutors;
+          if (featured === 'true') {
+            console.log('🎯 精選導師查詢：不限制數量');
+            dbTutors = await User.find(query)
+              .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId');
+          } else {
+            console.log('📊 普通查詢：限制數量');
+            dbTutors = await User.find(query)
+              .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId')
+              .limit(parseInt(limit) || 50);
+          }
           
           // 按優先級排序：VIP > 置頂 > 普通，然後按評分排序
           const sortedTutors = dbTutors.sort((a, b) => {
