@@ -162,7 +162,7 @@ const CaseSection = ({ title, fetchUrl, linkUrl, borderColor = 'border-blue-400'
   
   // 根據螢幕大小決定每頁卡片數量
   // 對於導師列表，增加每頁顯示數量以支持更多導師
-  const cardsPerPage = routeType === 'tutor' ? (isMobile ? 8 : 16) : (isMobile ? 4 : 8);
+  const cardsPerPage = routeType === 'tutor' ? (isMobile ? 4 : 8) : (isMobile ? 4 : 8);
 
   useEffect(() => {
     let isMounted = true;  // 用於防止記憶體洩漏
