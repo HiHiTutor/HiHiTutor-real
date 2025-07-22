@@ -134,22 +134,6 @@ export default function TutorDetailPage() {
               <div className="space-y-3 max-sm:space-y-2 max-[700px]:space-y-2">
                 {tutor.teachingMethods && tutor.teachingMethods.length > 0 ? (
                   <div className="flex items-start">
-                    <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">補習形式：</span>
-                    <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
-                      {getTeachingModeDisplay(tutor.teachingMethods[0])}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex items-start">
-                    <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">補習形式：</span>
-                    <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
-                      暫未設定
-                    </span>
-                  </div>
-                )}
-                
-                {tutor.teachingMethods && tutor.teachingMethods.length > 0 ? (
-                  <div className="flex items-start">
                     <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">教學方式：</span>
                     <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
                       {formatTeachingSubModes(tutor.teachingMethods)}
