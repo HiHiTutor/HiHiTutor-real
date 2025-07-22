@@ -398,8 +398,8 @@ const getAllTutors = async (req, res) => {
               selectedTutors.push(...sortedTop);
               
               console.log(`⭐ 置頂導師選擇:`);
-              console.log(`- 選擇數量: ${topSelected.length} 個`);
-              topSelected.forEach((tutor, index) => {
+              console.log(`- 選擇數量: ${sortedTop.length} 個`);
+              sortedTop.forEach((tutor, index) => {
                 console.log(`  ${index + 1}. ${tutor.name} (評分: ${tutor.rating || 0})`);
               });
             }
