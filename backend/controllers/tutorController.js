@@ -305,18 +305,18 @@ const getAllTutors = async (req, res) => {
           console.log('🎯 分類設為 unlimited，跳過分類過濾');
         }
         
-        // 精選導師過濾 - 實現加權隨機選擇
+        // 精選導師過濾 - 實現分批輪播 + 置頂保障機制
         if (featured === 'true') {
-          console.log('🎯 查詢精選導師 (featured=true) - 加權隨機選擇');
+          console.log('🎯 查詢精選導師 (featured=true) - 分批輪播 + 置頂保障機制');
           
           try {
             // 分別查詢不同類型的導師
-                      const vipTutors = await User.find({ 
-            userType: 'tutor',
-            isActive: true,
-            status: 'active',
-            isVip: true 
-          }).select('name avatar tutorProfile rating isVip isTop createdAt tutorId');
+            const vipTutors = await User.find({ 
+              userType: 'tutor',
+              isActive: true,
+              status: 'active',
+              isVip: true 
+            }).select('name avatar tutorProfile rating isVip isTop createdAt tutorId');
             
             const topTutors = await User.find({ 
               userType: 'tutor',
@@ -326,7 +326,7 @@ const getAllTutors = async (req, res) => {
               isVip: false  // 排除 VIP，避免重複
             }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId');
             
-            const regularTutors = await User.find({ 
+            const normalTutors = await User.find({ 
               userType: 'tutor',
               isActive: true,
               status: 'active',
@@ -337,58 +337,17 @@ const getAllTutors = async (req, res) => {
             console.log(`📊 找到導師數量:`);
             console.log(`- VIP 導師: ${vipTutors.length} 個`);
             console.log(`- 置頂導師: ${topTutors.length} 個`);
-            console.log(`- 普通導師: ${regularTutors.length} 個`);
-            
-            // 詳細顯示每個導師嘅狀態
-            if (vipTutors.length > 0) {
-              console.log('👑 VIP 導師列表:');
-              vipTutors.forEach(tutor => {
-                console.log(`  - ${tutor.name} (isVip: ${tutor.isVip}, isTop: ${tutor.isTop}, status: ${tutor.status || 'N/A'})`);
-              });
-            }
-            
-            if (topTutors.length > 0) {
-              console.log('⭐ 置頂導師列表:');
-              topTutors.forEach(tutor => {
-                console.log(`  - ${tutor.name} (isVip: ${tutor.isVip}, isTop: ${tutor.isTop}, status: ${tutor.status || 'N/A'})`);
-              });
-            }
-            
-            if (regularTutors.length > 0) {
-              console.log('📚 普通導師列表 (前5個):');
-              regularTutors.slice(0, 5).forEach(tutor => {
-                console.log(`  - ${tutor.name} (isVip: ${tutor.isVip}, isTop: ${tutor.isTop}, status: ${tutor.status || 'N/A'})`);
-              });
-            }
-            
-            // 檢查所有導師嘅狀態
-            const allTutors = await User.find({ userType: 'tutor' }).select('name isVip isTop isActive status');
-            console.log(`🔍 資料庫中所有導師狀態檢查:`);
-            console.log(`- 總導師數: ${allTutors.length}`);
-            console.log(`- isActive: true 的導師: ${allTutors.filter(t => t.isActive === true).length}`);
-            console.log(`- status: 'active' 的導師: ${allTutors.filter(t => t.status === 'active').length}`);
-            console.log(`- isVip: true 的導師: ${allTutors.filter(t => t.isVip === true).length}`);
-            console.log(`- isTop: true 的導師: ${allTutors.filter(t => t.isTop === true).length}`);
-            
-            // 顯示所有導師嘅詳細狀態
-            console.log('📋 所有導師詳細狀態:');
-            allTutors.forEach(tutor => {
-              console.log(`  - ${tutor.name}: isActive=${tutor.isActive}, status=${tutor.status}, isVip=${tutor.isVip}, isTop=${tutor.isTop}`);
-            });
-            
-            // 加權隨機選擇邏輯
-            const targetCount = parseInt(limit) || 8;
-            const selectedTutors = [];
+            console.log(`- 普通導師: ${normalTutors.length} 個`);
             
             // 如果沒有VIP或置頂導師，自動提升一些導師
-            if (vipTutors.length === 0 && topTutors.length === 0 && regularTutors.length > 0) {
+            if (vipTutors.length === 0 && topTutors.length === 0 && normalTutors.length > 0) {
               console.log('🔄 沒有VIP或置頂導師，自動提升一些導師...');
               
               // 按評分排序，選擇評分最高的導師
-              const sortedRegularTutors = regularTutors.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+              const sortedNormalTutors = normalTutors.sort((a, b) => (b.rating || 0) - (a.rating || 0));
               
               // 將前3個提升為VIP
-              const promotedVipTutors = sortedRegularTutors.slice(0, Math.min(3, sortedRegularTutors.length));
+              const promotedVipTutors = sortedNormalTutors.slice(0, Math.min(3, sortedNormalTutors.length));
               promotedVipTutors.forEach(tutor => {
                 tutor.isVip = true;
                 tutor.isTop = false;
@@ -396,7 +355,7 @@ const getAllTutors = async (req, res) => {
               vipTutors.push(...promotedVipTutors);
               
               // 將接下來5個提升為置頂
-              const promotedTopTutors = sortedRegularTutors.slice(3, Math.min(8, sortedRegularTutors.length));
+              const promotedTopTutors = sortedNormalTutors.slice(3, Math.min(8, sortedNormalTutors.length));
               promotedTopTutors.forEach(tutor => {
                 tutor.isTop = true;
                 tutor.isVip = false;
@@ -404,55 +363,102 @@ const getAllTutors = async (req, res) => {
               topTutors.push(...promotedTopTutors);
               
               // 更新普通導師列表
-              const remainingRegularTutors = sortedRegularTutors.slice(8);
-              regularTutors.length = 0;
-              regularTutors.push(...remainingRegularTutors);
+              const remainingNormalTutors = sortedNormalTutors.slice(8);
+              normalTutors.length = 0;
+              normalTutors.push(...remainingNormalTutors);
               
               console.log(`✅ 自動提升了 ${promotedVipTutors.length} 個VIP導師和 ${promotedTopTutors.length} 個置頂導師`);
             }
             
-            // 計算各類型導師的目標數量
-            const vipCount = Math.ceil(targetCount * 0.5);  // 50% VIP
-            const topCount = Math.ceil(targetCount * 0.3);  // 30% 置頂
-            const regularCount = targetCount - vipCount - topCount;  // 剩餘給普通導師
+            // 🎯 實現分批輪播 + 置頂保障機制
+            const targetCount = parseInt(limit) || 8;
+            const selectedTutors = [];
             
-            console.log(`🎲 目標分配:`);
-            console.log(`- VIP: ${vipCount} 個`);
-            console.log(`- 置頂: ${topCount} 個`);
-            console.log(`- 普通: ${regularCount} 個`);
-            
-            // 選擇 VIP 導師
+            // 1. VIP 導師：分批輪播選擇（每批5個）
             if (vipTutors.length > 0) {
-              const selectedVip = vipTutors.slice(0, Math.min(vipCount, vipTutors.length));
-              selectedTutors.push(...selectedVip);
-              console.log(`✅ 選擇了 ${selectedVip.length} 個 VIP 導師`);
+              // 按評分排序
+              const sortedVip = vipTutors.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+              
+              // 計算分頁參數
+              const vipPageSize = 5;
+              const vipTotalPages = Math.ceil(sortedVip.length / vipPageSize);
+              
+              // 隨機選擇一個分頁（實現輪播效果）
+              const vipPageIndex = Math.floor(Math.random() * vipTotalPages);
+              const vipStartIndex = vipPageIndex * vipPageSize;
+              const vipEndIndex = Math.min(vipStartIndex + vipPageSize, sortedVip.length);
+              
+              const vipSelected = sortedVip.slice(vipStartIndex, vipEndIndex);
+              selectedTutors.push(...vipSelected);
+              
+              console.log(`👑 VIP 導師選擇:`);
+              console.log(`- 總頁數: ${vipTotalPages}`);
+              console.log(`- 選擇頁面: ${vipPageIndex + 1}`);
+              console.log(`- 選擇範圍: ${vipStartIndex + 1}-${vipEndIndex}`);
+              console.log(`- 選擇數量: ${vipSelected.length} 個`);
+              vipSelected.forEach((tutor, index) => {
+                console.log(`  ${index + 1}. ${tutor.name} (評分: ${tutor.rating || 0})`);
+              });
             }
             
-            // 選擇置頂導師
+            // 2. 置頂導師：選擇評分最高的2-3個
             if (topTutors.length > 0) {
-              const selectedTop = topTutors.slice(0, Math.min(topCount, topTutors.length));
-              selectedTutors.push(...selectedTop);
-              console.log(`✅ 選擇了 ${selectedTop.length} 個置頂導師`);
+              // 按評分排序
+              const sortedTop = topTutors.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+              
+              // 計算剩餘名額，最多選擇3個置頂導師
+              const remainingSlots = targetCount - selectedTutors.length;
+              const topCount = Math.min(3, remainingSlots, sortedTop.length);
+              
+              const topSelected = sortedTop.slice(0, topCount);
+              selectedTutors.push(...topSelected);
+              
+              console.log(`⭐ 置頂導師選擇:`);
+              console.log(`- 選擇數量: ${topSelected.length} 個`);
+              topSelected.forEach((tutor, index) => {
+                console.log(`  ${index + 1}. ${tutor.name} (評分: ${tutor.rating || 0})`);
+              });
             }
             
-            // 選擇普通導師
-            if (regularTutors.length > 0) {
-              const selectedRegular = regularTutors.slice(0, Math.min(regularCount, regularTutors.length));
-              selectedTutors.push(...selectedRegular);
-              console.log(`✅ 選擇了 ${selectedRegular.length} 個普通導師`);
+            // 3. 普通導師：補足剩餘名額
+            if (normalTutors.length > 0) {
+              // 按評分排序
+              const sortedNormal = normalTutors.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+              
+              // 計算剩餘名額
+              const remainingSlots = targetCount - selectedTutors.length;
+              
+              if (remainingSlots > 0) {
+                const normalSelected = sortedNormal.slice(0, remainingSlots);
+                selectedTutors.push(...normalSelected);
+                
+                console.log(`📚 普通導師選擇:`);
+                console.log(`- 選擇數量: ${normalSelected.length} 個`);
+                normalSelected.forEach((tutor, index) => {
+                  console.log(`  ${index + 1}. ${tutor.name} (評分: ${tutor.rating || 0})`);
+                });
+              }
             }
             
             // 如果還不夠目標數量，從剩餘導師中隨機補充
             if (selectedTutors.length < targetCount) {
-              const remainingTutors = [...vipTutors, ...topTutors, ...regularTutors]
-                .filter(tutor => !selectedTutors.some(selected => selected._id.toString() === tutor._id.toString()));
+              const allTutors = [...vipTutors, ...topTutors, ...normalTutors];
+              const remainingTutors = allTutors.filter(tutor => 
+                !selectedTutors.some(selected => selected._id.toString() === tutor._id.toString())
+              );
               
               if (remainingTutors.length > 0) {
-                const shuffledRemaining = remainingTutors.sort(() => Math.random() - 0.5);
+                // 按評分排序後隨機選擇
+                const sortedRemaining = remainingTutors.sort((a, b) => (b.rating || 0) - (a.rating || 0));
                 const needed = targetCount - selectedTutors.length;
-                const additional = shuffledRemaining.slice(0, Math.min(needed, remainingTutors.length));
+                const additional = sortedRemaining.slice(0, Math.min(needed, sortedRemaining.length));
                 selectedTutors.push(...additional);
-                console.log(`✅ 補充了 ${additional.length} 個導師`);
+                
+                console.log(`🔄 補充導師選擇:`);
+                console.log(`- 補充數量: ${additional.length} 個`);
+                additional.forEach((tutor, index) => {
+                  console.log(`  ${index + 1}. ${tutor.name} (評分: ${tutor.rating || 0})`);
+                });
               }
             }
             
@@ -471,6 +477,11 @@ const getAllTutors = async (req, res) => {
             });
             
             console.log(`🎉 最終選擇了 ${finalSorted.length} 個導師，按優先級排序`);
+            console.log(`📋 最終導師列表:`);
+            finalSorted.forEach((tutor, index) => {
+              const type = tutor.isVip ? '👑 VIP' : tutor.isTop ? '⭐ 置頂' : '📚 普通';
+              console.log(`  ${index + 1}. ${tutor.name} (${type}, 評分: ${tutor.rating || 0})`);
+            });
             
             // 格式化結果
             tutors = finalSorted.map(tutor => ({
@@ -492,8 +503,8 @@ const getAllTutors = async (req, res) => {
             }));
             
           } catch (weightedError) {
-            console.error('❌ 加權隨機選擇失敗:', weightedError.message);
-            // 如果加權選擇失敗，回退到原來的邏輯
+            console.error('❌ 分批輪播選擇失敗:', weightedError.message);
+            // 如果選擇失敗，回退到原來的邏輯
             query.$or = [
               { isVip: true },
               { isTop: true }
