@@ -23,12 +23,21 @@ import { Label } from '@/components/ui/label';
 import { TEACHING_MODE_OPTIONS } from '@/constants/teachingModeOptions';
 
 const formSchema = z.object({
-  title: z.string().min(1, '請輸入此欄位'),
+  title: z.string({
+    required_error: '請輸入此欄位',
+    invalid_type_error: '請輸入此欄位'
+  }).min(1, '請輸入此欄位'),
   description: z.string().optional(),
-  category: z.string().min(1, '請輸入此欄位'),
+  category: z.string({
+    required_error: '請輸入此欄位',
+    invalid_type_error: '請輸入此欄位'
+  }).min(1, '請輸入此欄位'),
   subCategory: z.string().optional(),
   subjects: z.array(z.string()).optional(),
-  modes: z.array(z.string()).min(1, '請輸入此欄位'),
+  modes: z.array(z.string(), {
+    required_error: '請輸入此欄位',
+    invalid_type_error: '請輸入此欄位'
+  }).min(1, '請輸入此欄位'),
   regions: z.array(z.string()).optional(),
   subRegions: z.array(z.string()).optional(),
   price: z.coerce.number({
