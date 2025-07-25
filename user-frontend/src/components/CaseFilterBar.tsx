@@ -887,21 +887,23 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                 </Listbox>
               </div>
 
-              {/* 地區選擇 - 始終顯示，不根據教學模式 */}
-              <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
-                <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">地區</label>
-                <select
-                  value={filters.regions[0] || 'unlimited'}
-                  onChange={(e) => handleRegionChange(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
-                >
-                  {REGION_OPTIONS.map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {/* 地區選擇 - 只在選擇面授或皆可時顯示 */}
+              {(filters.mode === 'in-person' || filters.mode === 'both') && (
+                <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">地區</label>
+                  <select
+                    value={filters.regions[0] || 'unlimited'}
+                    onChange={(e) => handleRegionChange(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
+                  >
+                    {REGION_OPTIONS.map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               {/* 子地區選擇 */}
               {filters.regions.length > 0 && filters.regions[0] !== 'unlimited' && (
