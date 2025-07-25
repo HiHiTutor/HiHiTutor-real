@@ -142,33 +142,70 @@ const CreateUser: React.FC = () => {
   useEffect(() => {
     const fetchOptions = async () => {
       try {
-        // 暫時使用硬編碼的教學模式選項，等 API 修復後改回動態獲取
-        const teachingModes = [
-          { 
-            value: 'in-person', 
-            label: '面授',
-            subCategories: [
-              { value: 'one-on-one', label: '一對一' },
-              { value: 'small-group', label: '小班教學' },
-              { value: 'large-center', label: '大型補習社' }
-            ]
-          },
-          { 
-            value: 'online', 
-            label: '網課',
-            subCategories: [] // 網課沒有子分類
-          },
-          { 
-            value: 'both', 
-            label: '皆可',
-            subCategories: [
-              { value: 'one-on-one', label: '一對一' },
-              { value: 'small-group', label: '小班教學' },
-              { value: 'large-center', label: '大型補習社' }
-            ]
+        // 從後端 API 獲取教學模式選項
+        try {
+          const response = await api.get('/teaching-modes');
+          if (response.data) {
+            setTeachingModeOptions(response.data);
+          } else {
+            // 如果 API 失敗，使用預設值
+            const teachingModes = [
+              { 
+                value: 'in-person', 
+                label: '面授',
+                subCategories: [
+                  { value: 'one-on-one', label: '一對一' },
+                  { value: 'small-group', label: '小班教學' },
+                  { value: 'large-center', label: '補習社' }
+                ]
+              },
+              { 
+                value: 'online', 
+                label: '網課',
+                subCategories: []
+              },
+              { 
+                value: 'both', 
+                label: '皆可',
+                subCategories: [
+                  { value: 'one-on-one', label: '一對一' },
+                  { value: 'small-group', label: '小班教學' },
+                  { value: 'large-center', label: '補習社' }
+                ]
+              }
+            ];
+            setTeachingModeOptions(teachingModes);
           }
-        ];
-        setTeachingModeOptions(teachingModes);
+        } catch (error) {
+          console.error('Failed to fetch teaching modes:', error);
+          // 使用預設值
+          const teachingModes = [
+            { 
+              value: 'in-person', 
+              label: '面授',
+              subCategories: [
+                { value: 'one-on-one', label: '一對一' },
+                { value: 'small-group', label: '小班教學' },
+                { value: 'large-center', label: '補習社' }
+              ]
+            },
+            { 
+              value: 'online', 
+              label: '網課',
+              subCategories: []
+            },
+            { 
+              value: 'both', 
+              label: '皆可',
+              subCategories: [
+                { value: 'one-on-one', label: '一對一' },
+                { value: 'small-group', label: '小班教學' },
+                { value: 'large-center', label: '補習社' }
+              ]
+            }
+          ];
+          setTeachingModeOptions(teachingModes);
+        }
 
         // 暫時使用硬編碼的地區選項，等 API 修復後改回動態獲取
         const regions = [
