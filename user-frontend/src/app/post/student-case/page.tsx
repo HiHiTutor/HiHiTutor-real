@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils';
 import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 import { REGION_OPTIONS } from '@/constants/regionOptions';
 import { Label } from '@/components/ui/label';
-import { TEACHING_MODE_OPTIONS } from '@/constants/teachingModeOptions';
+import { TEACHING_MODE_OPTIONS, initializeTeachingModeOptions } from '@/constants/teachingModeOptions';
 
 const formSchema = z.object({
   title: z.string({
@@ -93,6 +93,77 @@ export default function PostStudentCase() {
   const [selectedModes, setSelectedModes] = useState<string[]>([]);
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [selectedSubRegions, setSelectedSubRegions] = useState<string[]>([]);
+  const [teachingModeOptions, setTeachingModeOptions] = useState<any[]>([]);
+
+  // 初始化教學模式選項
+  useEffect(() => {
+    const initTeachingModes = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/teaching-modes`);
+        if (response.ok) {
+          const data = await response.json();
+          setTeachingModeOptions(data);
+        } else {
+          // 如果 API 失敗，使用預設值
+          setTeachingModeOptions([
+            { 
+              value: 'in-person', 
+              label: '面授',
+              subCategories: [
+                { value: 'one-on-one', label: '一對一' },
+                { value: 'small-group', label: '小班教學' },
+                { value: 'large-center', label: '補習社' }
+              ]
+            },
+            { 
+              value: 'online', 
+              label: '網課',
+              subCategories: []
+            },
+            { 
+              value: 'both', 
+              label: '皆可',
+              subCategories: [
+                { value: 'one-on-one', label: '一對一' },
+                { value: 'small-group', label: '小班教學' },
+                { value: 'large-center', label: '補習社' }
+              ]
+            }
+          ]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch teaching mode options:', error);
+        // 使用預設值
+        setTeachingModeOptions([
+          { 
+            value: 'in-person', 
+            label: '面授',
+            subCategories: [
+              { value: 'one-on-one', label: '一對一' },
+              { value: 'small-group', label: '小班教學' },
+              { value: 'large-center', label: '補習社' }
+            ]
+          },
+          { 
+            value: 'online', 
+            label: '網課',
+            subCategories: []
+          },
+          { 
+            value: 'both', 
+            label: '皆可',
+            subCategories: [
+              { value: 'one-on-one', label: '一對一' },
+              { value: 'small-group', label: '小班教學' },
+              { value: 'large-center', label: '補習社' }
+            ]
+          }
+        ]);
+      }
+    };
+    
+    initTeachingModes();
+  }, []);
 
   const {
     register,
@@ -331,7 +402,7 @@ export default function PostStudentCase() {
             <div className="space-y-2">
               <Label>教學模式</Label>
               <div className="flex gap-4">
-                {TEACHING_MODE_OPTIONS.map(mode => (
+                {teachingModeOptions.map(mode => (
                   <div key={mode.value} className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <Checkbox

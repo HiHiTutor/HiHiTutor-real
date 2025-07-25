@@ -28,6 +28,7 @@ export default function TutorCasePage() {
 
   const [categories, setCategories] = useState([]);
   const [regions, setRegions] = useState([]);
+  const [teachingModeOptions, setTeachingModeOptions] = useState<any[]>([]);
 
   const [errors, setErrors] = useState({
     price: '',
@@ -55,6 +56,74 @@ export default function TutorCasePage() {
         setRegions(arr);
       })
       .catch(err => console.error('載入地區失敗', err));
+
+    // 初始化教學模式選項
+    const initTeachingModes = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/teaching-modes`);
+        if (response.ok) {
+          const data = await response.json();
+          setTeachingModeOptions(data);
+        } else {
+          // 如果 API 失敗，使用預設值
+          setTeachingModeOptions([
+            { 
+              value: 'in-person', 
+              label: '面授',
+              subCategories: [
+                { value: 'one-on-one', label: '一對一' },
+                { value: 'small-group', label: '小班教學' },
+                { value: 'large-center', label: '補習社' }
+              ]
+            },
+            { 
+              value: 'online', 
+              label: '網課',
+              subCategories: []
+            },
+            { 
+              value: 'both', 
+              label: '皆可',
+              subCategories: [
+                { value: 'one-on-one', label: '一對一' },
+                { value: 'small-group', label: '小班教學' },
+                { value: 'large-center', label: '補習社' }
+              ]
+            }
+          ]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch teaching mode options:', error);
+        // 使用預設值
+        setTeachingModeOptions([
+          { 
+            value: 'in-person', 
+            label: '面授',
+            subCategories: [
+              { value: 'one-on-one', label: '一對一' },
+              { value: 'small-group', label: '小班教學' },
+              { value: 'large-center', label: '補習社' }
+            ]
+          },
+          { 
+            value: 'online', 
+            label: '網課',
+            subCategories: []
+          },
+          { 
+            value: 'both', 
+            label: '皆可',
+            subCategories: [
+              { value: 'one-on-one', label: '一對一' },
+              { value: 'small-group', label: '小班教學' },
+              { value: 'large-center', label: '補習社' }
+            ]
+          }
+        ]);
+      }
+    };
+    
+    initTeachingModes();
   }, []);
 
   const effectiveCategories = categories.length ? categories : CATEGORY_OPTIONS;
@@ -295,7 +364,7 @@ export default function TutorCasePage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">教學模式（可多選）</label>
               <div className="flex flex-wrap gap-2">
-                {TEACHING_MODE_OPTIONS.map(mode => (
+                {teachingModeOptions.map(mode => (
                   <div key={mode.value} className="space-y-2">
                     <TagCheckbox
                       label={mode.label}
