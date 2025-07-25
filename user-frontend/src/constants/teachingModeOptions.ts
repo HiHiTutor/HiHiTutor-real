@@ -13,13 +13,21 @@ export const TEACHING_MODE_OPTIONS = [
     value: 'online', 
     label: '網課',
     subCategories: [] // 網課沒有子分類
+  },
+  { 
+    value: 'both', 
+    label: '皆可',
+    subCategories: [
+      { value: 'one-on-one', label: '一對一' },
+      { value: 'small-group', label: '小班教學' },
+      { value: 'large-center', label: '大型補習社' }
+    ]
   }
 ];
 
 // 教學模式映射（用於轉換不同格式）
 export const TEACHING_MODE_MAP: { [key: string]: string } = {
   // 英文到中文
-  'unlimited': '不限',
   'online': '網課',
   'in-person': '面授',
   'one-on-one': '一對一',
@@ -27,7 +35,6 @@ export const TEACHING_MODE_MAP: { [key: string]: string } = {
   'large-center': '大型補習社',
   
   // 中文到英文
-  '不限': 'unlimited',
   '網課': 'online',
   '網上': 'online',
   '面授': 'in-person',
@@ -76,7 +83,7 @@ export function getTeachingModeCategory(modeCode: string): string | null {
 
 // 檢查是否需要顯示地區選項
 export function shouldShowRegionForMode(modeCode: string): boolean {
-  return modeCode === 'in-person' || 
+  return modeCode === 'in-person' || modeCode === 'both' || 
          ['one-on-one', 'small-group', 'large-center'].includes(modeCode);
 }
 
