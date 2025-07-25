@@ -82,6 +82,15 @@ const formSchema = z.object({
 }, {
   message: "請輸入此欄位",
   path: ["subjects"] // 錯誤顯示在科目欄位
+}).refine((data) => {
+  // 如果選擇面授或皆可，則地區是必填的
+  if (data.modes && (data.modes.includes('in-person') || data.modes.includes('both'))) {
+    return (data.regions && data.regions.length > 0);
+  }
+  return true;
+}, {
+  message: "請選擇上堂地區",
+  path: ["regions"] // 錯誤顯示在地區欄位
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -479,7 +488,7 @@ export default function PostStudentCase() {
               </div>
             )}
 
-            {(selectedModes.includes('in-person') || selectedModes.includes('both') || selectedSubCategory) && (
+            {(selectedModes.includes('in-person') || selectedModes.includes('both')) && (
               <>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
