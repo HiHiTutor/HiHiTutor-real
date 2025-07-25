@@ -313,10 +313,22 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   };
 
   const handleModeChange = (mode: string) => {
-    setFilters(prev => ({
-      ...prev,
-      mode: mode
-    }));
+    // 檢查是否是面授的子分類
+    const isInPersonSubCategory = ['one-on-one', 'small-group', 'large-center'].includes(mode);
+    
+    if (isInPersonSubCategory) {
+      // 如果是面授子分類，保持面授選中，但顯示子分類
+      setFilters(prev => ({
+        ...prev,
+        mode: mode // 顯示選中的子分類
+      }));
+    } else {
+      // 如果是主分類，直接設置
+      setFilters(prev => ({
+        ...prev,
+        mode: mode
+      }));
+    }
   };
 
   const handleFilter = () => {
@@ -888,7 +900,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
               </div>
 
               {/* 地區選擇 - 只在選擇面授或皆可時顯示 */}
-              {(filters.mode === 'in-person' || filters.mode === 'both') && (
+              {(filters.mode === 'in-person' || filters.mode === 'both' || filters.mode === 'one-on-one' || filters.mode === 'small-group' || filters.mode === 'large-center') && (
                 <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
                   <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">地區</label>
                   <select
