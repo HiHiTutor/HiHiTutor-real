@@ -23,27 +23,42 @@ import { Label } from '@/components/ui/label';
 import { TEACHING_MODE_OPTIONS } from '@/constants/teachingModeOptions';
 
 const formSchema = z.object({
-  title: z.string().min(1, '請輸入標題'),
+  title: z.string().min(1, '請輸入此欄位'),
   description: z.string().optional(),
-  category: z.string().min(1, '請選擇類別'),
+  category: z.string().min(1, '請輸入此欄位'),
   subCategory: z.string().optional(),
   subjects: z.array(z.string()).optional(),
-  modes: z.array(z.string()).min(1, '請選擇教學模式'),
+  modes: z.array(z.string()).min(1, '請輸入此欄位'),
   regions: z.array(z.string()).optional(),
   subRegions: z.array(z.string()).optional(),
-  price: z.coerce.number().min(1, '請輸入每堂收費'),
+  price: z.coerce.number({
+    invalid_type_error: '請輸入此欄位',
+    required_error: '請輸入此欄位'
+  }).min(1, '請輸入此欄位'),
   lessonDuration: z.object({
-    hours: z.coerce.number().min(0, '小時不能為負數').max(12, '小時不能超過12'),
-    minutes: z.coerce.number().min(0, '分鐘不能為負數').max(59, '分鐘不能超過59')
+    hours: z.coerce.number({
+      invalid_type_error: '請輸入此欄位',
+      required_error: '請輸入此欄位'
+    }).min(0, '請輸入此欄位').max(12, '請輸入此欄位'),
+    minutes: z.coerce.number({
+      invalid_type_error: '請輸入此欄位',
+      required_error: '請輸入此欄位'
+    }).min(0, '請輸入此欄位').max(59, '請輸入此欄位')
   }).refine((data) => {
     // 只要總時長>0即可
     return (data.hours * 60 + data.minutes) > 0;
   }, {
-    message: "請輸入有效的時長",
+    message: "請輸入此欄位",
     path: ["minutes"]
   }),
-  weeklyLessons: z.coerce.number().min(1, '請輸入每週堂數'),
-  startDate: z.date()
+  weeklyLessons: z.coerce.number({
+    invalid_type_error: '請輸入此欄位',
+    required_error: '請輸入此欄位'
+  }).min(1, '請輸入此欄位'),
+  startDate: z.date({
+    invalid_type_error: '請輸入此欄位',
+    required_error: '請輸入此欄位'
+  })
 }).refine((data) => {
   // 如果是中小學教育，則子分類和科目都是必填
   if (data.category === 'primary-secondary') {
@@ -56,7 +71,7 @@ const formSchema = z.object({
   }
   return true;
 }, {
-  message: "請選擇至少一個科目",
+  message: "請輸入此欄位",
   path: ["subjects"] // 錯誤顯示在科目欄位
 });
 
