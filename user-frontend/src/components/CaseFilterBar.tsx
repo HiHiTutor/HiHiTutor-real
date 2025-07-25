@@ -18,7 +18,7 @@ interface FilterState {
   category: string;
   subCategory: string;
   subjects: string[];
-  mode: string[];
+  mode: string; // 改為單選
   regions: string[];
   subRegions: string[];
   priceRange: string; // 改為字符串，使用預設選項
@@ -59,7 +59,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     category: 'unlimited', // 預設為不限
     subCategory: 'unlimited', // 預設為不限
     subjects: [],
-    mode: [], // 預設為空數組
+    mode: 'unlimited', // 改為單選，預設為不限
     regions: ['unlimited'], // 預設為不限，改為單選
     subRegions: ['unlimited'], // 預設為不限
     priceRange: 'unlimited' // 預設為不限
@@ -248,7 +248,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       category: searchParams.get('category') || 'unlimited',
       subCategory: searchParams.get('subCategory') || 'unlimited',
       subjects: searchParams.getAll('subjects').length > 0 ? [...new Set(searchParams.getAll('subjects'))] : [],
-      mode: searchParams.getAll('mode').length > 0 ? searchParams.getAll('mode') : ['unlimited'],
+      mode: searchParams.get('mode') || 'unlimited', // 改為單選
       regions: searchParams.getAll('regions').length > 0 ? searchParams.getAll('regions') : ['unlimited'],
       subRegions: searchParams.getAll('subRegions').length > 0 ? searchParams.getAll('subRegions') : ['unlimited'],
       priceRange: searchParams.get('priceRange') || 'unlimited'
@@ -315,9 +315,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   const handleModeChange = (mode: string) => {
     setFilters(prev => ({
       ...prev,
-      mode: prev.mode.includes(mode)
-        ? prev.mode.filter(m => m !== mode)
-        : [...prev.mode, mode]
+      mode: mode
     }));
   };
 
@@ -373,11 +371,9 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     // 如果課程分類是不限，不添加任何科目參數（清除之前的科目參數）
 
     // 其他篩選條件 - 只添加非unlimited的值
-    filters.mode.forEach(mode => {
-      if (mode !== 'unlimited') {
-        params.append('modes', mode);
-      }
-    });
+    if (filters.mode && filters.mode !== 'unlimited') {
+      params.append('modes', filters.mode);
+    }
     filters.regions.forEach(region => {
       if (region !== 'unlimited') {
         params.append('regions', region);
@@ -418,7 +414,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       category: 'unlimited',
       subCategory: 'unlimited',
       subjects: [],
-      mode: ['unlimited'],
+      mode: 'unlimited',
       regions: ['unlimited'],
       subRegions: ['unlimited'],
       priceRange: 'unlimited'
@@ -557,20 +553,20 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     });
     
     // 教學模式
-    filters.mode.forEach(mode => {
-      const modeOption = TEACHING_MODE_OPTIONS.find(m => m.value === mode);
+    if (filters.mode && filters.mode !== 'unlimited') {
+      const modeOption = teachingModeOptions.find(m => m.value === filters.mode);
       if (modeOption) {
-        selected.push({ key: 'mode', label: modeOption.label, value: mode });
+        selected.push({ key: 'mode', label: modeOption.label, value: filters.mode });
       } else {
         // 檢查子分類
-        TEACHING_MODE_OPTIONS.forEach(m => {
-          const subMode = m.subCategories.find((sm: { value: string; label: string }) => sm.value === mode);
+        teachingModeOptions.forEach(m => {
+          const subMode = m.subCategories.find((sm: { value: string; label: string }) => sm.value === filters.mode);
           if (subMode) {
-            selected.push({ key: 'mode', label: subMode.label, value: mode });
+            selected.push({ key: 'mode', label: subMode.label, value: filters.mode });
           }
         });
       }
-    });
+    }
     
     // 地區 - 不顯示"不限"
     filters.regions.forEach(region => {
@@ -620,7 +616,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
           newFilters.subjects = prev.subjects.filter(s => s !== value);
           break;
         case 'mode':
-          newFilters.mode = prev.mode.filter(m => m !== value);
+          newFilters.mode = 'unlimited';
           break;
         case 'regions':
           newFilters.regions = ['unlimited'];
@@ -650,7 +646,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       category: 'unlimited',
       subCategory: 'unlimited',
       subjects: [],
-      mode: [],
+      mode: 'unlimited',
       regions: ['unlimited'],
       subRegions: ['unlimited'],
       priceRange: 'unlimited'
@@ -814,17 +810,14 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                 <Listbox
                   value={filters.mode}
                   onChange={(value) => handleFilterChange('mode', value)}
-                  multiple
                 >
                   <div className="relative">
                     <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm max-sm:py-1 max-sm:text-xs">
                       <span className="block truncate">
-                        {filters.mode.length === 0 || (filters.mode.length === 1 && filters.mode[0] === 'unlimited')
+                        {filters.mode === 'unlimited'
                           ? '不限'
-                          : filters.mode.length === 1
-                          ? teachingModeOptions.find(m => m.value === filters.mode[0])?.label || 
-                            teachingModeOptions.flatMap(m => m.subCategories).find(sm => sm.value === filters.mode[0])?.label
-                          : `已選擇 ${filters.mode.filter(m => m !== 'unlimited').length} 個模式`}
+                          : teachingModeOptions.find(m => m.value === filters.mode)?.label || 
+                            teachingModeOptions.flatMap(m => m.subCategories).find(sm => sm.value === filters.mode)?.label}
                       </span>
                       <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                         <ChevronUpDownIcon
@@ -864,7 +857,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                             )}
                           </Listbox.Option>
                         ))}
-                        {filters.mode.includes('in-person') && teachingModeOptions.find(m => m.value === 'in-person')?.subCategories.map((subMode: { value: string; label: string }) => (
+                        {filters.mode === 'in-person' && teachingModeOptions.find(m => m.value === 'in-person')?.subCategories.map((subMode: { value: string; label: string }) => (
                           <Listbox.Option
                             key={subMode.value}
                             className={({ active }) =>
@@ -894,7 +887,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                 </Listbox>
               </div>
 
-              {/* 地區選擇 */}
+              {/* 地區選擇 - 始終顯示，不根據教學模式 */}
               <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
                 <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">地區</label>
                 <select
