@@ -276,7 +276,11 @@ export default function PostStudentCase() {
       : [...selectedSubCategory, value];
     setSelectedSubCategory(newSubCategories);
     setValue('subCategory', newSubCategories);
-    setValue('subjects', []);
+    
+    // 只有在分類的子分類變化時才清空科目，教學模式的子分類變化不影響科目
+    if (selectedCategory === 'primary-secondary') {
+      setValue('subjects', []);
+    }
     
     // 如果是教學模式的子分類，也要更新 modes
     if (['one-on-one', 'small-group', 'large-center'].includes(value)) {
