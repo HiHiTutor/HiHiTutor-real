@@ -107,10 +107,17 @@ const TutorProfileApprovals: React.FC = () => {
       if (response.data.success) {
         console.log('📥 接收到的導師數據:', response.data.data);
         response.data.data.forEach((tutor: any, index: number) => {
-          console.log(`導師 ${index + 1} (${tutor.name}) uploadLogs:`, {
+          console.log(`導師 ${index + 1} (${tutor.name}) 資料結構:`, {
             hasUploadLogs: !!tutor.uploadLogs,
             uploadLogsLength: tutor.uploadLogs?.length || 0,
-            uploadLogs: tutor.uploadLogs
+            uploadLogs: tutor.uploadLogs,
+            tutorProfile: tutor.tutorProfile,
+            hasTeachingMode: !!tutor.tutorProfile?.teachingMode,
+            hasRegion: !!tutor.tutorProfile?.region,
+            hasSubRegions: !!tutor.tutorProfile?.subRegions,
+            teachingMode: tutor.tutorProfile?.teachingMode,
+            region: tutor.tutorProfile?.region,
+            subRegions: tutor.tutorProfile?.subRegions
           });
         });
         setTutors(response.data.data);

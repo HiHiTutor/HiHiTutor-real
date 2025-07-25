@@ -12,6 +12,21 @@ const getPendingTutorProfiles = async (req, res) => {
     }).select('-password -refreshToken');
     
     console.log(`✅ 找到 ${tutors.length} 個待審核導師`);
+    
+    // 調試：檢查第一個導師的資料結構
+    if (tutors.length > 0) {
+      const firstTutor = tutors[0];
+      console.log('🔍 第一個導師資料結構:', {
+        name: firstTutor.name,
+        tutorProfile: firstTutor.tutorProfile,
+        hasTeachingMode: !!firstTutor.tutorProfile?.teachingMode,
+        hasRegion: !!firstTutor.tutorProfile?.region,
+        hasSubRegions: !!firstTutor.tutorProfile?.subRegions,
+        teachingMode: firstTutor.tutorProfile?.teachingMode,
+        region: firstTutor.tutorProfile?.region,
+        subRegions: firstTutor.tutorProfile?.subRegions
+      });
+    }
 
     // 為每個導師獲取上傳記錄
     const tutorsWithUploads = await Promise.all(
