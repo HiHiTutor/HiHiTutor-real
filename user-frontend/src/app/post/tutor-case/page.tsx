@@ -304,7 +304,7 @@ export default function TutorCasePage() {
                       onToggle={(value) => handleToggle('modes', value)}
                     />
                     {/* 顯示面授子分類 */}
-                    {mode.value === 'in-person' && formData.modes.includes('in-person') && (
+                    {(mode.value === 'in-person' || mode.value === 'both') && (formData.modes.includes('in-person') || formData.modes.includes('both')) && (
                       <div className="ml-4 space-y-1">
                         {mode.subCategories.map(subMode => (
                           <TagCheckbox
@@ -322,8 +322,8 @@ export default function TutorCasePage() {
               </div>
             </div>
 
-            {/* 地區（單選，僅選面授時顯示） */}
-            {formData.modes.includes('in-person') && (
+            {/* 地區（單選，僅選面授或皆可時顯示） */}
+            {(formData.modes.includes('in-person') || formData.modes.includes('both')) && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">地區</label>
                 <select value={formData.regions} onChange={e => setFormData({ ...formData, regions: e.target.value, subRegions: [] })} className="w-full px-3 py-2 border rounded-md">
@@ -335,8 +335,8 @@ export default function TutorCasePage() {
               </div>
             )}
 
-            {/* 細分地區（多選，僅選面授時顯示） */}
-            {formData.modes.includes('in-person') && getSubRegionOptions().length > 0 && (
+            {/* 細分地區（多選，僅選面授或皆可時顯示） */}
+            {(formData.modes.includes('in-person') || formData.modes.includes('both')) && getSubRegionOptions().length > 0 && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">細分地區（可多選）</label>
                 <div className="flex flex-wrap gap-2">

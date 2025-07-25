@@ -778,8 +778,8 @@ export default function TutorDashboardPage() {
               </div>
             </div>
 
-            {/* 上堂地點（僅面授時顯示） */}
-            {selectedTeachingMode === 'in-person' && (
+            {/* 上堂地點（面授或皆可時顯示） */}
+            {(selectedTeachingMode === 'in-person' || selectedTeachingMode === 'both') && (
               <div className="space-y-4">
                 <Label>上堂地點</Label>
                 <div className="grid grid-cols-2 gap-4">
