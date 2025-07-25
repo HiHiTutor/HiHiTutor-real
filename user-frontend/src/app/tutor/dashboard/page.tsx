@@ -22,6 +22,7 @@ import { tutorApi } from '@/services/api';
 import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 import REGION_OPTIONS from '@/constants/regionOptions';
 import TEACHING_MODE_OPTIONS from '@/constants/teachingModeOptions';
+import { MultiSelect, Option } from '@/components/ui/multi-select';
 
 // 時間段選項
 const TIME_SLOTS = [
@@ -83,6 +84,20 @@ const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
 const generateDayOptions = (year: number, month: number) => {
   const daysInMonth = new Date(year, month, 0).getDate();
   return Array.from({ length: daysInMonth }, (_, i) => i + 1);
+};
+
+// 準備地區選項數據
+const prepareLocationOptions = (): Option[] => {
+  const options: Option[] = [];
+  REGION_OPTIONS.filter(region => region.value !== 'unlimited').forEach((region) => {
+    region.regions.forEach((area) => {
+      options.push({
+        value: area.value,
+        label: `${region.label} > ${area.label}`
+      });
+    });
+  });
+  return options;
 };
 
 export default function TutorDashboardPage() {
@@ -358,13 +373,7 @@ export default function TutorDashboardPage() {
     }
   };
 
-  const handleLocationToggle = (locationValue: string) => {
-    setSelectedLocations((prev: string[]) => 
-      prev.includes(locationValue) 
-        ? prev.filter(l => l !== locationValue)
-        : [...prev, locationValue]
-    );
-  };
+
 
   // 時間選擇相關函數
   const handleAddTimeSlot = () => {
@@ -782,44 +791,12 @@ export default function TutorDashboardPage() {
             {(selectedTeachingMode === 'in-person' || selectedTeachingMode === 'both') && (
               <div className="space-y-4">
                 <Label>上堂地點</Label>
-                <div className="grid grid-cols-2 gap-4">
-                  {REGION_OPTIONS.filter(region => region.value !== 'unlimited').map((region) => (
-                    <div key={region.value} className="space-y-2">
-                      <div className="font-medium">{region.label}</div>
-                      {region.regions.map((area) => (
-                        <div key={area.value} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={area.value}
-                            checked={selectedLocations.includes(area.value)}
-                            onCheckedChange={() => handleLocationToggle(area.value)}
-                          />
-                          <Label htmlFor={area.value} className="text-sm">
-                            {area.label}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-
-                {/* 已選地點 */}
-                <div className="flex flex-wrap gap-2">
-                  {selectedLocations.map((location) => {
-                    let locationLabel = location;
-                    for (const region of REGION_OPTIONS) {
-                      const found = region.regions.find(r => r.value === location);
-                      if (found) {
-                        locationLabel = `${region.label} > ${found.label}`;
-                        break;
-                      }
-                    }
-                    return (
-                      <Badge key={location} variant="secondary">
-                        {locationLabel}
-                      </Badge>
-                    );
-                  })}
-                </div>
+                <MultiSelect
+                  options={prepareLocationOptions()}
+                  selected={selectedLocations}
+                  onChange={setSelectedLocations}
+                  placeholder="選擇上堂地點..."
+                />
               </div>
             )}
 
