@@ -11,6 +11,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { usersAPI } from '../services/api';
+import api from '../services/api';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://hi-hi-tutor-real-backend2.vercel.app/api';
 
