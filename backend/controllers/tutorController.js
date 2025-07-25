@@ -1022,15 +1022,36 @@ const getTutors = async (req, res) => {
 
     console.log('🔍 獲取導師列表，查詢參數:', { page, limit, search, subjects, areas, methods, sortBy, sortOrder });
 
-    // 檢查 MongoDB 連接狀態
+    // 檢查 MongoDB 連接狀態，如果未連接則嘗試重連
     if (mongoose.connection.readyState !== 1) {
       console.log('⚠️ MongoDB 未連接，當前狀態:', mongoose.connection.readyState);
-      return res.status(503).json({ 
-        success: false,
-        message: 'Database not ready', 
-        error: 'MongoDB connection is not established',
-        mongoState: mongoose.connection.readyState
-      });
+      
+      // 嘗試重新連接
+      try {
+        const { connectDB } = require('../config/db');
+        console.log('🔄 嘗試重新連接 MongoDB...');
+        await connectDB();
+        
+        // 再次檢查連接狀態
+        if (mongoose.connection.readyState !== 1) {
+          console.log('❌ 重連失敗，當前狀態:', mongoose.connection.readyState);
+          return res.status(503).json({ 
+            success: false,
+            message: 'Database not ready', 
+            error: 'MongoDB connection is not established',
+            mongoState: mongoose.connection.readyState
+          });
+        }
+        console.log('✅ MongoDB 重連成功');
+      } catch (reconnectError) {
+        console.error('❌ MongoDB 重連失敗:', reconnectError);
+        return res.status(503).json({ 
+          success: false,
+          message: 'Database not ready', 
+          error: 'MongoDB reconnection failed',
+          mongoState: mongoose.connection.readyState
+        });
+      }
     }
 
     // 構建查詢條件
@@ -1334,15 +1355,36 @@ const updateTutorProfile = async (req, res) => {
     
     console.log('🔍 更新導師 profile:', userId, updateData);
 
-    // 檢查 MongoDB 連接狀態
+    // 檢查 MongoDB 連接狀態，如果未連接則嘗試重連
     if (mongoose.connection.readyState !== 1) {
       console.log('⚠️ MongoDB 未連接，當前狀態:', mongoose.connection.readyState);
-      return res.status(503).json({ 
-        success: false,
-        message: 'Database not ready', 
-        error: 'MongoDB connection is not established',
-        mongoState: mongoose.connection.readyState
-      });
+      
+      // 嘗試重新連接
+      try {
+        const { connectDB } = require('../config/db');
+        console.log('🔄 嘗試重新連接 MongoDB...');
+        await connectDB();
+        
+        // 再次檢查連接狀態
+        if (mongoose.connection.readyState !== 1) {
+          console.log('❌ 重連失敗，當前狀態:', mongoose.connection.readyState);
+          return res.status(503).json({ 
+            success: false,
+            message: 'Database not ready', 
+            error: 'MongoDB connection is not established',
+            mongoState: mongoose.connection.readyState
+          });
+        }
+        console.log('✅ MongoDB 重連成功');
+      } catch (reconnectError) {
+        console.error('❌ MongoDB 重連失敗:', reconnectError);
+        return res.status(503).json({ 
+          success: false,
+          message: 'Database not ready', 
+          error: 'MongoDB reconnection failed',
+          mongoState: mongoose.connection.readyState
+        });
+      }
     }
 
     // 檢查導師是否存在
