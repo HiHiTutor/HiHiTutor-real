@@ -57,6 +57,10 @@ interface TutorProfile {
     introduction?: string;
     courseFeatures?: string;
     documents?: Array<{ type: string; url: string }>;
+    teachingMode?: string;
+    teachingSubModes?: string[];
+    region?: string;
+    subRegions?: string[];
   };
   updatedAt: string;
   avatar?: string;
@@ -432,6 +436,54 @@ const TutorProfileApprovals: React.FC = () => {
                                   </Box>
                                 </Grid>
                                 
+                                <Grid item xs={12} md={6}>
+                                  <Typography variant="subtitle2" color="textSecondary">
+                                    教學模式
+                                  </Typography>
+                                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
+                                    {tutor.tutorProfile?.teachingMode && (
+                                      <Chip 
+                                        label={
+                                          tutor.tutorProfile.teachingMode === 'online' ? '網課' :
+                                          tutor.tutorProfile.teachingMode === 'in-person' ? '面授' :
+                                          tutor.tutorProfile.teachingMode === 'both' ? '皆可' :
+                                          tutor.tutorProfile.teachingMode
+                                        } 
+                                        size="small" 
+                                        color="primary"
+                                      />
+                                    )}
+                                    {tutor.tutorProfile?.teachingSubModes?.map((mode, index) => (
+                                      <Chip key={index} label={mode} size="small" variant="outlined" />
+                                    )) || []}
+                                  </Box>
+                                </Grid>
+
+                                <Grid item xs={12} md={6}>
+                                  <Typography variant="subtitle2" color="textSecondary">
+                                    上堂地點
+                                  </Typography>
+                                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
+                                    {tutor.tutorProfile?.region && (
+                                      <Chip 
+                                        label={
+                                          tutor.tutorProfile.region === 'all-hong-kong' ? '全港' :
+                                          tutor.tutorProfile.region === 'hong-kong-island' ? '香港島' :
+                                          tutor.tutorProfile.region === 'kowloon' ? '九龍' :
+                                          tutor.tutorProfile.region === 'new-territories' ? '新界' :
+                                          tutor.tutorProfile.region === 'islands' ? '離島' :
+                                          tutor.tutorProfile.region
+                                        } 
+                                        size="small" 
+                                        color="secondary"
+                                      />
+                                    )}
+                                    {tutor.tutorProfile?.subRegions?.map((subRegion, index) => (
+                                      <Chip key={index} label={subRegion} size="small" variant="outlined" />
+                                    )) || []}
+                                  </Box>
+                                </Grid>
+
                                 <Grid item xs={12}>
                                   <Typography variant="subtitle2" color="textSecondary">
                                     教學地區

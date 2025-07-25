@@ -1427,6 +1427,14 @@ const updateTutorProfile = async (req, res) => {
     if (updateData.teachingAreas !== undefined) updateObject['tutorProfile.teachingAreas'] = updateData.teachingAreas;
     if (updateData.teachingMethods !== undefined) updateObject['tutorProfile.teachingMethods'] = updateData.teachingMethods;
     
+    // 處理教學模式相關字段
+    if (updateData.teachingMode !== undefined) updateObject['tutorProfile.teachingMode'] = updateData.teachingMode;
+    if (updateData.teachingSubModes !== undefined) updateObject['tutorProfile.teachingSubModes'] = updateData.teachingSubModes;
+    
+    // 處理地區相關字段
+    if (updateData.region !== undefined) updateObject['tutorProfile.region'] = updateData.region;
+    if (updateData.subRegions !== undefined) updateObject['tutorProfile.subRegions'] = updateData.subRegions;
+    
     // 確保 sessionRate 有值，避免驗證錯誤
     if (updateData.hourlyRate !== undefined) {
       updateObject['tutorProfile.sessionRate'] = updateData.hourlyRate >= 100 ? updateData.hourlyRate : 100; // 默認值

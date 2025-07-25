@@ -29,8 +29,11 @@ const Case = require('../models/Case');
 // Notifications route
 router.get('/notifications', verifyToken, isAdmin, async (req, res) => {
   try {
-    // 統計待審核的導師資料（暫時設為0，因為冇TutorProfile model）
-    const pendingTutorProfiles = 0;
+    // 統計待審核的導師資料
+    const pendingTutorProfiles = await User.countDocuments({ 
+      userType: 'tutor',
+      profileStatus: 'pending'
+    });
     
     // 統計待審核的導師申請
     const pendingTutorApplications = await TutorApplication.countDocuments({ status: 'pending' });
