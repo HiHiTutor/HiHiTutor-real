@@ -90,7 +90,7 @@ export default function PostStudentCase() {
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>('');
-  const [selectedModes, setSelectedModes] = useState<string[]>([]);
+  const [selectedMode, setSelectedMode] = useState<string>(''); // 改為單選
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [selectedSubRegions, setSelectedSubRegions] = useState<string[]>([]);
   const [teachingModeOptions, setTeachingModeOptions] = useState<any[]>([]);
@@ -268,19 +268,8 @@ export default function PostStudentCase() {
   };
 
   const handleModeChange = (mode: string) => {
-    const newModes = selectedModes.includes(mode)
-      ? selectedModes.filter(m => m !== mode)
-      : [...selectedModes, mode];
-    setSelectedModes(newModes);
-    setValue('modes', newModes);
-    
-    // 如果取消選擇面授，清空地區選擇
-    if (mode === 'in-person' && !newModes.includes('in-person')) {
-      setSelectedRegions([]);
-      setSelectedSubRegions([]);
-      setValue('regions', []);
-      setValue('subRegions', []);
-    }
+    setSelectedMode(mode); // 直接設置選中的模式
+    setValue('modes', [mode]); // 更新表單值為單一模式
   };
 
   const handleSubjectChange = (subject: string) => {
@@ -407,7 +396,7 @@ export default function PostStudentCase() {
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id={mode.value}
-                        checked={selectedModes.includes(mode.value)}
+                        checked={selectedMode === mode.value}
                         onCheckedChange={() => handleModeChange(mode.value)}
                       />
                       <label
@@ -418,13 +407,13 @@ export default function PostStudentCase() {
                       </label>
                     </div>
                     {/* 顯示面授子分類 */}
-                    {mode.value === 'in-person' && selectedModes.includes('in-person') && (
+                    {mode.value === 'in-person' && selectedMode === 'in-person' && (
                       <div className="ml-4 space-y-1">
                         {mode.subCategories.map((subMode: { value: string; label: string }) => (
                           <div key={subMode.value} className="flex items-center space-x-2">
                             <Checkbox
                               id={subMode.value}
-                              checked={selectedModes.includes(subMode.value)}
+                              checked={selectedMode === subMode.value}
                               onCheckedChange={() => handleModeChange(subMode.value)}
                             />
                             <label
@@ -445,7 +434,7 @@ export default function PostStudentCase() {
               )}
             </div>
 
-            {(selectedModes.includes('in-person') || selectedModes.includes('unlimited')) && (
+            {(selectedMode === 'in-person' || selectedMode === 'both') && (
               <>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">

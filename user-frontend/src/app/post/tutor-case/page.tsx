@@ -16,7 +16,7 @@ export default function TutorCasePage() {
     category: '',
     subCategory: '',
     subjects: [] as string[],
-    modes: [] as string[],
+    mode: '', // 改為單選
     regions: '',
     subRegions: [] as string[],
     price: '',
@@ -165,13 +165,26 @@ export default function TutorCasePage() {
     return region ? region.regions || [] : [];
   };
 
-  const handleToggle = (field: 'subjects' | 'modes' | 'subRegions', value: string) => {
+  const handleToggle = (field: 'subjects' | 'mode' | 'subRegions', value: string) => {
     setFormData(prev => {
-      const currentValues = prev[field];
-      const newValues = currentValues.includes(value)
-        ? currentValues.filter(v => v !== value)
-        : [...currentValues, value];
-      return { ...prev, [field]: newValues };
+      if (field === 'mode') {
+        // 教學模式改為單選
+        return {
+          ...prev,
+          mode: prev.mode === value ? '' : value // 如果點擊已選中的，則取消選擇
+        };
+      } else if (field === 'subjects') {
+        const newSubjects = prev.subjects.includes(value)
+          ? prev.subjects.filter(s => s !== value)
+          : [...prev.subjects, value];
+        return { ...prev, subjects: newSubjects };
+      } else if (field === 'subRegions') {
+        const newSubRegions = prev.subRegions.includes(value)
+          ? prev.subRegions.filter(s => s !== value)
+          : [...prev.subRegions, value];
+        return { ...prev, subRegions: newSubRegions };
+      }
+      return prev;
     });
   };
 
@@ -270,8 +283,7 @@ export default function TutorCasePage() {
         subCategory: formData.subCategory,
         regions: formData.regions ? [formData.regions] : [],
         subRegions: formData.subRegions,
-        mode: formData.modes[0] || 'online',  // 確保有預設值
-        modes: formData.modes.length > 0 ? formData.modes : ['online'],  // 確保有預設值
+        mode: formData.mode,  // 確保有預設值
         lessonDetails: {
           duration: formData.durationUnit === 'hours' 
             ? Number(formData.duration) * 60  // 將小時轉換為分鐘
@@ -360,39 +372,24 @@ export default function TutorCasePage() {
               </div>
             </div>
 
-            {/* 教學模式（多選） */}
+            {/* 教學模式（單選） */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">教學模式（可多選）</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">教學模式</label>
               <div className="flex flex-wrap gap-2">
                 {teachingModeOptions.map(mode => (
-                  <div key={mode.value} className="space-y-2">
-                    <TagCheckbox
-                      label={mode.label}
-                      value={mode.value}
-                      isSelected={formData.modes.includes(mode.value)}
-                      onToggle={(value) => handleToggle('modes', value)}
-                    />
-                    {/* 顯示面授子分類 */}
-                    {(mode.value === 'in-person' || mode.value === 'both') && (formData.modes.includes('in-person') || formData.modes.includes('both')) && (
-                      <div className="ml-4 space-y-1">
-                        {mode.subCategories.map((subMode: { value: string; label: string }) => (
-                          <TagCheckbox
-                            key={subMode.value}
-                            label={subMode.label}
-                            value={subMode.value}
-                            isSelected={formData.modes.includes(subMode.value)}
-                            onToggle={(value) => handleToggle('modes', value)}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  <TagCheckbox
+                    key={mode.value}
+                    label={mode.label}
+                    value={mode.value}
+                    isSelected={formData.mode === mode.value}
+                    onToggle={(value) => handleToggle('mode', value)}
+                  />
                 ))}
               </div>
             </div>
 
             {/* 地區（單選，僅選面授或皆可時顯示） */}
-            {(formData.modes.includes('in-person') || formData.modes.includes('both')) && (
+            {(formData.mode === 'in-person' || formData.mode === 'both') && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">地區</label>
                 <select value={formData.regions} onChange={e => setFormData({ ...formData, regions: e.target.value, subRegions: [] })} className="w-full px-3 py-2 border rounded-md">
@@ -405,7 +402,7 @@ export default function TutorCasePage() {
             )}
 
             {/* 細分地區（多選，僅選面授或皆可時顯示） */}
-            {(formData.modes.includes('in-person') || formData.modes.includes('both')) && getSubRegionOptions().length > 0 && (
+            {(formData.mode === 'in-person' || formData.mode === 'both') && getSubRegionOptions().length > 0 && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">細分地區（可多選）</label>
                 <div className="flex flex-wrap gap-2">
