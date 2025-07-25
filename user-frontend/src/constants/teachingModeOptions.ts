@@ -1,29 +1,70 @@
-// 教學模式選項
-export const TEACHING_MODE_OPTIONS = [
-  { 
-    value: 'in-person', 
-    label: '面授',
-    subCategories: [
-      { value: 'one-on-one', label: '一對一' },
-      { value: 'small-group', label: '小班教學' },
-      { value: 'large-center', label: '補習社' }
-    ]
-  },
-  { 
-    value: 'online', 
-    label: '網課',
-    subCategories: [] // 網課沒有子分類
-  },
-  { 
-    value: 'both', 
-    label: '皆可',
-    subCategories: [
-      { value: 'one-on-one', label: '一對一' },
-      { value: 'small-group', label: '小班教學' },
-      { value: 'large-center', label: '補習社' }
-    ]
+// 教學模式選項 - 從後端 API 獲取
+export let TEACHING_MODE_OPTIONS: any[] = [];
+
+// 初始化教學模式選項
+export const initializeTeachingModeOptions = async () => {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/teaching-modes`);
+    if (response.ok) {
+      TEACHING_MODE_OPTIONS = await response.json();
+    } else {
+      // 如果 API 失敗，使用預設值
+      TEACHING_MODE_OPTIONS = [
+        { 
+          value: 'in-person', 
+          label: '面授',
+          subCategories: [
+            { value: 'one-on-one', label: '一對一' },
+            { value: 'small-group', label: '小班教學' },
+            { value: 'large-center', label: '補習社' }
+          ]
+        },
+        { 
+          value: 'online', 
+          label: '網課',
+          subCategories: []
+        },
+        { 
+          value: 'both', 
+          label: '皆可',
+          subCategories: [
+            { value: 'one-on-one', label: '一對一' },
+            { value: 'small-group', label: '小班教學' },
+            { value: 'large-center', label: '補習社' }
+          ]
+        }
+      ];
+    }
+  } catch (error) {
+    console.error('Failed to fetch teaching mode options:', error);
+    // 使用預設值
+    TEACHING_MODE_OPTIONS = [
+      { 
+        value: 'in-person', 
+        label: '面授',
+        subCategories: [
+          { value: 'one-on-one', label: '一對一' },
+          { value: 'small-group', label: '小班教學' },
+          { value: 'large-center', label: '補習社' }
+        ]
+      },
+      { 
+        value: 'online', 
+        label: '網課',
+        subCategories: []
+      },
+      { 
+        value: 'both', 
+        label: '皆可',
+        subCategories: [
+          { value: 'one-on-one', label: '一對一' },
+          { value: 'small-group', label: '小班教學' },
+          { value: 'large-center', label: '補習社' }
+        ]
+      }
+    ];
   }
-];
+};
 
 // 教學模式映射（用於轉換不同格式）
 export const TEACHING_MODE_MAP: { [key: string]: string } = {
