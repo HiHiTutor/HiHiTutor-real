@@ -5,6 +5,7 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Listbox, Transition } from '@headlessui/react';
 import { ChevronUpDownIcon, CheckIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { Select } from '@headlessui/react';
+import { Checkbox } from '@/components/ui/checkbox';
 import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 import REGION_OPTIONS from '@/constants/regionOptions';
 import { SUBJECT_MAP } from '@/constants/subjectOptions';
@@ -829,93 +830,56 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
               {/* 教學模式選擇 */}
               <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
                 <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">教學模式</label>
-                <Listbox
+                <select
                   value={filters.mode}
-                  onChange={(value) => handleModeChange(value)}
+                  onChange={(e) => handleModeChange(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
                 >
-                  <div className="relative">
-                    <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm max-sm:py-1 max-sm:text-xs">
-                      <span className="block truncate">
-                        {filters.mode === 'unlimited'
-                          ? '不限'
-                          : (() => {
-                              const modeArray = filters.mode.split(',').filter(m => m !== 'in-person');
-                              if (modeArray.length === 0) {
-                                return teachingModeOptions.find(m => m.value === filters.mode)?.label || '面授';
-                              } else if (modeArray.length === 1) {
-                                return teachingModeOptions.flatMap(m => m.subCategories).find(sm => sm.value === modeArray[0])?.label || modeArray[0];
-                              } else {
-                                return `面授 (${modeArray.length} 個子分類)`;
-                              }
-                            })()}
-                      </span>
-                      <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                        <ChevronUpDownIcon
-                          className="h-5 w-5 text-gray-400"
-                          aria-hidden="true"
-                        />
-                      </span>
-                    </Listbox.Button>
-                    <Transition
-                      as={Fragment}
-                      leave="transition ease-in duration-100"
-                      leaveFrom="opacity-100"
-                      leaveTo="opacity-0"
-                    >
-                      <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                        {teachingModeOptions.map((mode) => (
-                          <Listbox.Option
-                            key={mode.value}
-                            className={({ active }) =>
-                              `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                                active ? 'bg-amber-100 text-amber-900' : 'text-gray-900'
-                              }`
-                            }
-                            value={mode.value}
-                          >
-                            {({ selected }) => (
-                              <>
-                                <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
-                                  {mode.label}
-                                </span>
-                                {selected ? (
-                                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
-                                    <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                                  </span>
-                                ) : null}
-                              </>
-                            )}
-                          </Listbox.Option>
-                        ))}
-                        {(filters.mode === 'in-person' || filters.mode.includes('in-person')) && teachingModeOptions.find(m => m.value === 'in-person')?.subCategories.map((subMode: { value: string; label: string }) => (
-                          <Listbox.Option
-                            key={subMode.value}
-                            className={({ active }) =>
-                              `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                                active ? 'bg-amber-100 text-amber-900' : 'text-gray-900'
-                              }`
-                            }
-                            value={subMode.value}
-                          >
-                            {({ selected }) => (
-                              <>
-                                <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'} ml-4`}>
-                                  └ {subMode.label}
-                                </span>
-                                {selected ? (
-                                  <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
-                                    <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                                  </span>
-                                ) : null}
-                              </>
-                            )}
-                          </Listbox.Option>
-                        ))}
-                      </Listbox.Options>
-                    </Transition>
-                  </div>
-                </Listbox>
+                  <option value="unlimited">不限</option>
+                  <option value="in-person">面授</option>
+                  <option value="online">網課</option>
+                  <option value="both">皆可</option>
+                </select>
               </div>
+
+              {/* 子分類選擇 - 只在選擇面授或皆可時顯示 */}
+              {(filters.mode === 'in-person' || filters.mode === 'both') && (
+                <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">子分類（可多選）</label>
+                  <div className="flex gap-4">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="one-on-one"
+                        checked={filters.mode.includes('one-on-one')}
+                        onCheckedChange={() => handleModeChange('one-on-one')}
+                      />
+                      <label htmlFor="one-on-one" className="text-sm font-medium">
+                        一對一
+                      </label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="small-group"
+                        checked={filters.mode.includes('small-group')}
+                        onCheckedChange={() => handleModeChange('small-group')}
+                      />
+                      <label htmlFor="small-group" className="text-sm font-medium">
+                        小班教學
+                      </label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="large-center"
+                        checked={filters.mode.includes('large-center')}
+                        onCheckedChange={() => handleModeChange('large-center')}
+                      />
+                      <label htmlFor="large-center" className="text-sm font-medium">
+                        補習社
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* 地區選擇 - 只在選擇面授或皆可時顯示 */}
               {(filters.mode === 'in-person' || filters.mode === 'both' || filters.mode === 'one-on-one' || filters.mode === 'small-group' || filters.mode === 'large-center') && (

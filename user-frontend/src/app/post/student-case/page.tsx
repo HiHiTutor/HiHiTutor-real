@@ -272,21 +272,16 @@ export default function PostStudentCase() {
     const isInPersonSubCategory = ['one-on-one', 'small-group', 'large-center'].includes(mode);
     
     if (isInPersonSubCategory) {
-      // 如果是面授子分類，保持面授選中，並切換子分類的選中狀態
+      // 如果是面授子分類，切換子分類的選中狀態
       const currentModes = getValues('modes') || [];
       const newModes = currentModes.includes(mode)
         ? currentModes.filter(m => m !== mode)
-        : [...currentModes.filter(m => !['one-on-one', 'small-group', 'large-center'].includes(m)), mode];
-      
-      // 確保面授始終被選中
-      if (!newModes.includes('in-person')) {
-        newModes.push('in-person');
-      }
+        : [...currentModes, mode];
       
       setSelectedModes(newModes);
       setValue('modes', newModes);
     } else {
-      // 如果是主分類，直接設置
+      // 如果是主分類，清空所有子分類，只保留主分類
       setSelectedModes([mode]);
       setValue('modes', [mode]);
     }
@@ -410,49 +405,59 @@ export default function PostStudentCase() {
 
             <div className="space-y-2">
               <Label>教學模式</Label>
-              <div className="flex gap-4">
-                {teachingModeOptions.map(mode => (
-                  <div key={mode.value} className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id={mode.value}
-                        checked={selectedModes.includes(mode.value)}
-                        onCheckedChange={() => handleModeChange(mode.value)}
-                      />
-                      <label
-                        htmlFor={mode.value}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        {mode.label}
-                      </label>
-                    </div>
-                    {/* 顯示面授子分類 */}
-                    {mode.value === 'in-person' && selectedModes.includes('in-person') && (
-                      <div className="ml-4 space-y-1">
-                        {mode.subCategories.map((subMode: { value: string; label: string }) => (
-                          <div key={subMode.value} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={subMode.value}
-                              checked={(watch('modes') || []).includes(subMode.value)}
-                              onCheckedChange={() => handleModeChange(subMode.value)}
-                            />
-                            <label
-                              htmlFor={subMode.value}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                              {subMode.label}
-                            </label>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+              <Select onValueChange={(value) => handleModeChange(value)} value={selectedModes[0] || ''}>
+                <SelectTrigger>
+                  <SelectValue placeholder="請選擇教學模式" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="in-person">面授</SelectItem>
+                  <SelectItem value="online">網課</SelectItem>
+                  <SelectItem value="both">皆可</SelectItem>
+                </SelectContent>
+              </Select>
               {errors.modes && (
                 <p className="text-sm text-red-500">{errors.modes.message}</p>
               )}
             </div>
+
+            {/* 子分類選擇 - 只在選擇面授或皆可時顯示 */}
+            {(selectedModes.includes('in-person') || selectedModes.includes('both')) && (
+              <div className="space-y-2">
+                <Label>子分類（可多選）</Label>
+                <div className="flex gap-4">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="one-on-one"
+                      checked={(watch('modes') || []).includes('one-on-one')}
+                      onCheckedChange={() => handleModeChange('one-on-one')}
+                    />
+                    <label htmlFor="one-on-one" className="text-sm font-medium">
+                      一對一
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="small-group"
+                      checked={(watch('modes') || []).includes('small-group')}
+                      onCheckedChange={() => handleModeChange('small-group')}
+                    />
+                    <label htmlFor="small-group" className="text-sm font-medium">
+                      小班教學
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="large-center"
+                      checked={(watch('modes') || []).includes('large-center')}
+                      onCheckedChange={() => handleModeChange('large-center')}
+                    />
+                    <label htmlFor="large-center" className="text-sm font-medium">
+                      補習社
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {(selectedModes.includes('in-person') || selectedModes.includes('both') || selectedModes.includes('one-on-one') || selectedModes.includes('small-group') || selectedModes.includes('large-center')) && (
               <>
