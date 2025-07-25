@@ -416,7 +416,7 @@ export default function PostStudentCase() {
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id={mode.value}
-                        checked={selectedMode === mode.value}
+                        checked={selectedMode === mode.value || (watch('modes') || []).includes(mode.value)}
                         onCheckedChange={() => handleModeChange(mode.value)}
                       />
                       <label
@@ -427,7 +427,7 @@ export default function PostStudentCase() {
                       </label>
                     </div>
                     {/* 顯示面授子分類 */}
-                    {mode.value === 'in-person' && selectedMode === 'in-person' && (
+                    {mode.value === 'in-person' && (selectedMode === 'in-person' || (watch('modes') || []).some(m => ['one-on-one', 'small-group', 'large-center'].includes(m))) && (
                       <div className="ml-4 space-y-1">
                         {mode.subCategories.map((subMode: { value: string; label: string }) => (
                           <div key={subMode.value} className="flex items-center space-x-2">
