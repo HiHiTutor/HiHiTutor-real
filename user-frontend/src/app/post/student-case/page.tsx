@@ -90,7 +90,7 @@ export default function PostStudentCase() {
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>('');
-  const [selectedMode, setSelectedMode] = useState<string>(''); // 改為單選
+  const [selectedModes, setSelectedModes] = useState<string[]>([]); // 改為多選
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [selectedSubRegions, setSelectedSubRegions] = useState<string[]>([]);
   const [teachingModeOptions, setTeachingModeOptions] = useState<any[]>([]);
@@ -283,11 +283,11 @@ export default function PostStudentCase() {
         newModes.push('in-person');
       }
       
-      setSelectedMode('in-person');
+      setSelectedModes(newModes);
       setValue('modes', newModes);
     } else {
       // 如果是主分類，直接設置
-      setSelectedMode(mode);
+      setSelectedModes([mode]);
       setValue('modes', [mode]);
     }
   };
@@ -416,7 +416,7 @@ export default function PostStudentCase() {
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id={mode.value}
-                        checked={selectedMode === mode.value || (watch('modes') || []).includes(mode.value)}
+                        checked={selectedModes.includes(mode.value)}
                         onCheckedChange={() => handleModeChange(mode.value)}
                       />
                       <label
@@ -427,7 +427,7 @@ export default function PostStudentCase() {
                       </label>
                     </div>
                     {/* 顯示面授子分類 */}
-                    {mode.value === 'in-person' && (selectedMode === 'in-person' || (watch('modes') || []).some(m => ['one-on-one', 'small-group', 'large-center'].includes(m))) && (
+                    {mode.value === 'in-person' && selectedModes.includes('in-person') && (
                       <div className="ml-4 space-y-1">
                         {mode.subCategories.map((subMode: { value: string; label: string }) => (
                           <div key={subMode.value} className="flex items-center space-x-2">
@@ -454,7 +454,7 @@ export default function PostStudentCase() {
               )}
             </div>
 
-            {(selectedMode === 'in-person' || selectedMode === 'both' || selectedMode === 'one-on-one' || selectedMode === 'small-group' || selectedMode === 'large-center') && (
+            {(selectedModes.includes('in-person') || selectedModes.includes('both') || selectedModes.includes('one-on-one') || selectedModes.includes('small-group') || selectedModes.includes('large-center')) && (
               <>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
