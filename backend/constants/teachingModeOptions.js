@@ -6,7 +6,7 @@ const TEACHING_MODE_OPTIONS = [
     subCategories: [
       { value: 'one-on-one', label: '一對一' },
       { value: 'small-group', label: '小班教學' },
-      { value: 'large-center', label: '大型補習社' }
+      { value: 'large-center', label: '補習社' }
     ]
   },
   { 
@@ -20,7 +20,7 @@ const TEACHING_MODE_OPTIONS = [
     subCategories: [
       { value: 'one-on-one', label: '一對一' },
       { value: 'small-group', label: '小班教學' },
-      { value: 'large-center', label: '大型補習社' }
+      { value: 'large-center', label: '補習社' }
     ]
   }
 ];
@@ -32,7 +32,7 @@ const TEACHING_MODE_MAP = {
   'in-person': '面授',
   'one-on-one': '一對一',
   'small-group': '小班教學',
-  'large-center': '大型補習社',
+  'large-center': '補習社',
   
   // 中文到英文
   '網課': 'online',
@@ -41,7 +41,7 @@ const TEACHING_MODE_MAP = {
   '面對面': 'in-person',
   '一對一': 'one-on-one',
   '小班教學': 'small-group',
-  '大型補習社': 'large-center',
+  '補習社': 'large-center',
   
   // 其他可能的格式
   '線上': 'online',
