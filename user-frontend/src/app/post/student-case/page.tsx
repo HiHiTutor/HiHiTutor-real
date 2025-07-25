@@ -71,7 +71,7 @@ const formSchema = z.object({
 }).refine((data) => {
   // 如果是中小學教育，則子分類和科目都是必填
   if (data.category === 'primary-secondary') {
-    return (data.subCategory && data.subCategory.length > 0) && 
+    return (data.subCategory && data.subCategory !== '') && 
            (data.subjects && data.subjects.length > 0);
   }
   // 對於其他有科目選項的分類，也需要選擇至少一個科目
