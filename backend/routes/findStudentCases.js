@@ -434,6 +434,7 @@ router.post('/', verifyToken, async (req, res) => {
     const {
       id,
       tutorId,
+      student, // 添加 student 字段
       title,
       description,
       category,
@@ -515,6 +516,7 @@ router.post('/', verifyToken, async (req, res) => {
     const newCase = new StudentCase({
       id: id,
       // tutorId,
+      studentId: student, // 添加學生ID
       title: title || '',
       category,
       subCategory: subCategory || '',
