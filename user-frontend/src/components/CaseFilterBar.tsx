@@ -564,13 +564,15 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     // }
     
     // 子分類 - 不顯示"不限"
-    if (filters.subCategory && filters.subCategory !== 'unlimited') {
-      const subOptions = getSubOptions();
-      const subOption = subOptions.find(s => s.value === filters.subCategory);
-      if (subOption) {
-        selected.push({ key: 'subCategory', label: subOption.label, value: filters.subCategory });
+    filters.subCategory.forEach(subCat => {
+      if (subCat !== 'unlimited') {
+        const subOptions = getSubOptions();
+        const subOption = subOptions.find(s => s.value === subCat);
+        if (subOption) {
+          selected.push({ key: 'subCategory', label: subOption.label, value: subCat });
+        }
       }
-    }
+    });
     
     // 科目
     filters.subjects.forEach(subject => {
@@ -590,17 +592,19 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     }
     
     // 教學模式子分類
-    if (filters.subCategory && filters.subCategory !== 'unlimited' && filters.subCategory !== '') {
-      const subCategoryLabels = {
-        'one-on-one': '一對一',
-        'small-group': '小班教學',
-        'large-center': '補習社'
-      };
-      const label = subCategoryLabels[filters.subCategory as keyof typeof subCategoryLabels];
-      if (label) {
-        selected.push({ key: 'subCategory', label: label, value: filters.subCategory });
+    filters.subCategory.forEach(subCat => {
+      if (subCat !== 'unlimited' && subCat !== '') {
+        const subCategoryLabels = {
+          'one-on-one': '一對一',
+          'small-group': '小班教學',
+          'large-center': '補習社'
+        };
+        const label = subCategoryLabels[subCat as keyof typeof subCategoryLabels];
+        if (label) {
+          selected.push({ key: 'subCategory', label: label, value: subCat });
+        }
       }
-    }
+    });
     
     // 地區 - 不顯示"不限"
     filters.regions.forEach(region => {
@@ -639,7 +643,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       switch (key) {
         case 'category':
           newFilters.category = 'unlimited';
-          newFilters.subCategory = '';
+          newFilters.subCategory = [];
           newFilters.subjects = [];
           break;
         case 'subjects':
@@ -647,10 +651,10 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
           break;
         case 'mode':
           newFilters.mode = 'in-person';
-          newFilters.subCategory = '';
+          newFilters.subCategory = [];
           break;
         case 'subCategory':
-          newFilters.subCategory = '';
+          newFilters.subCategory = newFilters.subCategory.filter(cat => cat !== value);
           break;
         case 'regions':
           newFilters.regions = ['unlimited'];
@@ -761,17 +765,62 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
               {filters.category === 'primary-secondary' && getSubOptions().length > 0 && (
                 <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
                   <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">子分類</label>
-                  <select
+                  <Listbox
                     value={filters.subCategory}
-                    onChange={(e) => handleSubCategoryChange(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
+                    onChange={(value) => handleSubCategoryChange(value)}
+                    multiple
                   >
-                    {getSubOptions().map(option => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
+                    <div className="relative">
+                      <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm max-sm:py-1 max-sm:text-xs">
+                        <span className="block truncate">
+                          {filters.subCategory.length === 0
+                            ? '不限'
+                            : filters.subCategory.length === 1
+                            ? getSubOptions().find(s => s.value === filters.subCategory[0])?.label
+                            : `已選擇 ${filters.subCategory.length} 個子分類`}
+                        </span>
+                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                          <ChevronUpDownIcon
+                            className="h-5 w-5 text-gray-400"
+                            aria-hidden="true"
+                          />
+                        </span>
+                      </Listbox.Button>
+                      <Transition
+                        as={Fragment}
+                        leave="transition ease-in duration-100"
+                        leaveFrom="opacity-100"
+                        leaveTo="opacity-0"
+                      >
+                        <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                          {getSubOptions().map((option) => (
+                            <Listbox.Option
+                              key={option.value}
+                              className={({ active }) =>
+                                `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                                  active ? 'bg-amber-100 text-amber-900' : 'text-gray-900'
+                                }`
+                              }
+                              value={option.value}
+                            >
+                              {({ selected }) => (
+                                <>
+                                  <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
+                                    {option.label}
+                                  </span>
+                                  {selected ? (
+                                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
+                                      <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                                    </span>
+                                  ) : null}
+                                </>
+                              )}
+                            </Listbox.Option>
+                          ))}
+                        </Listbox.Options>
+                      </Transition>
+                    </div>
+                  </Listbox>
                 </div>
               )}
 
