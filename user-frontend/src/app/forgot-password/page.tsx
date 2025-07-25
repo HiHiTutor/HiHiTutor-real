@@ -25,7 +25,7 @@ export default function ForgotPassword() {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage('重設密碼連結已發送到您的信箱或手機，請查收。');
+        setMessage('重設密碼連結已發送到您的電郵信箱。');
       } else {
         setMessage(data.message || '重設密碼請求失敗，請稍後再試。');
       }
@@ -43,7 +43,7 @@ export default function ForgotPassword() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="identifier" className="block text-sm font-medium text-gray-700">
-              請輸入您的電話號碼或電子郵件
+              請輸入您的電子郵件
             </label>
             <input
               id="identifier"
