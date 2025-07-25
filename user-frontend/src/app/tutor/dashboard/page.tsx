@@ -152,7 +152,7 @@ export default function TutorDashboardPage() {
   const [newSubjects, setNewSubjects] = useState<string[]>([]);
   const [selectedTeachingMode, setSelectedTeachingMode] = useState<string>('');
   const [selectedRegion, setSelectedRegion] = useState<string>('');
-  const [selectedSubRegions, setSelectedSubRegions] = useState<string[]>([]);
+  const [selectedSubRegionsByRegion, setSelectedSubRegionsByRegion] = useState<{[key: string]: string[]}>({});
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [selectedWeekday, setSelectedWeekday] = useState<string>('');
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('');
@@ -383,7 +383,7 @@ export default function TutorDashboardPage() {
     setSelectedTeachingMode(mode);
     if (mode !== 'in-person' && mode !== 'both') {
       setSelectedRegion('');
-      setSelectedSubRegions([]);
+      setSelectedSubRegionsByRegion({});
       setSelectedLocations([]);
     }
   };
@@ -391,16 +391,32 @@ export default function TutorDashboardPage() {
   // 地區選擇相關函數
   const handleRegionChange = (region: string) => {
     setSelectedRegion(region);
-    setSelectedSubRegions([]);
-    setSelectedLocations([]);
   };
 
   const handleSubRegionToggle = (subRegion: string) => {
-    setSelectedSubRegions(prev => 
-      prev.includes(subRegion) 
-        ? prev.filter(r => r !== subRegion)
-        : [...prev, subRegion]
-    );
+    if (!selectedRegion) return;
+    
+    setSelectedSubRegionsByRegion(prev => {
+      const currentSubRegions = prev[selectedRegion] || [];
+      const newSubRegions = currentSubRegions.includes(subRegion)
+        ? currentSubRegions.filter((r: string) => r !== subRegion)
+        : [...currentSubRegions, subRegion];
+      
+      return {
+        ...prev,
+        [selectedRegion]: newSubRegions
+      };
+    });
+  };
+
+  // 獲取當前選中的子地區
+  const getCurrentSubRegions = () => {
+    return selectedSubRegionsByRegion[selectedRegion] || [];
+  };
+
+  // 獲取所有選中的子地區
+  const getAllSelectedSubRegions = () => {
+    return Object.values(selectedSubRegionsByRegion).flat();
   };
 
 
@@ -848,7 +864,7 @@ export default function TutorDashboardPage() {
                         <div key={subRegion.value} className="flex items-center space-x-2">
                           <Checkbox
                             id={subRegion.value}
-                            checked={selectedSubRegions.includes(subRegion.value)}
+                            checked={getCurrentSubRegions().includes(subRegion.value)}
                             onCheckedChange={() => handleSubRegionToggle(subRegion.value)}
                           />
                           <Label htmlFor={subRegion.value} className="text-sm">
@@ -861,20 +877,31 @@ export default function TutorDashboardPage() {
                 )}
 
                 {/* 已選地區顯示 */}
-                {(selectedRegion === 'all-hong-kong' || selectedSubRegions.length > 0) && (
+                {(selectedRegion === 'all-hong-kong' || getAllSelectedSubRegions().length > 0) && (
                   <div className="space-y-2">
                     <Label className="text-sm">已選地區</Label>
                     <div className="flex flex-wrap gap-2">
                       {selectedRegion === 'all-hong-kong' ? (
                         <Badge variant="secondary">全港</Badge>
                       ) : (
-                        selectedSubRegions.map((subRegion) => {
-                          const option = prepareSubRegionOptions(selectedRegion).find(r => r.value === subRegion);
-                          return (
-                            <Badge key={subRegion} variant="secondary">
-                              {option?.label || subRegion}
-                            </Badge>
-                          );
+                        getAllSelectedSubRegions().map((subRegion: string) => {
+                          // 找到這個子地區屬於哪個地區
+                          let regionLabel = '';
+                          let subRegionLabel = '';
+                          for (const [regionKey, subRegions] of Object.entries(selectedSubRegionsByRegion)) {
+                            if (subRegions.includes(subRegion)) {
+                              const region = REGION_OPTIONS.find(r => r.value === regionKey);
+                              const subRegionOption = region?.regions.find(r => r.value === subRegion);
+                              regionLabel = region?.label || regionKey;
+                              subRegionLabel = subRegionOption?.label || subRegion;
+                              break;
+                            }
+                          }
+                                                      return (
+                              <Badge key={subRegion} variant="secondary">
+                                {regionLabel} {'>'} {subRegionLabel}
+                              </Badge>
+                            );
                         })
                       )}
                     </div>
