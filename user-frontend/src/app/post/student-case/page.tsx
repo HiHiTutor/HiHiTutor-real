@@ -434,7 +434,7 @@ export default function PostStudentCase() {
               )}
             </div>
 
-            {(selectedMode === 'in-person' || selectedMode === 'both') && (
+            {(selectedMode === 'in-person' || selectedMode === 'both' || selectedMode === 'one-on-one' || selectedMode === 'small-group' || selectedMode === 'large-center') && (
               <>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
