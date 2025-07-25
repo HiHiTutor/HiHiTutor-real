@@ -792,7 +792,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                             )}
                           </Listbox.Option>
                         ))}
-                        {filters.mode.includes('in-person') && TEACHING_MODE_OPTIONS.find(m => m.value === 'in-person')?.subCategories.map((subMode) => (
+                        {filters.mode.includes('in-person') && TEACHING_MODE_OPTIONS.find(m => m.value === 'in-person')?.subCategories.map((subMode: { value: string; label: string }) => (
                           <Listbox.Option
                             key={subMode.value}
                             className={({ active }) =>

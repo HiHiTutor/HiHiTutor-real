@@ -349,7 +349,7 @@ export default function PostStudentCase() {
                     {/* 顯示面授子分類 */}
                     {mode.value === 'in-person' && selectedModes.includes('in-person') && (
                       <div className="ml-4 space-y-1">
-                        {mode.subCategories.map(subMode => (
+                        {mode.subCategories.map((subMode: { value: string; label: string }) => (
                           <div key={subMode.value} className="flex items-center space-x-2">
                             <Checkbox
                               id={subMode.value}

@@ -306,7 +306,7 @@ export default function TutorCasePage() {
                     {/* 顯示面授子分類 */}
                     {(mode.value === 'in-person' || mode.value === 'both') && (formData.modes.includes('in-person') || formData.modes.includes('both')) && (
                       <div className="ml-4 space-y-1">
-                        {mode.subCategories.map(subMode => (
+                        {mode.subCategories.map((subMode: { value: string; label: string }) => (
                           <TagCheckbox
                             key={subMode.value}
                             label={subMode.label}
