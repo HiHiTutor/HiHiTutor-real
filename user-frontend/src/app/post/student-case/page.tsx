@@ -104,6 +104,7 @@ export default function PostStudentCase() {
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [selectedSubRegions, setSelectedSubRegions] = useState<string[]>([]);
   const [teachingModeOptions, setTeachingModeOptions] = useState<any[]>([]);
+  const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
 
   // 初始化教學模式選項
   useEffect(() => {
@@ -255,8 +256,12 @@ export default function PostStudentCase() {
       });
       
       await studentCaseApi.createStudentCase(caseData);
-      toast.success('成功發布個案！');
-      router.push('/find-tutor-cases');
+      setShowSuccessModal(true);
+      
+      // 5秒後自動跳轉到 find-student-cases 頁面
+      setTimeout(() => {
+        router.push('/find-student-cases');
+      }, 5000);
     } catch (error) {
       console.error('發布個案失敗:', error);
       toast.error('發布個案失敗，請稍後再試');
@@ -764,6 +769,28 @@ export default function PostStudentCase() {
           </form>
         </div>
       </div>
+
+      {/* 成功提交視窗 */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md mx-4 text-center">
+            <div className="mb-4">
+              <svg className="mx-auto h-12 w-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              提交成功
+            </h3>
+            <p className="text-gray-600 mb-4">
+              你已成功提交個案，配對專員會盡快聯絡閣下。
+            </p>
+            <div className="text-sm text-gray-500">
+              5秒後自動跳轉...
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 
