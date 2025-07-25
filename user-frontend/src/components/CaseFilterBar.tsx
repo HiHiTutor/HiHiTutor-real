@@ -492,7 +492,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       } else {
         // 檢查子分類
         TEACHING_MODE_OPTIONS.forEach(m => {
-          const subMode = m.subCategories.find(sm => sm.value === mode);
+          const subMode = m.subCategories.find((sm: { value: string; label: string }) => sm.value === mode);
           if (subMode) {
             selected.push({ key: 'mode', label: subMode.label, value: mode });
           }
