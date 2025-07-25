@@ -207,9 +207,19 @@ export default function PostStudentCase() {
         return;
       }
 
+      // 獲取用戶信息
+      const userStr = localStorage.getItem('user');
+      if (!userStr) {
+        toast.error('請先登入');
+        router.push('/login');
+        return;
+      }
+      const user = JSON.parse(userStr);
+
       // 確保所有必要欄位都有值
       const caseData = {
         id: `S${Date.now()}`,
+        student: user.id, // 添加用戶ID
         title: data.title || '',
         description: data.description || '',
         category: data.category || '',
