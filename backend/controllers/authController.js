@@ -309,7 +309,7 @@ const register = async (req, res) => {
       });
     }
 
-    // 驗證 userType
+    // 驗證 userType - 只允許 student 和 organization
     if (!['student', 'organization'].includes(userType)) {
       console.log("❌ 無效的用戶類型：", userType);
       return res.status(400).json({ 
@@ -358,7 +358,7 @@ const register = async (req, res) => {
       console.log('📝 創建新用戶...');
       const userId = await generateUserId();
       
-      // 準備用戶資料
+      // 準備用戶資料 - 只包含必要欄位，不初始化 tutorId
       const userData = {
         name,
         email,
@@ -369,15 +369,8 @@ const register = async (req, res) => {
         userId
       };
 
-      // 只有 userType === 'tutor' 才加入 tutorId
-      if (userType === 'tutor') {
-        const tutorId = await generateTutorId();
-        userData.tutorId = tutorId;
-        console.log('🎓 為導師用戶生成 tutorId:', tutorId);
-      }
-
-      // 當 userType 為 student 時，不設置 tutorProfile，讓它使用預設值
-      // 當 userType 為 organization 時，也不設置 tutorProfile
+      // ✅ 不初始化 tutorId 欄位，避免 MongoDB unique 衝突
+      // tutorId 應只在日後升級為導師時，透過 generateUniqueTutorId() 方法生成並儲存
 
       const newUser = new User(userData);
 
