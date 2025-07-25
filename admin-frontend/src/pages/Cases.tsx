@@ -24,6 +24,22 @@ import { setCases, setLoading, setError } from '../store/slices/caseSlice';
 import { Case, CaseResponse, CaseStatus, CaseType } from '../types/case';
 import AddIcon from '@mui/icons-material/Add';
 
+// 分類映射函數
+const getCategoryLabel = (categoryValue: string): string => {
+  const categoryMap: { [key: string]: string } = {
+    'early-childhood': '幼兒教育',
+    'primary-secondary': '中小學教育',
+    'primary': '小學教育',
+    'secondary': '中學教育',
+    'interest': '興趣班',
+    'tertiary': '大專補習課程',
+    'adult': '成人教育',
+    'unlimited': '不限'
+  };
+  
+  return categoryMap[categoryValue] || categoryValue;
+};
+
 const Cases: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -246,7 +262,7 @@ const Cases: React.FC = () => {
                           )
                         : 'N/A')}
                 </TableCell>
-                <TableCell>{caseItem.category}</TableCell>
+                <TableCell>{getCategoryLabel(caseItem.category)}</TableCell>
                 <TableCell>
                   <Chip
                     label={caseItem.status}

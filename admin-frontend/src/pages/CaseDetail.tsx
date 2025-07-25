@@ -15,6 +15,34 @@ import { casesAPI } from '../services/api';
 import { setSelectedCase, setLoading, setError } from '../store/slices/caseSlice';
 import { Case } from '../types/case';
 
+// 分類映射函數
+const getCategoryLabel = (categoryValue: string): string => {
+  const categoryMap: { [key: string]: string } = {
+    'early-childhood': '幼兒教育',
+    'primary-secondary': '中小學教育',
+    'primary': '小學教育',
+    'secondary': '中學教育',
+    'interest': '興趣班',
+    'tertiary': '大專補習課程',
+    'adult': '成人教育',
+    'unlimited': '不限'
+  };
+  
+  return categoryMap[categoryValue] || categoryValue;
+};
+
+// 子分類映射函數
+const getSubCategoryLabel = (subCategoryValue: string): string => {
+  const subCategoryMap: { [key: string]: string } = {
+    'one-on-one': '一對一',
+    'small-group': '小班教學',
+    'large-center': '補習社',
+    'unlimited': '不限'
+  };
+  
+  return subCategoryMap[subCategoryValue] || subCategoryValue;
+};
+
 const CaseDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -121,14 +149,14 @@ const CaseDetail: React.FC = () => {
             <Typography variant="subtitle1" gutterBottom>
               Category
             </Typography>
-            <Typography>{selectedCase.category}</Typography>
+            <Typography>{getCategoryLabel(selectedCase.category)}</Typography>
           </Grid>
 
           <Grid item xs={12} sm={6}>
             <Typography variant="subtitle1" gutterBottom>
               Sub Category
             </Typography>
-            <Typography>{selectedCase.subCategory || 'N/A'}</Typography>
+            <Typography>{selectedCase.subCategory ? getSubCategoryLabel(selectedCase.subCategory) : 'N/A'}</Typography>
           </Grid>
 
           <Grid item xs={12}>
