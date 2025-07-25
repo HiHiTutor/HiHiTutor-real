@@ -22,7 +22,11 @@ import { tutorApi } from '@/services/api';
 import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 import REGION_OPTIONS from '@/constants/regionOptions';
 import TEACHING_MODE_OPTIONS from '@/constants/teachingModeOptions';
-import { MultiSelect, Option } from '@/components/ui/multi-select';
+
+interface Option {
+  value: string;
+  label: string;
+}
 
 // 時間段選項
 const TIME_SLOTS = [
@@ -87,17 +91,24 @@ const generateDayOptions = (year: number, month: number) => {
 };
 
 // 準備地區選項數據
-const prepareLocationOptions = (): Option[] => {
-  const options: Option[] = [];
-  REGION_OPTIONS.filter(region => region.value !== 'unlimited').forEach((region) => {
-    region.regions.forEach((area) => {
-      options.push({
-        value: area.value,
-        label: `${region.label} > ${area.label}`
-      });
-    });
-  });
-  return options;
+const prepareRegionOptions = (): Option[] => {
+  return [
+    { value: 'all-hong-kong', label: '全港' },
+    ...REGION_OPTIONS.filter(region => region.value !== 'unlimited').map(region => ({
+      value: region.value,
+      label: region.label
+    }))
+  ];
+};
+
+// 準備子地區選項數據
+const prepareSubRegionOptions = (regionValue: string): Option[] => {
+  if (regionValue === 'all-hong-kong') return [];
+  const region = REGION_OPTIONS.find(r => r.value === regionValue);
+  return region ? region.regions.map(area => ({
+    value: area.value,
+    label: area.label
+  })) : [];
 };
 
 export default function TutorDashboardPage() {
@@ -140,6 +151,8 @@ export default function TutorDashboardPage() {
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>('');
   const [newSubjects, setNewSubjects] = useState<string[]>([]);
   const [selectedTeachingMode, setSelectedTeachingMode] = useState<string>('');
+  const [selectedRegion, setSelectedRegion] = useState<string>('');
+  const [selectedSubRegions, setSelectedSubRegions] = useState<string[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [selectedWeekday, setSelectedWeekday] = useState<string>('');
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('');
@@ -368,9 +381,26 @@ export default function TutorDashboardPage() {
   // 教學模式相關函數
   const handleTeachingModeChange = (mode: string) => {
     setSelectedTeachingMode(mode);
-    if (mode !== 'in-person') {
+    if (mode !== 'in-person' && mode !== 'both') {
+      setSelectedRegion('');
+      setSelectedSubRegions([]);
       setSelectedLocations([]);
     }
+  };
+
+  // 地區選擇相關函數
+  const handleRegionChange = (region: string) => {
+    setSelectedRegion(region);
+    setSelectedSubRegions([]);
+    setSelectedLocations([]);
+  };
+
+  const handleSubRegionToggle = (subRegion: string) => {
+    setSelectedSubRegions(prev => 
+      prev.includes(subRegion) 
+        ? prev.filter(r => r !== subRegion)
+        : [...prev, subRegion]
+    );
   };
 
 
@@ -791,12 +821,65 @@ export default function TutorDashboardPage() {
             {(selectedTeachingMode === 'in-person' || selectedTeachingMode === 'both') && (
               <div className="space-y-4">
                 <Label>上堂地點</Label>
-                <MultiSelect
-                  options={prepareLocationOptions()}
-                  selected={selectedLocations}
-                  onChange={setSelectedLocations}
-                  placeholder="選擇上堂地點..."
-                />
+                
+                {/* 地區選擇 */}
+                <div className="space-y-2">
+                  <Label className="text-sm">地區</Label>
+                  <Select value={selectedRegion} onValueChange={handleRegionChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="選擇地區" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {prepareRegionOptions().map((region) => (
+                        <SelectItem key={region.value} value={region.value}>
+                          {region.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* 子地區選擇（僅當選擇了具體地區且不是全港時顯示） */}
+                {selectedRegion && selectedRegion !== 'all-hong-kong' && (
+                  <div className="space-y-2">
+                    <Label className="text-sm">子地區（可多選）</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {prepareSubRegionOptions(selectedRegion).map((subRegion) => (
+                        <div key={subRegion.value} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={subRegion.value}
+                            checked={selectedSubRegions.includes(subRegion.value)}
+                            onCheckedChange={() => handleSubRegionToggle(subRegion.value)}
+                          />
+                          <Label htmlFor={subRegion.value} className="text-sm">
+                            {subRegion.label}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 已選地區顯示 */}
+                {(selectedRegion === 'all-hong-kong' || selectedSubRegions.length > 0) && (
+                  <div className="space-y-2">
+                    <Label className="text-sm">已選地區</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedRegion === 'all-hong-kong' ? (
+                        <Badge variant="secondary">全港</Badge>
+                      ) : (
+                        selectedSubRegions.map((subRegion) => {
+                          const option = prepareSubRegionOptions(selectedRegion).find(r => r.value === subRegion);
+                          return (
+                            <Badge key={subRegion} variant="secondary">
+                              {option?.label || subRegion}
+                            </Badge>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
