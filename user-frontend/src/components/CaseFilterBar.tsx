@@ -8,7 +8,7 @@ import { Select } from '@headlessui/react';
 import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 import REGION_OPTIONS from '@/constants/regionOptions';
 import { SUBJECT_MAP } from '@/constants/subjectOptions';
-import { TEACHING_MODE_OPTIONS, shouldShowRegionForMode } from '@/constants/teachingModeOptions';
+import { TEACHING_MODE_OPTIONS, shouldShowRegionForMode, initializeTeachingModeOptions } from '@/constants/teachingModeOptions';
 import PRICE_OPTIONS from '@/constants/priceOptions';
 import SearchTabBar from './SearchTabBar';
 
@@ -64,8 +64,80 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     subRegions: ['unlimited'], // 預設為不限
     priceRange: 'unlimited' // 預設為不限
   });
+  
+  const [teachingModeOptions, setTeachingModeOptions] = useState<any[]>([]);
 
   const isStudentCase = fetchUrl.includes('student');
+  
+  // 初始化教學模式選項
+  useEffect(() => {
+    const initTeachingModes = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/teaching-modes`);
+        if (response.ok) {
+          const data = await response.json();
+          setTeachingModeOptions(data);
+        } else {
+          // 如果 API 失敗，使用預設值
+          setTeachingModeOptions([
+            { 
+              value: 'in-person', 
+              label: '面授',
+              subCategories: [
+                { value: 'one-on-one', label: '一對一' },
+                { value: 'small-group', label: '小班教學' },
+                { value: 'large-center', label: '補習社' }
+              ]
+            },
+            { 
+              value: 'online', 
+              label: '網課',
+              subCategories: []
+            },
+            { 
+              value: 'both', 
+              label: '皆可',
+              subCategories: [
+                { value: 'one-on-one', label: '一對一' },
+                { value: 'small-group', label: '小班教學' },
+                { value: 'large-center', label: '補習社' }
+              ]
+            }
+          ]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch teaching mode options:', error);
+        // 使用預設值
+        setTeachingModeOptions([
+          { 
+            value: 'in-person', 
+            label: '面授',
+            subCategories: [
+              { value: 'one-on-one', label: '一對一' },
+              { value: 'small-group', label: '小班教學' },
+              { value: 'large-center', label: '補習社' }
+            ]
+          },
+          { 
+            value: 'online', 
+            label: '網課',
+            subCategories: []
+          },
+          { 
+            value: 'both', 
+            label: '皆可',
+            subCategories: [
+              { value: 'one-on-one', label: '一對一' },
+              { value: 'small-group', label: '小班教學' },
+              { value: 'large-center', label: '補習社' }
+            ]
+          }
+        ]);
+      }
+    };
+    
+    initTeachingModes();
+  }, []);
   
   // 根據當前頁面決定顏色方案
   const getColorScheme = () => {
@@ -750,8 +822,8 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                         {filters.mode.length === 0 || (filters.mode.length === 1 && filters.mode[0] === 'unlimited')
                           ? '不限'
                           : filters.mode.length === 1
-                          ? TEACHING_MODE_OPTIONS.find(m => m.value === filters.mode[0])?.label || 
-                            TEACHING_MODE_OPTIONS.flatMap(m => m.subCategories).find(sm => sm.value === filters.mode[0])?.label
+                          ? teachingModeOptions.find(m => m.value === filters.mode[0])?.label || 
+                            teachingModeOptions.flatMap(m => m.subCategories).find(sm => sm.value === filters.mode[0])?.label
                           : `已選擇 ${filters.mode.filter(m => m !== 'unlimited').length} 個模式`}
                       </span>
                       <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
@@ -768,7 +840,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                       leaveTo="opacity-0"
                     >
                       <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                        {TEACHING_MODE_OPTIONS.map((mode) => (
+                        {teachingModeOptions.map((mode) => (
                           <Listbox.Option
                             key={mode.value}
                             className={({ active }) =>
@@ -792,7 +864,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                             )}
                           </Listbox.Option>
                         ))}
-                        {filters.mode.includes('in-person') && TEACHING_MODE_OPTIONS.find(m => m.value === 'in-person')?.subCategories.map((subMode: { value: string; label: string }) => (
+                        {filters.mode.includes('in-person') && teachingModeOptions.find(m => m.value === 'in-person')?.subCategories.map((subMode: { value: string; label: string }) => (
                           <Listbox.Option
                             key={subMode.value}
                             className={({ active }) =>
