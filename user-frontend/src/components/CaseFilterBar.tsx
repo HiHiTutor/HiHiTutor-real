@@ -317,10 +317,20 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     const isInPersonSubCategory = ['one-on-one', 'small-group', 'large-center'].includes(mode);
     
     if (isInPersonSubCategory) {
-      // 如果是面授子分類，保持面授選中，但顯示子分類
+      // 如果是面授子分類，保持面授選中，並切換子分類的選中狀態
+      const currentModes = filters.mode === 'unlimited' ? [] : [filters.mode];
+      const newModes = currentModes.includes(mode)
+        ? currentModes.filter(m => m !== mode)
+        : [...currentModes.filter(m => !['one-on-one', 'small-group', 'large-center'].includes(m)), mode];
+      
+      // 確保面授始終被選中
+      if (!newModes.includes('in-person')) {
+        newModes.push('in-person');
+      }
+      
       setFilters(prev => ({
         ...prev,
-        mode: mode // 顯示選中的子分類
+        mode: newModes.length > 0 ? newModes.join(',') : 'in-person'
       }));
     } else {
       // 如果是主分類，直接設置
@@ -828,8 +838,16 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                       <span className="block truncate">
                         {filters.mode === 'unlimited'
                           ? '不限'
-                          : teachingModeOptions.find(m => m.value === filters.mode)?.label || 
-                            teachingModeOptions.flatMap(m => m.subCategories).find(sm => sm.value === filters.mode)?.label}
+                          : (() => {
+                              const modeArray = filters.mode.split(',').filter(m => m !== 'in-person');
+                              if (modeArray.length === 0) {
+                                return teachingModeOptions.find(m => m.value === filters.mode)?.label || '面授';
+                              } else if (modeArray.length === 1) {
+                                return teachingModeOptions.flatMap(m => m.subCategories).find(sm => sm.value === modeArray[0])?.label || modeArray[0];
+                              } else {
+                                return `面授 (${modeArray.length} 個子分類)`;
+                              }
+                            })()}
                       </span>
                       <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                         <ChevronUpDownIcon
@@ -869,7 +887,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                             )}
                           </Listbox.Option>
                         ))}
-                        {filters.mode === 'in-person' && teachingModeOptions.find(m => m.value === 'in-person')?.subCategories.map((subMode: { value: string; label: string }) => (
+                        {(filters.mode === 'in-person' || filters.mode.includes('in-person')) && teachingModeOptions.find(m => m.value === 'in-person')?.subCategories.map((subMode: { value: string; label: string }) => (
                           <Listbox.Option
                             key={subMode.value}
                             className={({ active }) =>

@@ -272,9 +272,19 @@ export default function PostStudentCase() {
     const isInPersonSubCategory = ['one-on-one', 'small-group', 'large-center'].includes(mode);
     
     if (isInPersonSubCategory) {
-      // 如果是面授子分類，保持面授選中，並添加子分類
+      // 如果是面授子分類，保持面授選中，並切換子分類的選中狀態
+      const currentModes = getValues('modes') || [];
+      const newModes = currentModes.includes(mode)
+        ? currentModes.filter(m => m !== mode)
+        : [...currentModes.filter(m => !['one-on-one', 'small-group', 'large-center'].includes(m)), mode];
+      
+      // 確保面授始終被選中
+      if (!newModes.includes('in-person')) {
+        newModes.push('in-person');
+      }
+      
       setSelectedMode('in-person');
-      setValue('modes', ['in-person', mode]);
+      setValue('modes', newModes);
     } else {
       // 如果是主分類，直接設置
       setSelectedMode(mode);
