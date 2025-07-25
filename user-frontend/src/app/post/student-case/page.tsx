@@ -32,7 +32,7 @@ const formSchema = z.object({
     required_error: '請輸入此欄位',
     invalid_type_error: '請輸入此欄位'
   }).min(1, '請輸入此欄位'),
-  subCategory: z.array(z.string()).optional(),
+  subCategory: z.string().optional(),
   subjects: z.array(z.string()).optional(),
   modes: z.array(z.string(), {
     required_error: '請輸入此欄位',
@@ -98,8 +98,9 @@ type FormData = z.infer<typeof formSchema>;
 export default function PostStudentCase() {
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [selectedSubCategory, setSelectedSubCategory] = useState<string[]>([]);
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string>('');
   const [selectedModes, setSelectedModes] = useState<string[]>(['in-person']); // 預設為面授
+  const [selectedTeachingSubCategories, setSelectedTeachingSubCategories] = useState<string[]>([]);
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [selectedSubRegions, setSelectedSubRegions] = useState<string[]>([]);
   const [teachingModeOptions, setTeachingModeOptions] = useState<any[]>([]);
@@ -264,18 +265,15 @@ export default function PostStudentCase() {
 
   const handleCategoryChange = (value: string) => {
     setSelectedCategory(value);
-    setSelectedSubCategory([]);
+    setSelectedSubCategory('');
     setValue('category', value);
-    setValue('subCategory', []);
+    setValue('subCategory', '');
     setValue('subjects', []);
   };
 
   const handleSubCategoryChange = (value: string) => {
-    const newSubCategories = selectedSubCategory.includes(value)
-      ? selectedSubCategory.filter(cat => cat !== value)
-      : [...selectedSubCategory, value];
-    setSelectedSubCategory(newSubCategories);
-    setValue('subCategory', newSubCategories);
+    setSelectedSubCategory(value);
+    setValue('subCategory', value);
     
     // 只有在分類的子分類變化時才清空科目，教學模式的子分類變化不影響科目
     if (selectedCategory === 'primary-secondary') {
@@ -294,8 +292,15 @@ export default function PostStudentCase() {
     // 只處理主教學模式（面授、網課、皆可）
     setSelectedModes([mode]);
     setValue('modes', [mode]);
-    // 當切換主模式時，清空子分類
-    setSelectedSubCategory([]);
+    // 當切換主模式時，清空教學模式子分類
+    setSelectedTeachingSubCategories([]);
+  };
+
+  const handleTeachingSubCategoryChange = (value: string) => {
+    const newTeachingSubCategories = selectedTeachingSubCategories.includes(value)
+      ? selectedTeachingSubCategories.filter(cat => cat !== value)
+      : [...selectedTeachingSubCategories, value];
+    setSelectedTeachingSubCategories(newTeachingSubCategories);
   };
 
   const handleSubjectChange = (subject: string) => {
@@ -307,8 +312,8 @@ export default function PostStudentCase() {
   };
 
   const selectedCategoryData = CATEGORY_OPTIONS.find(cat => cat.value === selectedCategory);
-  const selectedSubCategoryData = selectedCategoryData?.subCategories?.filter(
-    sub => selectedSubCategory.includes(sub.value)
+  const selectedSubCategoryData = selectedCategoryData?.subCategories?.find(
+    sub => sub.value === selectedSubCategory
   );
 
   return (
@@ -358,25 +363,18 @@ export default function PostStudentCase() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   子分類
                 </label>
-                <div className="grid grid-cols-2 gap-4">
-                  {selectedCategoryData.subCategories.map(subCategory => (
-                    <div key={subCategory.value} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={subCategory.value}
-                        checked={selectedSubCategory.includes(subCategory.value)}
-                        onCheckedChange={(checked) => {
-                          handleSubCategoryChange(subCategory.value);
-                        }}
-                      />
-                      <label
-                        htmlFor={subCategory.value}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
+                <Select onValueChange={handleSubCategoryChange} value={selectedSubCategory}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="請選擇" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {selectedCategoryData.subCategories.map(subCategory => (
+                      <SelectItem key={subCategory.value} value={subCategory.value}>
                         {subCategory.label}
-                      </label>
-                    </div>
-                  ))}
-                </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {errors.subCategory && (
                   <p className="mt-1 text-sm text-red-600">{errors.subCategory.message as string}</p>
                 )}
@@ -392,7 +390,7 @@ export default function PostStudentCase() {
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   {(selectedCategory === 'primary-secondary' 
-                    ? selectedSubCategoryData?.[0]?.subjects || []
+                    ? selectedSubCategoryData?.subjects || []
                     : selectedCategoryData?.subjects || []
                   ).map((subject: any) => (
                     <div key={subject.value} className="flex items-center space-x-2">
@@ -445,14 +443,14 @@ export default function PostStudentCase() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex items-center space-x-2">
                     <Checkbox
-                      id="one-on-one"
-                      checked={selectedSubCategory.includes('one-on-one')}
+                      id="teaching-one-on-one"
+                      checked={selectedTeachingSubCategories.includes('one-on-one')}
                       onCheckedChange={(checked) => {
-                        handleSubCategoryChange('one-on-one');
+                        handleTeachingSubCategoryChange('one-on-one');
                       }}
                     />
                     <label
-                      htmlFor="one-on-one"
+                      htmlFor="teaching-one-on-one"
                       className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                     >
                       一對一
@@ -460,14 +458,14 @@ export default function PostStudentCase() {
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox
-                      id="small-group"
-                      checked={selectedSubCategory.includes('small-group')}
+                      id="teaching-small-group"
+                      checked={selectedTeachingSubCategories.includes('small-group')}
                       onCheckedChange={(checked) => {
-                        handleSubCategoryChange('small-group');
+                        handleTeachingSubCategoryChange('small-group');
                       }}
                     />
                     <label
-                      htmlFor="small-group"
+                      htmlFor="teaching-small-group"
                       className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                     >
                       小班教學
@@ -475,14 +473,14 @@ export default function PostStudentCase() {
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox
-                      id="large-center"
-                      checked={selectedSubCategory.includes('large-center')}
+                      id="teaching-large-center"
+                      checked={selectedTeachingSubCategories.includes('large-center')}
                       onCheckedChange={(checked) => {
-                        handleSubCategoryChange('large-center');
+                        handleTeachingSubCategoryChange('large-center');
                       }}
                     />
                     <label
-                      htmlFor="large-center"
+                      htmlFor="teaching-large-center"
                       className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                     >
                       補習社
