@@ -90,7 +90,7 @@ export default function PostStudentCase() {
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>('');
-  const [selectedModes, setSelectedModes] = useState<string[]>([]); // 改為多選
+  const [selectedModes, setSelectedModes] = useState<string[]>(['in-person']); // 預設為面授
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [selectedSubRegions, setSelectedSubRegions] = useState<string[]>([]);
   const [teachingModeOptions, setTeachingModeOptions] = useState<any[]>([]);
@@ -265,26 +265,21 @@ export default function PostStudentCase() {
     setSelectedSubCategory(value);
     setValue('subCategory', value);
     setValue('subjects', []);
+    
+    // 如果是教學模式的子分類，也要更新 modes
+    if (['one-on-one', 'small-group', 'large-center'].includes(value)) {
+      const currentModes = getValues('modes') || [];
+      const newModes = [...currentModes.filter(m => !['one-on-one', 'small-group', 'large-center'].includes(m)), value];
+      setValue('modes', newModes);
+    }
   };
 
   const handleModeChange = (mode: string) => {
-    // 檢查是否是面授的子分類
-    const isInPersonSubCategory = ['one-on-one', 'small-group', 'large-center'].includes(mode);
-    
-    if (isInPersonSubCategory) {
-      // 如果是面授子分類，切換子分類的選中狀態
-      const currentModes = getValues('modes') || [];
-      const newModes = currentModes.includes(mode)
-        ? currentModes.filter(m => m !== mode)
-        : [...currentModes, mode];
-      
-      setSelectedModes(newModes);
-      setValue('modes', newModes);
-    } else {
-      // 如果是主分類，清空所有子分類，只保留主分類
-      setSelectedModes([mode]);
-      setValue('modes', [mode]);
-    }
+    // 只處理主教學模式（面授、網課、皆可）
+    setSelectedModes([mode]);
+    setValue('modes', [mode]);
+    // 當切換主模式時，清空子分類
+    setSelectedSubCategory('');
   };
 
   const handleSubjectChange = (subject: string) => {
@@ -405,7 +400,7 @@ export default function PostStudentCase() {
 
             <div className="space-y-2">
               <Label>教學模式</Label>
-              <Select onValueChange={(value) => handleModeChange(value)} value={selectedModes[0] || ''}>
+              <Select onValueChange={(value) => handleModeChange(value)} value={selectedModes[0] || 'in-person'}>
                 <SelectTrigger>
                   <SelectValue placeholder="請選擇教學模式" />
                 </SelectTrigger>
@@ -423,43 +418,21 @@ export default function PostStudentCase() {
             {/* 子分類選擇 - 只在選擇面授或皆可時顯示 */}
             {(selectedModes.includes('in-person') || selectedModes.includes('both')) && (
               <div className="space-y-2">
-                <Label>子分類（可多選）</Label>
-                <div className="flex gap-4">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="one-on-one"
-                      checked={(watch('modes') || []).includes('one-on-one')}
-                      onCheckedChange={() => handleModeChange('one-on-one')}
-                    />
-                    <label htmlFor="one-on-one" className="text-sm font-medium">
-                      一對一
-                    </label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="small-group"
-                      checked={(watch('modes') || []).includes('small-group')}
-                      onCheckedChange={() => handleModeChange('small-group')}
-                    />
-                    <label htmlFor="small-group" className="text-sm font-medium">
-                      小班教學
-                    </label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="large-center"
-                      checked={(watch('modes') || []).includes('large-center')}
-                      onCheckedChange={() => handleModeChange('large-center')}
-                    />
-                    <label htmlFor="large-center" className="text-sm font-medium">
-                      補習社
-                    </label>
-                  </div>
-                </div>
+                <Label>子分類</Label>
+                <Select onValueChange={(value) => handleSubCategoryChange(value)} value={selectedSubCategory || ''}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="請選擇子分類" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="one-on-one">一對一</SelectItem>
+                    <SelectItem value="small-group">小班教學</SelectItem>
+                    <SelectItem value="large-center">補習社</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             )}
 
-            {(selectedModes.includes('in-person') || selectedModes.includes('both') || selectedModes.includes('one-on-one') || selectedModes.includes('small-group') || selectedModes.includes('large-center')) && (
+            {(selectedModes.includes('in-person') || selectedModes.includes('both') || selectedSubCategory) && (
               <>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">

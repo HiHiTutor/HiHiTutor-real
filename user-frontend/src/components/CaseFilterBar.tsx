@@ -60,7 +60,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     category: 'unlimited', // 預設為不限
     subCategory: 'unlimited', // 預設為不限
     subjects: [],
-    mode: 'unlimited', // 改為單選，預設為不限
+    mode: 'in-person', // 預設為面授
     regions: ['unlimited'], // 預設為不限，改為單選
     subRegions: ['unlimited'], // 預設為不限
     priceRange: 'unlimited' // 預設為不限
@@ -314,32 +314,13 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   };
 
   const handleModeChange = (mode: string) => {
-    // 檢查是否是面授的子分類
-    const isInPersonSubCategory = ['one-on-one', 'small-group', 'large-center'].includes(mode);
-    
-    if (isInPersonSubCategory) {
-      // 如果是面授子分類，保持面授選中，並切換子分類的選中狀態
-      const currentModes = filters.mode === 'unlimited' ? [] : [filters.mode];
-      const newModes = currentModes.includes(mode)
-        ? currentModes.filter(m => m !== mode)
-        : [...currentModes.filter(m => !['one-on-one', 'small-group', 'large-center'].includes(m)), mode];
-      
-      // 確保面授始終被選中
-      if (!newModes.includes('in-person')) {
-        newModes.push('in-person');
-      }
-      
-      setFilters(prev => ({
-        ...prev,
-        mode: newModes.length > 0 ? newModes.join(',') : 'in-person'
-      }));
-    } else {
-      // 如果是主分類，直接設置
-      setFilters(prev => ({
-        ...prev,
-        mode: mode
-      }));
-    }
+    // 只處理主教學模式（面授、網課、皆可）
+    setFilters(prev => ({
+      ...prev,
+      mode: mode,
+      // 當切換主模式時，清空子分類
+      subCategory: ''
+    }));
   };
 
   const handleFilter = () => {
@@ -396,6 +377,10 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     // 其他篩選條件 - 只添加非unlimited的值
     if (filters.mode && filters.mode !== 'unlimited') {
       params.append('modes', filters.mode);
+      // 如果有子分類，也添加子分類
+      if (filters.subCategory && filters.subCategory !== '') {
+        params.append('modes', filters.subCategory);
+      }
     }
     filters.regions.forEach(region => {
       if (region !== 'unlimited') {
@@ -580,14 +565,19 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       const modeOption = teachingModeOptions.find(m => m.value === filters.mode);
       if (modeOption) {
         selected.push({ key: 'mode', label: modeOption.label, value: filters.mode });
-      } else {
-        // 檢查子分類
-        teachingModeOptions.forEach(m => {
-          const subMode = m.subCategories.find((sm: { value: string; label: string }) => sm.value === filters.mode);
-          if (subMode) {
-            selected.push({ key: 'mode', label: subMode.label, value: filters.mode });
-          }
-        });
+      }
+    }
+    
+    // 教學模式子分類
+    if (filters.subCategory && filters.subCategory !== 'unlimited' && filters.subCategory !== '') {
+      const subCategoryLabels = {
+        'one-on-one': '一對一',
+        'small-group': '小班教學',
+        'large-center': '補習社'
+      };
+      const label = subCategoryLabels[filters.subCategory as keyof typeof subCategoryLabels];
+      if (label) {
+        selected.push({ key: 'subCategory', label: label, value: filters.subCategory });
       }
     }
     
@@ -639,7 +629,11 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
           newFilters.subjects = prev.subjects.filter(s => s !== value);
           break;
         case 'mode':
-          newFilters.mode = 'unlimited';
+          newFilters.mode = 'in-person';
+          newFilters.subCategory = '';
+          break;
+        case 'subCategory':
+          newFilters.subCategory = '';
           break;
         case 'regions':
           newFilters.regions = ['unlimited'];
@@ -669,7 +663,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       category: 'unlimited',
       subCategory: 'unlimited',
       subjects: [],
-      mode: 'unlimited',
+      mode: 'in-person',
       regions: ['unlimited'],
       subRegions: ['unlimited'],
       priceRange: 'unlimited'
@@ -835,7 +829,6 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                   onChange={(e) => handleModeChange(e.target.value)}
                   className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
                 >
-                  <option value="unlimited">不限</option>
                   <option value="in-person">面授</option>
                   <option value="online">網課</option>
                   <option value="both">皆可</option>
@@ -845,39 +838,17 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
               {/* 子分類選擇 - 只在選擇面授或皆可時顯示 */}
               {(filters.mode === 'in-person' || filters.mode === 'both') && (
                 <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">子分類（可多選）</label>
-                  <div className="flex gap-4">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="one-on-one"
-                        checked={filters.mode.includes('one-on-one')}
-                        onCheckedChange={() => handleModeChange('one-on-one')}
-                      />
-                      <label htmlFor="one-on-one" className="text-sm font-medium">
-                        一對一
-                      </label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="small-group"
-                        checked={filters.mode.includes('small-group')}
-                        onCheckedChange={() => handleModeChange('small-group')}
-                      />
-                      <label htmlFor="small-group" className="text-sm font-medium">
-                        小班教學
-                      </label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="large-center"
-                        checked={filters.mode.includes('large-center')}
-                        onCheckedChange={() => handleModeChange('large-center')}
-                      />
-                      <label htmlFor="large-center" className="text-sm font-medium">
-                        補習社
-                      </label>
-                    </div>
-                  </div>
+                  <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">子分類</label>
+                  <select
+                    value={filters.subCategory || ''}
+                    onChange={(e) => handleSubCategoryChange(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
+                  >
+                    <option value="">請選擇子分類</option>
+                    <option value="one-on-one">一對一</option>
+                    <option value="small-group">小班教學</option>
+                    <option value="large-center">補習社</option>
+                  </select>
                 </div>
               )}
 
