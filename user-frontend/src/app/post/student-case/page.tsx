@@ -268,8 +268,18 @@ export default function PostStudentCase() {
   };
 
   const handleModeChange = (mode: string) => {
-    setSelectedMode(mode); // 直接設置選中的模式
-    setValue('modes', [mode]); // 更新表單值為單一模式
+    // 檢查是否是面授的子分類
+    const isInPersonSubCategory = ['one-on-one', 'small-group', 'large-center'].includes(mode);
+    
+    if (isInPersonSubCategory) {
+      // 如果是面授子分類，保持面授選中，並添加子分類
+      setSelectedMode('in-person');
+      setValue('modes', ['in-person', mode]);
+    } else {
+      // 如果是主分類，直接設置
+      setSelectedMode(mode);
+      setValue('modes', [mode]);
+    }
   };
 
   const handleSubjectChange = (subject: string) => {
@@ -413,7 +423,7 @@ export default function PostStudentCase() {
                           <div key={subMode.value} className="flex items-center space-x-2">
                             <Checkbox
                               id={subMode.value}
-                              checked={selectedMode === subMode.value}
+                              checked={(watch('modes') || []).includes(subMode.value)}
                               onCheckedChange={() => handleModeChange(subMode.value)}
                             />
                             <label
