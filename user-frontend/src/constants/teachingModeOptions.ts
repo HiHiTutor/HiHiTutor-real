@@ -105,7 +105,7 @@ export function getTeachingModeCode(modeLabel: string): string {
 export function isValidTeachingMode(mode: string): boolean {
   return TEACHING_MODE_OPTIONS.some(option => 
     option.value === mode || 
-    option.subCategories.some(sub => sub.value === mode)
+    option.subCategories.some((sub: { value: string; label: string }) => sub.value === mode)
   );
 }
 
@@ -115,7 +115,7 @@ export function getTeachingModeCategory(modeCode: string): string | null {
     if (option.value === modeCode) {
       return option.value;
     }
-    if (option.subCategories.some(sub => sub.value === modeCode)) {
+    if (option.subCategories.some((sub: { value: string; label: string }) => sub.value === modeCode)) {
       return option.value;
     }
   }
