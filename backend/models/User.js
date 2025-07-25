@@ -9,7 +9,6 @@ const userSchema = new mongoose.Schema({
   },
   tutorId: {
     type: String,
-    default: null, // 僅適用於 userType 為 'tutor'
     unique: true,
     sparse: true // ✅ 只對存在 tutorId 的 document 強制 unique，null 唔理
   },
