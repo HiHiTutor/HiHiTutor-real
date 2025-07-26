@@ -54,6 +54,7 @@ export const getModeLabel = (modeValue: string): string => {
     'online': '網上教學',
     'offline': '面授教學',
     'hybrid': '混合教學',
+    'in-person': '面授教學',
     'unlimited': '不限'
   };
   
@@ -76,6 +77,7 @@ export const getExperienceLabel = (experienceValue: string): string => {
 // 科目映射函數
 export const getSubjectLabel = (subjectValue: string): string => {
   const subjectMap: { [key: string]: string } = {
+    // 通用科目
     'mathematics': '數學',
     'english': '英文',
     'chinese': '中文',
@@ -96,6 +98,52 @@ export const getSubjectLabel = (subjectValue: string): string => {
     'photography': '攝影',
     'languages': '語言學習',
     'test-preparation': '考試準備',
+    
+    // 小學科目
+    'primary-math': '小學數學',
+    'primary-english': '小學英文',
+    'primary-chinese': '小學中文',
+    
+    // 中學科目
+    'secondary-math': '中學數學',
+    'secondary-english': '中學英文',
+    'secondary-chinese': '中學中文',
+    'secondary-physics': '中學物理',
+    'secondary-chemistry': '中學化學',
+    'secondary-biology': '中學生物',
+    'secondary-history': '中學歷史',
+    'secondary-geography': '中學地理',
+    'secondary-economics': '中學經濟',
+    
+    // 幼兒教育
+    'preschool-math': '幼兒數學',
+    'preschool-english': '幼兒英文',
+    'preschool-chinese': '幼兒中文',
+    
+    // IB科目
+    'ib-physics': 'IB物理',
+    'ib-chemistry': 'IB化學',
+    'ib-biology': 'IB生物',
+    'ib-math': 'IB數學',
+    'ib-english': 'IB英文',
+    
+    // 大學科目
+    'business': '商科',
+    'engineering': '工程',
+    'science': '理科',
+    'arts': '文科',
+    'masters': '碩士',
+    'phd': '博士',
+    'research': '研究',
+    
+    // 興趣科目
+    'piano': '鋼琴',
+    
+    // 成人教育
+    'business-english': '商業英文',
+    'conversation': '會話',
+    'ielts': '雅思',
+    
     'unlimited': '不限'
   };
   
@@ -105,19 +153,26 @@ export const getSubjectLabel = (subjectValue: string): string => {
 // 地區映射函數
 export const getRegionLabel = (regionValue: string): string => {
   const regionMap: { [key: string]: string } = {
+    // 主要地區
     'hong-kong-island': '香港島',
     'kowloon': '九龍',
     'new-territories': '新界',
     'islands': '離島',
+    
+    // 香港島區域
     'central-western': '中西區',
     'eastern': '東區',
     'southern': '南區',
     'wan-chai': '灣仔區',
+    
+    // 九龍區域
     'sham-shui-po': '深水埗區',
     'kowloon-city': '九龍城區',
     'kwun-tong': '觀塘區',
     'wong-tai-sin': '黃大仙區',
     'yau-tsim-mong': '油尖旺區',
+    
+    // 新界區域
     'islands-district': '離島區',
     'kwai-tsing': '葵青區',
     'north': '北區',
@@ -127,6 +182,7 @@ export const getRegionLabel = (regionValue: string): string => {
     'tsuen-wan': '荃灣區',
     'tuen-mun': '屯門區',
     'yuen-long': '元朗區',
+    
     'unlimited': '不限'
   };
   
@@ -136,6 +192,7 @@ export const getRegionLabel = (regionValue: string): string => {
 // 子地區映射函數
 export const getSubRegionLabel = (subRegionValue: string): string => {
   const subRegionMap: { [key: string]: string } = {
+    // 香港島子地區
     'central': '中環',
     'admiralty': '金鐘',
     'sheung-wan': '上環',
@@ -151,6 +208,8 @@ export const getSubRegionLabel = (subRegionValue: string): string => {
     'ap-lei-chau': '鴨脷洲',
     'stanley': '赤柱',
     're pulse-bay': '淺水灣',
+    
+    // 九龍子地區
     'mong-kok': '旺角',
     'tsim-sha-tsui': '尖沙咀',
     'jordan': '佐敦',
@@ -165,6 +224,7 @@ export const getSubRegionLabel = (subRegionValue: string): string => {
     'kwai-chung': '葵涌',
     'tsuen-wan': '荃灣',
     'tsuen-wan-west': '荃灣西',
+    
     'unlimited': '不限'
   };
   
