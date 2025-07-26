@@ -267,11 +267,12 @@ export default function EditProfilePage() {
         body: JSON.stringify(updateData),
       });
 
+      const data = await res.json();
+      
       if (!res.ok) {
-        throw new Error('更新失敗');
+        throw new Error(data.message || '更新失敗');
       }
 
-      const data = await res.json();
       if (data.success) {
         // 更新本地儲存的用戶資料
         localStorage.setItem('user', JSON.stringify({
