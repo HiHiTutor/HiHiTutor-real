@@ -74,6 +74,9 @@ const CaseDetail: React.FC = () => {
     }
   };
 
+  // 檢查是否為線上教學
+  const isOnlineMode = selectedCase?.mode === 'online' || selectedCase?.mode === '網上教學';
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
@@ -153,27 +156,44 @@ const CaseDetail: React.FC = () => {
             </Box>
           </Grid>
 
-          <Grid item xs={12}>
-            <Typography variant="subtitle1" gutterBottom>
-              地區
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-              {selectedCase.regions?.map((region) => (
-                <Chip key={region} label={getRegionLabel(region)} />
-              ))}
-            </Box>
-          </Grid>
+          {/* 地區信息 - 只在非線上教學時顯示 */}
+          {!isOnlineMode && (
+            <>
+              <Grid item xs={12}>
+                <Typography variant="subtitle1" gutterBottom>
+                  地區
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                  {selectedCase.regions?.map((region) => (
+                    <Chip key={region} label={getRegionLabel(region)} />
+                  ))}
+                </Box>
+              </Grid>
 
-          <Grid item xs={12}>
-            <Typography variant="subtitle1" gutterBottom>
-              子地區
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-              {selectedCase.subRegions?.map((subRegion) => (
-                <Chip key={subRegion} label={getSubRegionLabel(subRegion)} />
-              ))}
-            </Box>
-          </Grid>
+              <Grid item xs={12}>
+                <Typography variant="subtitle1" gutterBottom>
+                  子地區
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                  {selectedCase.subRegions?.map((subRegion) => (
+                    <Chip key={subRegion} label={getSubRegionLabel(subRegion)} />
+                  ))}
+                </Box>
+              </Grid>
+            </>
+          )}
+
+          {/* 線上教學時顯示適用地區 */}
+          {isOnlineMode && (
+            <Grid item xs={12}>
+              <Typography variant="subtitle1" gutterBottom>
+                適用地區
+              </Typography>
+              <Typography color="textSecondary">
+                線上教學，全港適用
+              </Typography>
+            </Grid>
+          )}
 
           <Grid item xs={12} sm={6}>
             <Typography variant="subtitle1" gutterBottom>
