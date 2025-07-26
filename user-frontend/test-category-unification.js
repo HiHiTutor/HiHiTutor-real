@@ -18,7 +18,7 @@ const SUBJECT_MAP = {
   'primary-general': '常識',
   'primary-mandarin': '普通話',
   'primary-stem': '常識／STEM',
-  'primary-all': '其他全科補習',
+  'primary-all': '全科補習',
 
   // 中學教育
   'secondary-chinese': '中學中文',

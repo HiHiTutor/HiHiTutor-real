@@ -25,7 +25,7 @@ const CATEGORY_OPTIONS = {
           { value: 'primary-general', label: '常識' },
           { value: 'primary-mandarin', label: '普通話' },
           { value: 'primary-stem', label: '常識／STEM' },
-          { value: 'primary-all', label: '其他全科補習' }
+          { value: 'primary-all', label: '全科補習' }
         ]
       },
       {
