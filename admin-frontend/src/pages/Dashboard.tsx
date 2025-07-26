@@ -37,7 +37,7 @@ const Dashboard: React.FC = () => {
         dispatch(setStatistics(response.data));
       } catch (error) {
         console.error('Error fetching statistics:', error);
-        dispatch(setError('Failed to load dashboard data'));
+        dispatch(setError('載入儀表板資料失敗'));
         
         // Retry logic
         if (retryCount < 3) {
@@ -68,7 +68,7 @@ const Dashboard: React.FC = () => {
           {error}
         </Alert>
         <Button variant="contained" onClick={() => setRetryCount(prev => prev + 1)}>
-          Retry
+          重試
         </Button>
       </Box>
     );
@@ -77,7 +77,7 @@ const Dashboard: React.FC = () => {
   if (!statistics) {
     return (
       <Box sx={{ p: 3 }}>
-        <Typography>No data available</Typography>
+        <Typography>沒有可用資料</Typography>
       </Box>
     );
   }
@@ -85,7 +85,7 @@ const Dashboard: React.FC = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" gutterBottom>
-        Dashboard
+        儀表板
       </Typography>
 
       <Grid container spacing={3}>
@@ -93,25 +93,25 @@ const Dashboard: React.FC = () => {
         <Grid item xs={12} md={6} lg={3}>
           <Paper sx={{ p: 2, textAlign: 'center' }}>
             <Typography variant="h4">{statistics.totalStudents}</Typography>
-            <Typography color="textSecondary">Total Students</Typography>
+            <Typography color="textSecondary">總學生數</Typography>
           </Paper>
         </Grid>
         <Grid item xs={12} md={6} lg={3}>
           <Paper sx={{ p: 2, textAlign: 'center' }}>
             <Typography variant="h4">{statistics.totalTutors}</Typography>
-            <Typography color="textSecondary">Total Tutors</Typography>
+            <Typography color="textSecondary">總導師數</Typography>
           </Paper>
         </Grid>
         <Grid item xs={12} md={6} lg={3}>
           <Paper sx={{ p: 2, textAlign: 'center' }}>
             <Typography variant="h4">{statistics.activeCases}</Typography>
-            <Typography color="textSecondary">Active Cases</Typography>
+            <Typography color="textSecondary">活躍案例</Typography>
           </Paper>
         </Grid>
         <Grid item xs={12} md={6} lg={3}>
           <Paper sx={{ p: 2, textAlign: 'center' }}>
             <Typography variant="h4">{statistics.successRate}%</Typography>
-            <Typography color="textSecondary">Success Rate</Typography>
+            <Typography color="textSecondary">成功率</Typography>
           </Paper>
         </Grid>
 
@@ -126,13 +126,13 @@ const Dashboard: React.FC = () => {
                   alignItems: 'center',
                   mb: 2,
                 }}>
-                  <Typography variant="h6">Hot Subjects</Typography>
+                  <Typography variant="h6">熱門科目</Typography>
                   <Button
                     variant="outlined"
                     size="small"
                     onClick={() => navigate('/statistics')}
                   >
-                    View All
+                    查看全部
                   </Button>
                 </Box>
                 <List>
@@ -141,7 +141,7 @@ const Dashboard: React.FC = () => {
                       <ListItem>
                         <ListItemText
                           primary={subject.name}
-                          secondary={`${subject.count} cases`}
+                          secondary={`${subject.count} 個案例`}
                         />
                       </ListItem>
                       {index < statistics.hotSubjects.length - 1 && <Divider />}
@@ -164,13 +164,13 @@ const Dashboard: React.FC = () => {
                   alignItems: 'center',
                   mb: 2,
                 }}>
-                  <Typography variant="h6">Recent Activities</Typography>
+                  <Typography variant="h6">最近活動</Typography>
                   <Button
                     variant="outlined"
                     size="small"
                     onClick={() => navigate('/cases')}
                   >
-                    View All Cases
+                    查看所有案例
                   </Button>
                 </Box>
                 <List>
@@ -179,7 +179,7 @@ const Dashboard: React.FC = () => {
                       <ListItem>
                         <ListItemText
                           primary={activity.description}
-                          secondary={new Date(activity.timestamp).toLocaleString()}
+                          secondary={new Date(activity.timestamp).toLocaleString('zh-TW')}
                         />
                       </ListItem>
                       {index < statistics.recentActivities.length - 1 && <Divider />}

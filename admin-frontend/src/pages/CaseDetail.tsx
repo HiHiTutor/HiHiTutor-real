@@ -43,6 +43,53 @@ const getSubCategoryLabel = (subCategoryValue: string): string => {
   return subCategoryMap[subCategoryValue] || subCategoryValue;
 };
 
+// 狀態映射函數
+const getStatusLabel = (statusValue: string): string => {
+  const statusMap: { [key: string]: string } = {
+    'open': '開放中',
+    'matched': '已配對',
+    'closed': '已關閉',
+    'pending': '待處理'
+  };
+  
+  return statusMap[statusValue] || statusValue;
+};
+
+// 類型映射函數
+const getTypeLabel = (typeValue: string): string => {
+  const typeMap: { [key: string]: string } = {
+    'student': '學生案例',
+    'tutor': '導師案例'
+  };
+  
+  return typeMap[typeValue] || typeValue;
+};
+
+// 模式映射函數
+const getModeLabel = (modeValue: string): string => {
+  const modeMap: { [key: string]: string } = {
+    'online': '網上教學',
+    'offline': '面授教學',
+    'hybrid': '混合教學',
+    'unlimited': '不限'
+  };
+  
+  return modeMap[modeValue] || modeValue;
+};
+
+// 經驗映射函數
+const getExperienceLabel = (experienceValue: string): string => {
+  const experienceMap: { [key: string]: string } = {
+    'beginner': '初學者',
+    'intermediate': '中級',
+    'advanced': '高級',
+    'expert': '專家級',
+    'unlimited': '不限'
+  };
+  
+  return experienceMap[experienceValue] || experienceValue;
+};
+
 const CaseDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -63,11 +110,11 @@ const CaseDetail: React.FC = () => {
           if (success && data.case) {
             dispatch(setSelectedCase(data.case));
           } else {
-            dispatch(setError('Case not found'));
+            dispatch(setError('找不到案例'));
           }
         }
       } catch (error: any) {
-        dispatch(setError(error.message || 'Failed to fetch case details'));
+        dispatch(setError(error.message || '獲取案例詳情失敗'));
       } finally {
         dispatch(setLoading(false));
       }
@@ -110,7 +157,7 @@ const CaseDetail: React.FC = () => {
   if (!selectedCase) {
     return (
       <Box sx={{ p: 3 }}>
-        <Alert severity="info">No case found</Alert>
+        <Alert severity="info">找不到案例</Alert>
       </Box>
     );
   }
@@ -118,9 +165,9 @@ const CaseDetail: React.FC = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between' }}>
-        <Typography variant="h4">Case Details</Typography>
+        <Typography variant="h4">案例詳情</Typography>
         <Button variant="outlined" onClick={() => navigate('/cases')}>
-          Back to Cases
+          返回案例列表
         </Button>
       </Box>
 
@@ -131,37 +178,37 @@ const CaseDetail: React.FC = () => {
               {selectedCase.title}
             </Typography>
             <Chip
-              label={selectedCase.status}
+              label={getStatusLabel(selectedCase.status)}
               color={getStatusColor(selectedCase.status)}
               sx={{ mr: 1 }}
             />
-            <Chip label={selectedCase.type} color="secondary" />
+            <Chip label={getTypeLabel(selectedCase.type)} color="secondary" />
           </Grid>
 
           <Grid item xs={12}>
             <Typography variant="subtitle1" gutterBottom>
-              Description
+              描述
             </Typography>
             <Typography>{selectedCase.description}</Typography>
           </Grid>
 
           <Grid item xs={12} sm={6}>
             <Typography variant="subtitle1" gutterBottom>
-              Category
+              分類
             </Typography>
             <Typography>{getCategoryLabel(selectedCase.category)}</Typography>
           </Grid>
 
           <Grid item xs={12} sm={6}>
             <Typography variant="subtitle1" gutterBottom>
-              Sub Category
+              子分類
             </Typography>
-            <Typography>{selectedCase.subCategory ? getSubCategoryLabel(selectedCase.subCategory) : 'N/A'}</Typography>
+            <Typography>{selectedCase.subCategory ? getSubCategoryLabel(selectedCase.subCategory) : '不適用'}</Typography>
           </Grid>
 
           <Grid item xs={12}>
             <Typography variant="subtitle1" gutterBottom>
-              Subjects
+              科目
             </Typography>
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
               {selectedCase.subjects?.map((subject) => (
@@ -172,7 +219,7 @@ const CaseDetail: React.FC = () => {
 
           <Grid item xs={12}>
             <Typography variant="subtitle1" gutterBottom>
-              Regions
+              地區
             </Typography>
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
               {selectedCase.regions?.map((region) => (
@@ -183,7 +230,7 @@ const CaseDetail: React.FC = () => {
 
           <Grid item xs={12}>
             <Typography variant="subtitle1" gutterBottom>
-              Sub Regions
+              子地區
             </Typography>
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
               {selectedCase.subRegions?.map((subRegion) => (
@@ -194,31 +241,31 @@ const CaseDetail: React.FC = () => {
 
           <Grid item xs={12} sm={6}>
             <Typography variant="subtitle1" gutterBottom>
-              Budget
+              預算
             </Typography>
             <Typography>{selectedCase.budget}</Typography>
           </Grid>
 
           <Grid item xs={12} sm={6}>
             <Typography variant="subtitle1" gutterBottom>
-              Mode
+              教學模式
             </Typography>
-            <Typography>{selectedCase.mode}</Typography>
+            <Typography>{getModeLabel(selectedCase.mode)}</Typography>
           </Grid>
 
           <Grid item xs={12}>
             <Typography variant="subtitle1" gutterBottom>
-              Experience
+              經驗要求
             </Typography>
-            <Typography>{selectedCase.experience || 'N/A'}</Typography>
+            <Typography>{selectedCase.experience ? getExperienceLabel(selectedCase.experience) : '不適用'}</Typography>
           </Grid>
 
           <Grid item xs={12}>
             <Typography variant="subtitle1" gutterBottom>
-              Created At
+              建立時間
             </Typography>
             <Typography>
-              {new Date(selectedCase.createdAt).toLocaleString()}
+              {new Date(selectedCase.createdAt).toLocaleString('zh-TW')}
             </Typography>
           </Grid>
         </Grid>

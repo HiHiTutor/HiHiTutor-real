@@ -64,7 +64,7 @@ const Header: React.FC<HeaderProps> = ({ open, toggleDrawer }) => {
           <MenuIcon />
         </IconButton>
         <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-          HiHiTutor Admin
+          HiHiTutor 管理後台
         </Typography>
         <Tooltip title={`${notifications?.total || 0} 個待處理事項`}>
           <IconButton color="inherit">
@@ -108,8 +108,8 @@ const Header: React.FC<HeaderProps> = ({ open, toggleDrawer }) => {
           open={Boolean(anchorEl)}
           onClose={handleClose}
         >
-          <MenuItem onClick={handleClose}>Profile</MenuItem>
-          <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          <MenuItem onClick={handleClose}>個人資料</MenuItem>
+          <MenuItem onClick={handleLogout}>登出</MenuItem>
         </Menu>
       </Toolbar>
     </AppBar>

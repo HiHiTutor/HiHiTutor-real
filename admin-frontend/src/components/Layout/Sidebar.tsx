@@ -35,11 +35,11 @@ const Sidebar: React.FC<SidebarProps> = ({ open }) => {
   const { notifications } = useNotifications();
 
   const menuItems = [
-    { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-    { text: 'Users', icon: <PeopleIcon />, path: '/users' },
-    { text: 'Cases', icon: <DescriptionIcon />, path: '/cases', badge: notifications?.openCases },
+    { text: '儀表板', icon: <DashboardIcon />, path: '/dashboard' },
+    { text: '用戶管理', icon: <PeopleIcon />, path: '/users' },
+    { text: '案例管理', icon: <DescriptionIcon />, path: '/cases', badge: notifications?.openCases },
     { text: '廣告管理', icon: <CampaignIcon />, path: '/AdManager' },
-    { text: 'Statistics', icon: <BarChartIcon />, path: '/statistics' },
+    { text: '統計分析', icon: <BarChartIcon />, path: '/statistics' },
     { text: '搜尋統計', icon: <SearchIcon />, path: '/search-statistics' },
     { text: '導師申請審核', icon: <SchoolIcon />, path: '/tutor-applications', badge: notifications?.pendingTutorApplications },
     { text: '導師資料審批', icon: <SchoolIcon />, path: '/tutor-profile-approvals', badge: notifications?.pendingTutorProfiles },

@@ -14,6 +14,27 @@ import {
 } from '@mui/material';
 import { casesAPI } from '../services/api';
 
+// 類型映射函數
+const getTypeLabel = (typeValue: string): string => {
+  const typeMap: { [key: string]: string } = {
+    'student': '學生案例',
+    'tutor': '導師案例'
+  };
+  
+  return typeMap[typeValue] || typeValue;
+};
+
+// 模式映射函數
+const getModeLabel = (modeValue: string): string => {
+  const modeMap: { [key: string]: string } = {
+    'online': '網上教學',
+    'offline': '面授教學',
+    'hybrid': '混合教學'
+  };
+  
+  return modeMap[modeValue] || modeValue;
+};
+
 const CreateCase: React.FC = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -103,10 +124,10 @@ const CreateCase: React.FC = () => {
       if (response.data.success) {
         navigate('/cases');
       } else {
-        setError(response.data.message || 'Failed to create case');
+        setError(response.data.message || '建立案例失敗');
       }
     } catch (error: any) {
-      setError(error.response?.data?.message || 'An error occurred');
+      setError(error.response?.data?.message || '發生錯誤');
     } finally {
       setLoading(false);
     }
@@ -115,9 +136,9 @@ const CreateCase: React.FC = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between' }}>
-        <Typography variant="h4">Create New Case</Typography>
+        <Typography variant="h4">建立新案例</Typography>
         <Button variant="outlined" onClick={() => navigate('/cases')}>
-          Back to Cases
+          返回案例列表
         </Button>
       </Box>
 
@@ -131,14 +152,14 @@ const CreateCase: React.FC = () => {
         <form onSubmit={handleSubmit}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
-              label="Title"
+              label="標題"
               name="title"
               value={formData.title}
               onChange={handleChange}
               required
             />
             <TextField
-              label="Description"
+              label="描述"
               name="description"
               value={formData.description}
               onChange={handleChange}
@@ -148,24 +169,24 @@ const CreateCase: React.FC = () => {
             />
             <TextField
               select
-              label="Type"
+              label="類型"
               name="type"
               value={formData.type}
               onChange={handleChange}
               required
             >
-              <MenuItem value="student">Student</MenuItem>
-              <MenuItem value="tutor">Tutor</MenuItem>
+              <MenuItem value="student">學生案例</MenuItem>
+              <MenuItem value="tutor">導師案例</MenuItem>
             </TextField>
             <TextField
-              label="Category"
+              label="分類"
               name="category"
               value={formData.category}
               onChange={handleChange}
               required
             />
             <TextField
-              label="Sub Category"
+              label="子分類"
               name="subCategory"
               value={formData.subCategory}
               onChange={handleChange}
@@ -173,16 +194,16 @@ const CreateCase: React.FC = () => {
 
             {/* Subjects */}
             <Box>
-              <Typography variant="subtitle1">Subjects</Typography>
+              <Typography variant="subtitle1">科目</Typography>
               <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
                 <TextField
-                  label="Add Subject"
+                  label="新增科目"
                   value={newSubject}
                   onChange={(e) => setNewSubject(e.target.value)}
                   size="small"
                 />
                 <Button variant="outlined" onClick={handleAddSubject}>
-                  Add
+                  新增
                 </Button>
               </Box>
               <Stack direction="row" spacing={1} flexWrap="wrap">
@@ -198,16 +219,16 @@ const CreateCase: React.FC = () => {
 
             {/* Regions */}
             <Box>
-              <Typography variant="subtitle1">Regions</Typography>
+              <Typography variant="subtitle1">地區</Typography>
               <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
                 <TextField
-                  label="Add Region"
+                  label="新增地區"
                   value={newRegion}
                   onChange={(e) => setNewRegion(e.target.value)}
                   size="small"
                 />
                 <Button variant="outlined" onClick={handleAddRegion}>
-                  Add
+                  新增
                 </Button>
               </Box>
               <Stack direction="row" spacing={1} flexWrap="wrap">
@@ -223,16 +244,16 @@ const CreateCase: React.FC = () => {
 
             {/* Sub Regions */}
             <Box>
-              <Typography variant="subtitle1">Sub Regions</Typography>
+              <Typography variant="subtitle1">子地區</Typography>
               <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
                 <TextField
-                  label="Add Sub Region"
+                  label="新增子地區"
                   value={newSubRegion}
                   onChange={(e) => setNewSubRegion(e.target.value)}
                   size="small"
                 />
                 <Button variant="outlined" onClick={handleAddSubRegion}>
-                  Add
+                  新增
                 </Button>
               </Box>
               <Stack direction="row" spacing={1} flexWrap="wrap">
@@ -247,7 +268,7 @@ const CreateCase: React.FC = () => {
             </Box>
 
             <TextField
-              label="Budget"
+              label="預算"
               name="budget"
               type="number"
               value={formData.budget}
@@ -256,18 +277,18 @@ const CreateCase: React.FC = () => {
             />
             <TextField
               select
-              label="Mode"
+              label="教學模式"
               name="mode"
               value={formData.mode}
               onChange={handleChange}
               required
             >
-              <MenuItem value="online">Online</MenuItem>
-              <MenuItem value="offline">Offline</MenuItem>
-              <MenuItem value="hybrid">Hybrid</MenuItem>
+              <MenuItem value="online">網上教學</MenuItem>
+              <MenuItem value="offline">面授教學</MenuItem>
+              <MenuItem value="hybrid">混合教學</MenuItem>
             </TextField>
             <TextField
-              label="Experience"
+              label="經驗要求"
               name="experience"
               value={formData.experience}
               onChange={handleChange}
@@ -282,14 +303,14 @@ const CreateCase: React.FC = () => {
                 disabled={loading}
                 sx={{ mr: 2 }}
               >
-                {loading ? <CircularProgress size={24} /> : 'Create Case'}
+                {loading ? <CircularProgress size={24} /> : '建立案例'}
               </Button>
               <Button
                 variant="outlined"
                 onClick={() => navigate('/cases')}
                 disabled={loading}
               >
-                Cancel
+                取消
               </Button>
             </Box>
           </Box>

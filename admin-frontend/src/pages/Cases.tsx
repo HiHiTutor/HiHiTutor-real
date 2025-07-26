@@ -40,6 +40,28 @@ const getCategoryLabel = (categoryValue: string): string => {
   return categoryMap[categoryValue] || categoryValue;
 };
 
+// 狀態映射函數
+const getStatusLabel = (statusValue: string): string => {
+  const statusMap: { [key: string]: string } = {
+    'open': '開放中',
+    'matched': '已配對',
+    'closed': '已關閉',
+    'pending': '待處理'
+  };
+  
+  return statusMap[statusValue] || statusValue;
+};
+
+// 類型映射函數
+const getTypeLabel = (typeValue: string): string => {
+  const typeMap: { [key: string]: string } = {
+    'student': '學生案例',
+    'tutor': '導師案例'
+  };
+  
+  return typeMap[typeValue] || typeValue;
+};
+
 const Cases: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -70,17 +92,17 @@ const Cases: React.FC = () => {
             setTotalCount(pagination.total);
           } else {
             console.error('Invalid cases data format:', cases);
-            dispatch(setError('Invalid response format'));
+            dispatch(setError('回應格式無效'));
             dispatch(setCases([]));
           }
         } else {
           console.error('Invalid response format:', response.data);
-          dispatch(setError(response.data.message || 'Invalid response format'));
+          dispatch(setError(response.data.message || '回應格式無效'));
           dispatch(setCases([]));
         }
       } catch (error: any) {
         console.error('Error fetching cases:', error);
-        dispatch(setError(error.message || 'Failed to fetch cases'));
+        dispatch(setError(error.message || '獲取案例失敗'));
         dispatch(setCases([]));
       } finally {
         dispatch(setLoading(false));
@@ -145,14 +167,14 @@ const Cases: React.FC = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h4">Cases</Typography>
+        <Typography variant="h4">案例管理</Typography>
         <Button
           variant="contained"
           color="primary"
           onClick={() => navigate('/cases/create')}
           startIcon={<AddIcon />}
         >
-          Create Case
+          建立案例
         </Button>
       </Box>
 
@@ -160,7 +182,7 @@ const Cases: React.FC = () => {
       <Stack spacing={2} sx={{ mb: 3 }}>
         <Box sx={{ display: 'flex', gap: 2 }}>
           <TextField
-            label="Search"
+            label="搜尋"
             variant="outlined"
             size="small"
             value={searchQuery}
@@ -169,31 +191,31 @@ const Cases: React.FC = () => {
           />
           <TextField
             select
-            label="Case Type"
+            label="案例類型"
             variant="outlined"
             size="small"
             value={caseType}
             onChange={(e) => setCaseType(e.target.value as CaseType)}
             sx={{ width: 150 }}
           >
-            <MenuItem value="all">All Cases</MenuItem>
-            <MenuItem value="student">Student Cases</MenuItem>
-            <MenuItem value="tutor">Tutor Cases</MenuItem>
+            <MenuItem value="all">所有案例</MenuItem>
+            <MenuItem value="student">學生案例</MenuItem>
+            <MenuItem value="tutor">導師案例</MenuItem>
           </TextField>
           <TextField
             select
-            label="Status"
+            label="狀態"
             variant="outlined"
             size="small"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as CaseStatus)}
             sx={{ width: 150 }}
           >
-            <MenuItem value="">All Status</MenuItem>
-            <MenuItem value="open">Open</MenuItem>
-            <MenuItem value="matched">Matched</MenuItem>
-            <MenuItem value="closed">Closed</MenuItem>
-            <MenuItem value="pending">Pending</MenuItem>
+            <MenuItem value="">所有狀態</MenuItem>
+            <MenuItem value="open">開放中</MenuItem>
+            <MenuItem value="matched">已配對</MenuItem>
+            <MenuItem value="closed">已關閉</MenuItem>
+            <MenuItem value="pending">待處理</MenuItem>
           </TextField>
         </Box>
       </Stack>
@@ -202,14 +224,14 @@ const Cases: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell>Title</TableCell>
+              <TableCell>編號</TableCell>
+              <TableCell>類型</TableCell>
+              <TableCell>標題</TableCell>
               <TableCell>發佈者ID</TableCell>
-              <TableCell>Category</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Created At</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell>分類</TableCell>
+              <TableCell>狀態</TableCell>
+              <TableCell>建立時間</TableCell>
+              <TableCell>操作</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -223,7 +245,7 @@ const Cases: React.FC = () => {
                 <TableCell>{caseItem.id || caseItem._id}</TableCell>
                 <TableCell>
                   <Chip
-                    label={getCaseType(caseItem)}
+                    label={getTypeLabel(getCaseType(caseItem))}
                     color={getCaseTypeColor(getCaseType(caseItem))}
                     size="small"
                   />
@@ -245,7 +267,7 @@ const Cases: React.FC = () => {
                               {caseItem.studentId.userId}
                             </Button>
                           )
-                        : 'N/A')
+                        : '不適用')
                     : (caseItem.student?.userId
                         ? (
                             <Button
@@ -260,18 +282,18 @@ const Cases: React.FC = () => {
                               {caseItem.student.userId}
                             </Button>
                           )
-                        : 'N/A')}
+                        : '不適用')}
                 </TableCell>
                 <TableCell>{getCategoryLabel(caseItem.category)}</TableCell>
                 <TableCell>
                   <Chip
-                    label={caseItem.status}
+                    label={getStatusLabel(caseItem.status)}
                     color={getStatusColor(caseItem.status)}
                     size="small"
                   />
                 </TableCell>
                 <TableCell>
-                  {new Date(caseItem.createdAt).toLocaleDateString()}
+                  {new Date(caseItem.createdAt).toLocaleDateString('zh-TW')}
                 </TableCell>
                 <TableCell>
                   <Button
@@ -282,7 +304,7 @@ const Cases: React.FC = () => {
                       navigate(`/cases/${caseItem.id}?type=${caseItem.type}`);
                     }}
                   >
-                    View
+                    查看
                   </Button>
                 </TableCell>
               </TableRow>
@@ -297,6 +319,8 @@ const Cases: React.FC = () => {
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
           rowsPerPageOptions={[5, 10, 25, 50]}
+          labelRowsPerPage="每頁行數："
+          labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count}`}
         />
       </TableContainer>
     </Box>
