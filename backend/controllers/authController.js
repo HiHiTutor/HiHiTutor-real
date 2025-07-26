@@ -1083,15 +1083,40 @@ const updateUserProfile = async (req, res) => {
     // 更新用戶資料
     const updates = {};
     
-    // 驗證姓名格式（不允許數字）
+    // 驗證姓名格式（防止電話號碼濫用）
     if (name) {
-      if (/[0-9]/.test(name)) {
+      const trimmedName = name.trim();
+      
+      // 檢查是否包含數字
+      if (/[0-9]/.test(trimmedName)) {
         return res.status(400).json({
           success: false,
           message: '姓名不能包含數字'
         });
       }
-      updates.name = name;
+      
+      // 檢查是否為電話號碼格式
+      if (
+        /^[0-9+\-\s()]+$/.test(trimmedName) || // 純數字和電話符號
+        /^\d{8,}$/.test(trimmedName.replace(/[\s\-\(\)]/g, '')) || // 8位以上數字
+        /^\+?[\d\s\-\(\)]{8,}$/.test(trimmedName) // 國際電話格式
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: '姓名不能是電話號碼格式'
+        });
+      }
+      
+      // 檢查是否為常見的電話號碼關鍵字
+      const phoneKeywords = ['電話', 'phone', 'tel', 'call', 'contact', '聯絡', '聯繫'];
+      if (phoneKeywords.some(keyword => trimmedName.toLowerCase().includes(keyword))) {
+        return res.status(400).json({
+          success: false,
+          message: '姓名不能包含電話相關關鍵字'
+        });
+      }
+      
+      updates.name = trimmedName;
     }
     if (email) updates.email = email;
     if (phone) updates.phone = phone;

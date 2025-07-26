@@ -350,6 +350,18 @@ export default function EditProfilePage() {
                     const filteredValue = e.target.value.replace(/[0-9]/g, '');
                     setFormData({ ...formData, name: filteredValue });
                   }}
+                  onBlur={(e) => {
+                    // 額外檢查：如果輸入的內容看起來像電話號碼，清空並提示
+                    const value = e.target.value.trim();
+                    if (value && (
+                      /^[0-9+\-\s()]+$/.test(value) || // 純數字和電話符號
+                      /^\d{8,}$/.test(value.replace(/[\s\-\(\)]/g, '')) || // 8位以上數字
+                      /^\+?[\d\s\-\(\)]{8,}$/.test(value) // 國際電話格式
+                    )) {
+                      setFormData({ ...formData, name: '' });
+                      alert('姓名不能是電話號碼格式');
+                    }
+                  }}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   required
                   placeholder="請輸入姓名（不包含數字）"
