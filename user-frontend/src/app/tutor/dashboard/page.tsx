@@ -708,6 +708,22 @@ export default function TutorDashboardPage() {
                 })}
                 placeholder="請填寫你的專業資格，每行一個...&#10;例如：&#10;香港大學教育學士&#10;IELTS 8.0&#10;Registered Teacher"
                 rows={4}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const textarea = e.target as HTMLTextAreaElement;
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+                    const value = textarea.value;
+                    const newValue = value.substring(0, start) + '\n' + value.substring(end);
+                    textarea.value = newValue;
+                    textarea.selectionStart = textarea.selectionEnd = start + 1;
+                    
+                    // 觸發 onChange 事件
+                    const event = new Event('input', { bubbles: true });
+                    textarea.dispatchEvent(event);
+                  }
+                }}
               />
               <p className="text-sm text-gray-500">
                 請每行填寫一個專業資格，例如：學歷、證書、認證等
@@ -740,7 +756,7 @@ export default function TutorDashboardPage() {
               onClick={() => handleSectionSave('teaching', {
                 subjects: formData.subjects,
                 teachingMethods: formData.teachingMethods,
-                teachingAreas: formData.teachingAreas,
+                teachingAreas: getAllSelectedSubRegions(),
                 availableTime: formData.availableTime,
                 hourlyRate: formData.hourlyRate,
               })}
@@ -804,49 +820,19 @@ export default function TutorDashboardPage() {
               </div>
             </div>
 
-            {/* 教學模式 */}
+            {/* 上堂地點 */}
             <div className="space-y-4">
-              <Label>教學模式</Label>
-              <Select value={selectedTeachingMode} onValueChange={handleTeachingModeChange}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="選擇教學模式" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TEACHING_MODE_OPTIONS.map((mode) => (
-                    <SelectItem key={mode.value} value={mode.value}>
-                      {mode.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* 已選教學模式 */}
-              <div className="flex flex-wrap gap-2">
-                {formData.teachingMethods.map((method) => {
-                  const methodLabel = TEACHING_MODE_OPTIONS.find(m => m.value === method)?.label || method;
-                  return (
-                    <Badge key={method} variant="secondary">
-                      {methodLabel}
-                    </Badge>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* 上堂地點（面授或皆可時顯示） */}
-            {(selectedTeachingMode === 'in-person' || selectedTeachingMode === 'both') && (
+              <Label>上堂地點</Label>
               <div className="space-y-4">
-                <Label>上堂地點</Label>
-                
                 {/* 地區選擇 */}
                 <div className="space-y-2">
-                  <Label className="text-sm">地區</Label>
+                  <Label>選擇地區</Label>
                   <Select value={selectedRegion} onValueChange={handleRegionChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="選擇地區" />
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="選擇主要地區" />
                     </SelectTrigger>
                     <SelectContent>
-                      {prepareRegionOptions().map((region) => (
+                      {REGION_OPTIONS.map((region) => (
                         <SelectItem key={region.value} value={region.value}>
                           {region.label}
                         </SelectItem>
@@ -855,12 +841,12 @@ export default function TutorDashboardPage() {
                   </Select>
                 </div>
 
-                {/* 子地區選擇（僅當選擇了具體地區且不是全港時顯示） */}
-                {selectedRegion && selectedRegion !== 'all-hong-kong' && (
+                {/* 子地區選擇 */}
+                {selectedRegion && (
                   <div className="space-y-2">
-                    <Label className="text-sm">子地區（可多選）</Label>
+                    <Label>選擇子地區</Label>
                     <div className="grid grid-cols-2 gap-2">
-                      {prepareSubRegionOptions(selectedRegion).map((subRegion) => (
+                      {REGION_OPTIONS.find(r => r.value === selectedRegion)?.regions?.map((subRegion: { value: string; label: string }) => (
                         <div key={subRegion.value} className="flex items-center space-x-2">
                           <Checkbox
                             id={subRegion.value}
@@ -877,38 +863,46 @@ export default function TutorDashboardPage() {
                 )}
 
                 {/* 已選地區顯示 */}
-                {(selectedRegion === 'all-hong-kong' || getAllSelectedSubRegions().length > 0) && (
-                  <div className="space-y-2">
-                    <Label className="text-sm">已選地區</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedRegion === 'all-hong-kong' ? (
-                        <Badge variant="secondary">全港</Badge>
-                      ) : (
-                        getAllSelectedSubRegions().map((subRegion: string) => {
-                          // 找到這個子地區屬於哪個地區
-                          let regionLabel = '';
-                          let subRegionLabel = '';
-                          for (const [regionKey, subRegions] of Object.entries(selectedSubRegionsByRegion)) {
-                            if (subRegions.includes(subRegion)) {
-                              const region = REGION_OPTIONS.find(r => r.value === regionKey);
-                              const subRegionOption = region?.regions.find(r => r.value === subRegion);
-                              regionLabel = region?.label || regionKey;
-                              subRegionLabel = subRegionOption?.label || subRegion;
-                              break;
-                            }
-                          }
-                                                      return (
-                              <Badge key={subRegion} variant="secondary">
-                                {regionLabel} {'>'} {subRegionLabel}
-                              </Badge>
-                            );
-                        })
-                      )}
-                    </div>
+                {getAllSelectedSubRegions().length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {getAllSelectedSubRegions().map((subRegion) => {
+                      const regionLabel = REGION_OPTIONS.flatMap(r => r.regions || []).find(sr => sr.value === subRegion)?.label || subRegion;
+                      return (
+                        <Badge key={subRegion} variant="secondary">
+                          {regionLabel}
+                        </Badge>
+                      );
+                    })}
                   </div>
                 )}
               </div>
-            )}
+            </div>
+
+            {/* 網上課程選項 */}
+            <div className="space-y-4">
+              <Label>網上課程</Label>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="online-teaching"
+                  checked={formData.teachingMethods.includes('online')}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      setFormData(prev => ({
+                        ...prev,
+                        teachingMethods: [...prev.teachingMethods, 'online']
+                      }));
+                    } else {
+                      setFormData(prev => ({
+                        ...prev,
+                        teachingMethods: prev.teachingMethods.filter(m => m !== 'online')
+                      }));
+                    }
+                  }}
+                />
+                <Label htmlFor="online-teaching">提供網上課程</Label>
+              </div>
+            </div>
+
 
             {/* 上堂時間 */}
             <div className="space-y-4">
@@ -1147,13 +1141,57 @@ export default function TutorDashboardPage() {
                     formData.documents.educationCert && (
                       <div className="space-y-2">
                         <p className="text-sm text-green-600">已上傳 1 個文件</p>
-                        <div className="relative w-full h-48 border rounded-lg overflow-hidden">
-                          <Image
-                            src={formData.documents.educationCert}
-                            alt="證書"
-                            fill
-                            className="object-cover"
-                          />
+                        <div className="relative w-full h-48 border rounded-lg overflow-hidden bg-gray-50">
+                          {(() => {
+                            const fileUrl = formData.documents.educationCert as string;
+                            const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(fileUrl);
+                            const isPdf = /\.pdf$/i.test(fileUrl);
+                            
+                            if (isImage) {
+                              return (
+                                <Image
+                                  src={fileUrl}
+                                  alt="證書"
+                                  fill
+                                  className="object-cover"
+                                />
+                              );
+                            } else if (isPdf) {
+                              return (
+                                <div className="flex items-center justify-center h-full">
+                                  <div className="text-center">
+                                    <div className="text-4xl mb-2">📄</div>
+                                    <div className="text-sm text-gray-600">PDF 文件</div>
+                                    <a 
+                                      href={fileUrl} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="text-blue-600 hover:text-blue-800 text-sm underline"
+                                    >
+                                      查看文件
+                                    </a>
+                                  </div>
+                                </div>
+                              );
+                            } else {
+                              return (
+                                <div className="flex items-center justify-center h-full">
+                                  <div className="text-center">
+                                    <div className="text-4xl mb-2">📎</div>
+                                    <div className="text-sm text-gray-600">文件</div>
+                                    <a 
+                                      href={fileUrl} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="text-blue-600 hover:text-blue-800 text-sm underline"
+                                    >
+                                      查看文件
+                                    </a>
+                                  </div>
+                                </div>
+                              );
+                            }
+                          })()}
                         </div>
                         <div className="flex items-center space-x-2">
                           <Checkbox
