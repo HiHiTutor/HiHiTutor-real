@@ -67,6 +67,7 @@ interface TutorProfile {
     idCard: string;
     educationCert: string | string[];
   };
+  publicCertificates?: string[];
   profileStatus?: 'pending' | 'approved' | 'rejected';
   remarks?: string;
 }
@@ -373,9 +374,16 @@ export default function TutorDashboardPage() {
     );
   };
 
-  const handleSubjectSave = () => {
-    setFormData((prev: TutorProfile) => ({ ...prev, subjects: newSubjects }));
-    setShowSubjectEditor(false);
+  const handleSubjectSave = async () => {
+    try {
+      await handleSectionSave('subjects', {
+        subjects: newSubjects
+      });
+      setFormData((prev: TutorProfile) => ({ ...prev, subjects: newSubjects }));
+      setShowSubjectEditor(false);
+    } catch (error) {
+      console.error('保存科目失敗:', error);
+    }
   };
 
   // 教學模式相關函數
@@ -441,8 +449,15 @@ export default function TutorDashboardPage() {
     setNewAvailableTimes((prev: string[]) => prev.filter(t => t !== timeSlot));
   };
 
-  const handleTimeSave = () => {
-    setFormData((prev: TutorProfile) => ({ ...prev, availableTime: newAvailableTimes }));
+  const handleTimeSave = async () => {
+    try {
+      await handleSectionSave('time', {
+        availableTime: newAvailableTimes
+      });
+      setFormData((prev: TutorProfile) => ({ ...prev, availableTime: newAvailableTimes }));
+    } catch (error) {
+      console.error('保存時間失敗:', error);
+    }
   };
 
   // 證書公開性切換
@@ -529,7 +544,7 @@ export default function TutorDashboardPage() {
                 experience: formData.experience,
                 examResults: formData.examResults,
                 qualifications: formData.qualifications,
-                courseFeatures: formData.courseFeatures,
+                avatar: formData.avatar,
               })}
               disabled={savingSection === 'personal'}
             >
@@ -729,41 +744,13 @@ export default function TutorDashboardPage() {
                 請每行填寫一個專業資格，例如：學歷、證書、認證等
               </p>
             </div>
-
-            {/* 課程特點 */}
-            <div className="space-y-2">
-              <Label htmlFor="courseFeatures">課程特點</Label>
-              <Textarea
-                id="courseFeatures"
-                value={formData.courseFeatures}
-                onChange={(e) => setFormData({ ...formData, courseFeatures: e.target.value })}
-                placeholder="請描述你的課程特點，例如：&#10;- 互動式教學&#10;- 個性化學習計劃&#10;- 豐富的練習材料&#10;- 定期進度評估"
-                rows={4}
-              />
-              <p className="text-sm text-gray-500">
-                描述你的教學特色和課程優勢，讓學生更了解你的教學風格
-              </p>
-            </div>
           </CardContent>
         </Card>
 
         {/* 教學資料 */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader>
             <CardTitle>教學資料</CardTitle>
-            <Button
-              type="button"
-              onClick={() => handleSectionSave('teaching', {
-                subjects: formData.subjects,
-                teachingMethods: formData.teachingMethods,
-                teachingAreas: getAllSelectedSubRegions(),
-                availableTime: formData.availableTime,
-                hourlyRate: formData.hourlyRate,
-              })}
-              disabled={savingSection === 'teaching'}
-            >
-              {savingSection === 'teaching' ? '保存中...' : '保存'}
-            </Button>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* 教授科目 */}
@@ -992,6 +979,23 @@ export default function TutorDashboardPage() {
                 required
               />
             </div>
+
+            {/* 保存按鈕 */}
+            <div className="flex justify-end pt-4">
+              <Button
+                type="button"
+                onClick={() => handleSectionSave('teaching', {
+                  subjects: formData.subjects,
+                  teachingMethods: formData.teachingMethods,
+                  teachingAreas: getAllSelectedSubRegions(),
+                  availableTime: formData.availableTime,
+                  hourlyRate: formData.hourlyRate,
+                })}
+                disabled={savingSection === 'teaching'}
+              >
+                {savingSection === 'teaching' ? '保存中...' : '保存教學資料'}
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
@@ -1030,10 +1034,14 @@ export default function TutorDashboardPage() {
                 id="courseFeatures"
                 value={formData.courseFeatures}
                 onChange={(e) => setFormData({ ...formData, courseFeatures: e.target.value })}
-                placeholder="請描述你的課程特點..."
-                required
+                placeholder="請描述你的課程特點，例如：&#10;- 互動式教學&#10;- 個性化學習計劃&#10;- 豐富的練習材料&#10;- 定期進度評估"
+                rows={4}
               />
+              <p className="text-sm text-gray-500">
+                描述你的教學特色和課程優勢，讓學生更了解你的教學風格
+              </p>
             </div>
+
           </CardContent>
         </Card>
 
@@ -1045,6 +1053,7 @@ export default function TutorDashboardPage() {
               type="button"
               onClick={() => handleSectionSave('documents', {
                 documents: formData.documents,
+                publicCertificates: publicCertificates,
               })}
               disabled={savingSection === 'documents'}
             >
