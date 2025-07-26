@@ -14,81 +14,17 @@ import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { casesAPI } from '../services/api';
 import { setSelectedCase, setLoading, setError } from '../store/slices/caseSlice';
 import { Case } from '../types/case';
-
-// 分類映射函數
-const getCategoryLabel = (categoryValue: string): string => {
-  const categoryMap: { [key: string]: string } = {
-    'early-childhood': '幼兒教育',
-    'primary-secondary': '中小學教育',
-    'primary': '小學教育',
-    'secondary': '中學教育',
-    'interest': '興趣班',
-    'tertiary': '大專補習課程',
-    'adult': '成人教育',
-    'unlimited': '不限'
-  };
-  
-  return categoryMap[categoryValue] || categoryValue;
-};
-
-// 子分類映射函數
-const getSubCategoryLabel = (subCategoryValue: string): string => {
-  const subCategoryMap: { [key: string]: string } = {
-    'one-on-one': '一對一',
-    'small-group': '小班教學',
-    'large-center': '補習社',
-    'unlimited': '不限'
-  };
-  
-  return subCategoryMap[subCategoryValue] || subCategoryValue;
-};
-
-// 狀態映射函數
-const getStatusLabel = (statusValue: string): string => {
-  const statusMap: { [key: string]: string } = {
-    'open': '開放中',
-    'matched': '已配對',
-    'closed': '已關閉',
-    'pending': '待處理'
-  };
-  
-  return statusMap[statusValue] || statusValue;
-};
-
-// 類型映射函數
-const getTypeLabel = (typeValue: string): string => {
-  const typeMap: { [key: string]: string } = {
-    'student': '學生案例',
-    'tutor': '導師案例'
-  };
-  
-  return typeMap[typeValue] || typeValue;
-};
-
-// 模式映射函數
-const getModeLabel = (modeValue: string): string => {
-  const modeMap: { [key: string]: string } = {
-    'online': '網上教學',
-    'offline': '面授教學',
-    'hybrid': '混合教學',
-    'unlimited': '不限'
-  };
-  
-  return modeMap[modeValue] || modeValue;
-};
-
-// 經驗映射函數
-const getExperienceLabel = (experienceValue: string): string => {
-  const experienceMap: { [key: string]: string } = {
-    'beginner': '初學者',
-    'intermediate': '中級',
-    'advanced': '高級',
-    'expert': '專家級',
-    'unlimited': '不限'
-  };
-  
-  return experienceMap[experienceValue] || experienceValue;
-};
+import {
+  getCategoryLabel,
+  getSubCategoryLabel,
+  getStatusLabel,
+  getTypeLabel,
+  getModeLabel,
+  getExperienceLabel,
+  getSubjectLabel,
+  getRegionLabel,
+  getSubRegionLabel,
+} from '../utils/translations';
 
 const CaseDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -212,7 +148,7 @@ const CaseDetail: React.FC = () => {
             </Typography>
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
               {selectedCase.subjects?.map((subject) => (
-                <Chip key={subject} label={subject} />
+                <Chip key={subject} label={getSubjectLabel(subject)} />
               ))}
             </Box>
           </Grid>
@@ -223,7 +159,7 @@ const CaseDetail: React.FC = () => {
             </Typography>
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
               {selectedCase.regions?.map((region) => (
-                <Chip key={region} label={region} />
+                <Chip key={region} label={getRegionLabel(region)} />
               ))}
             </Box>
           </Grid>
@@ -234,7 +170,7 @@ const CaseDetail: React.FC = () => {
             </Typography>
             <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
               {selectedCase.subRegions?.map((subRegion) => (
-                <Chip key={subRegion} label={subRegion} />
+                <Chip key={subRegion} label={getSubRegionLabel(subRegion)} />
               ))}
             </Box>
           </Grid>

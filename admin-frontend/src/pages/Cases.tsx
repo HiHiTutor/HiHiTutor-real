@@ -23,44 +23,11 @@ import { casesAPI } from '../services/api';
 import { setCases, setLoading, setError } from '../store/slices/caseSlice';
 import { Case, CaseResponse, CaseStatus, CaseType } from '../types/case';
 import AddIcon from '@mui/icons-material/Add';
-
-// 分類映射函數
-const getCategoryLabel = (categoryValue: string): string => {
-  const categoryMap: { [key: string]: string } = {
-    'early-childhood': '幼兒教育',
-    'primary-secondary': '中小學教育',
-    'primary': '小學教育',
-    'secondary': '中學教育',
-    'interest': '興趣班',
-    'tertiary': '大專補習課程',
-    'adult': '成人教育',
-    'unlimited': '不限'
-  };
-  
-  return categoryMap[categoryValue] || categoryValue;
-};
-
-// 狀態映射函數
-const getStatusLabel = (statusValue: string): string => {
-  const statusMap: { [key: string]: string } = {
-    'open': '開放中',
-    'matched': '已配對',
-    'closed': '已關閉',
-    'pending': '待處理'
-  };
-  
-  return statusMap[statusValue] || statusValue;
-};
-
-// 類型映射函數
-const getTypeLabel = (typeValue: string): string => {
-  const typeMap: { [key: string]: string } = {
-    'student': '學生案例',
-    'tutor': '導師案例'
-  };
-  
-  return typeMap[typeValue] || typeValue;
-};
+import {
+  getCategoryLabel,
+  getStatusLabel,
+  getTypeLabel,
+} from '../utils/translations';
 
 const Cases: React.FC = () => {
   const navigate = useNavigate();

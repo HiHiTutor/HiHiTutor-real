@@ -1,0 +1,172 @@
+// 分類映射函數
+export const getCategoryLabel = (categoryValue: string): string => {
+  const categoryMap: { [key: string]: string } = {
+    'early-childhood': '幼兒教育',
+    'primary-secondary': '中小學教育',
+    'primary': '小學教育',
+    'secondary': '中學教育',
+    'interest': '興趣班',
+    'tertiary': '大專補習課程',
+    'adult': '成人教育',
+    'unlimited': '不限'
+  };
+  
+  return categoryMap[categoryValue] || categoryValue;
+};
+
+// 子分類映射函數
+export const getSubCategoryLabel = (subCategoryValue: string): string => {
+  const subCategoryMap: { [key: string]: string } = {
+    'one-on-one': '一對一',
+    'small-group': '小班教學',
+    'large-center': '補習社',
+    'unlimited': '不限'
+  };
+  
+  return subCategoryMap[subCategoryValue] || subCategoryValue;
+};
+
+// 狀態映射函數
+export const getStatusLabel = (statusValue: string): string => {
+  const statusMap: { [key: string]: string } = {
+    'open': '開放中',
+    'matched': '已配對',
+    'closed': '已關閉',
+    'pending': '待處理'
+  };
+  
+  return statusMap[statusValue] || statusValue;
+};
+
+// 類型映射函數
+export const getTypeLabel = (typeValue: string): string => {
+  const typeMap: { [key: string]: string } = {
+    'student': '學生案例',
+    'tutor': '導師案例'
+  };
+  
+  return typeMap[typeValue] || typeValue;
+};
+
+// 模式映射函數
+export const getModeLabel = (modeValue: string): string => {
+  const modeMap: { [key: string]: string } = {
+    'online': '網上教學',
+    'offline': '面授教學',
+    'hybrid': '混合教學',
+    'unlimited': '不限'
+  };
+  
+  return modeMap[modeValue] || modeValue;
+};
+
+// 經驗映射函數
+export const getExperienceLabel = (experienceValue: string): string => {
+  const experienceMap: { [key: string]: string } = {
+    'beginner': '初學者',
+    'intermediate': '中級',
+    'advanced': '高級',
+    'expert': '專家級',
+    'unlimited': '不限'
+  };
+  
+  return experienceMap[experienceValue] || experienceValue;
+};
+
+// 科目映射函數
+export const getSubjectLabel = (subjectValue: string): string => {
+  const subjectMap: { [key: string]: string } = {
+    'mathematics': '數學',
+    'english': '英文',
+    'chinese': '中文',
+    'physics': '物理',
+    'chemistry': '化學',
+    'biology': '生物',
+    'history': '歷史',
+    'geography': '地理',
+    'economics': '經濟',
+    'accounting': '會計',
+    'computer-science': '電腦科學',
+    'programming': '程式設計',
+    'music': '音樂',
+    'art': '美術',
+    'sports': '體育',
+    'cooking': '烹飪',
+    'dance': '舞蹈',
+    'photography': '攝影',
+    'languages': '語言學習',
+    'test-preparation': '考試準備',
+    'unlimited': '不限'
+  };
+  
+  return subjectMap[subjectValue] || subjectValue;
+};
+
+// 地區映射函數
+export const getRegionLabel = (regionValue: string): string => {
+  const regionMap: { [key: string]: string } = {
+    'hong-kong-island': '香港島',
+    'kowloon': '九龍',
+    'new-territories': '新界',
+    'islands': '離島',
+    'central-western': '中西區',
+    'eastern': '東區',
+    'southern': '南區',
+    'wan-chai': '灣仔區',
+    'sham-shui-po': '深水埗區',
+    'kowloon-city': '九龍城區',
+    'kwun-tong': '觀塘區',
+    'wong-tai-sin': '黃大仙區',
+    'yau-tsim-mong': '油尖旺區',
+    'islands-district': '離島區',
+    'kwai-tsing': '葵青區',
+    'north': '北區',
+    'sai-kung': '西貢區',
+    'sha-tin': '沙田區',
+    'tai-po': '大埔區',
+    'tsuen-wan': '荃灣區',
+    'tuen-mun': '屯門區',
+    'yuen-long': '元朗區',
+    'unlimited': '不限'
+  };
+  
+  return regionMap[regionValue] || regionValue;
+};
+
+// 子地區映射函數
+export const getSubRegionLabel = (subRegionValue: string): string => {
+  const subRegionMap: { [key: string]: string } = {
+    'central': '中環',
+    'admiralty': '金鐘',
+    'sheung-wan': '上環',
+    'western': '西環',
+    'causeway-bay': '銅鑼灣',
+    'wan-chai': '灣仔',
+    'north-point': '北角',
+    'quarry-bay': '鰂魚涌',
+    'sai-wan-ho': '西灣河',
+    'shau-kei-wan': '筲箕灣',
+    'chai-wan': '柴灣',
+    'aberdeen': '香港仔',
+    'ap-lei-chau': '鴨脷洲',
+    'stanley': '赤柱',
+    're pulse-bay': '淺水灣',
+    'mong-kok': '旺角',
+    'tsim-sha-tsui': '尖沙咀',
+    'jordan': '佐敦',
+    'yau-ma-tei': '油麻地',
+    'prince-edward': '太子',
+    'sham-shui-po': '深水埗',
+    'cheung-sha-wan': '長沙灣',
+    'lai-chi-kok': '荔枝角',
+    'mei-foo': '美孚',
+    'lai-king': '荔景',
+    'kwai-fong': '葵芳',
+    'kwai-chung': '葵涌',
+    'tsuen-wan': '荃灣',
+    'tsuen-wan-west': '荃灣西',
+    'unlimited': '不限'
+  };
+  
+  return subRegionMap[subRegionValue] || subRegionValue;
+}; 

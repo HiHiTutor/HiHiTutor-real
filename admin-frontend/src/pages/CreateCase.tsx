@@ -13,27 +13,10 @@ import {
   Stack,
 } from '@mui/material';
 import { casesAPI } from '../services/api';
-
-// 類型映射函數
-const getTypeLabel = (typeValue: string): string => {
-  const typeMap: { [key: string]: string } = {
-    'student': '學生案例',
-    'tutor': '導師案例'
-  };
-  
-  return typeMap[typeValue] || typeValue;
-};
-
-// 模式映射函數
-const getModeLabel = (modeValue: string): string => {
-  const modeMap: { [key: string]: string } = {
-    'online': '網上教學',
-    'offline': '面授教學',
-    'hybrid': '混合教學'
-  };
-  
-  return modeMap[modeValue] || modeValue;
-};
+import {
+  getTypeLabel,
+  getModeLabel,
+} from '../utils/translations';
 
 const CreateCase: React.FC = () => {
   const navigate = useNavigate();
