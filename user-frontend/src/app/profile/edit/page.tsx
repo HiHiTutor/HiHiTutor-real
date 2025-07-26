@@ -294,7 +294,7 @@ export default function EditProfilePage() {
       }
     } catch (err) {
       console.error('更新失敗:', err);
-      setError('更新資料時發生錯誤');
+      setError(err instanceof Error ? err.message : '更新資料時發生錯誤');
     } finally {
       setSaving(false);
     }
