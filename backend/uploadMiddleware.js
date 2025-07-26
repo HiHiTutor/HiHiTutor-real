@@ -99,7 +99,8 @@ const uploadToS3 = async (req, res) => {
       
       if (tokenUserId && tokenUserId !== 'unknown') {
         // 查詢用戶資料以取得 userNumber
-        const user = await User.findById(tokenUserId);
+        // 注意：這裡的 tokenUserId 是字符串格式的 userId，不是 MongoDB 的 _id
+        const user = await User.findOne({ userId: tokenUserId });
         if (user && user.userId) {
           // 判斷上傳類型
           let uploadType = 'general';
@@ -111,7 +112,7 @@ const uploadToS3 = async (req, res) => {
 
           // 建立 UploadLog 記錄
           const uploadLog = new UploadLog({
-            userId: tokenUserId,
+            userId: user._id, // 使用 MongoDB 的 ObjectId
             userNumber: user.userId,
             fileUrl: url,
             type: uploadType
@@ -119,7 +120,7 @@ const uploadToS3 = async (req, res) => {
 
           await uploadLog.save();
           console.log('✅ UploadLog 記錄已建立:', {
-            userId: tokenUserId,
+            userId: user._id,
             userNumber: user.userId,
             fileUrl: url,
             type: uploadType
