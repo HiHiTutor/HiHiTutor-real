@@ -124,7 +124,21 @@ const UserDetail: React.FC = () => {
       experience: '',
       specialties: [],
       documents: [],
-      applicationStatus: 'pending'
+      applicationStatus: 'pending',
+      gender: undefined,
+      birthDate: '',
+      teachingExperienceYears: 0,
+      educationLevel: '',
+      subjects: [],
+      examResults: [],
+      teachingAreas: [],
+      availableTime: [],
+      teachingMethods: [],
+      classType: [],
+      sessionRate: 0,
+      introduction: '',
+      courseFeatures: '',
+      avatarUrl: ''
     },
     subjects: [],
     teachingAreas: [],
@@ -710,6 +724,114 @@ const UserDetail: React.FC = () => {
                     </Grid>
                     <Grid item xs={8}>
                       <Typography>HK$ {selectedUser.hourlyRate}</Typography>
+                    </Grid>
+                  </>
+                )}
+                {/* 出生日期 */}
+                {selectedUser.tutorProfile.birthDate && (
+                  <>
+                    <Grid item xs={4}>
+                      <Typography color="textSecondary">出生日期</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Typography>{new Date(selectedUser.tutorProfile.birthDate).toLocaleDateString('zh-TW')}</Typography>
+                    </Grid>
+                  </>
+                )}
+                {/* 相關科目公開試成績 */}
+                {selectedUser.tutorProfile.examResults && selectedUser.tutorProfile.examResults.length > 0 && (
+                  <>
+                    <Grid item xs={4}>
+                      <Typography color="textSecondary">公開試成績</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {selectedUser.tutorProfile.examResults.map((result, idx) => (
+                          <Chip key={idx} label={typeof result === 'string' ? result : `${result.subject || ''} ${result.grade || ''}`.trim()} size="small" variant="outlined" />
+                        ))}
+                      </Box>
+                    </Grid>
+                  </>
+                )}
+                {/* 專業資格 */}
+                {selectedUser.qualifications && selectedUser.qualifications.length > 0 && (
+                  <>
+                    <Grid item xs={4}>
+                      <Typography color="textSecondary">專業資格</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {selectedUser.qualifications.map((qual, idx) => (
+                          <Chip key={idx} label={qual} size="small" variant="outlined" />
+                        ))}
+                      </Box>
+                    </Grid>
+                  </>
+                )}
+                {/* 課程特點 */}
+                {selectedUser.tutorProfile.courseFeatures && (
+                  <>
+                    <Grid item xs={4}>
+                      <Typography color="textSecondary">課程特點</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Typography>{selectedUser.tutorProfile.courseFeatures}</Typography>
+                    </Grid>
+                  </>
+                )}
+                {/* 教學模式 */}
+                {selectedUser.tutorProfile.teachingMethods && selectedUser.tutorProfile.teachingMethods.length > 0 && (
+                  <>
+                    <Grid item xs={4}>
+                      <Typography color="textSecondary">教學模式</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {selectedUser.tutorProfile.teachingMethods.map((method, idx) => (
+                          <Chip key={idx} label={method} size="small" variant="outlined" />
+                        ))}
+                      </Box>
+                    </Grid>
+                  </>
+                )}
+                {/* 上堂地點 */}
+                {selectedUser.tutorProfile.teachingAreas && selectedUser.tutorProfile.teachingAreas.length > 0 && (
+                  <>
+                    <Grid item xs={4}>
+                      <Typography color="textSecondary">上堂地點</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {selectedUser.tutorProfile.teachingAreas.map((area, idx) => (
+                          <Chip key={idx} label={area} size="small" variant="outlined" />
+                        ))}
+                      </Box>
+                    </Grid>
+                  </>
+                )}
+                {/* 上堂時間 */}
+                {selectedUser.tutorProfile.availableTime && selectedUser.tutorProfile.availableTime.length > 0 && (
+                  <>
+                    <Grid item xs={4}>
+                      <Typography color="textSecondary">上堂時間</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {selectedUser.tutorProfile.availableTime.map((time, idx) => (
+                          <Chip key={idx} label={typeof time === 'string' ? time : `${time.day || ''} ${time.time || ''}`.trim()} size="small" variant="outlined" />
+                        ))}
+                      </Box>
+                    </Grid>
+                  </>
+                )}
+                {/* 個人簡介 */}
+                {selectedUser.tutorProfile.introduction && (
+                  <>
+                    <Grid item xs={4}>
+                      <Typography color="textSecondary">個人簡介</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Typography>{selectedUser.tutorProfile.introduction}</Typography>
                     </Grid>
                   </>
                 )}
