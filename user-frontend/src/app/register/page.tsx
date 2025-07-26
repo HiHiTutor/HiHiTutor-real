@@ -277,7 +277,7 @@ export default function RegisterPage() {
                   value={formData.phone}
                   onChange={handleChange}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-yellow-400 focus:border-yellow-400"
-                  placeholder="請輸入whatsapp電話號碼"
+                  placeholder="請輸入可使用 WhatsApp 的電話號碼"
                   disabled={verificationSent}
                 />
               </div>
@@ -319,7 +319,7 @@ export default function RegisterPage() {
                     {verificationSent ? '驗證中...' : '發送中...'}
                   </div>
                 ) : (
-                  verificationSent ? '驗證碼確認' : '傳送驗證碼'
+                  verificationSent ? '驗證碼確認' : '傳送 SMS 驗證碼'
                 )}
               </button>
             </div>
