@@ -654,12 +654,12 @@ const forgotPassword = async (req, res) => {
     ]
   });
 
-  // 無論用戶是否存在，都返回成功訊息（避免帳號資訊洩漏）
+  // 檢查用戶是否存在
   if (!user) {
-    console.log(`📧 請求重設密碼：identifier ${identifier} 不存在，但仍返回成功訊息`);
-    return res.status(200).json({
-      success: true,
-      message: '如果該帳號已註冊，重設密碼連結將發送到您的信箱'
+    console.log(`📧 請求重設密碼：identifier ${identifier} 不存在`);
+    return res.status(404).json({
+      success: false,
+      message: '請填寫正確登入資訊'
     });
   }
 

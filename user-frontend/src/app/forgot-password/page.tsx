@@ -27,7 +27,7 @@ export default function ForgotPassword() {
       if (response.ok) {
         setMessage('重設密碼連結已發送到您的電郵信箱。');
       } else {
-        setMessage(data.message || '重設密碼請求失敗，請稍後再試。');
+        setMessage(data.message || '請填寫正確登入資訊');
       }
     } catch (error) {
       setMessage('發生錯誤，請稍後再試。');
