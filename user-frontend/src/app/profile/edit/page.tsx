@@ -345,9 +345,14 @@ export default function EditProfilePage() {
                   type="text"
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) => {
+                    // 過濾掉數字，只允許文字、空格和特殊字符
+                    const filteredValue = e.target.value.replace(/[0-9]/g, '');
+                    setFormData({ ...formData, name: filteredValue });
+                  }}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                   required
+                  placeholder="請輸入姓名（不包含數字）"
                 />
               </div>
 

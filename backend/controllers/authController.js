@@ -1082,7 +1082,17 @@ const updateUserProfile = async (req, res) => {
 
     // 更新用戶資料
     const updates = {};
-    if (name) updates.name = name;
+    
+    // 驗證姓名格式（不允許數字）
+    if (name) {
+      if (/[0-9]/.test(name)) {
+        return res.status(400).json({
+          success: false,
+          message: '姓名不能包含數字'
+        });
+      }
+      updates.name = name;
+    }
     if (email) updates.email = email;
     if (phone) updates.phone = phone;
     
