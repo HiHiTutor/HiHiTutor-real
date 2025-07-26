@@ -778,6 +778,17 @@ const getAllTutors = async (req, res) => {
               query['tutorProfile.subjects'] = { $in: subjectArray };
               console.log(`🔍 直接使用科目過濾: ${subjectArray.join(', ')}`);
             }
+          } else {
+            // 沒有指定分類時，查詢所有導師（包括 interest 分類）
+            console.log('🎯 沒有指定分類，查詢所有導師');
+            
+            // 如果沒有分類過濾，但有科目過濾，直接使用科目過濾
+            if (subjects) {
+              const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
+              query['tutorProfile.subjects'] = { $in: subjectArray };
+              console.log(`🔍 直接使用科目過濾: ${subjectArray.join(', ')}`);
+            }
+            // 如果沒有科目過濾，也不添加任何科目限制，查詢所有導師
           }
           
           console.log('🔍 查詢條件:', JSON.stringify(query, null, 2));
@@ -790,12 +801,24 @@ const getAllTutors = async (req, res) => {
               .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId');
           } else {
             console.log('📊 普通查詢：限制數量');
-            dbTutors = await User.find(query)
-              .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId')
-              .limit(parseInt(limit) || 50);
+            // 檢查是否為導師列表頁面（沒有其他篩選條件）
+            const isTutorListPage = !limit && !featured && !search && !subjects && !regions && !modes && !category;
+            
+            if (isTutorListPage) {
+              console.log('🎯 導師列表頁面：unlimited，顯示所有導師');
+              dbTutors = await User.find(query)
+                .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId');
+            } else {
+              // 其他頁面使用預設限制，過萬個才考慮限制
+              const limitNum = parseInt(limit) || 10000;
+              console.log(`📊 使用限制: ${limitNum} (導師列表頁面: ${isTutorListPage})`);
+              dbTutors = await User.find(query)
+                .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId')
+                .limit(limitNum);
+            }
           }
           
-          // 按優先級排序：VIP > 置頂 > 普通，然後按評分排序
+          // 按優先級排序：VIP > 置頂 > 評分 > 註冊時間
           const sortedTutors = dbTutors.sort((a, b) => {
             // 首先按 VIP 狀態排序
             if (a.isVip && !b.isVip) return -1;
@@ -805,8 +828,12 @@ const getAllTutors = async (req, res) => {
             if (a.isTop && !b.isTop) return -1;
             if (!a.isTop && b.isTop) return 1;
             
-            // 最後按評分排序
-            return (b.rating || 0) - (a.rating || 0);
+            // 然後按評分排序
+            const ratingDiff = (b.rating || 0) - (a.rating || 0);
+            if (ratingDiff !== 0) return ratingDiff;
+            
+            // 如果評分相同，按註冊時間排序（新的在前）
+            return new Date(b.createdAt) - new Date(a.createdAt);
           });
           
           console.log(`✅ 從資料庫找到 ${sortedTutors.length} 位導師`);

@@ -83,6 +83,7 @@ function TutorsPageContent() {
       }
       
       params.append('page', currentPage.toString());
+      params.append('limit', '1000'); // 增加 limit 參數，顯示更多導師
 
       console.log('🔍 正在獲取導師資料...', params.toString());
       
@@ -169,7 +170,7 @@ function TutorsPageContent() {
     }, 100);
     
     return () => clearTimeout(timer);
-  }, [searchParams, currentPage]); // 移除 fetchTutors 依賴，避免無限循環
+  }, [searchParams]); // 移除 currentPage 依賴，避免無限循環
 
   const handleSearch = () => {
     setCurrentPage(1);
