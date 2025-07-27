@@ -185,6 +185,24 @@ export default function TutorDashboardPage() {
           
           if (data.profileStatus === 'approved') {
             toast.success('🎉 恭喜！您的資料已通過審批，現在可以公開證書了！');
+            
+            // 強制更新 localStorage 中的用戶資料
+            const currentUserStr = localStorage.getItem('user')
+            if (currentUserStr) {
+              try {
+                const currentUser = JSON.parse(currentUserStr)
+                const updatedUser = {
+                  ...currentUser,
+                  name: data.name || currentUser.name,
+                  profileStatus: data.profileStatus
+                }
+                localStorage.setItem('user', JSON.stringify(updatedUser))
+                console.log('💾 Dashboard: 已更新 localStorage 中的用戶資料')
+              } catch (error) {
+                console.error('Dashboard: 更新 localStorage 失敗:', error)
+              }
+            }
+            
             // 觸發全局用戶資料更新
             window.dispatchEvent(new CustomEvent('userUpdate'));
           } else if (data.profileStatus === 'rejected') {

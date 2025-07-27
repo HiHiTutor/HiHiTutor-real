@@ -153,19 +153,42 @@ export function useUser() {
 
   // 對於 tutor 用戶，添加定期檢查審批狀態的機制
   useEffect(() => {
-    if (!user || user.userType !== 'tutor') return
+    // 檢查是否有 token
+    const token = localStorage.getItem('token')
+    if (!token) return
 
     let intervalId: NodeJS.Timeout
 
-    // 如果用戶是 tutor，每隔60秒檢查一次審批狀態
+    // 每隔60秒檢查一次審批狀態
     intervalId = setInterval(async () => {
       try {
-        const token = localStorage.getItem('token')
-        if (!token) return
+        const currentToken = localStorage.getItem('token')
+        if (!currentToken) {
+          clearInterval(intervalId)
+          return
+        }
 
+        // 先檢查用戶類型
+        const meRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/auth/me`, {
+          headers: {
+            'Authorization': `Bearer ${currentToken}`,
+          },
+        })
+        
+        if (!meRes.ok) {
+          clearInterval(intervalId)
+          return
+        }
+
+        const meData = await meRes.json()
+        if (meData.userType !== 'tutor') {
+          return // 不是 tutor，不需要檢查
+        }
+
+        // 檢查 tutor profile 狀態
         const tutorRes = await fetch('/api/tutors/profile', {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${currentToken}`,
           },
         })
         
@@ -173,11 +196,28 @@ export function useUser() {
           const tutorData = await tutorRes.json()
           
           // 如果審批狀態發生變化，更新用戶資料
-          if (tutorData.profileStatus !== user.profileStatus) {
-            console.log('🔄 審批狀態發生變化:', user.profileStatus, '→', tutorData.profileStatus)
+          if (tutorData.profileStatus !== user?.profileStatus) {
+            console.log('🔄 審批狀態發生變化:', user?.profileStatus, '→', tutorData.profileStatus)
             
             // 觸發用戶資料更新事件
             window.dispatchEvent(new CustomEvent('userUpdate'))
+            
+            // 強制更新 localStorage 中的用戶資料
+            const currentUserStr = localStorage.getItem('user')
+            if (currentUserStr) {
+              try {
+                const currentUser = JSON.parse(currentUserStr)
+                const updatedUser = {
+                  ...currentUser,
+                  name: tutorData.profileStatus === 'approved' ? tutorData.name : currentUser.name,
+                  profileStatus: tutorData.profileStatus
+                }
+                localStorage.setItem('user', JSON.stringify(updatedUser))
+                console.log('💾 已更新 localStorage 中的用戶資料')
+              } catch (error) {
+                console.error('更新 localStorage 失敗:', error)
+              }
+            }
             
             // 顯示通知
             if (tutorData.profileStatus === 'approved') {
@@ -195,14 +235,14 @@ export function useUser() {
       } catch (error) {
         console.error('檢查審批狀態失敗:', error)
       }
-    }, 60000) // 60秒檢查一次
+    }, 30000) // 30秒檢查一次
 
     return () => {
       if (intervalId) {
         clearInterval(intervalId)
       }
     }
-  }, [user?.userType, user?.profileStatus])
+  }, []) // 移除依賴項，避免重複設置定時器
 
   return { user, isLoading }
 } 
