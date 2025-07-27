@@ -1,6 +1,11 @@
 // 教學模式選項
 const TEACHING_MODE_OPTIONS = [
   { 
+    value: 'both', 
+    label: '皆可',
+    subCategories: []
+  },
+  { 
     value: 'in-person', 
     label: '面授',
     subCategories: [
@@ -13,15 +18,6 @@ const TEACHING_MODE_OPTIONS = [
     value: 'online', 
     label: '網課',
     subCategories: [] // 網課沒有子分類
-  },
-  { 
-    value: 'both', 
-    label: '皆可',
-    subCategories: [
-      { value: 'one-on-one', label: '一對一' },
-      { value: 'small-group', label: '小班教學' },
-      { value: 'large-center', label: '補習社' }
-    ]
   }
 ];
 
@@ -45,9 +41,7 @@ const TEACHING_MODE_MAP = {
   
   // 其他可能的格式
   '線上': 'online',
-  '線下': 'in-person',
-  '兩者皆可': 'both',
-  '都可以': 'both'
+  '線下': 'in-person'
 };
 
 // 獲取教學模式標籤

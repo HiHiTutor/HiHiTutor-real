@@ -60,7 +60,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     category: 'unlimited', // 預設為不限
     subCategory: [], // 預設為空陣列
     subjects: [],
-    mode: 'in-person', // 預設為面授
+    mode: 'both', // 預設為皆可
     regions: ['unlimited'], // 預設為不限，改為單選
     subRegions: ['unlimited'], // 預設為不限
     priceRange: 'unlimited' // 預設為不限
@@ -82,6 +82,11 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
           // 如果 API 失敗，使用預設值
           setTeachingModeOptions([
             { 
+              value: 'both', 
+              label: '皆可',
+              subCategories: []
+            },
+            { 
               value: 'in-person', 
               label: '面授',
               subCategories: [
@@ -94,15 +99,6 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
               value: 'online', 
               label: '網課',
               subCategories: []
-            },
-            { 
-              value: 'both', 
-              label: '皆可',
-              subCategories: [
-                { value: 'one-on-one', label: '一對一' },
-                { value: 'small-group', label: '小班教學' },
-                { value: 'large-center', label: '補習社' }
-              ]
             }
           ]);
         }
@@ -110,6 +106,11 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
         console.error('Failed to fetch teaching mode options:', error);
         // 使用預設值
         setTeachingModeOptions([
+          { 
+            value: 'both', 
+            label: '皆可',
+            subCategories: []
+          },
           { 
             value: 'in-person', 
             label: '面授',
@@ -123,15 +124,6 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
             value: 'online', 
             label: '網課',
             subCategories: []
-          },
-          { 
-            value: 'both', 
-            label: '皆可',
-            subCategories: [
-              { value: 'one-on-one', label: '一對一' },
-              { value: 'small-group', label: '小班教學' },
-              { value: 'large-center', label: '補習社' }
-            ]
           }
         ]);
       }
@@ -249,7 +241,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       category: searchParams.get('category') || 'unlimited',
       subCategory: searchParams.getAll('subCategory').length > 0 ? searchParams.getAll('subCategory') : [],
       subjects: searchParams.getAll('subjects').length > 0 ? [...new Set(searchParams.getAll('subjects'))] : [],
-      mode: searchParams.get('mode') || 'in-person', // 預設為面授
+              mode: searchParams.get('mode') || 'both', // 預設為皆可
       regions: searchParams.getAll('regions').length > 0 ? searchParams.getAll('regions') : ['unlimited'],
       subRegions: searchParams.getAll('subRegions').length > 0 ? searchParams.getAll('subRegions') : ['unlimited'],
       priceRange: searchParams.get('priceRange') || 'unlimited'
@@ -431,7 +423,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       category: 'unlimited',
       subCategory: [],
       subjects: [],
-      mode: 'in-person',
+      mode: 'both',
       regions: ['unlimited'],
       subRegions: ['unlimited'],
       priceRange: 'unlimited'
@@ -650,7 +642,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
           newFilters.subjects = prev.subjects.filter(s => s !== value);
           break;
         case 'mode':
-          newFilters.mode = 'in-person';
+          newFilters.mode = 'unlimited';
           newFilters.subCategory = [];
           break;
         case 'subCategory':
@@ -684,7 +676,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       category: 'unlimited',
       subCategory: [],
       subjects: [],
-      mode: 'in-person',
+      mode: 'both',
       regions: ['unlimited'],
       subRegions: ['unlimited'],
       priceRange: 'unlimited'
@@ -895,14 +887,14 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                   onChange={(e) => handleModeChange(e.target.value)}
                   className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
                 >
+                  <option value="both">皆可</option>
                   <option value="in-person">面授</option>
                   <option value="online">網課</option>
-                  <option value="both">皆可</option>
                 </select>
               </div>
 
-              {/* 子分類選擇 - 只在選擇面授或皆可時顯示 */}
-              {(filters.mode === 'in-person' || filters.mode === 'both') && (
+              {/* 子分類選擇 - 只在選擇面授時顯示 */}
+              {filters.mode === 'in-person' && (
                 <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
                   <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">子分類（可多選）</label>
                   <Listbox
@@ -968,23 +960,21 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                 </div>
               )}
 
-              {/* 地區選擇 - 只在選擇面授或皆可時顯示 */}
-              {(filters.mode === 'in-person' || filters.mode === 'both' || filters.subCategory.length > 0) && (
-                <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">地區</label>
-                  <select
-                    value={filters.regions[0] || 'unlimited'}
-                    onChange={(e) => handleRegionChange(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
-                  >
-                    {REGION_OPTIONS.map(option => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
+              {/* 地區選擇 - 任何教學模式下都顯示 */}
+              <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
+                <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">地區</label>
+                <select
+                  value={filters.regions[0] || 'unlimited'}
+                  onChange={(e) => handleRegionChange(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
+                >
+                  {REGION_OPTIONS.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               {/* 子地區選擇 */}
               {filters.regions.length > 0 && filters.regions[0] !== 'unlimited' && (

@@ -11,6 +11,11 @@ export const initializeTeachingModeOptions = async () => {
       // 如果 API 失敗，使用預設值
       TEACHING_MODE_OPTIONS = [
         { 
+          value: 'both', 
+          label: '皆可',
+          subCategories: []
+        },
+        { 
           value: 'in-person', 
           label: '面授',
           subCategories: [
@@ -23,15 +28,6 @@ export const initializeTeachingModeOptions = async () => {
           value: 'online', 
           label: '網課',
           subCategories: []
-        },
-        { 
-          value: 'both', 
-          label: '皆可',
-          subCategories: [
-            { value: 'one-on-one', label: '一對一' },
-            { value: 'small-group', label: '小班教學' },
-            { value: 'large-center', label: '補習社' }
-          ]
         }
       ];
     }
@@ -39,6 +35,11 @@ export const initializeTeachingModeOptions = async () => {
     console.error('Failed to fetch teaching mode options:', error);
     // 使用預設值
     TEACHING_MODE_OPTIONS = [
+      { 
+        value: 'both', 
+        label: '皆可',
+        subCategories: []
+      },
       { 
         value: 'in-person', 
         label: '面授',
@@ -52,15 +53,6 @@ export const initializeTeachingModeOptions = async () => {
         value: 'online', 
         label: '網課',
         subCategories: []
-      },
-      { 
-        value: 'both', 
-        label: '皆可',
-        subCategories: [
-          { value: 'one-on-one', label: '一對一' },
-          { value: 'small-group', label: '小班教學' },
-          { value: 'large-center', label: '補習社' }
-        ]
       }
     ];
   }
@@ -86,9 +78,7 @@ export const TEACHING_MODE_MAP: { [key: string]: string } = {
   
   // 其他可能的格式
   '線上': 'online',
-  '線下': 'in-person',
-  '兩者皆可': 'both',
-  '都可以': 'both'
+  '線下': 'in-person'
 };
 
 // 獲取教學模式標籤
