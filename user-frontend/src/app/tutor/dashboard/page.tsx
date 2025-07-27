@@ -169,33 +169,35 @@ export default function TutorDashboardPage() {
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
 
-    // 如果用戶在待審核狀態，每隔30秒檢查一次
-    if (formData.profileStatus === 'pending') {
-      intervalId = setInterval(async () => {
-        try {
-          const token = localStorage.getItem('token');
-          if (!token) return;
+    // 對於所有狀態都進行定期檢查，但頻率不同
+    const checkInterval = formData.profileStatus === 'pending' ? 30000 : 60000; // pending: 30秒, 其他: 60秒
+    
+    intervalId = setInterval(async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
 
-          const data = await tutorApi.getProfile();
+        const data = await tutorApi.getProfile();
+        
+        // 如果審批狀態發生變化，更新資料並顯示提示
+        if (data.profileStatus !== formData.profileStatus) {
+          console.log('🔄 審批狀態發生變化:', formData.profileStatus, '→', data.profileStatus);
           
-          // 如果審批狀態發生變化，更新資料並顯示提示
-          if (data.profileStatus !== formData.profileStatus) {
-            console.log('🔄 審批狀態發生變化:', formData.profileStatus, '→', data.profileStatus);
-            
-            if (data.profileStatus === 'approved') {
-              toast.success('🎉 恭喜！您的資料已通過審批，現在可以公開證書了！');
-            } else if (data.profileStatus === 'rejected') {
-              toast.error(`❌ 您的資料未通過審批：${data.remarks || '請檢查並重新提交'}`);
-            }
-            
-            // 重新獲取完整資料
-            await fetchTutorProfile();
+          if (data.profileStatus === 'approved') {
+            toast.success('🎉 恭喜！您的資料已通過審批，現在可以公開證書了！');
+            // 觸發全局用戶資料更新
+            window.dispatchEvent(new CustomEvent('userUpdate'));
+          } else if (data.profileStatus === 'rejected') {
+            toast.error(`❌ 您的資料未通過審批：${data.remarks || '請檢查並重新提交'}`);
           }
-        } catch (error) {
-          console.error('檢查審批狀態失敗:', error);
+          
+          // 重新獲取完整資料
+          await fetchTutorProfile();
         }
-      }, 30000); // 30秒檢查一次
-    }
+      } catch (error) {
+        console.error('檢查審批狀態失敗:', error);
+      }
+    }, checkInterval);
 
     // 清理定時器
     return () => {

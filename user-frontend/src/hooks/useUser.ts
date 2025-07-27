@@ -3,9 +3,12 @@ import { useState, useEffect } from 'react'
 interface User {
   id: string
   name: string
+  email?: string
+  phone?: string
   userType: 'student' | 'tutor' | 'organization'
   avatarUrl?: string
   avatar?: string
+  profileStatus?: 'pending' | 'approved' | 'rejected'
 }
 
 export function useUser() {
@@ -84,6 +87,7 @@ export function useUser() {
             
             // 合併 tutor avatar 到 user data
             userData.avatarUrl = tutorData.avatarUrl || tutorData.avatar
+            userData.profileStatus = tutorData.profileStatus
             
             // 檢查審批狀態，如果未通過審批，使用原始名稱
             if (tutorData.profileStatus && tutorData.profileStatus !== 'approved') {
@@ -130,14 +134,75 @@ export function useUser() {
       setUser(null)
     }
 
+    // 監聽用戶資料更新事件
+    const handleUserUpdate = () => {
+      console.log('🔔 收到用戶資料更新事件，重新獲取用戶資料')
+      fetchUser()
+    }
+
     window.addEventListener('login', handleLogin)
     window.addEventListener('logout', handleLogout)
+    window.addEventListener('userUpdate', handleUserUpdate)
 
     return () => {
       window.removeEventListener('login', handleLogin)
       window.removeEventListener('logout', handleLogout)
+      window.removeEventListener('userUpdate', handleUserUpdate)
     }
   }, [])
+
+  // 對於 tutor 用戶，添加定期檢查審批狀態的機制
+  useEffect(() => {
+    if (!user || user.userType !== 'tutor') return
+
+    let intervalId: NodeJS.Timeout
+
+    // 如果用戶是 tutor，每隔60秒檢查一次審批狀態
+    intervalId = setInterval(async () => {
+      try {
+        const token = localStorage.getItem('token')
+        if (!token) return
+
+        const tutorRes = await fetch('/api/tutors/profile', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        })
+        
+        if (tutorRes.ok) {
+          const tutorData = await tutorRes.json()
+          
+          // 如果審批狀態發生變化，更新用戶資料
+          if (tutorData.profileStatus !== user.profileStatus) {
+            console.log('🔄 審批狀態發生變化:', user.profileStatus, '→', tutorData.profileStatus)
+            
+            // 觸發用戶資料更新事件
+            window.dispatchEvent(new CustomEvent('userUpdate'))
+            
+            // 顯示通知
+            if (tutorData.profileStatus === 'approved') {
+              // 使用 react-hot-toast
+              import('react-hot-toast').then(({ toast }) => {
+                toast.success('🎉 恭喜！您的資料已通過審批！')
+              })
+            } else if (tutorData.profileStatus === 'rejected') {
+              import('react-hot-toast').then(({ toast }) => {
+                toast.error(`❌ 您的資料未通過審批：${tutorData.remarks || '請檢查並重新提交'}`)
+              })
+            }
+          }
+        }
+      } catch (error) {
+        console.error('檢查審批狀態失敗:', error)
+      }
+    }, 60000) // 60秒檢查一次
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId)
+      }
+    }
+  }, [user?.userType, user?.profileStatus])
 
   return { user, isLoading }
 } 

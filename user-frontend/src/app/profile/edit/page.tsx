@@ -94,6 +94,18 @@ export default function EditProfilePage() {
     };
 
     fetchUserData();
+
+    // 監聽用戶資料更新事件
+    const handleUserUpdate = () => {
+      console.log('🔔 Edit Profile 收到用戶資料更新事件，重新獲取資料');
+      fetchUserData();
+    };
+
+    window.addEventListener('userUpdate', handleUserUpdate);
+
+    return () => {
+      window.removeEventListener('userUpdate', handleUserUpdate);
+    };
   }, [router]);
 
   // 發送驗證碼

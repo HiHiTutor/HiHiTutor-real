@@ -1,68 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { authApi } from '@/services/api';
+import { useUser } from '@/hooks/useUser';
 import { getUserTypeDisplay } from '@/utils/userTypeDisplay';
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  userType: 'student' | 'tutor' | 'organization';
-  role: 'user' | 'admin';
-}
-
 export default function ProfilePage() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { user, isLoading } = useUser();
   const router = useRouter();
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const token = localStorage.getItem('token');
-      
-      if (!token) {
-        router.push('/login');
-        return;
-      }
+    if (!isLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isLoading, router]);
 
-      try {
-        const data = await authApi.getProfile();
-        console.log('獲取到的用戶資料:', data);
-        
-        // 確保數據格式正確
-        if (data && typeof data === 'object') {
-          setUser({
-            id: data.id || '',
-            name: data.name || '',
-            email: data.email || '',
-            phone: data.phone || '',
-            userType: data.userType || 'student',
-            role: data.role || 'user'
-          });
-        } else {
-          throw new Error('無效的用戶資料格式');
-        }
-      } catch (err) {
-        console.error('獲取用戶資料失敗:', err);
-        setError(err instanceof Error ? err.message : '發生錯誤');
-        // 延遲跳轉以顯示錯誤訊息
-        setTimeout(() => {
-          router.push('/login');
-        }, 2000);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserData();
-  }, [router]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-3xl mx-auto px-4">
@@ -82,18 +36,20 @@ export default function ProfilePage() {
     );
   }
 
-  if (error) {
+  if (!user) {
     return (
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-3xl mx-auto px-4">
           <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-            <p className="text-red-600 text-center">{error}</p>
+            <p className="text-red-600 text-center">無法獲取用戶資料</p>
             <p className="text-gray-500 text-center mt-2">正在返回登入頁面...</p>
           </div>
         </div>
       </div>
     );
   }
+
+
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
