@@ -1116,7 +1116,20 @@ const updateUserProfile = async (req, res) => {
         });
       }
       
-      updates.name = trimmedName;
+      // 根據用戶類型處理姓名更新
+      if (user.userType === 'tutor') {
+        // 導師用戶：更新姓名需要審批
+        if (trimmedName !== user.name) {
+          updates.name = trimmedName;
+          updates.profileStatus = 'pending';
+          updates.remarks = '';
+          console.log('🔍 導師姓名更新，設置為待審核狀態');
+        }
+      } else {
+        // 學生用戶：可以直接更新姓名
+        updates.name = trimmedName;
+        console.log('🔍 學生姓名更新，直接生效');
+      }
     }
     if (email) updates.email = email;
     if (phone) updates.phone = phone;

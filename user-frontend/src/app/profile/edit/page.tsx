@@ -290,7 +290,12 @@ export default function EditProfilePage() {
           confirmPassword: '',
         }));
         
-        setError('資料已更新成功！');
+        // 根據用戶類型顯示不同的成功信息
+        if (user?.userType === 'tutor' && formData.name !== user.name) {
+          setError('資料已更新成功！姓名變更已提交審批，請等待管理員審核。');
+        } else {
+          setError('資料已更新成功！');
+        }
       }
     } catch (err) {
       console.error('更新失敗:', err);
@@ -367,6 +372,11 @@ export default function EditProfilePage() {
                   required
                   placeholder="請輸入姓名（不包含數字）"
                 />
+                {user?.userType === 'tutor' && (
+                  <p className="mt-1 text-sm text-yellow-600">
+                    ⚠️ 導師姓名更新需要後台審批，審批通過後才會生效
+                  </p>
+                )}
               </div>
 
               <div>
