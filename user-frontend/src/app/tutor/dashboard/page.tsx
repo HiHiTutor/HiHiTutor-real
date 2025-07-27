@@ -1189,6 +1189,24 @@ export default function TutorDashboardPage() {
                                   alt={`證書 ${index + 1}`}
                                   fill
                                   className="object-cover"
+                                  onError={(e) => {
+                                    console.error('圖片載入失敗:', cert);
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    // 顯示錯誤信息
+                                    const errorDiv = document.createElement('div');
+                                    errorDiv.className = 'flex items-center justify-center h-full bg-gray-100';
+                                    errorDiv.innerHTML = `
+                                      <div class="text-center">
+                                        <div class="text-4xl mb-2">❌</div>
+                                        <div class="text-sm text-gray-600">圖片載入失敗</div>
+                                        <a href="${cert}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm underline">
+                                          直接查看
+                                        </a>
+                                      </div>
+                                    `;
+                                    target.parentElement?.appendChild(errorDiv);
+                                  }}
                                 />
                               </div>
                               <div className="flex items-center space-x-2">
@@ -1224,6 +1242,24 @@ export default function TutorDashboardPage() {
                                   alt="證書"
                                   fill
                                   className="object-cover"
+                                  onError={(e) => {
+                                    console.error('圖片載入失敗:', fileUrl);
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    // 顯示錯誤信息
+                                    const errorDiv = document.createElement('div');
+                                    errorDiv.className = 'flex items-center justify-center h-full bg-gray-100';
+                                    errorDiv.innerHTML = `
+                                      <div class="text-center">
+                                        <div class="text-4xl mb-2">❌</div>
+                                        <div class="text-sm text-gray-600">圖片載入失敗</div>
+                                        <a href="${fileUrl}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm underline">
+                                          直接查看
+                                        </a>
+                                      </div>
+                                    `;
+                                    target.parentElement?.appendChild(errorDiv);
+                                  }}
                                 />
                               );
                             } else if (isPdf) {
