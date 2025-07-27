@@ -189,13 +189,22 @@ export default function TutorDashboardPage() {
       // 確保科目數據正確設置
       const subjects = data.subjects || [];
       const availableTime = data.availableTime || [];
+      const qualifications = data.qualifications || [];
+      const teachingAreas = data.teachingAreas || [];
+      const publicCertificates = data.publicCertificates || [];
       
       console.log('Processed subjects:', subjects); // 調試用
+      console.log('Processed qualifications:', qualifications); // 調試用
+      console.log('Processed teachingAreas:', teachingAreas); // 調試用
+      console.log('Processed availableTime:', availableTime); // 調試用
+      console.log('Processed publicCertificates:', publicCertificates); // 調試用
       
       setFormData({
         ...data,
         subjects: subjects,
         availableTime: availableTime,
+        qualifications: qualifications,
+        teachingAreas: teachingAreas,
         documents: {
           idCard: data.documents?.idCard || '',
           educationCert: data.certificateLogs?.map((log: any) => log.fileUrl) || data.documents?.educationCert || []
@@ -203,6 +212,26 @@ export default function TutorDashboardPage() {
       });
       setNewSubjects(subjects);
       setNewAvailableTimes(availableTime);
+      setPublicCertificates(publicCertificates);
+      
+      // 設置地區選擇狀態
+      if (teachingAreas.length > 0) {
+        // 根據已選地區設置狀態
+        const subRegionsByRegion: {[key: string]: string[]} = {};
+        teachingAreas.forEach((area: string) => {
+          // 找到該地區屬於哪個主要地區
+          for (const region of REGION_OPTIONS) {
+            const subRegion = region.regions?.find((sr: { value: string; label: string }) => sr.value === area);
+            if (subRegion) {
+              if (!subRegionsByRegion[region.value]) {
+                subRegionsByRegion[region.value] = [];
+              }
+              subRegionsByRegion[region.value].push(area);
+            }
+          }
+        });
+        setSelectedSubRegionsByRegion(subRegionsByRegion);
+      }
     } catch (error) {
       console.error('獲取資料失敗:', error);
       toast.error(error instanceof Error ? error.message : '獲取資料失敗，請稍後再試');
@@ -810,6 +839,24 @@ export default function TutorDashboardPage() {
             {/* 上堂地點 */}
             <div className="space-y-4">
               <Label>上堂地點</Label>
+              
+              {/* 顯示當前已選地區 */}
+              {formData.teachingAreas && formData.teachingAreas.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">當前已選地區：</p>
+                  <div className="flex flex-wrap gap-2">
+                    {formData.teachingAreas.map((area) => {
+                      const regionLabel = REGION_OPTIONS.flatMap(r => r.regions || []).find(sr => sr.value === area)?.label || area;
+                      return (
+                        <Badge key={area} variant="secondary">
+                          {regionLabel}
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+              
               <div className="space-y-4">
                 {/* 地區選擇 */}
                 <div className="space-y-2">
@@ -894,6 +941,20 @@ export default function TutorDashboardPage() {
             {/* 上堂時間 */}
             <div className="space-y-4">
               <Label>上堂時間</Label>
+              
+              {/* 顯示當前已選時間 */}
+              {formData.availableTime && formData.availableTime.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">當前已選時間：</p>
+                  <div className="flex flex-wrap gap-2">
+                    {formData.availableTime.map((timeSlot) => (
+                      <Badge key={timeSlot} variant="secondary">
+                        {timeSlot}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
               
               {/* 時間選擇器 */}
               <div className="flex gap-4 items-end">

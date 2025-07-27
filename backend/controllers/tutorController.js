@@ -1338,6 +1338,7 @@ const getTutorProfile = async (req, res) => {
         type: log.type,
         createdAt: log.createdAt
       })),
+      publicCertificates: user.tutorProfile?.publicCertificates || [],
       // 新增：用戶升級做導師時填寫的欄位
       tutorProfile: {
         teachingMode: user.tutorProfile?.teachingMode || '',
