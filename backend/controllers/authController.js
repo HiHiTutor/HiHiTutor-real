@@ -405,8 +405,7 @@ const register = async (req, res) => {
               Bucket: BUCKET_NAME,
               Key: businessKey,
               Body: businessFile.buffer,
-              ContentType: businessFile.mimetype,
-              ACL: 'public-read' // 設置為公開讀取權限
+              ContentType: businessFile.mimetype
             });
             
             await s3Client.send(businessCommand);
@@ -423,8 +422,7 @@ const register = async (req, res) => {
               Bucket: BUCKET_NAME,
               Key: addressKey,
               Body: addressFile.buffer,
-              ContentType: addressFile.mimetype,
-              ACL: 'public-read' // 設置為公開讀取權限
+              ContentType: addressFile.mimetype
             });
             
             await s3Client.send(addressCommand);
