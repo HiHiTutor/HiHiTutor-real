@@ -576,7 +576,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     });
     
     // 教學模式
-    if (filters.mode && filters.mode !== 'unlimited') {
+    if (filters.mode && filters.mode !== 'both') {
       const modeOption = teachingModeOptions.find(m => m.value === filters.mode);
       if (modeOption) {
         selected.push({ key: 'mode', label: modeOption.label, value: filters.mode });
@@ -642,7 +642,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
           newFilters.subjects = prev.subjects.filter(s => s !== value);
           break;
         case 'mode':
-          newFilters.mode = 'unlimited';
+          newFilters.mode = 'both';
           newFilters.subCategory = [];
           break;
         case 'subCategory':
