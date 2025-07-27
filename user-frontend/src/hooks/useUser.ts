@@ -90,19 +90,14 @@ export function useUser() {
             userData.avatarUrl = tutorData.avatarUrl || tutorData.avatar
             userData.profileStatus = tutorData.profileStatus
             
-            // 檢查審批狀態，優先使用用戶資料中的名稱
+            // 檢查審批狀態，只有在審批通過後才更新名稱
             if (tutorData.profileStatus && tutorData.profileStatus !== 'approved') {
               // 如果未通過審批，保持原始名稱不變
               console.log('🔍 導師資料未通過審批，保持原始名稱:', userData.name)
-            } else if (tutorData.profileStatus === 'approved') {
-              // 如果已通過審批，優先使用用戶資料中的名稱（通常是最新的）
-              // 只有在用戶資料中沒有名稱時才使用導師資料中的名稱
-              if (!userData.name && tutorData.name) {
-                userData.name = tutorData.name
-                console.log('🔍 導師資料已通過審批，使用導師資料中的名稱:', userData.name)
-              } else {
-                console.log('🔍 導師資料已通過審批，保持用戶資料中的名稱:', userData.name)
-              }
+            } else if (tutorData.profileStatus === 'approved' && tutorData.name) {
+              // 只有在審批通過且有新名稱時才更新
+              userData.name = tutorData.name
+              console.log('🔍 導師資料已通過審批，使用新名稱:', userData.name)
             }
           }
         } catch (tutorError) {
@@ -157,101 +152,7 @@ export function useUser() {
     }
   }, [])
 
-  // 對於 tutor 用戶，添加定期檢查審批狀態的機制
-  useEffect(() => {
-    // 檢查是否有 token
-    const token = localStorage.getItem('token')
-    if (!token) return
-
-    let intervalId: NodeJS.Timeout
-
-    // 每隔60秒檢查一次審批狀態
-    intervalId = setInterval(async () => {
-      try {
-        const currentToken = localStorage.getItem('token')
-        if (!currentToken) {
-          clearInterval(intervalId)
-          return
-        }
-
-        // 先檢查用戶類型
-        const meRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/auth/me`, {
-          headers: {
-            'Authorization': `Bearer ${currentToken}`,
-          },
-        })
-        
-        if (!meRes.ok) {
-          clearInterval(intervalId)
-          return
-        }
-
-        const meData = await meRes.json()
-        if (meData.userType !== 'tutor') {
-          return // 不是 tutor，不需要檢查
-        }
-
-        // 檢查 tutor profile 狀態
-        const tutorRes = await fetch('/api/tutors/profile', {
-          headers: {
-            'Authorization': `Bearer ${currentToken}`,
-          },
-        })
-        
-        if (tutorRes.ok) {
-          const tutorData = await tutorRes.json()
-          
-          // 如果審批狀態發生變化，更新用戶資料
-          if (tutorData.profileStatus !== user?.profileStatus) {
-            console.log('🔄 審批狀態發生變化:', user?.profileStatus, '→', tutorData.profileStatus)
-            
-            // 觸發用戶資料更新事件
-            window.dispatchEvent(new CustomEvent('userUpdate'))
-            
-            // 強制更新 localStorage 中的用戶資料
-            const currentUserStr = localStorage.getItem('user')
-            if (currentUserStr) {
-              try {
-                const currentUser = JSON.parse(currentUserStr)
-                const updatedUser = {
-                  ...currentUser,
-                  name: tutorData.profileStatus === 'approved' ? tutorData.name : currentUser.name,
-                  profileStatus: tutorData.profileStatus
-                }
-                localStorage.setItem('user', JSON.stringify(updatedUser))
-                console.log('💾 已更新 localStorage 中的用戶資料')
-              } catch (error) {
-                console.error('更新 localStorage 失敗:', error)
-              }
-            }
-            
-            // 只在狀態真正變化時顯示通知（避免重複通知）
-            if (tutorData.profileStatus !== lastNotificationStatus) {
-              if (tutorData.profileStatus === 'approved') {
-                import('react-hot-toast').then(({ toast }) => {
-                  toast.success('🎉 恭喜！您的資料已通過審批！')
-                })
-                setLastNotificationStatus('approved')
-              } else if (tutorData.profileStatus === 'rejected') {
-                import('react-hot-toast').then(({ toast }) => {
-                  toast.error(`❌ 您的資料未通過審批：${tutorData.remarks || '請檢查並重新提交'}`)
-                })
-                setLastNotificationStatus('rejected')
-              }
-            }
-          }
-        }
-      } catch (error) {
-        console.error('檢查審批狀態失敗:', error)
-      }
-    }, 30000) // 30秒檢查一次
-
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId)
-      }
-    }
-  }, []) // 移除依賴項，避免重複設置定時器
+  // 移除定期檢查審批狀態的機制 - 用戶要求移除自動檢查
 
   return { user, isLoading }
 } 

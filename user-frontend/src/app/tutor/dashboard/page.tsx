@@ -166,70 +166,7 @@ export default function TutorDashboardPage() {
     fetchTutorProfile();
   }, []);
 
-  // 添加定期檢查審批狀態的功能
-  useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-
-    // 對於所有狀態都進行定期檢查，但頻率不同
-    const checkInterval = formData.profileStatus === 'pending' ? 30000 : 60000; // pending: 30秒, 其他: 60秒
-    
-    intervalId = setInterval(async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) return;
-
-        const data = await tutorApi.getProfile();
-        
-        // 如果審批狀態發生變化，更新資料並顯示提示
-        if (data.profileStatus !== formData.profileStatus) {
-          console.log('🔄 審批狀態發生變化:', formData.profileStatus, '→', data.profileStatus);
-          
-                       // 只在狀態真正變化時顯示通知（避免重複通知）
-             if (data.profileStatus !== lastNotificationStatus) {
-               if (data.profileStatus === 'approved') {
-                 toast.success('🎉 恭喜！您的資料已通過審批，現在可以公開證書了！');
-                 setLastNotificationStatus('approved');
-                 
-                 // 強制更新 localStorage 中的用戶資料
-                 const currentUserStr = localStorage.getItem('user')
-                 if (currentUserStr) {
-                   try {
-                     const currentUser = JSON.parse(currentUserStr)
-                     const updatedUser = {
-                       ...currentUser,
-                       name: data.name || currentUser.name,
-                       profileStatus: data.profileStatus
-                     }
-                     localStorage.setItem('user', JSON.stringify(updatedUser))
-                     console.log('💾 Dashboard: 已更新 localStorage 中的用戶資料')
-                   } catch (error) {
-                     console.error('Dashboard: 更新 localStorage 失敗:', error)
-                   }
-                 }
-                 
-                 // 觸發全局用戶資料更新
-                 window.dispatchEvent(new CustomEvent('userUpdate'));
-               } else if (data.profileStatus === 'rejected') {
-                 toast.error(`❌ 您的資料未通過審批：${data.remarks || '請檢查並重新提交'}`);
-                 setLastNotificationStatus('rejected');
-               }
-             }
-          
-          // 重新獲取完整資料
-          await fetchTutorProfile();
-        }
-      } catch (error) {
-        console.error('檢查審批狀態失敗:', error);
-      }
-    }, checkInterval);
-
-    // 清理定時器
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-    };
-  }, [formData.profileStatus]); // 依賴 profileStatus 變化
+    // 移除定期檢查審批狀態的功能 - 用戶要求移除自動檢查
 
   useEffect(() => {
     if (formData.birthDate) {
@@ -459,15 +396,8 @@ export default function TutorDashboardPage() {
       await tutorApi.updateProfile(data);
       toast.success('成功提交更新，等待管理員審批');
       
-      // 更新本地狀態
-      setFormData(prev => ({
-        ...prev,
-        ...data
-      }));
-      
-      // 觸發全局用戶資料更新
-      window.dispatchEvent(new CustomEvent('userUpdate'));
-      
+      // 不更新本地狀態，等待後台審批後再更新
+      // 重新獲取資料以確保顯示正確的審批狀態
       await fetchTutorProfile();
     } catch (error) {
       console.error('更新失敗:', error);
