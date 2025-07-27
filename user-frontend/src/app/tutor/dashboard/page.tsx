@@ -300,6 +300,22 @@ export default function TutorDashboardPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // 顯示個人信息保護提醒
+    const confirmed = window.confirm(
+      '⚠️ 個人信息保護提醒\n\n' +
+      '請確保您上傳的文件中的個人信息（如姓名、身份證號、地址等）已經進行模糊處理。\n\n' +
+      '建議處理方式：\n' +
+      '• 使用圖片編輯軟件塗黑或模糊敏感信息\n' +
+      '• 或使用貼紙遮蓋個人信息\n\n' +
+      '確認您已處理好個人信息後，點擊「確定」繼續上傳。'
+    );
+
+    if (!confirmed) {
+      // 清空文件輸入框
+      e.target.value = '';
+      return;
+    }
+
     try {
       setUploading(true);
       const formData = new FormData();
@@ -342,7 +358,7 @@ export default function TutorDashboardPage() {
         }));
       }
       
-      toast.success('文件上傳成功');
+      toast.success('文件上傳成功，請等待管理員審批');
     } catch (error) {
       console.error('Error uploading document:', error);
       toast.error('上傳文件失敗');
@@ -491,6 +507,12 @@ export default function TutorDashboardPage() {
 
   // 證書公開性切換
   const handleCertificateVisibility = async (certUrl: string) => {
+    // 檢查是否已通過審批
+    if (formData.profileStatus !== 'approved') {
+      toast.error('請先等待管理員審批通過後才能公開證書');
+      return;
+    }
+
     const newPublicCertificates = publicCertificates.includes(certUrl) 
       ? publicCertificates.filter(c => c !== certUrl)
       : [...publicCertificates, certUrl];
@@ -1210,14 +1232,27 @@ export default function TutorDashboardPage() {
                                 />
                               </div>
                               <div className="flex items-center space-x-2">
-                                <Checkbox
-                                  id={`cert-${index}`}
-                                  checked={publicCertificates.includes(cert)}
-                                  onCheckedChange={() => handleCertificateVisibility(cert)}
-                                />
-                                <Label htmlFor={`cert-${index}`} className="text-sm">
-                                  公開此證書（其他用戶可見，個人信息會被模糊處理）
-                                </Label>
+                                {formData.profileStatus === 'approved' ? (
+                                  <>
+                                    <Checkbox
+                                      id={`cert-${index}`}
+                                      checked={publicCertificates.includes(cert)}
+                                      onCheckedChange={() => handleCertificateVisibility(cert)}
+                                    />
+                                    <Label htmlFor={`cert-${index}`} className="text-sm">
+                                      公開此證書（其他用戶可見，個人信息會被模糊處理）
+                                    </Label>
+                                  </>
+                                ) : (
+                                  <div className="text-sm text-gray-500">
+                                    {formData.profileStatus === 'pending' 
+                                      ? '⏳ 等待管理員審批通過後可公開證書'
+                                      : formData.profileStatus === 'rejected'
+                                      ? '❌ 資料未通過審批，無法公開證書'
+                                      : '🔒 請先提交資料等待審批'
+                                    }
+                                  </div>
+                                )}
                               </div>
                             </div>
                           ))}
@@ -1300,14 +1335,27 @@ export default function TutorDashboardPage() {
                           })()}
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="cert-0"
-                            checked={publicCertificates.includes(formData.documents.educationCert as string)}
-                            onCheckedChange={() => handleCertificateVisibility(formData.documents.educationCert as string)}
-                          />
-                          <Label htmlFor="cert-0" className="text-sm">
-                            公開此證書（其他用戶可見，個人信息會被模糊處理）
-                          </Label>
+                          {formData.profileStatus === 'approved' ? (
+                            <>
+                              <Checkbox
+                                id="cert-0"
+                                checked={publicCertificates.includes(formData.documents.educationCert as string)}
+                                onCheckedChange={() => handleCertificateVisibility(formData.documents.educationCert as string)}
+                              />
+                              <Label htmlFor="cert-0" className="text-sm">
+                                公開此證書（其他用戶可見，個人信息會被模糊處理）
+                              </Label>
+                            </>
+                          ) : (
+                            <div className="text-sm text-gray-500">
+                              {formData.profileStatus === 'pending' 
+                                ? '⏳ 等待管理員審批通過後可公開證書'
+                                : formData.profileStatus === 'rejected'
+                                ? '❌ 資料未通過審批，無法公開證書'
+                                : '🔒 請先提交資料等待審批'
+                              }
+                            </div>
+                          )}
                         </div>
                       </div>
                     )

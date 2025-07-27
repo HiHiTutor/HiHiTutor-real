@@ -6,7 +6,63 @@
 
 ## 解決方案
 
-### 方法 1: 使用存儲桶策略（推薦）
+### 方法 1: 修改現有存儲桶策略（推薦）
+
+如果你已經有存儲桶策略，**不要刪除**，只需要添加新的 Statement：
+
+1. 登入 AWS Console
+2. 進入 S3 服務
+3. 選擇存儲桶 `hihitutor-uploads`
+4. 點擊 "Permissions" 標籤
+5. 在 "Bucket policy" 部分點擊 "Edit"
+6. 在現有策略中添加新的 Statement：
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicReadAvatars",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::hihitutor-uploads/avatars/*"
+        },
+        {
+            "Sid": "PublicReadAds",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::hihitutor-uploads/ads/*"
+        },
+        {
+            "Sid": "PublicReadIcons",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::hihitutor-uploads/icons/*"
+        },
+        {
+            "Sid": "PublicReadUserDocs",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::hihitutor-uploads/uploads/user-docs/*"
+        },
+        {
+            "Sid": "PublicReadOrganizationDocs",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::hihitutor-uploads/uploads/organization-docs/*"
+        }
+    ]
+}
+```
+
+7. 點擊 "Save changes"
+
+### 方法 2: 使用存儲桶策略（全新設置）
 
 1. **設置存儲桶策略**：
    ```bash
@@ -18,7 +74,7 @@
    - `s3:PutBucketPolicy`
    - `s3:GetBucketPolicy`
 
-### 方法 2: 手動設置（AWS Console）
+### 方法 3: 手動設置（AWS Console）
 
 1. 登入 AWS Console
 2. 進入 S3 服務
@@ -44,7 +100,7 @@
 
 7. 點擊 "Save changes"
 
-### 方法 3: 使用 AWS CLI
+### 方法 4: 使用 AWS CLI
 
 ```bash
 aws s3api put-bucket-policy \
