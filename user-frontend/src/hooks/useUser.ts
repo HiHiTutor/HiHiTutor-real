@@ -89,14 +89,19 @@ export function useUser() {
             userData.avatarUrl = tutorData.avatarUrl || tutorData.avatar
             userData.profileStatus = tutorData.profileStatus
             
-            // 檢查審批狀態，如果未通過審批，使用原始名稱
+            // 檢查審批狀態，優先使用用戶資料中的名稱
             if (tutorData.profileStatus && tutorData.profileStatus !== 'approved') {
               // 如果未通過審批，保持原始名稱不變
               console.log('🔍 導師資料未通過審批，保持原始名稱:', userData.name)
-            } else if (tutorData.profileStatus === 'approved' && tutorData.name) {
-              // 如果已通過審批且有新名稱，使用新名稱
-              userData.name = tutorData.name
-              console.log('🔍 導師資料已通過審批，使用新名稱:', userData.name)
+            } else if (tutorData.profileStatus === 'approved') {
+              // 如果已通過審批，優先使用用戶資料中的名稱（通常是最新的）
+              // 只有在用戶資料中沒有名稱時才使用導師資料中的名稱
+              if (!userData.name && tutorData.name) {
+                userData.name = tutorData.name
+                console.log('🔍 導師資料已通過審批，使用導師資料中的名稱:', userData.name)
+              } else {
+                console.log('🔍 導師資料已通過審批，保持用戶資料中的名稱:', userData.name)
+              }
             }
           }
         } catch (tutorError) {
