@@ -14,6 +14,7 @@ interface User {
 export function useUser() {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [lastNotificationStatus, setLastNotificationStatus] = useState<string | null>(null)
 
   const fetchUser = async () => {
     // 優先使用全局用戶資料（如果存在）
@@ -224,16 +225,19 @@ export function useUser() {
               }
             }
             
-            // 顯示通知
-            if (tutorData.profileStatus === 'approved') {
-              // 使用 react-hot-toast
-              import('react-hot-toast').then(({ toast }) => {
-                toast.success('🎉 恭喜！您的資料已通過審批！')
-              })
-            } else if (tutorData.profileStatus === 'rejected') {
-              import('react-hot-toast').then(({ toast }) => {
-                toast.error(`❌ 您的資料未通過審批：${tutorData.remarks || '請檢查並重新提交'}`)
-              })
+            // 只在狀態真正變化時顯示通知（避免重複通知）
+            if (tutorData.profileStatus !== lastNotificationStatus) {
+              if (tutorData.profileStatus === 'approved') {
+                import('react-hot-toast').then(({ toast }) => {
+                  toast.success('🎉 恭喜！您的資料已通過審批！')
+                })
+                setLastNotificationStatus('approved')
+              } else if (tutorData.profileStatus === 'rejected') {
+                import('react-hot-toast').then(({ toast }) => {
+                  toast.error(`❌ 您的資料未通過審批：${tutorData.remarks || '請檢查並重新提交'}`)
+                })
+                setLastNotificationStatus('rejected')
+              }
             }
           }
         }

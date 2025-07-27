@@ -114,6 +114,7 @@ const prepareSubRegionOptions = (regionValue: string): Option[] => {
 
 export default function TutorDashboardPage() {
   const router = useRouter();
+  const [lastNotificationStatus, setLastNotificationStatus] = useState<string | null>(null);
   const [formData, setFormData] = useState<TutorProfile>({
     tutorId: '',
     name: '',
@@ -183,31 +184,36 @@ export default function TutorDashboardPage() {
         if (data.profileStatus !== formData.profileStatus) {
           console.log('🔄 審批狀態發生變化:', formData.profileStatus, '→', data.profileStatus);
           
-          if (data.profileStatus === 'approved') {
-            toast.success('🎉 恭喜！您的資料已通過審批，現在可以公開證書了！');
-            
-            // 強制更新 localStorage 中的用戶資料
-            const currentUserStr = localStorage.getItem('user')
-            if (currentUserStr) {
-              try {
-                const currentUser = JSON.parse(currentUserStr)
-                const updatedUser = {
-                  ...currentUser,
-                  name: data.name || currentUser.name,
-                  profileStatus: data.profileStatus
-                }
-                localStorage.setItem('user', JSON.stringify(updatedUser))
-                console.log('💾 Dashboard: 已更新 localStorage 中的用戶資料')
-              } catch (error) {
-                console.error('Dashboard: 更新 localStorage 失敗:', error)
-              }
-            }
-            
-            // 觸發全局用戶資料更新
-            window.dispatchEvent(new CustomEvent('userUpdate'));
-          } else if (data.profileStatus === 'rejected') {
-            toast.error(`❌ 您的資料未通過審批：${data.remarks || '請檢查並重新提交'}`);
-          }
+                       // 只在狀態真正變化時顯示通知（避免重複通知）
+             if (data.profileStatus !== lastNotificationStatus) {
+               if (data.profileStatus === 'approved') {
+                 toast.success('🎉 恭喜！您的資料已通過審批，現在可以公開證書了！');
+                 setLastNotificationStatus('approved');
+                 
+                 // 強制更新 localStorage 中的用戶資料
+                 const currentUserStr = localStorage.getItem('user')
+                 if (currentUserStr) {
+                   try {
+                     const currentUser = JSON.parse(currentUserStr)
+                     const updatedUser = {
+                       ...currentUser,
+                       name: data.name || currentUser.name,
+                       profileStatus: data.profileStatus
+                     }
+                     localStorage.setItem('user', JSON.stringify(updatedUser))
+                     console.log('💾 Dashboard: 已更新 localStorage 中的用戶資料')
+                   } catch (error) {
+                     console.error('Dashboard: 更新 localStorage 失敗:', error)
+                   }
+                 }
+                 
+                 // 觸發全局用戶資料更新
+                 window.dispatchEvent(new CustomEvent('userUpdate'));
+               } else if (data.profileStatus === 'rejected') {
+                 toast.error(`❌ 您的資料未通過審批：${data.remarks || '請檢查並重新提交'}`);
+                 setLastNotificationStatus('rejected');
+               }
+             }
           
           // 重新獲取完整資料
           await fetchTutorProfile();
@@ -452,6 +458,16 @@ export default function TutorDashboardPage() {
 
       await tutorApi.updateProfile(data);
       toast.success('成功提交更新，等待管理員審批');
+      
+      // 更新本地狀態
+      setFormData(prev => ({
+        ...prev,
+        ...data
+      }));
+      
+      // 觸發全局用戶資料更新
+      window.dispatchEvent(new CustomEvent('userUpdate'));
+      
       await fetchTutorProfile();
     } catch (error) {
       console.error('更新失敗:', error);
