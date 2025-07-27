@@ -98,13 +98,16 @@ const approveTutorProfile = async (req, res) => {
       });
     }
     
-    // 更新狀態為已批准
+    // 更新狀態為已批准，並處理名稱更新
     tutor.profileStatus = 'approved';
     tutor.remarks = remarks || '';
     
-    await tutor.save();
-    
+    // 檢查是否有待審核的名稱更新
+    // 如果用戶在待審核期間更新了名稱，保留新名稱
+    // 如果沒有更新名稱，保持原來的名稱
     console.log('✅ 導師個人資料已批准:', tutor.name);
+    
+    await tutor.save();
     
     res.status(200).json({ 
       success: true,

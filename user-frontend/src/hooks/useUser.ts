@@ -69,7 +69,7 @@ export function useUser() {
         userType: meData.userType || meData.role // 以 userType 為主
       }
       
-      // 如果係 tutor，額外 fetch tutor profile 來獲取 avatarUrl
+      // 如果係 tutor，額外 fetch tutor profile 來獲取 avatarUrl 和檢查審批狀態
       if (userData.userType === 'tutor') {
         try {
           const tutorRes = await fetch('/api/tutors/profile', {
@@ -81,8 +81,19 @@ export function useUser() {
           if (tutorRes.ok) {
             const tutorData = await tutorRes.json()
             console.log('🔍 Tutor profile data:', tutorData)
+            
             // 合併 tutor avatar 到 user data
             userData.avatarUrl = tutorData.avatarUrl || tutorData.avatar
+            
+            // 檢查審批狀態，如果未通過審批，使用原始名稱
+            if (tutorData.profileStatus && tutorData.profileStatus !== 'approved') {
+              // 如果未通過審批，保持原始名稱不變
+              console.log('🔍 導師資料未通過審批，保持原始名稱:', userData.name)
+            } else if (tutorData.profileStatus === 'approved' && tutorData.name) {
+              // 如果已通過審批且有新名稱，使用新名稱
+              userData.name = tutorData.name
+              console.log('🔍 導師資料已通過審批，使用新名稱:', userData.name)
+            }
           }
         } catch (tutorError) {
           console.warn('無法獲取 tutor profile:', tutorError)
