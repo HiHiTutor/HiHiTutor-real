@@ -165,6 +165,46 @@ export default function TutorDashboardPage() {
     fetchTutorProfile();
   }, []);
 
+  // 添加定期檢查審批狀態的功能
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
+    // 如果用戶在待審核狀態，每隔30秒檢查一次
+    if (formData.profileStatus === 'pending') {
+      intervalId = setInterval(async () => {
+        try {
+          const token = localStorage.getItem('token');
+          if (!token) return;
+
+          const data = await tutorApi.getProfile();
+          
+          // 如果審批狀態發生變化，更新資料並顯示提示
+          if (data.profileStatus !== formData.profileStatus) {
+            console.log('🔄 審批狀態發生變化:', formData.profileStatus, '→', data.profileStatus);
+            
+            if (data.profileStatus === 'approved') {
+              toast.success('🎉 恭喜！您的資料已通過審批，現在可以公開證書了！');
+            } else if (data.profileStatus === 'rejected') {
+              toast.error(`❌ 您的資料未通過審批：${data.remarks || '請檢查並重新提交'}`);
+            }
+            
+            // 重新獲取完整資料
+            await fetchTutorProfile();
+          }
+        } catch (error) {
+          console.error('檢查審批狀態失敗:', error);
+        }
+      }, 30000); // 30秒檢查一次
+    }
+
+    // 清理定時器
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [formData.profileStatus]); // 依賴 profileStatus 變化
+
   useEffect(() => {
     if (formData.birthDate) {
       const date = new Date(formData.birthDate);
@@ -553,28 +593,51 @@ export default function TutorDashboardPage() {
       {formData.profileStatus && formData.profileStatus !== 'approved' && (
         <Card className="mb-6">
           <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              {formData.profileStatus === 'pending' ? (
-                <>
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
-                  <div>
-                    <h3 className="font-semibold text-yellow-700">資料審核中</h3>
-                    <p className="text-sm text-gray-600">
-                      您的資料已提交審核，請耐心等待管理員審批。審核通過後，您的資料將正式更新。
-                    </p>
-                  </div>
-                </>
-              ) : formData.profileStatus === 'rejected' ? (
-                <>
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <div>
-                    <h3 className="font-semibold text-red-700">資料被拒絕</h3>
-                    <p className="text-sm text-gray-600">
-                      {formData.remarks || '您的資料未通過審核，請檢查並重新提交。'}
-                    </p>
-                  </div>
-                </>
-              ) : null}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {formData.profileStatus === 'pending' ? (
+                  <>
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
+                    <div>
+                      <h3 className="font-semibold text-yellow-700">資料審核中</h3>
+                      <p className="text-sm text-gray-600">
+                        您的資料已提交審核，請耐心等待管理員審批。審核通過後，您的資料將正式更新。
+                      </p>
+                    </div>
+                  </>
+                ) : formData.profileStatus === 'rejected' ? (
+                  <>
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <div>
+                      <h3 className="font-semibold text-red-700">資料被拒絕</h3>
+                      <p className="text-sm text-gray-600">
+                        {formData.remarks || '您的資料未通過審核，請檢查並重新提交。'}
+                      </p>
+                    </div>
+                  </>
+                ) : null}
+              </div>
+              
+              {/* 手動刷新按鈕 */}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  try {
+                    await fetchTutorProfile();
+                    toast.success('資料已更新');
+                  } catch (error) {
+                    toast.error('檢查失敗，請稍後再試');
+                  }
+                }}
+                className="flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                檢查狀態
+              </Button>
             </div>
           </CardContent>
         </Card>
