@@ -60,6 +60,7 @@ const adminConfigRoutes = require('./routes/adminConfig');
 const superAdminRoutes = require('./routes/superAdmin');
 const fixIndexRoutes = require('./routes/fixIndex');
 const teachingModesRouter = require('./routes/teachingModes');
+const tutorUpdateRequestsRouter = require('./routes/tutorUpdateRequests');
 
 const app = express();
 
@@ -254,6 +255,7 @@ app.use('/api/admin/config', adminConfigRoutes);
 app.use('/api/super-admin', superAdminRoutes);
 app.use('/api/fix', fixIndexRoutes);
 app.use('/api/teaching-modes', teachingModesRouter);
+app.use('/api/tutor-update-requests', tutorUpdateRequestsRouter);
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));

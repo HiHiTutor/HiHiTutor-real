@@ -50,6 +50,8 @@ const WEEKDAYS = [
 interface TutorProfile {
   tutorId: string;
   name: string;
+  phone?: string;
+  email?: string;
   gender: 'male' | 'female';
   birthDate: Date | undefined;
   subjects: string[];
@@ -71,6 +73,18 @@ interface TutorProfile {
   publicCertificates?: string[];
   profileStatus?: 'pending' | 'approved' | 'rejected';
   remarks?: string;
+  // 新增屬性
+  teachingExperienceYears?: number;
+  educationLevel?: string;
+  classType?: string[];
+  sessionRate?: number;
+  teachingMode?: string;
+  teachingSubModes?: string[];
+  region?: string;
+  subRegions?: string[];
+  category?: string;
+  subCategory?: string;
+  avatarUrl?: string;
 }
 
 // 生成年份選項（18-65歲）
@@ -119,6 +133,8 @@ export default function TutorDashboardPage() {
   const [formData, setFormData] = useState<TutorProfile>({
     tutorId: '',
     name: '',
+    phone: '',
+    email: '',
     gender: 'male',
     birthDate: undefined,
     subjects: [],
@@ -136,7 +152,18 @@ export default function TutorDashboardPage() {
     documents: {
       idCard: '',
       educationCert: []
-    }
+    },
+    teachingExperienceYears: 0,
+    educationLevel: '',
+    classType: [],
+    sessionRate: 0,
+    teachingMode: '',
+    teachingSubModes: [],
+    region: '',
+    subRegions: [],
+    category: '',
+    subCategory: '',
+    avatarUrl: ''
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -267,16 +294,61 @@ export default function TutorDashboardPage() {
         throw new Error('未登入');
       }
 
-      await tutorApi.updateProfile(formData);
+      // 使用新的待審批 API
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/tutor-update-requests`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          phone: formData.phone,
+          email: formData.email,
+          tutorProfile: {
+            gender: formData.gender,
+            birthDate: formData.birthDate,
+            teachingExperienceYears: formData.teachingExperienceYears,
+            educationLevel: formData.educationLevel,
+            subjects: formData.subjects,
+            examResults: formData.examResults,
+            teachingAreas: formData.teachingAreas,
+            availableTime: formData.availableTime,
+            teachingMethods: formData.teachingMethods,
+            classType: formData.classType,
+            sessionRate: formData.sessionRate,
+            introduction: formData.introduction,
+            qualifications: formData.qualifications,
+            courseFeatures: formData.courseFeatures,
+            publicCertificates: formData.publicCertificates,
+            teachingMode: formData.teachingMode,
+            teachingSubModes: formData.teachingSubModes,
+            region: formData.region,
+            subRegions: formData.subRegions,
+            category: formData.category,
+            subCategory: formData.subCategory,
+            documents: formData.documents,
+            avatarUrl: formData.avatarUrl
+          },
+          documents: formData.documents
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || '提交申請失敗');
+      }
+
+      const result = await response.json();
       
       // 觸發用戶數據更新事件
       window.dispatchEvent(new Event('userUpdate'));
       
-      toast.success('資料已提交審核，請等待管理員審批');
+      toast.success('更新申請已提交，等待管理員審批');
       await fetchTutorProfile();
     } catch (error) {
-      console.error('Error updating tutor profile:', error);
-      toast.error(error instanceof Error ? error.message : '更新導師資料失敗');
+      console.error('Error submitting tutor update request:', error);
+      toast.error(error instanceof Error ? error.message : '提交申請失敗');
     } finally {
       setSaving(false);
     }

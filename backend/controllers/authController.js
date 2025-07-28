@@ -809,6 +809,11 @@ const getMe = async (req, res) => {
       createdAt: safeUser.createdAt,
       updatedAt: safeUser.updatedAt
     };
+
+    // 如果是導師，添加待審批資料
+    if (safeUser.userType === 'tutor' && safeUser.pendingProfile) {
+      userData.pendingProfile = safeUser.pendingProfile;
+    }
     
     console.log('[getMe] ✅ 返回用戶資料:', userData);
     res.json(userData);

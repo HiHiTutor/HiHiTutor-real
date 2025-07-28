@@ -9,6 +9,16 @@ interface User {
   avatarUrl?: string
   avatar?: string
   profileStatus?: 'pending' | 'approved' | 'rejected'
+  pendingProfile?: {
+    name?: string
+    phone?: string
+    email?: string
+    tutorProfile?: any
+    documents?: any
+    status: 'pending' | 'approved' | 'rejected'
+    submittedAt: string
+    adminRemarks?: string
+  }
 }
 
 export function useUser() {
@@ -114,6 +124,14 @@ export function useUser() {
               // 沒有審批狀態時，使用 tutor profile 中的名稱
               userData.name = tutorData.name || userData.name
               console.log('🔍 導師資料無審批狀態，使用 tutor profile 名稱:', userData.name)
+            }
+
+            // 如果有待審批資料，記錄但不立即更新顯示
+            if (userData.pendingProfile && userData.pendingProfile.status === 'pending') {
+              if (userData.pendingProfile.name) {
+                console.log('🔍 有待審批的名稱變更:', userData.pendingProfile.name)
+                // 不立即更新顯示名稱，保持當前名稱直到審批通過
+              }
             }
           }
         } catch (tutorError) {
