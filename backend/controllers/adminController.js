@@ -532,7 +532,16 @@ const approveOrganization = async (req, res) => {
     const { id } = req.params;
     console.log('✅ 批准機構用戶:', id);
 
-    const user = await User.findById(id);
+    // 支援通過 userId 或 MongoDB _id 查找用戶
+    let user;
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      // 如果是 MongoDB ObjectId，直接使用
+      user = await User.findById(id);
+    } else {
+      // 如果不是 ObjectId，假設是 userId
+      user = await User.findOne({ userId: id });
+    }
+
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -615,7 +624,16 @@ const rejectOrganization = async (req, res) => {
     const { id } = req.params;
     console.log('❌ 拒絕機構用戶:', id);
 
-    const user = await User.findById(id);
+    // 支援通過 userId 或 MongoDB _id 查找用戶
+    let user;
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      // 如果是 MongoDB ObjectId，直接使用
+      user = await User.findById(id);
+    } else {
+      // 如果不是 ObjectId，假設是 userId
+      user = await User.findOne({ userId: id });
+    }
+
     if (!user) {
       return res.status(404).json({
         success: false,
