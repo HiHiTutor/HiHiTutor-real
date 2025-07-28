@@ -341,51 +341,59 @@ export default function TutorDashboardPage() {
       }
 
       // 使用新的待審批 API
+      const requestData = {
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        tutorProfile: {
+          gender: formData.gender,
+          birthDate: formData.birthDate,
+          teachingExperienceYears: formData.teachingExperienceYears,
+          educationLevel: formData.educationLevel,
+          subjects: formData.subjects,
+          examResults: formData.examResults,
+          teachingAreas: formData.teachingAreas,
+          availableTime: formData.availableTime,
+          teachingMethods: formData.teachingMethods,
+          classType: formData.classType,
+          sessionRate: formData.sessionRate,
+          introduction: formData.introduction,
+          qualifications: formData.qualifications,
+          courseFeatures: formData.courseFeatures,
+          publicCertificates: formData.publicCertificates,
+          teachingMode: formData.teachingMode,
+          teachingSubModes: formData.teachingSubModes,
+          region: formData.region,
+          subRegions: formData.subRegions,
+          category: formData.category,
+          subCategory: formData.subCategory,
+          documents: formData.documents,
+          avatarUrl: formData.avatarUrl
+        },
+        documents: formData.documents
+      };
+
+      console.log('🚀 提交導師更新申請:', requestData);
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/tutor-update-requests`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          name: formData.name,
-          phone: formData.phone,
-          email: formData.email,
-          tutorProfile: {
-            gender: formData.gender,
-            birthDate: formData.birthDate,
-            teachingExperienceYears: formData.teachingExperienceYears,
-            educationLevel: formData.educationLevel,
-            subjects: formData.subjects,
-            examResults: formData.examResults,
-            teachingAreas: formData.teachingAreas,
-            availableTime: formData.availableTime,
-            teachingMethods: formData.teachingMethods,
-            classType: formData.classType,
-            sessionRate: formData.sessionRate,
-            introduction: formData.introduction,
-            qualifications: formData.qualifications,
-            courseFeatures: formData.courseFeatures,
-            publicCertificates: formData.publicCertificates,
-            teachingMode: formData.teachingMode,
-            teachingSubModes: formData.teachingSubModes,
-            region: formData.region,
-            subRegions: formData.subRegions,
-            category: formData.category,
-            subCategory: formData.subCategory,
-            documents: formData.documents,
-            avatarUrl: formData.avatarUrl
-          },
-          documents: formData.documents
-        })
+        body: JSON.stringify(requestData)
       });
+
+      console.log('📥 申請提交回應狀態:', response.status);
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('❌ 申請提交失敗:', errorData);
         throw new Error(errorData.message || '提交申請失敗');
       }
 
       const result = await response.json();
+      console.log('✅ 申請提交成功:', result);
       
       // 觸發用戶數據更新事件
       window.dispatchEvent(new Event('userUpdate'));
