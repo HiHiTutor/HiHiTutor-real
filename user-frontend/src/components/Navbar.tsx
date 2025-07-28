@@ -110,8 +110,11 @@ const Navbar = () => {
               </button>
               {dropdownOpen && (
                 <div className="absolute left-0 top-full mt-2 w-44 bg-white border rounded-md shadow-lg z-50">
-                  {(user?.userType === 'tutor' || user?.userType === 'organization') && (
+                  {user?.userType === 'tutor' && (
                     <Link href="/tutor/dashboard" className="block px-4 py-2 hover:bg-gray-100">我的導師介面</Link>
+                  )}
+                  {user?.userType === 'organization' && (
+                    <Link href="/org/dashboard" className="block px-4 py-2 hover:bg-gray-100">機構儀表板</Link>
                   )}
                   <Link href="/profile" className="block px-4 py-2 hover:bg-gray-100">編列個人資料</Link>
                   <button
@@ -159,8 +162,11 @@ const Navbar = () => {
               </button>
               {dropdownOpen && (
                 <div className="absolute left-0 top-full mt-2 w-32 bg-white border rounded-md shadow-lg z-50 text-sm">
-                  {(user?.userType === 'tutor' || user?.userType === 'organization') && (
+                  {user?.userType === 'tutor' && (
                     <Link href="/tutor/dashboard" className="block px-3 py-2 hover:bg-gray-100">我的導師介面</Link>
+                  )}
+                  {user?.userType === 'organization' && (
+                    <Link href="/org/dashboard" className="block px-3 py-2 hover:bg-gray-100">機構儀表板</Link>
                   )}
                   <Link href="/profile" className="block px-3 py-2 hover:bg-gray-100">編列個人資料</Link>
                   <button

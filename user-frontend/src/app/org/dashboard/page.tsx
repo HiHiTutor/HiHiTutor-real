@@ -38,18 +38,34 @@ export default function OrganizationDashboard() {
 
   useEffect(() => {
     // 檢查用戶登入狀態和類型
-    const checkAuth = () => {
+    const checkAuth = async () => {
       const token = localStorage.getItem('token')
-      const userData = localStorage.getItem('user')
       
-      if (!token || !userData) {
+      if (!token) {
         router.replace('/login?redirect=/org/dashboard')
         return
       }
 
       try {
-        const user = JSON.parse(userData)
+        // 從 API 獲取最新用戶資料
+        const response = await fetch('/api/auth/me', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        })
+
+        if (!response.ok) {
+          router.replace('/login?redirect=/org/dashboard')
+          return
+        }
+
+        const user = await response.json()
+        console.log('用戶資料:', user) // 調試用
+        
+        // 檢查用戶類型
         if (user.userType !== 'organization') {
+          console.log('用戶類型不匹配:', user.userType) // 調試用
           alert('只有機構用戶可以訪問此頁面')
           router.replace('/')
           return
@@ -58,7 +74,7 @@ export default function OrganizationDashboard() {
         setUser(user)
         fetchOrganizationData()
       } catch (error) {
-        console.error('解析用戶資料失敗:', error)
+        console.error('獲取用戶資料失敗:', error)
         router.replace('/login?redirect=/org/dashboard')
       }
     }
