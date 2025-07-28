@@ -243,7 +243,7 @@ const userSchema = new mongoose.Schema({
   profileStatus: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],
-    default: 'approved'
+    default: 'pending'
   },
   remarks: {
     type: String,

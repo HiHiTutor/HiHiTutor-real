@@ -108,7 +108,7 @@ export function useUser() {
             userData.profileStatus = tutorData.profileStatus
             
             // 檢查審批狀態，導師名字需要經過審批
-            if (tutorData.profileStatus && tutorData.profileStatus !== 'approved') {
+            if (tutorData.profileStatus === 'pending') {
               // 如果未通過審批，使用 tutor profile 中的名稱（舊名稱）
               // 如果用戶基本資料中的名稱與 tutor profile 中的名稱不同，說明有改名申請
               if (userData.name !== tutorData.name) {
@@ -121,9 +121,9 @@ export function useUser() {
               // 審批通過時，使用用戶基本資料中的新名稱
               console.log('🔍 導師資料已通過審批，使用用戶基本資料中的新名稱:', userData.name)
             } else {
-              // 沒有審批狀態時，使用 tutor profile 中的名稱
+              // 沒有審批狀態或狀態為 rejected 時，使用 tutor profile 中的名稱
               userData.name = tutorData.name || userData.name
-              console.log('🔍 導師資料無審批狀態，使用 tutor profile 名稱:', userData.name)
+              console.log('🔍 導師資料狀態為:', tutorData.profileStatus, '使用 tutor profile 名稱:', userData.name)
             }
 
             // 如果有待審批資料，檢查狀態
