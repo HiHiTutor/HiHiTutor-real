@@ -1387,7 +1387,7 @@ const getTutorProfile = async (req, res) => {
           ? user.documents.educationCert 
           : (user.documents?.educationCert ? [user.documents.educationCert] : [])
       },
-      profileStatus: user.profileStatus || 'pending',
+      profileStatus: user.profileStatus || 'approved',
       remarks: user.remarks || '',
       certificateLogs: certificateLogs.map(log => ({
         _id: log._id,

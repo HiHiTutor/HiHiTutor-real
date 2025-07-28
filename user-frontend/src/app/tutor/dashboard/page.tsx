@@ -50,8 +50,6 @@ const WEEKDAYS = [
 interface TutorProfile {
   tutorId: string;
   name: string;
-  phone?: string;
-  email?: string;
   gender: 'male' | 'female';
   birthDate: Date | undefined;
   subjects: string[];
@@ -73,18 +71,6 @@ interface TutorProfile {
   publicCertificates?: string[];
   profileStatus?: 'pending' | 'approved' | 'rejected';
   remarks?: string;
-  // 新增屬性
-  teachingExperienceYears?: number;
-  educationLevel?: string;
-  classType?: string[];
-  sessionRate?: number;
-  teachingMode?: string;
-  teachingSubModes?: string[];
-  region?: string;
-  subRegions?: string[];
-  category?: string;
-  subCategory?: string;
-  avatarUrl?: string;
 }
 
 // 生成年份選項（18-65歲）
@@ -133,8 +119,6 @@ export default function TutorDashboardPage() {
   const [formData, setFormData] = useState<TutorProfile>({
     tutorId: '',
     name: '',
-    phone: '',
-    email: '',
     gender: 'male',
     birthDate: undefined,
     subjects: [],
@@ -152,18 +136,7 @@ export default function TutorDashboardPage() {
     documents: {
       idCard: '',
       educationCert: []
-    },
-    teachingExperienceYears: 0,
-    educationLevel: '',
-    classType: [],
-    sessionRate: 0,
-    teachingMode: '',
-    teachingSubModes: [],
-    region: '',
-    subRegions: [],
-    category: '',
-    subCategory: '',
-    avatarUrl: ''
+    }
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -196,57 +169,7 @@ export default function TutorDashboardPage() {
     fetchTutorProfile();
   }, []);
 
-  // 監聽用戶資料更新事件
-  useEffect(() => {
-    const handleUserUpdate = () => {
-      console.log('🔔 收到用戶資料更新事件，重新獲取導師資料');
-      fetchTutorProfile();
-    };
-
-    window.addEventListener('userUpdate', handleUserUpdate);
-    return () => {
-      window.removeEventListener('userUpdate', handleUserUpdate);
-    };
-  }, []);
-
-  // 當用戶資料變化時重新獲取導師資料
-  useEffect(() => {
-    if (user && user.userType === 'tutor') {
-      console.log('🔔 用戶資料變化，重新獲取導師資料');
-      fetchTutorProfile();
-    }
-  }, [user]);
-
-  // 導師名稱需要經過審批，不使用用戶基本資料中的名稱
-  // useEffect(() => {
-  //   if (user?.name && formData.name !== user.name) {
-  //     setFormData(prev => ({
-  //       ...prev,
-  //       name: user.name
-  //     }));
-  //   }
-  // }, [user?.name]);
-
-    // 定期檢查審批狀態 - 每30秒檢查一次
-    useEffect(() => {
-      const checkApprovalStatus = async () => {
-        if (formData.profileStatus === 'pending') {
-          try {
-            await fetchTutorProfile();
-            console.log('🔍 定期檢查審批狀態完成');
-          } catch (error) {
-            console.warn('定期檢查審批狀態失敗:', error);
-          }
-        }
-      };
-
-      // 設置定期檢查
-      const intervalId = setInterval(checkApprovalStatus, 30000); // 30秒檢查一次
-
-      return () => {
-        clearInterval(intervalId);
-      };
-    }, [formData.profileStatus]);
+    // 移除定期檢查審批狀態的功能 - 用戶要求移除自動檢查
 
   useEffect(() => {
     if (formData.birthDate) {
@@ -268,7 +191,6 @@ export default function TutorDashboardPage() {
       const data = await tutorApi.getProfile();
       console.log('Fetched tutor profile data:', data); // 調試用
       console.log('Subjects from API:', data.subjects); // 調試用
-      console.log('🔍 API 返回的 profileStatus:', data.profileStatus); // 調試用
       
       // 確保科目數據正確設置
       const subjects = data.subjects || [];
@@ -283,10 +205,8 @@ export default function TutorDashboardPage() {
       console.log('Processed availableTime:', availableTime); // 調試用
       console.log('Processed publicCertificates:', publicCertificates); // 調試用
       
-      const newFormData = {
+      setFormData({
         ...data,
-        // 導師使用 tutor profile 中的名稱，需要經過審批
-        name: data.name,
         subjects: subjects,
         availableTime: availableTime,
         qualifications: qualifications,
@@ -295,12 +215,7 @@ export default function TutorDashboardPage() {
           idCard: data.documents?.idCard || '',
           educationCert: data.certificateLogs?.map((log: any) => log.fileUrl) || data.documents?.educationCert || []
         }
-      };
-      
-      console.log('🔍 設置新的 formData:', newFormData);
-      console.log('🔍 新的 formData.profileStatus:', newFormData.profileStatus);
-      
-      setFormData(newFormData);
+      });
       setNewSubjects(subjects);
       setNewAvailableTimes(availableTime);
       setPublicCertificates(publicCertificates);
@@ -340,69 +255,16 @@ export default function TutorDashboardPage() {
         throw new Error('未登入');
       }
 
-      // 使用新的待審批 API
-      const requestData = {
-        name: formData.name,
-        phone: formData.phone,
-        email: formData.email,
-        tutorProfile: {
-          gender: formData.gender,
-          birthDate: formData.birthDate,
-          teachingExperienceYears: formData.teachingExperienceYears,
-          educationLevel: formData.educationLevel,
-          subjects: formData.subjects,
-          examResults: formData.examResults,
-          teachingAreas: formData.teachingAreas,
-          availableTime: formData.availableTime,
-          teachingMethods: formData.teachingMethods,
-          classType: formData.classType,
-          sessionRate: formData.sessionRate,
-          introduction: formData.introduction,
-          qualifications: formData.qualifications,
-          courseFeatures: formData.courseFeatures,
-          publicCertificates: formData.publicCertificates,
-          teachingMode: formData.teachingMode,
-          teachingSubModes: formData.teachingSubModes,
-          region: formData.region,
-          subRegions: formData.subRegions,
-          category: formData.category,
-          subCategory: formData.subCategory,
-          documents: formData.documents,
-          avatarUrl: formData.avatarUrl
-        },
-        documents: formData.documents
-      };
-
-      console.log('🚀 提交導師更新申請:', requestData);
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/tutor-update-requests`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(requestData)
-      });
-
-      console.log('📥 申請提交回應狀態:', response.status);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('❌ 申請提交失敗:', errorData);
-        throw new Error(errorData.message || '提交申請失敗');
-      }
-
-      const result = await response.json();
-      console.log('✅ 申請提交成功:', result);
+      await tutorApi.updateProfile(formData);
       
       // 觸發用戶數據更新事件
       window.dispatchEvent(new Event('userUpdate'));
       
-      toast.success('更新申請已提交，等待管理員審批');
+      toast.success('資料已提交審核，請等待管理員審批');
       await fetchTutorProfile();
     } catch (error) {
-      console.error('Error submitting tutor update request:', error);
-      toast.error(error instanceof Error ? error.message : '提交申請失敗');
+      console.error('Error updating tutor profile:', error);
+      toast.error(error instanceof Error ? error.message : '更新導師資料失敗');
     } finally {
       setSaving(false);
     }
@@ -537,45 +399,14 @@ export default function TutorDashboardPage() {
         throw new Error('未登入');
       }
 
-      // 使用新的待審批 API 提交更新申請
-      const requestData = {
-        name: formData.name,
-        phone: formData.phone,
-        email: formData.email,
-        tutorProfile: {
-          ...formData,
-          ...data // 合併更新的資料
-        },
-        documents: formData.documents
-      };
-
-      console.log('🚀 提交導師更新申請:', requestData);
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/tutor-update-requests`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(requestData)
-      });
-
-      console.log('📥 申請提交回應狀態:', response.status);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('❌ 申請提交失敗:', errorData);
-        throw new Error(errorData.message || '提交申請失敗');
-      }
-
-      const result = await response.json();
-      console.log('✅ 申請提交成功:', result);
+      await tutorApi.updateProfile(data);
       
       // 觸發用戶數據更新事件
       window.dispatchEvent(new Event('userUpdate'));
       
       toast.success('成功提交更新，等待管理員審批');
       
+      // 不更新本地狀態，等待後台審批後再更新
       // 重新獲取資料以確保顯示正確的審批狀態
       await fetchTutorProfile();
     } catch (error) {
@@ -731,13 +562,6 @@ export default function TutorDashboardPage() {
   if (loading) {
     return <div className="container mx-auto py-8 text-center">載入中...</div>;
   }
-
-  // 調試信息
-  console.log('🔍 審批狀態調試:', {
-    formDataProfileStatus: formData.profileStatus,
-    userPendingProfile: user?.pendingProfile,
-    shouldShowApprovalStatus: (formData.profileStatus && formData.profileStatus !== 'approved') || (user?.pendingProfile && user.pendingProfile.status === 'pending')
-  });
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl">
@@ -1536,18 +1360,6 @@ export default function TutorDashboardPage() {
             </div>
           </CardContent>
         </Card>
-
-        {/* 提交按鈕 */}
-        <div className="flex justify-center pt-6">
-          <Button
-            type="submit"
-            size="lg"
-            disabled={saving}
-            className="px-8 py-3 text-lg"
-          >
-            {saving ? '提交中...' : '提交更新申請'}
-          </Button>
-        </div>
       </form>
 
       {/* 科目編輯對話框 */}

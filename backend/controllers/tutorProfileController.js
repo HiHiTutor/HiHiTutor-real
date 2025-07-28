@@ -98,37 +98,25 @@ const approveTutorProfile = async (req, res) => {
       });
     }
     
-    // 準備更新數據
-    const updateData = {
-      profileStatus: 'approved',
-      remarks: remarks || ''
-    };
+    // 更新狀態為已批准，並處理名稱更新
+    tutor.profileStatus = 'approved';
+    tutor.remarks = remarks || '';
     
-    // 檢查是否有待審批的更新申請 (pendingProfile)
-    if (tutor.pendingProfile && tutor.pendingProfile.status === 'pending') {
-      console.log('🔍 發現待審批的更新申請，但需要分別審批');
-      console.log('📝 導師個人資料已批准，但導師更新申請需要單獨審批');
-      console.log('📝 請去 /tutor-update-requests 頁面審批更新申請');
-    }
+    // 檢查是否有待審核的名稱更新
+    // 如果用戶在待審核期間更新了名稱，保留新名稱
+    // 如果沒有更新名稱，保持原來的名稱
+    console.log('✅ 導師個人資料已批准:', tutor.name);
     
-    // 更新導師資料
-    const updatedTutor = await User.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true }
-    );
-    
-    console.log('✅ 導師個人資料已批准:', updatedTutor.name);
+    await tutor.save();
     
     res.status(200).json({ 
       success: true,
       message: '已批准導師個人資料',
       data: {
-        tutorId: updatedTutor._id,
-        tutorName: updatedTutor.name,
-        profileStatus: updatedTutor.profileStatus,
-        remarks: updatedTutor.remarks,
-        hasPendingProfile: !!tutor.pendingProfile
+        tutorId: tutor._id,
+        tutorName: tutor.name,
+        profileStatus: tutor.profileStatus,
+        remarks: tutor.remarks
       }
     });
   } catch (error) {

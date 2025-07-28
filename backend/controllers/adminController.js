@@ -333,12 +333,7 @@ const updateUser = async (req, res) => {
     // 檢查是否嘗試將用戶升級為管理員
     if (req.body && (req.body.userType === 'admin' || req.body.role === 'admin')) {
       // 確保當前用戶是管理員或超級管理員
-      let currentUser;
-      if (mongoose.Types.ObjectId.isValid(req.user.id) && req.user.id.toString().length === 24) {
-        currentUser = await User.findById(req.user.id);
-      } else {
-        currentUser = await User.findOne({ userId: req.user.id });
-      }
+      const currentUser = await User.findById(req.user.id);
       if (!currentUser || (currentUser.userType !== 'admin' && currentUser.userType !== 'super_admin')) {
         return res.status(403).json({ 
           success: false,
@@ -350,12 +345,7 @@ const updateUser = async (req, res) => {
     // 檢查是否嘗試將用戶升級為超級管理員
     if (req.body && (req.body.userType === 'super_admin' || req.body.role === 'super_admin')) {
       // 只有超級管理員可以創建其他超級管理員
-      let currentUser;
-      if (mongoose.Types.ObjectId.isValid(req.user.id) && req.user.id.toString().length === 24) {
-        currentUser = await User.findById(req.user.id);
-      } else {
-        currentUser = await User.findOne({ userId: req.user.id });
-      }
+      const currentUser = await User.findById(req.user.id);
       if (!currentUser || currentUser.userType !== 'super_admin') {
         return res.status(403).json({ 
           success: false,
@@ -378,84 +368,21 @@ const updateUser = async (req, res) => {
     let user;
     const { id } = req.params;
     
-    // 先檢查用戶是否存在
-    let existingUser;
+    // 檢查是否為 MongoDB ObjectId 格式
     if (id.match(/^[0-9a-fA-F]{24}$/)) {
-      existingUser = await User.findById(id);
+      // 如果是 MongoDB ObjectId，直接使用
+      user = await User.findByIdAndUpdate(
+        id,
+        { $set: updateData },
+        { new: true }
+      ).select('-password');
     } else {
-      existingUser = await User.findOne({ userId: id });
-    }
-    
-    if (!existingUser) {
-      return res.status(404).json({ 
-        success: false,
-        message: 'User not found' 
-      });
-    }
-
-    // 如果是導師且有待審批的申請，檢查是否要通過審批
-    if (existingUser.userType === 'tutor' && existingUser.pendingProfile && existingUser.pendingProfile.status === 'pending') {
-      // 檢查是否有名稱變更
-      if (updateData.name && updateData.name !== existingUser.name) {
-        // 如果有名稱變更，自動通過待審批申請
-        const pendingData = existingUser.pendingProfile;
-        const finalUpdateData = {
-          ...updateData,
-          // 合併待審批的資料
-          ...(pendingData.name && { name: pendingData.name }),
-          ...(pendingData.phone && { phone: pendingData.phone }),
-          ...(pendingData.email && { email: pendingData.email }),
-          ...(pendingData.tutorProfile && { tutorProfile: { ...existingUser.tutorProfile, ...pendingData.tutorProfile } }),
-          ...(pendingData.documents && { documents: pendingData.documents }),
-          // 更新待審批狀態
-          'pendingProfile.status': 'approved',
-          'pendingProfile.adminRemarks': '自動審批通過'
-        };
-
-        if (id.match(/^[0-9a-fA-F]{24}$/)) {
-          user = await User.findByIdAndUpdate(
-            id,
-            { $set: finalUpdateData },
-            { new: true }
-          ).select('-password');
-        } else {
-          user = await User.findOneAndUpdate(
-            { userId: id },
-            { $set: finalUpdateData },
-            { new: true }
-          ).select('-password');
-        }
-      } else {
-        // 沒有名稱變更，正常更新
-        if (id.match(/^[0-9a-fA-F]{24}$/)) {
-          user = await User.findByIdAndUpdate(
-            id,
-            { $set: updateData },
-            { new: true }
-          ).select('-password');
-        } else {
-          user = await User.findOneAndUpdate(
-            { userId: id },
-            { $set: updateData },
-            { new: true }
-          ).select('-password');
-        }
-      }
-    } else {
-      // 非導師或無待審批申請，正常更新
-      if (id.match(/^[0-9a-fA-F]{24}$/)) {
-        user = await User.findByIdAndUpdate(
-          id,
-          { $set: updateData },
-          { new: true }
-        ).select('-password');
-      } else {
-        user = await User.findOneAndUpdate(
-          { userId: id },
-          { $set: updateData },
-          { new: true }
-        ).select('-password');
-      }
+      // 如果不是 ObjectId，假設是 userId
+      user = await User.findOneAndUpdate(
+        { userId: id },
+        { $set: updateData },
+        { new: true }
+      ).select('-password');
     }
 
     if (!user) {
@@ -606,12 +533,7 @@ const deleteUser = async (req, res) => {
     const { reason } = req.body;
 
     // 檢查當前用戶是否為超級管理員
-    let currentUser;
-    if (mongoose.Types.ObjectId.isValid(req.user.id) && req.user.id.toString().length === 24) {
-      currentUser = await User.findById(req.user.id);
-    } else {
-      currentUser = await User.findOne({ userId: req.user.id });
-    }
+    const currentUser = await User.findById(req.user.id);
     if (!currentUser || currentUser.role !== 'super_admin') {
       return res.status(403).json({
         success: false,

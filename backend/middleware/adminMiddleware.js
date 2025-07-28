@@ -2,32 +2,8 @@ const userRepository = require('../repositories/UserRepository');
 
 const verifyAdmin = async (req, res, next) => {
   try {
-    console.log('🔍 Admin middleware 開始驗證...');
-    console.log('🔍 req.user:', req.user);
-    console.log('🔍 req.user?.id:', req.user?.id);
-    
-    // 檢查是否有用戶信息
-    if (!req.user) {
-      console.log('❌ Admin 驗證失敗: 沒有用戶信息');
-      return res.status(401).json({ message: '未登入' });
-    }
-    
-    const userId = req.user.id || req.user._id;
-    console.log('🔍 提取的 userId:', userId);
-    
-    if (!userId) {
-      console.log('❌ Admin 驗證失敗: 沒有用戶ID');
-      return res.status(401).json({ message: '無效的用戶信息' });
-    }
-    
+    const userId = req.user?.id;
     const user = await userRepository.getUserById(userId);
-
-    console.log('🔍 查詢到的用戶:', {
-      hasUser: !!user,
-      userId: user?._id,
-      userRole: user?.role,
-      userType: user?.userType
-    });
 
     if (!user || (user.role !== 'admin' && user.role !== 'super_admin')) {
       console.log('❌ Admin 驗證失敗:', {

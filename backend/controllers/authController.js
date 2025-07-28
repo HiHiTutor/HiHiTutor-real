@@ -10,7 +10,6 @@ const emailService = require('../services/email');
 const { sendResetPasswordEmail } = require('../utils/emailService');
 const ResetToken = require('../models/ResetToken');
 const { generateUniqueTutorId } = require('../utils/tutorUtils');
-const mongoose = require('mongoose');
 
 // 模擬 JWT token 生成
 const generateToken = (user) => {
@@ -530,14 +529,7 @@ const getCurrentUser = async (req, res) => {
     }
     
     console.log('[getCurrentUser] 正在查找用戶 ID:', req.user.id);
-    // 檢查是否為有效的ObjectId
-    let user;
-    if (mongoose.Types.ObjectId.isValid(req.user.id) && req.user.id.toString().length === 24) {
-      user = await User.findById(req.user.id);
-    } else {
-      // 如果不是ObjectId，則使用userId查詢
-      user = await User.findOne({ userId: req.user.id });
-    }
+    const user = await User.findById(req.user.id);
     console.log('[getCurrentUser] 找到用戶:', user);
     
     if (!user) {
@@ -817,11 +809,6 @@ const getMe = async (req, res) => {
       createdAt: safeUser.createdAt,
       updatedAt: safeUser.updatedAt
     };
-
-    // 如果是導師，添加待審批資料
-    if (safeUser.userType === 'tutor' && safeUser.pendingProfile) {
-      userData.pendingProfile = safeUser.pendingProfile;
-    }
     
     console.log('[getMe] ✅ 返回用戶資料:', userData);
     res.json(userData);

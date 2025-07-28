@@ -139,61 +139,6 @@ router.post('/fix-user-password', async (req, res) => {
   }
 });
 
-// 重置用戶審批狀態
-router.patch('/users/:id/reset-status', verifyToken, isAdmin, async (req, res) => {
-  try {
-    const { id } = req.params;
-    
-    console.log('🔄 重置用戶審批狀態:', id);
-    
-    // 查找用戶
-    const user = await User.findById(id);
-    
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: '找不到用戶'
-      });
-    }
-    
-    // 重置狀態為 pending
-    const updatedUser = await User.findByIdAndUpdate(
-      id,
-      {
-        $set: {
-          profileStatus: 'pending',
-          remarks: '管理員手動重置為待審批狀態'
-        }
-      },
-      { new: true }
-    );
-
-    console.log('✅ 用戶狀態已重置:', {
-      id: updatedUser._id,
-      name: updatedUser.name,
-      profileStatus: updatedUser.profileStatus
-    });
-
-    res.json({
-      success: true,
-      message: '用戶審批狀態已重置為待審批',
-      data: {
-        id: updatedUser._id,
-        name: updatedUser.name,
-        profileStatus: updatedUser.profileStatus
-      }
-    });
-
-  } catch (error) {
-    console.error('❌ 重置用戶狀態失敗:', error);
-    res.status(500).json({
-      success: false,
-      message: '重置失敗',
-      error: error.message
-    });
-  }
-});
-
 // 新增：檢查和修復導師VIP/置頂狀態
 router.get('/fix-tutor-status', async (req, res) => {
   try {

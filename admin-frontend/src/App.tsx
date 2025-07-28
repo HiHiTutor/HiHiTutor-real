@@ -15,7 +15,6 @@ import CreateCase from './pages/CreateCase';
 import NotFound from './pages/NotFound';
 import TutorApplications from './pages/TutorApplications';
 import TutorProfileApprovals from './pages/TutorProfileApprovals';
-import TutorUpdateRequests from './pages/TutorUpdateRequests';
 import AdManager from './pages/AdManager';
 import AdCreate from './pages/AdCreate';
 import AdEdit from './pages/AdEdit';
@@ -23,7 +22,10 @@ import CategoryManager from './pages/CategoryManager';
 import RegionManager from './pages/RegionManager';
 import ModeManager from './pages/ModeManager';
 
-// Protected Route component
+// 管理員前端應用主組件
+// 包含路由保護和導航邏輯
+
+// 受保護的路由組件 - 確保只有已認證的管理員可以訪問
 const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
@@ -42,9 +44,10 @@ const App: React.FC = () => {
 
   return (
     <Routes>
+      {/* 登入頁面 - 未認證時顯示登入，已認證時重定向到儀表板 */}
       <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" replace />} />
       
-      {/* Protected Routes */}
+      {/* 受保護的管理員路由 */}
       <Route path="/" element={<ProtectedRoute element={<Layout><Dashboard /></Layout>} />} />
       <Route path="/dashboard" element={<ProtectedRoute element={<Layout><Dashboard /></Layout>} />} />
       <Route path="/users" element={<ProtectedRoute element={<Layout><Users /></Layout>} />} />
@@ -57,7 +60,6 @@ const App: React.FC = () => {
       <Route path="/search-statistics" element={<ProtectedRoute element={<Layout><SearchStatistics /></Layout>} />} />
       <Route path="/tutor-applications" element={<ProtectedRoute element={<Layout><TutorApplications /></Layout>} />} />
       <Route path="/tutor-profile-approvals" element={<ProtectedRoute element={<Layout><TutorProfileApprovals /></Layout>} />} />
-      <Route path="/tutor-update-requests" element={<ProtectedRoute element={<Layout><TutorUpdateRequests /></Layout>} />} />
       <Route path="/AdManager" element={<ProtectedRoute element={<Layout><AdManager /></Layout>} />} />
       <Route path="/ad-create" element={<ProtectedRoute element={<Layout><AdCreate /></Layout>} />} />
       <Route path="/ad-edit/:id" element={<ProtectedRoute element={<Layout><AdEdit /></Layout>} />} />
@@ -65,7 +67,7 @@ const App: React.FC = () => {
       <Route path="/region-manager" element={<ProtectedRoute element={<Layout><RegionManager /></Layout>} />} />
       <Route path="/mode-manager" element={<ProtectedRoute element={<Layout><ModeManager /></Layout>} />} />
       
-      {/* Fallback route */}
+      {/* 404 頁面 - 處理未找到的路由 */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

@@ -243,7 +243,7 @@ const userSchema = new mongoose.Schema({
   profileStatus: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],
-    default: 'pending'
+    default: 'approved'
   },
   remarks: {
     type: String,
@@ -255,134 +255,8 @@ const userSchema = new mongoose.Schema({
       default: null
     },
     educationCert: {
-      type: [String],
-      default: []
-    }
-  },
-  // 導師待審批資料 - 只對 tutor 用戶有效
-  pendingProfile: {
-    name: {
       type: String,
       default: null
-    },
-    phone: {
-      type: String,
-      default: null
-    },
-    email: {
-      type: String,
-      default: null
-    },
-    tutorProfile: {
-      gender: {
-        type: String,
-        enum: ['male', 'female']
-      },
-      birthDate: {
-        type: Date
-      },
-      teachingExperienceYears: {
-        type: Number
-      },
-      educationLevel: {
-        type: String
-      },
-      subjects: {
-        type: [String]
-      },
-      examResults: [{
-        subject: {
-          type: String
-        },
-        grade: {
-          type: String
-        }
-      }],
-      teachingAreas: [{
-        type: String
-      }],
-      availableTime: [{
-        day: {
-          type: String
-        },
-        time: {
-          type: String
-        }
-      }],
-      teachingMethods: [{
-        type: String
-      }],
-      classType: [{
-        type: String
-      }],
-      sessionRate: {
-        type: Number
-      },
-      introduction: {
-        type: String
-      },
-      qualifications: {
-        type: [String]
-      },
-      courseFeatures: {
-        type: String
-      },
-      publicCertificates: {
-        type: [String]
-      },
-      teachingMode: {
-        type: String,
-        enum: ['online', 'in-person', 'both']
-      },
-      teachingSubModes: {
-        type: [String]
-      },
-      region: {
-        type: String
-      },
-      subRegions: {
-        type: [String]
-      },
-      category: {
-        type: String
-      },
-      subCategory: {
-        type: String
-      },
-      documents: [{
-        type: {
-          type: String
-        },
-        url: {
-          type: String
-        }
-      }],
-      avatarUrl: {
-        type: String
-      }
-    },
-    documents: {
-      idCard: {
-        type: String,
-        default: null
-      },
-      educationCert: {
-        type: [String],
-        default: []
-      }
-    },
-    submittedAt: {
-      type: Date,
-      default: Date.now
-    },
-    status: {
-      type: String,
-      enum: ['pending', 'approved', 'rejected'],
-      default: 'pending'
-    },
-    adminRemarks: {
-      type: String,
-      default: ''
     }
   }
 }, {
