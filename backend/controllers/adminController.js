@@ -368,21 +368,84 @@ const updateUser = async (req, res) => {
     let user;
     const { id } = req.params;
     
-    // 檢查是否為 MongoDB ObjectId 格式
+    // 先檢查用戶是否存在
+    let existingUser;
     if (id.match(/^[0-9a-fA-F]{24}$/)) {
-      // 如果是 MongoDB ObjectId，直接使用
-      user = await User.findByIdAndUpdate(
-        id,
-        { $set: updateData },
-        { new: true }
-      ).select('-password');
+      existingUser = await User.findById(id);
     } else {
-      // 如果不是 ObjectId，假設是 userId
-      user = await User.findOneAndUpdate(
-        { userId: id },
-        { $set: updateData },
-        { new: true }
-      ).select('-password');
+      existingUser = await User.findOne({ userId: id });
+    }
+    
+    if (!existingUser) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'User not found' 
+      });
+    }
+
+    // 如果是導師且有待審批的申請，檢查是否要通過審批
+    if (existingUser.userType === 'tutor' && existingUser.pendingProfile && existingUser.pendingProfile.status === 'pending') {
+      // 檢查是否有名稱變更
+      if (updateData.name && updateData.name !== existingUser.name) {
+        // 如果有名稱變更，自動通過待審批申請
+        const pendingData = existingUser.pendingProfile;
+        const finalUpdateData = {
+          ...updateData,
+          // 合併待審批的資料
+          ...(pendingData.name && { name: pendingData.name }),
+          ...(pendingData.phone && { phone: pendingData.phone }),
+          ...(pendingData.email && { email: pendingData.email }),
+          ...(pendingData.tutorProfile && { tutorProfile: { ...existingUser.tutorProfile, ...pendingData.tutorProfile } }),
+          ...(pendingData.documents && { documents: pendingData.documents }),
+          // 更新待審批狀態
+          'pendingProfile.status': 'approved',
+          'pendingProfile.adminRemarks': '自動審批通過'
+        };
+
+        if (id.match(/^[0-9a-fA-F]{24}$/)) {
+          user = await User.findByIdAndUpdate(
+            id,
+            { $set: finalUpdateData },
+            { new: true }
+          ).select('-password');
+        } else {
+          user = await User.findOneAndUpdate(
+            { userId: id },
+            { $set: finalUpdateData },
+            { new: true }
+          ).select('-password');
+        }
+      } else {
+        // 沒有名稱變更，正常更新
+        if (id.match(/^[0-9a-fA-F]{24}$/)) {
+          user = await User.findByIdAndUpdate(
+            id,
+            { $set: updateData },
+            { new: true }
+          ).select('-password');
+        } else {
+          user = await User.findOneAndUpdate(
+            { userId: id },
+            { $set: updateData },
+            { new: true }
+          ).select('-password');
+        }
+      }
+    } else {
+      // 非導師或無待審批申請，正常更新
+      if (id.match(/^[0-9a-fA-F]{24}$/)) {
+        user = await User.findByIdAndUpdate(
+          id,
+          { $set: updateData },
+          { new: true }
+        ).select('-password');
+      } else {
+        user = await User.findOneAndUpdate(
+          { userId: id },
+          { $set: updateData },
+          { new: true }
+        ).select('-password');
+      }
     }
 
     if (!user) {
