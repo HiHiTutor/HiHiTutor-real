@@ -392,7 +392,8 @@ const register = async (req, res) => {
         password, // 密碼會在 User model 的 pre('save') 中間件中被加密
         userType,
         role,
-        userId
+        userId,
+        status: userType === 'organization' ? 'pending' : 'active' // 機構用戶設為pending，個人用戶設為active
       };
 
       // ✅ 不初始化 tutorId 欄位，避免 MongoDB unique 衝突
