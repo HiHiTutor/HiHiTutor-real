@@ -196,6 +196,27 @@ export default function TutorDashboardPage() {
     fetchTutorProfile();
   }, []);
 
+  // 監聽用戶資料更新事件
+  useEffect(() => {
+    const handleUserUpdate = () => {
+      console.log('🔔 收到用戶資料更新事件，重新獲取導師資料');
+      fetchTutorProfile();
+    };
+
+    window.addEventListener('userUpdate', handleUserUpdate);
+    return () => {
+      window.removeEventListener('userUpdate', handleUserUpdate);
+    };
+  }, []);
+
+  // 當用戶資料變化時重新獲取導師資料
+  useEffect(() => {
+    if (user && user.userType === 'tutor') {
+      console.log('🔔 用戶資料變化，重新獲取導師資料');
+      fetchTutorProfile();
+    }
+  }, [user]);
+
   // 導師名稱需要經過審批，不使用用戶基本資料中的名稱
   // useEffect(() => {
   //   if (user?.name && formData.name !== user.name) {
@@ -650,12 +671,13 @@ export default function TutorDashboardPage() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl">
       {/* 審批狀態顯示 */}
-      {formData.profileStatus && formData.profileStatus !== 'approved' && (
+      {((formData.profileStatus && formData.profileStatus !== 'approved') || 
+        (user?.pendingProfile && user.pendingProfile.status === 'pending')) && (
         <Card className="mb-6">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                {formData.profileStatus === 'pending' ? (
+                {(formData.profileStatus === 'pending' || (user?.pendingProfile && user.pendingProfile.status === 'pending')) ? (
                   <>
                     <div className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
                     <div>
