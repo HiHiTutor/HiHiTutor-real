@@ -6,6 +6,7 @@ export interface NotificationData {
   pendingTutorProfiles: number;
   pendingTutorApplications: number;
   pendingUserUpgrades: number;
+  pendingOrganizationUsers: number;
   openCases: number;
   lastUpdated: string;
 }

@@ -376,6 +376,32 @@ const UserDetail: React.FC = () => {
     }
   };
 
+  const handleApproveOrganization = async () => {
+    if (!id) return;
+    try {
+      await usersAPI.approveOrganization(id);
+      const response = await usersAPI.getUserById(id);
+      if (response.data.success && response.data.user) {
+        dispatch(setSelectedUser(response.data.user as User));
+      }
+    } catch (error) {
+      console.error('Error approving organization:', error);
+    }
+  };
+
+  const handleRejectOrganization = async () => {
+    if (!id) return;
+    try {
+      await usersAPI.rejectOrganization(id);
+      const response = await usersAPI.getUserById(id);
+      if (response.data.success && response.data.user) {
+        dispatch(setSelectedUser(response.data.user as User));
+      }
+    } catch (error) {
+      console.error('Error rejecting organization:', error);
+    }
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -834,6 +860,91 @@ const UserDetail: React.FC = () => {
                       <Typography>{selectedUser.tutorProfile.introduction}</Typography>
                     </Grid>
                   </>
+                )}
+              </Grid>
+            </Paper>
+          </Grid>
+        )}
+
+        {/* 機構用戶資料區塊 */}
+        {selectedUser.userType === 'organization' && (
+          <Grid item xs={12} md={6}>
+            <Paper sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                機構資料
+              </Typography>
+              <Divider sx={{ my: 2 }} />
+              <Grid container spacing={2}>
+                {/* 商業登記證 */}
+                <Grid item xs={4}>
+                  <Typography color="textSecondary">商業登記證</Typography>
+                </Grid>
+                <Grid item xs={8}>
+                  {selectedUser.organizationDocuments?.businessRegistration ? (
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => window.open(selectedUser.organizationDocuments!.businessRegistration, '_blank')}
+                    >
+                      查看商業登記證
+                    </Button>
+                  ) : (
+                    <Typography color="textSecondary">未上傳</Typography>
+                  )}
+                </Grid>
+                
+                {/* 地址證明 */}
+                <Grid item xs={4}>
+                  <Typography color="textSecondary">地址證明</Typography>
+                </Grid>
+                <Grid item xs={8}>
+                  {selectedUser.organizationDocuments?.addressProof ? (
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => window.open(selectedUser.organizationDocuments!.addressProof, '_blank')}
+                    >
+                      查看地址證明
+                    </Button>
+                  ) : (
+                    <Typography color="textSecondary">未上傳</Typography>
+                  )}
+                </Grid>
+                
+                {/* 審核狀態 */}
+                <Grid item xs={4}>
+                  <Typography color="textSecondary">審核狀態</Typography>
+                </Grid>
+                <Grid item xs={8}>
+                  <Chip
+                    label={selectedUser.status === 'active' ? '已通過' :
+                           selectedUser.status === 'pending' ? '待審核' : '已拒絕'}
+                    color={selectedUser.status === 'active' ? 'success' : 
+                           selectedUser.status === 'pending' ? 'warning' : 'error'}
+                    size="small"
+                  />
+                </Grid>
+                
+                {/* 審核按鈕 */}
+                {selectedUser.status === 'pending' && (
+                  <Grid item xs={12}>
+                    <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
+                      <Button
+                        variant="contained"
+                        color="success"
+                        onClick={() => handleApproveOrganization()}
+                      >
+                        通過審核
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="error"
+                        onClick={() => handleRejectOrganization()}
+                      >
+                        拒絕申請
+                      </Button>
+                    </Box>
+                  </Grid>
                 )}
               </Grid>
             </Paper>

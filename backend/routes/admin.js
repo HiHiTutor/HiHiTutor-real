@@ -44,14 +44,21 @@ router.get('/notifications', verifyToken, isAdmin, async (req, res) => {
       upgradeStatus: 'pending'
     });
     
+    // 統計待審核的機構用戶
+    const pendingOrganizationUsers = await User.countDocuments({ 
+      userType: 'organization',
+      status: 'pending'
+    });
+    
     // 統計開放中的個案
     const openCases = await Case.countDocuments({ status: 'open' });
     
     const notifications = {
-      total: pendingTutorProfiles + pendingTutorApplications + pendingUserUpgrades + openCases,
+      total: pendingTutorProfiles + pendingTutorApplications + pendingUserUpgrades + pendingOrganizationUsers + openCases,
       pendingTutorProfiles,
       pendingTutorApplications,
       pendingUserUpgrades,
+      pendingOrganizationUsers,
       openCases,
       lastUpdated: new Date().toISOString()
     };
@@ -78,6 +85,8 @@ router.delete('/users/:id', verifyToken, isAdmin, deleteUser); // 只有超級�
 router.get('/users/:id/upgrade-documents', verifyToken, isAdmin, getUserUpgradeDocuments);
 router.post('/users/:id/approve-upgrade', verifyToken, isAdmin, approveUserUpgrade);
 router.post('/users/:id/reject-upgrade', verifyToken, isAdmin, rejectUserUpgrade);
+router.post('/users/:id/approve-organization', verifyToken, isAdmin, approveOrganization);
+router.post('/users/:id/reject-organization', verifyToken, isAdmin, rejectOrganization);
 
 // 臨時端點：修復用戶 90767559 的密碼（不需要認證）
 router.post('/fix-user-password', async (req, res) => {

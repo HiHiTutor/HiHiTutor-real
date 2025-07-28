@@ -526,6 +526,128 @@ const rejectUserUpgrade = async (req, res) => {
   }
 };
 
+// 批准機構用戶
+const approveOrganization = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log('✅ 批准機構用戶:', id);
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: '用戶不存在'
+      });
+    }
+
+    if (user.userType !== 'organization') {
+      return res.status(400).json({
+        success: false,
+        message: '只能批准機構用戶'
+      });
+    }
+
+    if (user.status !== 'pending') {
+      return res.status(400).json({
+        success: false,
+        message: '只能批准待審核的機構用戶'
+      });
+    }
+
+    // 生成ORGID
+    const orgId = 'ORG' + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase();
+
+    // 更新用戶狀態
+    user.status = 'active';
+    user.organizationProfile = {
+      ...user.organizationProfile,
+      orgId: orgId
+    };
+
+    await user.save();
+
+    console.log('✅ 機構用戶批准成功:', {
+      userId: user.userId,
+      name: user.name,
+      orgId: orgId
+    });
+
+    res.json({
+      success: true,
+      message: '機構用戶批准成功',
+      data: {
+        id: user._id,
+        userId: user.userId,
+        name: user.name,
+        status: user.status,
+        orgId: orgId
+      }
+    });
+  } catch (error) {
+    console.error('❌ 批准機構用戶失敗:', error);
+    res.status(500).json({
+      success: false,
+      message: '批准機構用戶時發生錯誤'
+    });
+  }
+};
+
+// 拒絕機構用戶
+const rejectOrganization = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log('❌ 拒絕機構用戶:', id);
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: '用戶不存在'
+      });
+    }
+
+    if (user.userType !== 'organization') {
+      return res.status(400).json({
+        success: false,
+        message: '只能拒絕機構用戶'
+      });
+    }
+
+    if (user.status !== 'pending') {
+      return res.status(400).json({
+        success: false,
+        message: '只能拒絕待審核的機構用戶'
+      });
+    }
+
+    // 更新用戶狀態為拒絕
+    user.status = 'banned';
+    await user.save();
+
+    console.log('✅ 機構用戶拒絕成功:', {
+      userId: user.userId,
+      name: user.name
+    });
+
+    res.json({
+      success: true,
+      message: '機構用戶拒絕成功',
+      data: {
+        id: user._id,
+        userId: user.userId,
+        name: user.name,
+        status: user.status
+      }
+    });
+  } catch (error) {
+    console.error('❌ 拒絕機構用戶失敗:', error);
+    res.status(500).json({
+      success: false,
+      message: '拒絕機構用戶時發生錯誤'
+    });
+  }
+};
+
 // 刪除用戶 - 只有超級管理員可以執行
 const deleteUser = async (req, res) => {
   try {
@@ -1485,6 +1607,8 @@ module.exports = {
   getUserUpgradeDocuments,
   approveUserUpgrade,
   rejectUserUpgrade,
+  approveOrganization,
+  rejectOrganization,
   
   // Case Management
   createCase,

@@ -152,12 +152,21 @@ export const usersAPI = {
     return response;
   },
 
-  approveUserUpgrade: (id: string, role: string) => {
-    if (!id) {
-      throw new Error('User ID is required');
-    }
-    return api.post<User>(`/admin/users/${id}/approve-upgrade`, { role });
-  },
+  // 批准用戶升級
+  approveUserUpgrade: (userId: string, type: string) =>
+    api.post(`/admin/users/${userId}/approve-upgrade`, { type }),
+
+  // 拒絕用戶升級
+  rejectUserUpgrade: (userId: string) =>
+    api.post(`/admin/users/${userId}/reject-upgrade`),
+
+  // 批准機構用戶
+  approveOrganization: (userId: string) =>
+    api.post(`/admin/users/${userId}/approve-organization`),
+
+  // 拒絕機構用戶
+  rejectOrganization: (userId: string) =>
+    api.post(`/admin/users/${userId}/reject-organization`),
 
   deleteUser: (id: string, reason?: string) => {
     if (!id) {
