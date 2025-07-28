@@ -30,10 +30,13 @@ router.post('/', authenticateToken, async (req, res) => {
       submittedAt: new Date()
     };
 
-    // 更新用戶的待審批資料
+    // 更新用戶的待審批資料和狀態
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { pendingProfile: pendingData },
+      { 
+        pendingProfile: pendingData,
+        profileStatus: 'pending' // 同時設置 profileStatus 為 pending
+      },
       { new: true }
     );
 
@@ -133,6 +136,7 @@ router.post('/:id/approve', verifyAdmin, async (req, res) => {
       id,
       {
         ...updateData,
+        profileStatus: 'approved', // 設置 profileStatus 為 approved
         'pendingProfile.status': 'approved',
         'pendingProfile.adminRemarks': adminRemarks || ''
       },
