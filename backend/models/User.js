@@ -255,8 +255,8 @@ const userSchema = new mongoose.Schema({
       default: null
     },
     educationCert: {
-      type: String,
-      default: null
+      type: [String],
+      default: []
     }
   },
   // 導師待審批資料 - 只對 tutor 用戶有效
@@ -367,8 +367,8 @@ const userSchema = new mongoose.Schema({
         default: null
       },
       educationCert: {
-        type: String,
-        default: null
+        type: [String],
+        default: []
       }
     },
     submittedAt: {
