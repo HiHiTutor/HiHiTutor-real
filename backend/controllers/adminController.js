@@ -333,7 +333,12 @@ const updateUser = async (req, res) => {
     // 檢查是否嘗試將用戶升級為管理員
     if (req.body && (req.body.userType === 'admin' || req.body.role === 'admin')) {
       // 確保當前用戶是管理員或超級管理員
-      const currentUser = await User.findById(req.user.id);
+      let currentUser;
+      if (mongoose.Types.ObjectId.isValid(req.user.id) && req.user.id.toString().length === 24) {
+        currentUser = await User.findById(req.user.id);
+      } else {
+        currentUser = await User.findOne({ userId: req.user.id });
+      }
       if (!currentUser || (currentUser.userType !== 'admin' && currentUser.userType !== 'super_admin')) {
         return res.status(403).json({ 
           success: false,
@@ -345,7 +350,12 @@ const updateUser = async (req, res) => {
     // 檢查是否嘗試將用戶升級為超級管理員
     if (req.body && (req.body.userType === 'super_admin' || req.body.role === 'super_admin')) {
       // 只有超級管理員可以創建其他超級管理員
-      const currentUser = await User.findById(req.user.id);
+      let currentUser;
+      if (mongoose.Types.ObjectId.isValid(req.user.id) && req.user.id.toString().length === 24) {
+        currentUser = await User.findById(req.user.id);
+      } else {
+        currentUser = await User.findOne({ userId: req.user.id });
+      }
       if (!currentUser || currentUser.userType !== 'super_admin') {
         return res.status(403).json({ 
           success: false,
@@ -596,7 +606,12 @@ const deleteUser = async (req, res) => {
     const { reason } = req.body;
 
     // 檢查當前用戶是否為超級管理員
-    const currentUser = await User.findById(req.user.id);
+    let currentUser;
+    if (mongoose.Types.ObjectId.isValid(req.user.id) && req.user.id.toString().length === 24) {
+      currentUser = await User.findById(req.user.id);
+    } else {
+      currentUser = await User.findOne({ userId: req.user.id });
+    }
     if (!currentUser || currentUser.role !== 'super_admin') {
       return res.status(403).json({
         success: false,

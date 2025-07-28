@@ -3,6 +3,18 @@ const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
 const { verifyAdmin } = require('../middleware/adminMiddleware');
 const User = require('../models/User');
+const mongoose = require('mongoose');
+
+// 輔助函數：根據ID類型查找用戶
+const findUserById = async (id) => {
+  // 檢查是否為有效的ObjectId
+  if (mongoose.Types.ObjectId.isValid(id) && id.toString().length === 24) {
+    return await User.findById(id);
+  } else {
+    // 如果不是ObjectId，則使用userId查詢
+    return await User.findOne({ userId: id });
+  }
+};
 
 // POST /api/tutor-update-requests - 導師提交修改申請
 router.post('/', authenticateToken, async (req, res) => {
@@ -21,13 +33,13 @@ router.post('/', authenticateToken, async (req, res) => {
       userType: req.user.userType
     });
     
-    if (!id) {
-      console.log('❌ 沒有MongoDB用戶ID');
+    if (!userId) {
+      console.log('❌ 沒有用戶ID');
       return res.status(400).json({ success: false, message: '沒有用戶ID' });
     }
     
-    // 檢查用戶是否為導師 - 使用MongoDB的_id
-    const user = await User.findById(id);
+    // 檢查用戶是否為導師 - 使用輔助函數查找用戶
+    const user = await findUserById(userId);
     if (!user) {
       console.log('❌ 找不到用戶:', userId);
       return res.status(404).json({ success: false, message: '用戶不存在' });
@@ -57,9 +69,9 @@ router.post('/', authenticateToken, async (req, res) => {
 
     console.log('📝 準備的待審批資料:', pendingData);
 
-    // 更新用戶的待審批資料和狀態 - 使用MongoDB的_id
+    // 更新用戶的待審批資料和狀態 - 使用用戶的MongoDB _id
     const updatedUser = await User.findByIdAndUpdate(
-      id,
+      user._id,
       { 
         pendingProfile: pendingData,
         profileStatus: 'pending' // 同時設置 profileStatus 為 pending
@@ -145,7 +157,7 @@ router.post('/:id/approve', verifyAdmin, async (req, res) => {
     const { id } = req.params;
     const { adminRemarks } = req.body;
 
-    const user = await User.findById(id);
+    const user = await findUserById(id);
     if (!user) {
       return res.status(404).json({ success: false, message: '用戶不存在' });
     }
@@ -178,7 +190,7 @@ router.post('/:id/approve', verifyAdmin, async (req, res) => {
 
     // 更新用戶資料並清除待審批資料
     const updatedUser = await User.findByIdAndUpdate(
-      id,
+      user._id,
       {
         ...updateData,
         profileStatus: 'approved', // 設置 profileStatus 為 approved
@@ -206,7 +218,7 @@ router.delete('/:id', verifyAdmin, async (req, res) => {
     const { id } = req.params;
     const { adminRemarks } = req.body;
 
-    const user = await User.findById(id);
+    const user = await findUserById(id);
     if (!user) {
       return res.status(404).json({ success: false, message: '用戶不存在' });
     }
@@ -217,7 +229,7 @@ router.delete('/:id', verifyAdmin, async (req, res) => {
 
     // 更新待審批狀態為拒絕
     const updatedUser = await User.findByIdAndUpdate(
-      id,
+      user._id,
       {
         'pendingProfile.status': 'rejected',
         'pendingProfile.adminRemarks': adminRemarks || ''
@@ -243,13 +255,13 @@ router.get('/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
     const { userId } = req.user;
 
-    const user = await User.findById(id);
+    const user = await findUserById(id);
     if (!user) {
       return res.status(404).json({ success: false, message: '用戶不存在' });
     }
 
     // 檢查權限：只有申請者本人或管理員可以查看
-    if (user._id.toString() !== userId && req.user.role !== 'admin') {
+    if (user.userId !== userId && req.user.role !== 'admin') {
       return res.status(403).json({ success: false, message: '沒有權限查看此申請' });
     }
 
