@@ -66,8 +66,12 @@ router.get('/', verifyAdmin, async (req, res) => {
     if (status) {
       query['pendingProfile.status'] = status;
     } else {
-      // 默認只查詢pending狀態的申請
-      query['pendingProfile.status'] = 'pending';
+      // 默認查詢所有待審批申請（包括沒有status的）
+      query['$or'] = [
+        { 'pendingProfile.status': 'pending' },
+        { 'pendingProfile.status': { $exists: false } },
+        { 'pendingProfile.status': null }
+      ];
     }
 
     const skip = (page - 1) * limit;
