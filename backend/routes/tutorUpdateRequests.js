@@ -7,15 +7,33 @@ const User = require('../models/User');
 // POST /api/tutor-update-requests - 導師提交修改申請
 router.post('/', authenticateToken, async (req, res) => {
   try {
+    console.log('🚀 收到導師更新申請:', {
+      userId: req.user?.userId,
+      body: req.body
+    });
+    
     const { userId } = req.user;
+    
+    if (!userId) {
+      console.log('❌ 沒有用戶ID');
+      return res.status(400).json({ success: false, message: '沒有用戶ID' });
+    }
     
     // 檢查用戶是否為導師
     const user = await User.findById(userId);
     if (!user) {
+      console.log('❌ 找不到用戶:', userId);
       return res.status(404).json({ success: false, message: '用戶不存在' });
     }
     
+    console.log('✅ 找到用戶:', {
+      name: user.name,
+      userType: user.userType,
+      userId: user.userId
+    });
+    
     if (user.userType !== 'tutor') {
+      console.log('❌ 用戶不是導師:', user.userType);
       return res.status(403).json({ success: false, message: '只有導師可以提交更新申請' });
     }
 
@@ -30,6 +48,8 @@ router.post('/', authenticateToken, async (req, res) => {
       submittedAt: new Date()
     };
 
+    console.log('📝 準備的待審批資料:', pendingData);
+
     // 更新用戶的待審批資料和狀態
     const updatedUser = await User.findByIdAndUpdate(
       userId,
@@ -40,6 +60,12 @@ router.post('/', authenticateToken, async (req, res) => {
       { new: true }
     );
 
+    console.log('✅ 更新成功:', {
+      userId: updatedUser._id,
+      name: updatedUser.name,
+      hasPendingProfile: !!updatedUser.pendingProfile
+    });
+
     res.json({
       success: true,
       message: '更新申請已提交，等待管理員審批',
@@ -47,7 +73,12 @@ router.post('/', authenticateToken, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('提交導師更新申請失敗:', error);
+    console.error('❌ 提交導師更新申請失敗:', error);
+    console.error('❌ 錯誤詳情:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     res.status(500).json({ success: false, message: '提交申請失敗' });
   }
 });
