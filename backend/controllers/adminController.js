@@ -532,6 +532,15 @@ const approveOrganization = async (req, res) => {
     const { id } = req.params;
     console.log('✅ 批准機構用戶:', id);
 
+    // 檢查數據庫連接
+    if (mongoose.connection.readyState !== 1) {
+      console.error('❌ 數據庫未連接');
+      return res.status(500).json({
+        success: false,
+        message: '數據庫連接錯誤'
+      });
+    }
+
     const user = await User.findById(id);
     if (!user) {
       return res.status(404).json({
@@ -570,10 +579,10 @@ const approveOrganization = async (req, res) => {
 
     // 更新用戶狀態
     user.status = 'active';
-    user.organizationProfile = {
-      ...user.organizationProfile,
-      orgId: nextOrgId
-    };
+    if (!user.organizationProfile) {
+      user.organizationProfile = {};
+    }
+    user.organizationProfile.orgId = nextOrgId;
 
     await user.save();
 
@@ -608,6 +617,15 @@ const rejectOrganization = async (req, res) => {
   try {
     const { id } = req.params;
     console.log('❌ 拒絕機構用戶:', id);
+
+    // 檢查數據庫連接
+    if (mongoose.connection.readyState !== 1) {
+      console.error('❌ 數據庫未連接');
+      return res.status(500).json({
+        success: false,
+        message: '數據庫連接錯誤'
+      });
+    }
 
     const user = await User.findById(id);
     if (!user) {
