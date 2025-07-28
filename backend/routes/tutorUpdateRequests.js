@@ -57,14 +57,17 @@ router.get('/', verifyAdmin, async (req, res) => {
   try {
     const { page = 1, limit = 10, status } = req.query;
     
-    // 構建查詢條件
+    // 構建查詢條件 - 修復查詢邏輯
     const query = {
       userType: 'tutor',
-      'pendingProfile.status': { $exists: true, $ne: null }
+      pendingProfile: { $exists: true, $ne: null }
     };
     
     if (status) {
       query['pendingProfile.status'] = status;
+    } else {
+      // 默認只查詢pending狀態的申請
+      query['pendingProfile.status'] = 'pending';
     }
 
     const skip = (page - 1) * limit;
