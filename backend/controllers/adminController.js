@@ -554,14 +554,25 @@ const approveOrganization = async (req, res) => {
       });
     }
 
-    // 生成ORGID
-    const orgId = 'ORG' + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase();
+    // 查找現有的機構用戶，獲取下一個ORGID
+    const existingOrganizations = await User.find({
+      userType: 'organization',
+      'organizationProfile.orgId': { $exists: true, $ne: null }
+    }).sort({ 'organizationProfile.orgId': -1 });
+
+    let nextOrgId = 'ORG0001';
+    if (existingOrganizations.length > 0) {
+      const lastOrgId = existingOrganizations[0].organizationProfile.orgId;
+      const lastNumber = parseInt(lastOrgId.replace('ORG', ''));
+      const nextNumber = lastNumber + 1;
+      nextOrgId = `ORG${nextNumber.toString().padStart(4, '0')}`;
+    }
 
     // 更新用戶狀態
     user.status = 'active';
     user.organizationProfile = {
       ...user.organizationProfile,
-      orgId: orgId
+      orgId: nextOrgId
     };
 
     await user.save();
@@ -569,7 +580,7 @@ const approveOrganization = async (req, res) => {
     console.log('✅ 機構用戶批准成功:', {
       userId: user.userId,
       name: user.name,
-      orgId: orgId
+      orgId: nextOrgId
     });
 
     res.json({
@@ -580,7 +591,7 @@ const approveOrganization = async (req, res) => {
         userId: user.userId,
         name: user.name,
         status: user.status,
-        orgId: orgId
+        orgId: nextOrgId
       }
     });
   } catch (error) {
