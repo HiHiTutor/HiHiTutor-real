@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth');
-const adminAuth = require('../middleware/adminMiddleware');
+const { authenticateToken } = require('../middleware/auth');
+const { verifyAdmin } = require('../middleware/adminMiddleware');
 const User = require('../models/User');
 
 // POST /api/tutor-update-requests - 導師提交修改申請
-router.post('/', auth, async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
   try {
     const { userId } = req.user;
     
@@ -50,7 +50,7 @@ router.post('/', auth, async (req, res) => {
 });
 
 // GET /api/tutor-update-requests - Admin 查看待審批資料
-router.get('/', adminAuth, async (req, res) => {
+router.get('/', verifyAdmin, async (req, res) => {
   try {
     const { page = 1, limit = 10, status } = req.query;
     
@@ -92,7 +92,7 @@ router.get('/', adminAuth, async (req, res) => {
 });
 
 // POST /api/tutor-update-requests/:id/approve - Admin 審批通過
-router.post('/:id/approve', adminAuth, async (req, res) => {
+router.post('/:id/approve', verifyAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const { adminRemarks } = req.body;
@@ -152,7 +152,7 @@ router.post('/:id/approve', adminAuth, async (req, res) => {
 });
 
 // DELETE /api/tutor-update-requests/:id - Admin 拒絕修改申請
-router.delete('/:id', adminAuth, async (req, res) => {
+router.delete('/:id', verifyAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const { adminRemarks } = req.body;
@@ -189,7 +189,7 @@ router.delete('/:id', adminAuth, async (req, res) => {
 });
 
 // GET /api/tutor-update-requests/:id - 獲取特定申請詳情
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { userId } = req.user;
