@@ -223,20 +223,39 @@ export default function RegisterPage() {
       }
 
       // 顯示成功對話框
-      setDialogConfig({
-        isOpen: true,
-        title: '註冊成功',
-        message: '您的帳號已成功創建，請前往登入頁面。',
-        actions: [
-          { 
-            label: '前往登入', 
-            onClick: () => {
-              clearTempToken();
-              router.push('/login');
+      if (formData.userType === 'organization') {
+        // 機構用戶：顯示等待審核訊息
+        setDialogConfig({
+          isOpen: true,
+          title: '申請提交成功',
+          message: '成功提交申請，等待管理員審核',
+          actions: [
+            { 
+              label: '返回首頁', 
+              onClick: () => {
+                clearTempToken();
+                window.location.href = 'https://hi-hi-tutor-real.vercel.app/';
+              }
             }
-          }
-        ]
-      });
+          ]
+        });
+      } else {
+        // 個人用戶：顯示原有訊息
+        setDialogConfig({
+          isOpen: true,
+          title: '註冊成功',
+          message: '您的帳號已成功創建，請前往登入頁面。',
+          actions: [
+            { 
+              label: '前往登入', 
+              onClick: () => {
+                clearTempToken();
+                router.push('/login');
+              }
+            }
+          ]
+        });
+      }
     } catch (err) {
       console.error('註冊失敗:', err);
       setError(err instanceof Error ? err.message : '註冊失敗');
