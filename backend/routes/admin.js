@@ -10,6 +10,8 @@ const {
   getUserUpgradeDocuments,
   approveUserUpgrade,
   rejectUserUpgrade,
+  approveOrganization,
+  rejectOrganization,
   createCase,
   getAllCases,
   getCaseById,
