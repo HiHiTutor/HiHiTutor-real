@@ -268,6 +268,7 @@ export default function TutorDashboardPage() {
       const data = await tutorApi.getProfile();
       console.log('Fetched tutor profile data:', data); // 調試用
       console.log('Subjects from API:', data.subjects); // 調試用
+      console.log('🔍 API 返回的 profileStatus:', data.profileStatus); // 調試用
       
       // 確保科目數據正確設置
       const subjects = data.subjects || [];
@@ -282,7 +283,7 @@ export default function TutorDashboardPage() {
       console.log('Processed availableTime:', availableTime); // 調試用
       console.log('Processed publicCertificates:', publicCertificates); // 調試用
       
-      setFormData({
+      const newFormData = {
         ...data,
         // 導師使用 tutor profile 中的名稱，需要經過審批
         name: data.name,
@@ -294,7 +295,12 @@ export default function TutorDashboardPage() {
           idCard: data.documents?.idCard || '',
           educationCert: data.certificateLogs?.map((log: any) => log.fileUrl) || data.documents?.educationCert || []
         }
-      });
+      };
+      
+      console.log('🔍 設置新的 formData:', newFormData);
+      console.log('🔍 新的 formData.profileStatus:', newFormData.profileStatus);
+      
+      setFormData(newFormData);
       setNewSubjects(subjects);
       setNewAvailableTimes(availableTime);
       setPublicCertificates(publicCertificates);
