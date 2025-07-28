@@ -532,15 +532,6 @@ const approveOrganization = async (req, res) => {
     const { id } = req.params;
     console.log('✅ 批准機構用戶:', id);
 
-    // 檢查數據庫連接
-    if (mongoose.connection.readyState !== 1) {
-      console.error('❌ 數據庫未連接');
-      return res.status(500).json({
-        success: false,
-        message: '數據庫連接錯誤'
-      });
-    }
-
     const user = await User.findById(id);
     if (!user) {
       return res.status(404).json({
@@ -605,9 +596,15 @@ const approveOrganization = async (req, res) => {
     });
   } catch (error) {
     console.error('❌ 批准機構用戶失敗:', error);
+    console.error('❌ 錯誤詳情:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     res.status(500).json({
       success: false,
-      message: '批准機構用戶時發生錯誤'
+      message: '批准機構用戶時發生錯誤',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
@@ -617,15 +614,6 @@ const rejectOrganization = async (req, res) => {
   try {
     const { id } = req.params;
     console.log('❌ 拒絕機構用戶:', id);
-
-    // 檢查數據庫連接
-    if (mongoose.connection.readyState !== 1) {
-      console.error('❌ 數據庫未連接');
-      return res.status(500).json({
-        success: false,
-        message: '數據庫連接錯誤'
-      });
-    }
 
     const user = await User.findById(id);
     if (!user) {
@@ -670,9 +658,15 @@ const rejectOrganization = async (req, res) => {
     });
   } catch (error) {
     console.error('❌ 拒絕機構用戶失敗:', error);
+    console.error('❌ 錯誤詳情:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     res.status(500).json({
       success: false,
-      message: '拒絕機構用戶時發生錯誤'
+      message: '拒絕機構用戶時發生錯誤',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
