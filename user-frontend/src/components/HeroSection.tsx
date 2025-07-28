@@ -11,6 +11,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { SubjectBar } from './SubjectBar';
 import HeroAd from './ads/HeroAd';
+import { useUser } from '@/hooks/useUser';
 
 interface User {
   id: string;
@@ -22,29 +23,12 @@ interface User {
 }
 
 export default function HeroSection() {
-  const [user, setUser] = useState<User | null>(null);
+  const { user } = useUser();
   const router = useRouter();
-
-  useEffect(() => {
-    // 從 localStorage 讀取用戶資料
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      try {
-        const userData = JSON.parse(userStr);
-        setUser(userData);
-      } catch (error) {
-        console.error('解析用戶資料失敗:', error);
-        localStorage.removeItem('user');
-        // localStorage.removeItem('token'); // 不要自動清除 token
-      }
-    }
-  }, []);
 
   // 處理登出
   const handleLogout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
     window.location.reload();
   };
 

@@ -22,25 +22,10 @@ function LoginPageContent() {
       const user = await authApi.login(identifier, password);
       localStorage.setItem('token', user.token);
       
-      // 直接使用登入回應中的用戶資料，包含 userId
-      const userData = {
-        id: user.id,
-        userId: user.userId,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        userType: user.userType,
-        role: user.role
-      };
+      console.log('登入成功，用戶資料:', user);
       
-      console.log('登入成功，用戶資料:', userData);
-      localStorage.setItem('user', JSON.stringify(userData));
-      localStorage.setItem('userType', userData.userType);
-      
-      // 立即設置用戶狀態到全局，避免等待 useUser hook 重新獲取
-      if (typeof window !== 'undefined') {
-        (window as any).__USER_DATA__ = userData;
-      }
+      // 只儲存 token，不儲存用戶資料到 localStorage
+      // 用戶資料將通過 useUser hook 從 /api/me 獲取
       
       const loginEvent = new Event('login');
       window.dispatchEvent(loginEvent);

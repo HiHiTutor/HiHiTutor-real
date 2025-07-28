@@ -7,23 +7,24 @@ import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 import REGION_OPTIONS from '@/constants/regionOptions';
 import { caseApi } from '@/services/api';
 import { TEACHING_MODE_OPTIONS } from '@/constants/teachingModeOptions';
+import { useUser } from '@/hooks/useUser';
 
 export default function TutorCasePage() {
   const router = useRouter();
+  const { user, isLoading, error } = useUser();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     category: '',
     subCategory: '',
     subjects: [] as string[],
-    mode: '', // 改為單選
     regions: '',
     subRegions: [] as string[],
-    price: '',
-    location: '',
+    modes: [] as string[],
     duration: '',
     durationUnit: 'minutes',
-    weeklyLessons: ''
+    price: '',
+    weeklyLessons: 1
   });
 
   const [categories, setCategories] = useState([]);
@@ -129,23 +130,32 @@ export default function TutorCasePage() {
   const effectiveCategories = categories.length ? categories : CATEGORY_OPTIONS;
   const effectiveRegions = regions.length ? regions : REGION_OPTIONS;
 
+  // 檢查用戶登入狀態
+  useEffect(() => {
+    if (!isLoading && !user) {
+      alert('請先登入');
+      router.push('/login');
+    }
+  }, [user, isLoading, router]);
+
+  // 處理錯誤狀態
+  useEffect(() => {
+    if (error && (error.includes('登入已過期') || error.includes('Not authenticated'))) {
+      alert('登入已過期，請重新登入');
+      router.push('/login');
+    }
+  }, [error, router]);
+
   useEffect(() => {
     // 檢查用戶是否為導師
-    const user = localStorage.getItem('user');
     if (user) {
-      try {
-        const userData = JSON.parse(user);
-        if (userData.role !== 'tutor' && userData.userType !== 'tutor') {
-          router.push('/post');
-        }
-      } catch (e) {
-        console.error('解析用戶資料失敗:', e);
+      if (user.userType !== 'tutor') {
         router.push('/post');
       }
     } else {
       router.push('/post');
     }
-  }, [router]);
+  }, [router, user]);
 
   // 動態獲取科目選項
   const getSubjectOptions = () => {
@@ -265,15 +275,15 @@ export default function TutorCasePage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const userStr = localStorage.getItem('user');
-      if (!userStr) {
+      // 檢查用戶登入狀態
+      if (!user) {
         alert('請先登入');
         router.push('/login');
         return;
       }
-      const user = JSON.parse(userStr);
+
       const submitData = {
-        student: user.id,  // 使用 student 字段
+        student: user.id,  // 使用 useUser hook 獲取的用戶ID
         type: 'tutor',  // 添加 type 字段來標識這是導師發布的個案
         title: formData.title || `${formData.subjects.join('、')}補習`,  // 如果沒有填寫標題，使用科目作為標題
         description: formData.description,
@@ -283,7 +293,7 @@ export default function TutorCasePage() {
         subCategory: formData.subCategory,
         regions: formData.regions ? [formData.regions] : [],
         subRegions: formData.subRegions,
-        mode: formData.mode,  // 確保有預設值
+        mode: formData.modes[0] || 'online',  // 確保有預設值
         lessonDetails: {
           duration: formData.durationUnit === 'hours' 
             ? Number(formData.duration) * 60  // 將小時轉換為分鐘

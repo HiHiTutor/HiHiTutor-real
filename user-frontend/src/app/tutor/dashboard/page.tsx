@@ -22,6 +22,7 @@ import { tutorApi } from '@/services/api';
 import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 import REGION_OPTIONS from '@/constants/regionOptions';
 import TEACHING_MODE_OPTIONS from '@/constants/teachingModeOptions';
+import { useUser } from '@/hooks/useUser';
 
 interface Option {
   value: string;
@@ -162,6 +163,8 @@ export default function TutorDashboardPage() {
   const [showIdCard, setShowIdCard] = useState(false);
   const [publicCertificates, setPublicCertificates] = useState<string[]>([]);
 
+  const { user } = useUser();
+
   useEffect(() => {
     fetchTutorProfile();
   }, []);
@@ -273,17 +276,17 @@ export default function TutorDashboardPage() {
       const formData = new FormData();
       formData.append('avatar', file);
 
+      // 從 localStorage 獲取 token
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('未登入');
       }
 
-      const userStr = localStorage.getItem('user');
-      if (!userStr) {
+      // 使用 useUser hook 獲取的用戶資料
+      if (!user) {
         throw new Error('找不到用戶資料');
       }
-      const user = JSON.parse(userStr);
-      const userId = user.userId;
+      const userId = user.id;
 
       const data = await tutorApi.uploadAvatar(userId, file);
       setFormData(prev => ({

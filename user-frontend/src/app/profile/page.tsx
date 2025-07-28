@@ -7,7 +7,7 @@ import { useUser } from '@/hooks/useUser';
 import { getUserTypeDisplay } from '@/utils/userTypeDisplay';
 
 export default function ProfilePage() {
-  const { user, isLoading } = useUser();
+  const { user, isLoading, error } = useUser();
   const router = useRouter();
 
   useEffect(() => {
@@ -30,6 +30,21 @@ export default function ProfilePage() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12">
+        <div className="max-w-3xl mx-auto px-4">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+            <p className="text-red-600 text-center">{error}</p>
+            <p className="text-gray-500 text-center mt-2">
+              {error.includes('登入已過期') ? '正在返回登入頁面...' : '請稍後再試'}
+            </p>
           </div>
         </div>
       </div>

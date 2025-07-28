@@ -14,19 +14,11 @@ interface User {
 export function useUser() {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [lastNotificationStatus, setLastNotificationStatus] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   const fetchUser = async () => {
-    // 優先使用全局用戶資料（如果存在）
-    if (typeof window !== 'undefined' && (window as any).__USER_DATA__) {
-      console.log('🔍 使用全局用戶資料:', (window as any).__USER_DATA__)
-      setUser((window as any).__USER_DATA__)
-      setIsLoading(false)
-      // 清除全局資料，避免重複使用
-      delete (window as any).__USER_DATA__
-      return
-    }
     try {
+      setError(null)
       const token = localStorage.getItem('token')
       if (!token) {
         setUser(null)
@@ -34,7 +26,7 @@ export function useUser() {
         return
       }
 
-      // 先獲取基本用戶資料
+      // 從 /api/me 獲取最新用戶資料
       const meRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/auth/me`, {
         method: 'GET',
         headers: {
@@ -43,7 +35,22 @@ export function useUser() {
         },
       })
 
-      if (!meRes.ok) throw new Error('Not authenticated')
+      if (!meRes.ok) {
+        if (meRes.status === 401) {
+          console.warn('🔒 Token 無效，清除並重新導向登入')
+          localStorage.removeItem('token')
+          setUser(null)
+          setError('登入已過期，請重新登入')
+          return
+        } else if (meRes.status === 500) {
+          console.error('🔒 伺服器錯誤')
+          setError('伺服器暫時無法回應，請稍後再試')
+          return
+        } else {
+          throw new Error(`HTTP ${meRes.status}: ${meRes.statusText}`)
+        }
+      }
+
       const meData = await meRes.json()
       console.log('🔍 API returned user data:', meData)
 
@@ -109,11 +116,22 @@ export function useUser() {
       setUser(userData)
     } catch (err) {
       console.warn('🔒 無法取得用戶資料：', err instanceof Error ? err.message : '未知錯誤')
-      setUser(null)
-      // 如果 token 無效，清除它
-      if (err instanceof Error && err.message === 'Not authenticated') {
-        localStorage.removeItem('token')
+      
+      // 檢查是否為網路錯誤
+      if (err instanceof Error) {
+        if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+          setError('網路連線失敗，請檢查網路設定')
+        } else if (err.message.includes('Not authenticated')) {
+          localStorage.removeItem('token')
+          setError('登入已過期，請重新登入')
+        } else {
+          setError('無法獲取用戶資料，請稍後再試')
+        }
+      } else {
+        setError('發生未知錯誤，請稍後再試')
       }
+      
+      setUser(null)
     } finally {
       setIsLoading(false)
     }
@@ -133,6 +151,7 @@ export function useUser() {
     const handleLogout = () => {
       console.log('🔔 收到登出事件，清除用戶資料')
       setUser(null)
+      setError(null)
     }
 
     // 監聽用戶資料更新事件
@@ -152,7 +171,5 @@ export function useUser() {
     }
   }, [])
 
-  // 移除定期檢查審批狀態的機制 - 用戶要求移除自動檢查
-
-  return { user, isLoading }
+  return { user, isLoading, error }
 } 

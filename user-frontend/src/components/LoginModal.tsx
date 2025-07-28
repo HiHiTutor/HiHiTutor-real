@@ -31,7 +31,9 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
       
       // authApi.login 返回的是用戶資料和 token
       localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response));
+      
+      // 只儲存 token，不儲存用戶資料到 localStorage
+      // 用戶資料將通過 useUser hook 從 /api/me 獲取
       
       // Dispatch login event
       window.dispatchEvent(new Event('login'));

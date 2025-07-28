@@ -12,8 +12,8 @@ import React from 'react';
 import LoginModal from './LoginModal';
 
 const Navbar = () => {
+  const { user, isLoading, error } = useUser();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const { user } = useUser();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -21,8 +21,7 @@ const Navbar = () => {
   useEffect(() => {
     const checkLogin = () => {
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-      const userStr = localStorage.getItem('user');
-      setIsLoggedIn(!!token && !!userStr);
+      setIsLoggedIn(!!token);
     };
 
     // 初始檢查
@@ -46,6 +45,20 @@ const Navbar = () => {
       window.removeEventListener('logout', handleLogout);
     };
   }, []);
+
+  // 當 user 資料載入完成後更新登入狀態
+  useEffect(() => {
+    if (!isLoading) {
+      setIsLoggedIn(!!user);
+    }
+  }, [user, isLoading]);
+
+  // 如果有錯誤且是認證相關錯誤，清除登入狀態
+  useEffect(() => {
+    if (error && (error.includes('登入已過期') || error.includes('Not authenticated'))) {
+      setIsLoggedIn(false);
+    }
+  }, [error]);
 
   return (
     <header className="bg-gradient-to-b from-white to-[#e6e6e6] border-b border-gray-300">
@@ -105,7 +118,6 @@ const Navbar = () => {
                     className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500"
                     onClick={() => {
                       localStorage.removeItem('token');
-                      localStorage.removeItem('user');
                       window.dispatchEvent(new Event('logout'));
                       window.location.href = '/login';
                     }}
@@ -155,7 +167,6 @@ const Navbar = () => {
                     className="block w-full text-left px-3 py-2 hover:bg-gray-100 text-red-500"
                     onClick={() => {
                       localStorage.removeItem('token');
-                      localStorage.removeItem('user');
                       window.dispatchEvent(new Event('logout'));
                       window.location.href = '/login';
                     }}

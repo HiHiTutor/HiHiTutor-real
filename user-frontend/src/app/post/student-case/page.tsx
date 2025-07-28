@@ -21,6 +21,7 @@ import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 import { REGION_OPTIONS } from '@/constants/regionOptions';
 import { Label } from '@/components/ui/label';
 import { TEACHING_MODE_OPTIONS, initializeTeachingModeOptions } from '@/constants/teachingModeOptions';
+import { useUser } from '@/hooks/useUser';
 
 const formSchema = z.object({
   title: z.string({
@@ -97,14 +98,31 @@ type FormData = z.infer<typeof formSchema>;
 
 export default function PostStudentCase() {
   const router = useRouter();
+  const { user, isLoading, error } = useUser();
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>('');
-  const [selectedModes, setSelectedModes] = useState<string[]>(['in-person']); // 預設為面授
-  const [selectedTeachingSubCategories, setSelectedTeachingSubCategories] = useState<string[]>([]);
+  const [selectedModes, setSelectedModes] = useState<string[]>([]);
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [selectedSubRegions, setSelectedSubRegions] = useState<string[]>([]);
+  const [selectedTeachingSubCategories, setSelectedTeachingSubCategories] = useState<string[]>([]);
   const [teachingModeOptions, setTeachingModeOptions] = useState<any[]>([]);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
+
+  // 檢查用戶登入狀態
+  useEffect(() => {
+    if (!isLoading && !user) {
+      toast.error('請先登入');
+      router.push('/login');
+    }
+  }, [user, isLoading, router]);
+
+  // 處理錯誤狀態
+  useEffect(() => {
+    if (error && (error.includes('登入已過期') || error.includes('Not authenticated'))) {
+      toast.error('登入已過期，請重新登入');
+      router.push('/login');
+    }
+  }, [error, router]);
 
   // 初始化教學模式選項
   useEffect(() => {
@@ -207,19 +225,17 @@ export default function PostStudentCase() {
         return;
       }
 
-      // 獲取用戶信息
-      const userStr = localStorage.getItem('user');
-      if (!userStr) {
+      // 檢查用戶登入狀態
+      if (!user) {
         toast.error('請先登入');
         router.push('/login');
         return;
       }
-      const user = JSON.parse(userStr);
 
       // 確保所有必要欄位都有值
       const caseData = {
         id: `S${Date.now()}`,
-        student: user.id, // 添加用戶ID
+        student: user.id, // 使用 useUser hook 獲取的用戶ID
         title: data.title || '',
         description: data.description || '',
         category: data.category || '',
