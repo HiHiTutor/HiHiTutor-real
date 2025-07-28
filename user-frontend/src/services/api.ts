@@ -29,12 +29,28 @@ export const fetchApi = async (endpoint: string, options: RequestInit = {}, para
     console.log('🔍 查詢參數:', params);
 
     const token = localStorage.getItem('token');
-    const headers = {
-      'Content-Type': 'application/json',
+    
+    // 檢查是否為 FormData
+    const isFormData = options.body instanceof FormData;
+    
+    // 構建 headers
+    const headers: Record<string, string> = {
       'Accept': 'application/json',
-      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-      ...options.headers,
     };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    // 如果不是 FormData，才設置 Content-Type
+    if (!isFormData) {
+      headers['Content-Type'] = 'application/json';
+    }
+    
+    // 合併其他 headers
+    if (options.headers) {
+      Object.assign(headers, options.headers);
+    }
 
     const response = await fetch(url, {
       ...options,
