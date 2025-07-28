@@ -1345,11 +1345,11 @@ const getTutorProfile = async (req, res) => {
 
     console.log('✅ 用戶存在:', { userId: tokenUserId, userName: user.name, userType: user.userType });
 
-    // 檢查是否為導師
-    if (user.userType !== 'tutor') {
+    // 檢查是否為導師或機構用戶
+    if (user.userType !== 'tutor' && user.userType !== 'organization') {
       return res.status(403).json({
         success: false,
-        message: '只有導師才能使用此 API'
+        message: '只有導師和機構用戶才能使用此 API'
       });
     }
 
@@ -1490,10 +1490,10 @@ const updateTutorProfile = async (req, res) => {
       });
     }
 
-    if (tutor.userType !== 'tutor') {
+    if (tutor.userType !== 'tutor' && tutor.userType !== 'organization') {
       return res.status(400).json({
         success: false,
-        message: '該用戶不是導師'
+        message: '該用戶不是導師或機構用戶'
       });
     }
 

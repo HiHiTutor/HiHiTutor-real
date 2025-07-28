@@ -179,11 +179,11 @@ const toggleTutorPublic = async (req, res) => {
       });
     }
 
-    // 檢查是否為導師
-    if (tutor.userType !== 'tutor') {
+    // 檢查是否為導師或機構用戶
+    if (tutor.userType !== 'tutor' && tutor.userType !== 'organization') {
       return res.status(400).json({
         success: false,
-        message: '該用戶不是導師'
+        message: '該用戶不是導師或機構用戶'
       });
     }
 

@@ -51,9 +51,9 @@ router.post('/', authenticateToken, async (req, res) => {
       userId: user.userId
     });
     
-    if (user.userType !== 'tutor') {
-      console.log('❌ 用戶不是導師:', user.userType);
-      return res.status(403).json({ success: false, message: '只有導師可以提交更新申請' });
+    if (user.userType !== 'tutor' && user.userType !== 'organization') {
+      console.log('❌ 用戶不是導師或機構用戶:', user.userType);
+      return res.status(403).json({ success: false, message: '只有導師和機構用戶可以提交更新申請' });
     }
 
     // 準備待審批資料
