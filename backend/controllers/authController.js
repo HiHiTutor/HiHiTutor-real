@@ -148,6 +148,32 @@ const loginUser = async (req, res) => {
       });
     }
 
+    // 檢查機構用戶狀態
+    if (user.userType === 'organization' && user.status === 'pending') {
+      console.log("❌ 機構用戶尚未通過審核：", {
+        userId: user.userId,
+        name: user.name,
+        status: user.status
+      });
+      return res.status(403).json({
+        success: false,
+        message: '您的帳號正在等待管理員審核，請稍後再試'
+      });
+    }
+
+    // 檢查用戶是否被禁用
+    if (user.status === 'banned') {
+      console.log("❌ 用戶已被禁用：", {
+        userId: user.userId,
+        name: user.name,
+        status: user.status
+      });
+      return res.status(403).json({
+        success: false,
+        message: '您的帳號已被禁用，請聯繫客服'
+      });
+    }
+
     // 生成 JWT token
     console.log("🎟️ 生成 JWT token...");
     const token = jwt.sign(
