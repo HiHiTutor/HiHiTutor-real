@@ -63,6 +63,7 @@ export function useUser() {
 
       const meData = await meRes.json()
       console.log('🔍 API returned user data:', meData)
+      console.log('🔍 meData.pendingProfile:', meData.pendingProfile)
 
       // 嘗試獲取詳細資料（包括頭像）
       let profileData = {}
@@ -89,6 +90,9 @@ export function useUser() {
         ...profileData,
         userType: meData.userType || meData.role // 以 userType 為主
       }
+      
+      console.log('🔍 合併後的 userData:', userData)
+      console.log('🔍 userData.pendingProfile:', userData.pendingProfile)
       
       // 如果係 tutor，額外 fetch tutor profile 來獲取 avatarUrl 和檢查審批狀態
       if (userData.userType === 'tutor') {
