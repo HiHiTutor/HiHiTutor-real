@@ -133,9 +133,14 @@ const approveTutorProfile = async (req, res) => {
         console.log('📄 更新文件');
       }
       
-      // 更新pendingProfile狀態為已批准
-      updateData['pendingProfile.status'] = 'approved';
-      updateData['pendingProfile.adminRemarks'] = remarks || '與導師個人資料一併批准';
+      // 更新pendingProfile狀態為已批准 - 修正更新語法
+      updateData.pendingProfile = {
+        ...tutor.pendingProfile,
+        status: 'approved',
+        adminRemarks: remarks || '與導師個人資料一併批准'
+      };
+      
+      console.log('✅ 更新pendingProfile狀態為approved');
     }
     
     // 更新導師資料
