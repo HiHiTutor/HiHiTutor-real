@@ -1505,6 +1505,18 @@ export default function TutorDashboardPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* 提交按鈕 */}
+        <div className="flex justify-center pt-6">
+          <Button
+            type="submit"
+            size="lg"
+            disabled={saving}
+            className="px-8 py-3 text-lg"
+          >
+            {saving ? '提交中...' : '提交更新申請'}
+          </Button>
+        </div>
       </form>
 
       {/* 科目編輯對話框 */}
