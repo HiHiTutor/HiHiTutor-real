@@ -13,14 +13,21 @@ router.post('/', authenticateToken, async (req, res) => {
     });
     
     const { userId } = req.user;
+    const { id } = req.user; // MongoDB的_id
     
-    if (!userId) {
-      console.log('❌ 沒有用戶ID');
+    console.log('🔍 用戶信息:', {
+      userId: userId, // 字符串ID
+      id: id, // MongoDB ObjectId
+      userType: req.user.userType
+    });
+    
+    if (!id) {
+      console.log('❌ 沒有MongoDB用戶ID');
       return res.status(400).json({ success: false, message: '沒有用戶ID' });
     }
     
-    // 檢查用戶是否為導師
-    const user = await User.findById(userId);
+    // 檢查用戶是否為導師 - 使用MongoDB的_id
+    const user = await User.findById(id);
     if (!user) {
       console.log('❌ 找不到用戶:', userId);
       return res.status(404).json({ success: false, message: '用戶不存在' });
@@ -50,9 +57,9 @@ router.post('/', authenticateToken, async (req, res) => {
 
     console.log('📝 準備的待審批資料:', pendingData);
 
-    // 更新用戶的待審批資料和狀態
+    // 更新用戶的待審批資料和狀態 - 使用MongoDB的_id
     const updatedUser = await User.findByIdAndUpdate(
-      userId,
+      id,
       { 
         pendingProfile: pendingData,
         profileStatus: 'pending' // 同時設置 profileStatus 為 pending
