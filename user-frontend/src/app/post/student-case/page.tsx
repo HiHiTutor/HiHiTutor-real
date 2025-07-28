@@ -351,7 +351,10 @@ export default function PostStudentCase() {
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-3xl mx-auto px-4">
         <div className="bg-white rounded-lg shadow-sm p-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-8">尋導師</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">尋導師</h1>
+          <p className="text-gray-600 mb-8">
+            請填寫課堂要求，配對專員核實後，會協助刊登於本平台的「補習個案」。配對專員將與有興趣申請個案的導師接洽課堂安排。
+          </p>
           
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
@@ -789,7 +792,7 @@ export default function PostStudentCase() {
                 返回
               </Button>
               <Button type="submit">
-                發布
+                遞交個案
               </Button>
             </div>
           </form>
