@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const { getAllTutors, getTutorByTutorId, getTutorProfile, updateTutorProfile, testTutors } = require('../controllers/tutorController');
-const { verifyToken } = require('../middleware/authMiddleware');
+const { authenticateToken } = require('../middleware/auth');
 
 // 測試端點
 router.get('/test', testTutors);
 
 // 需要認證的 API (放在前面，避免與 /:id 衝突)
-router.get('/profile', verifyToken, getTutorProfile);
-router.put('/profile', verifyToken, updateTutorProfile);
+router.get('/profile', authenticateToken, getTutorProfile);
+router.put('/profile', authenticateToken, updateTutorProfile);
 
 // 公開 API - 只允許用 tutorId 查詢
 router.get('/', getAllTutors);
