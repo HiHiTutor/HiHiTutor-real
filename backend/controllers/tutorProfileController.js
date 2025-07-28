@@ -106,41 +106,9 @@ const approveTutorProfile = async (req, res) => {
     
     // 檢查是否有待審批的更新申請 (pendingProfile)
     if (tutor.pendingProfile && tutor.pendingProfile.status === 'pending') {
-      console.log('🔍 發現待審批的更新申請，一併處理');
-      
-      // 合併pendingProfile的更新到主資料
-      if (tutor.pendingProfile.name) {
-        updateData.name = tutor.pendingProfile.name;
-        console.log('📝 更新姓名:', tutor.pendingProfile.name);
-      }
-      if (tutor.pendingProfile.phone) {
-        updateData.phone = tutor.pendingProfile.phone;
-        console.log('📞 更新電話:', tutor.pendingProfile.phone);
-      }
-      if (tutor.pendingProfile.email) {
-        updateData.email = tutor.pendingProfile.email;
-        console.log('📧 更新電郵:', tutor.pendingProfile.email);
-      }
-      if (tutor.pendingProfile.tutorProfile) {
-        updateData.tutorProfile = {
-          ...tutor.tutorProfile,
-          ...tutor.pendingProfile.tutorProfile
-        };
-        console.log('👨‍🏫 更新導師資料');
-      }
-      if (tutor.pendingProfile.documents) {
-        updateData.documents = tutor.pendingProfile.documents;
-        console.log('📄 更新文件');
-      }
-      
-      // 更新pendingProfile狀態為已批准 - 修正更新語法
-      updateData.pendingProfile = {
-        ...tutor.pendingProfile,
-        status: 'approved',
-        adminRemarks: remarks || '與導師個人資料一併批准'
-      };
-      
-      console.log('✅ 更新pendingProfile狀態為approved');
+      console.log('🔍 發現待審批的更新申請，但需要分別審批');
+      console.log('📝 導師個人資料已批准，但導師更新申請需要單獨審批');
+      console.log('📝 請去 /tutor-update-requests 頁面審批更新申請');
     }
     
     // 更新導師資料
@@ -160,7 +128,7 @@ const approveTutorProfile = async (req, res) => {
         tutorName: updatedTutor.name,
         profileStatus: updatedTutor.profileStatus,
         remarks: updatedTutor.remarks,
-        hasPendingProfileApproved: !!tutor.pendingProfile
+        hasPendingProfile: !!tutor.pendingProfile
       }
     });
   } catch (error) {
