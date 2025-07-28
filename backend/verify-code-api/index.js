@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 app.post('/api/auth/verify-code', (req, res) => {
   const { phone, code } = req.body;

@@ -138,12 +138,12 @@ app.options('*', (req, res) => {
 });
 
 // Body parsing middleware - BEFORE routes
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use((req, res, next) => {
   console.log("🔥 GLOBAL MIDDLEWARE HIT:", req.method, req.originalUrl);
   next();
 });
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, 'public/uploads');

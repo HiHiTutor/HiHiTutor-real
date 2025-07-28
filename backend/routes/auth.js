@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-router.use(express.json());
+router.use(express.json({ limit: '10mb' }));
 const multer = require('multer');
 const { 
   loginUser, 
@@ -39,7 +39,7 @@ const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 限制 5MB
+    fileSize: 10 * 1024 * 1024, // 限制 10MB
     files: 2 // 最多 2 個檔案 (businessRegistration 和 addressProof)
   }
 });

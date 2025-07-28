@@ -41,7 +41,7 @@ const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 限制 5MB
+    fileSize: 10 * 1024 * 1024, // 限制 10MB
     files: 5 // 最多 5 個檔案
   }
 });

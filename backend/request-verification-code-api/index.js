@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const { sendBirdVerificationCode } = require('../utils/sendBirdSMS');
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 app.post('/api/auth/request-verification-code', async (req, res) => {
   const { phone } = req.body;
