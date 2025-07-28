@@ -227,7 +227,26 @@ export default function TutorDashboardPage() {
   //   }
   // }, [user?.name]);
 
-    // 移除定期檢查審批狀態的功能 - 用戶要求移除自動檢查
+    // 定期檢查審批狀態 - 每30秒檢查一次
+    useEffect(() => {
+      const checkApprovalStatus = async () => {
+        if (formData.profileStatus === 'pending') {
+          try {
+            await fetchTutorProfile();
+            console.log('🔍 定期檢查審批狀態完成');
+          } catch (error) {
+            console.warn('定期檢查審批狀態失敗:', error);
+          }
+        }
+      };
+
+      // 設置定期檢查
+      const intervalId = setInterval(checkApprovalStatus, 30000); // 30秒檢查一次
+
+      return () => {
+        clearInterval(intervalId);
+      };
+    }, [formData.profileStatus]);
 
   useEffect(() => {
     if (formData.birthDate) {
