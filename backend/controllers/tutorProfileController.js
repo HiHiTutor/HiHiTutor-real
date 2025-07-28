@@ -98,25 +98,64 @@ const approveTutorProfile = async (req, res) => {
       });
     }
     
-    // 更新狀態為已批准，並處理名稱更新
-    tutor.profileStatus = 'approved';
-    tutor.remarks = remarks || '';
+    // 準備更新數據
+    const updateData = {
+      profileStatus: 'approved',
+      remarks: remarks || ''
+    };
     
-    // 檢查是否有待審核的名稱更新
-    // 如果用戶在待審核期間更新了名稱，保留新名稱
-    // 如果沒有更新名稱，保持原來的名稱
-    console.log('✅ 導師個人資料已批准:', tutor.name);
+    // 檢查是否有待審批的更新申請 (pendingProfile)
+    if (tutor.pendingProfile && tutor.pendingProfile.status === 'pending') {
+      console.log('🔍 發現待審批的更新申請，一併處理');
+      
+      // 合併pendingProfile的更新到主資料
+      if (tutor.pendingProfile.name) {
+        updateData.name = tutor.pendingProfile.name;
+        console.log('📝 更新姓名:', tutor.pendingProfile.name);
+      }
+      if (tutor.pendingProfile.phone) {
+        updateData.phone = tutor.pendingProfile.phone;
+        console.log('📞 更新電話:', tutor.pendingProfile.phone);
+      }
+      if (tutor.pendingProfile.email) {
+        updateData.email = tutor.pendingProfile.email;
+        console.log('📧 更新電郵:', tutor.pendingProfile.email);
+      }
+      if (tutor.pendingProfile.tutorProfile) {
+        updateData.tutorProfile = {
+          ...tutor.tutorProfile,
+          ...tutor.pendingProfile.tutorProfile
+        };
+        console.log('👨‍🏫 更新導師資料');
+      }
+      if (tutor.pendingProfile.documents) {
+        updateData.documents = tutor.pendingProfile.documents;
+        console.log('📄 更新文件');
+      }
+      
+      // 更新pendingProfile狀態為已批准
+      updateData['pendingProfile.status'] = 'approved';
+      updateData['pendingProfile.adminRemarks'] = remarks || '與導師個人資料一併批准';
+    }
     
-    await tutor.save();
+    // 更新導師資料
+    const updatedTutor = await User.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true }
+    );
+    
+    console.log('✅ 導師個人資料已批准:', updatedTutor.name);
     
     res.status(200).json({ 
       success: true,
       message: '已批准導師個人資料',
       data: {
-        tutorId: tutor._id,
-        tutorName: tutor.name,
-        profileStatus: tutor.profileStatus,
-        remarks: tutor.remarks
+        tutorId: updatedTutor._id,
+        tutorName: updatedTutor.name,
+        profileStatus: updatedTutor.profileStatus,
+        remarks: updatedTutor.remarks,
+        hasPendingProfileApproved: !!tutor.pendingProfile
       }
     });
   } catch (error) {
