@@ -90,6 +90,13 @@ router.post('/users/:id/reject-upgrade', verifyToken, isAdmin, rejectUserUpgrade
 router.post('/users/:id/approve-organization', verifyToken, isAdmin, approveOrganization);
 router.post('/users/:id/reject-organization', verifyToken, isAdmin, rejectOrganization);
 
+// 機構管理
+router.get('/organizations', verifyToken, isAdmin, getAllOrganizations);
+router.get('/organizations/:id', verifyToken, isAdmin, getOrganizationDetails);
+router.post('/organization-tutors/:tutorId/approve', verifyToken, isAdmin, approveOrganizationTutor);
+router.post('/organization-tutors/:tutorId/reject', verifyToken, isAdmin, rejectOrganizationTutor);
+router.get('/subscriptions', verifyToken, isAdmin, getAllSubscriptions);
+
 // 臨時端點：修復用戶 90767559 的密碼（不需要認證）
 router.post('/fix-user-password', async (req, res) => {
   try {

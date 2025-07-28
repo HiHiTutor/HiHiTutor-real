@@ -1638,6 +1638,221 @@ const getAdminNotifications = async (req, res) => {
   }
 };
 
+// 獲取所有機構
+const getAllOrganizations = async (req, res) => {
+  try {
+    const { page = 1, limit = 10, status } = req.query;
+    
+    const query = { userType: 'organization' };
+    if (status) {
+      query.status = status;
+    }
+    
+    const skip = (page - 1) * limit;
+    
+    const organizations = await User.find(query)
+      .select('name email phone status organizationProfile createdAt')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+    
+    const total = await User.countDocuments(query);
+    
+    res.json({
+      success: true,
+      data: organizations,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    console.error('❌ 獲取機構列表失敗:', error);
+    res.status(500).json({
+      success: false,
+      message: '獲取機構列表失敗'
+    });
+  }
+};
+
+// 獲取機構詳情（包括導師和訂閱信息）
+const getOrganizationDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // 支援通過 userId 或 MongoDB _id 查找用戶
+    let organization;
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      organization = await User.findById(id);
+    } else {
+      organization = await User.findOne({ userId: id });
+    }
+    
+    if (!organization || organization.userType !== 'organization') {
+      return res.status(404).json({
+        success: false,
+        message: '機構不存在'
+      });
+    }
+    
+    // 獲取機構的導師
+    const OrganizationTutor = require('../models/OrganizationTutor');
+    const OrganizationSubscription = require('../models/OrganizationSubscription');
+    
+    const tutors = await OrganizationTutor.find({ 
+      organizationId: organization._id,
+      status: { $ne: 'inactive' }
+    }).sort({ order: 1, createdAt: -1 });
+    
+    const subscription = await OrganizationSubscription.findOne({ 
+      organizationId: organization._id 
+    });
+    
+    res.json({
+      success: true,
+      data: {
+        organization,
+        tutors,
+        subscription: {
+          ...subscription?.toObject(),
+          currentTutors: tutors.length,
+          monthlyFee: subscription?.calculateMonthlyFee() || 200
+        }
+      }
+    });
+  } catch (error) {
+    console.error('❌ 獲取機構詳情失敗:', error);
+    res.status(500).json({
+      success: false,
+      message: '獲取機構詳情失敗'
+    });
+  }
+};
+
+// 審核機構導師
+const approveOrganizationTutor = async (req, res) => {
+  try {
+    const { tutorId } = req.params;
+    
+    const OrganizationTutor = require('../models/OrganizationTutor');
+    
+    const tutor = await OrganizationTutor.findById(tutorId);
+    if (!tutor) {
+      return res.status(404).json({
+        success: false,
+        message: '導師不存在'
+      });
+    }
+    
+    tutor.status = 'active';
+    await tutor.save();
+    
+    res.json({
+      success: true,
+      message: '機構導師審核通過'
+    });
+  } catch (error) {
+    console.error('❌ 審核機構導師失敗:', error);
+    res.status(500).json({
+      success: false,
+      message: '審核失敗'
+    });
+  }
+};
+
+// 拒絕機構導師
+const rejectOrganizationTutor = async (req, res) => {
+  try {
+    const { tutorId } = req.params;
+    const { reason } = req.body;
+    
+    const OrganizationTutor = require('../models/OrganizationTutor');
+    
+    const tutor = await OrganizationTutor.findById(tutorId);
+    if (!tutor) {
+      return res.status(404).json({
+        success: false,
+        message: '導師不存在'
+      });
+    }
+    
+    tutor.status = 'inactive';
+    await tutor.save();
+    
+    res.json({
+      success: true,
+      message: '機構導師已拒絕',
+      reason
+    });
+  } catch (error) {
+    console.error('❌ 拒絕機構導師失敗:', error);
+    res.status(500).json({
+      success: false,
+      message: '拒絕失敗'
+    });
+  }
+};
+
+// 獲取所有訂閱信息
+const getAllSubscriptions = async (req, res) => {
+  try {
+    const { page = 1, limit = 10, status } = req.query;
+    
+    const OrganizationSubscription = require('../models/OrganizationSubscription');
+    const OrganizationTutor = require('../models/OrganizationTutor');
+    
+    const query = {};
+    if (status) {
+      query.status = status;
+    }
+    
+    const skip = (page - 1) * limit;
+    
+    const subscriptions = await OrganizationSubscription.find(query)
+      .populate('organizationId', 'name email phone status')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+    
+    // 為每個訂閱添加導師數量
+    const subscriptionsWithTutors = await Promise.all(
+      subscriptions.map(async (subscription) => {
+        const tutorCount = await OrganizationTutor.countDocuments({
+          organizationId: subscription.organizationId._id,
+          status: { $ne: 'inactive' }
+        });
+        
+        return {
+          ...subscription.toObject(),
+          currentTutors: tutorCount,
+          monthlyFee: subscription.calculateMonthlyFee()
+        };
+      })
+    );
+    
+    const total = await OrganizationSubscription.countDocuments(query);
+    
+    res.json({
+      success: true,
+      data: subscriptionsWithTutors,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    console.error('❌ 獲取訂閱列表失敗:', error);
+    res.status(500).json({
+      success: false,
+      message: '獲取訂閱列表失敗'
+    });
+  }
+};
+
 module.exports = {
   // User Management
   createUser,
@@ -1666,5 +1881,10 @@ module.exports = {
   getMatchingStats,
   
   // Notifications
-  getAdminNotifications
+  getAdminNotifications,
+  getAllOrganizations,
+  getOrganizationDetails,
+  approveOrganizationTutor,
+  rejectOrganizationTutor,
+  getAllSubscriptions
 }; 
