@@ -169,15 +169,15 @@ export default function TutorDashboardPage() {
     fetchTutorProfile();
   }, []);
 
-  // 當 user 數據更新時，更新 formData 中的名稱
-  useEffect(() => {
-    if (user?.name && formData.name !== user.name) {
-      setFormData(prev => ({
-        ...prev,
-        name: user.name
-      }));
-    }
-  }, [user?.name]);
+  // 導師名稱需要經過審批，不使用用戶基本資料中的名稱
+  // useEffect(() => {
+  //   if (user?.name && formData.name !== user.name) {
+  //     setFormData(prev => ({
+  //       ...prev,
+  //       name: user.name
+  //     }));
+  //   }
+  // }, [user?.name]);
 
     // 移除定期檢查審批狀態的功能 - 用戶要求移除自動檢查
 
@@ -217,8 +217,8 @@ export default function TutorDashboardPage() {
       
       setFormData({
         ...data,
-        // 優先使用 useUser hook 中的用戶名稱
-        name: user?.name || data.name,
+        // 導師使用 tutor profile 中的名稱，需要經過審批
+        name: data.name,
         subjects: subjects,
         availableTime: availableTime,
         qualifications: qualifications,
