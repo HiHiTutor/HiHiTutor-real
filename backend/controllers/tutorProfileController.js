@@ -102,6 +102,38 @@ const approveTutorProfile = async (req, res) => {
     tutor.profileStatus = 'approved';
     tutor.remarks = remarks || '';
     
+    // 確保 tutorProfile 存在並設置必要的默認值
+    if (!tutor.tutorProfile) {
+      tutor.tutorProfile = {};
+    }
+    
+    // 檢查是否有內嵌的 tutorProfile 對象
+    if (tutor.tutorProfile.tutorProfile) {
+      // 如果有內嵌的 tutorProfile，使用它來設置默認值
+      const nestedProfile = tutor.tutorProfile.tutorProfile;
+      
+      if (!nestedProfile.sessionRate) {
+        nestedProfile.sessionRate = 200;
+        console.log('🔧 設置內嵌 tutorProfile 默認 sessionRate: 200');
+      }
+      
+      if (!nestedProfile.subjects || nestedProfile.subjects.length === 0) {
+        nestedProfile.subjects = ['未指定'];
+        console.log('🔧 設置內嵌 tutorProfile 默認 subjects: ["未指定"]');
+      }
+    } else {
+      // 如果沒有內嵌的 tutorProfile，設置頂層的默認值
+      if (!tutor.tutorProfile.sessionRate) {
+        tutor.tutorProfile.sessionRate = 200;
+        console.log('🔧 設置頂層 tutorProfile 默認 sessionRate: 200');
+      }
+      
+      if (!tutor.tutorProfile.subjects || tutor.tutorProfile.subjects.length === 0) {
+        tutor.tutorProfile.subjects = ['未指定'];
+        console.log('🔧 設置頂層 tutorProfile 默認 subjects: ["未指定"]');
+      }
+    }
+    
     // 檢查是否有待審核的名稱更新
     // 如果用戶在待審核期間更新了名稱，保留新名稱
     // 如果沒有更新名稱，保持原來的名稱
