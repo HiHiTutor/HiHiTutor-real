@@ -257,6 +257,9 @@ export default function TutorDashboardPage() {
 
       await tutorApi.updateProfile(formData);
       
+      // 觸發用戶數據更新事件
+      window.dispatchEvent(new Event('userUpdate'));
+      
       toast.success('資料已提交審核，請等待管理員審批');
       await fetchTutorProfile();
     } catch (error) {
@@ -397,6 +400,10 @@ export default function TutorDashboardPage() {
       }
 
       await tutorApi.updateProfile(data);
+      
+      // 觸發用戶數據更新事件
+      window.dispatchEvent(new Event('userUpdate'));
+      
       toast.success('成功提交更新，等待管理員審批');
       
       // 不更新本地狀態，等待後台審批後再更新
@@ -1114,51 +1121,7 @@ export default function TutorDashboardPage() {
           </CardContent>
         </Card>
 
-        {/* 個人介紹 */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>個人介紹</CardTitle>
-            <Button
-              type="button"
-              onClick={() => handleSectionSave('introduction', {
-                introduction: formData.introduction,
-                courseFeatures: formData.courseFeatures,
-              })}
-              disabled={savingSection === 'introduction'}
-            >
-              {savingSection === 'introduction' ? '保存中...' : '保存'}
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* 個人簡介 */}
-            <div className="space-y-2">
-              <Label htmlFor="introduction">個人簡介</Label>
-              <Textarea
-                id="introduction"
-                value={formData.introduction}
-                onChange={(e) => setFormData({ ...formData, introduction: e.target.value })}
-                placeholder="請介紹你的教學經驗、專長等..."
-                required
-              />
-            </div>
 
-            {/* 課程特點 */}
-            <div className="space-y-2">
-              <Label htmlFor="courseFeatures">課程特點</Label>
-              <Textarea
-                id="courseFeatures"
-                value={formData.courseFeatures}
-                onChange={(e) => setFormData({ ...formData, courseFeatures: e.target.value })}
-                placeholder="請描述你的課程特點，例如：&#10;- 互動式教學&#10;- 個性化學習計劃&#10;- 豐富的練習材料&#10;- 定期進度評估"
-                rows={4}
-              />
-              <p className="text-sm text-gray-500">
-                描述你的教學特色和課程優勢，讓學生更了解你的教學風格
-              </p>
-            </div>
-
-          </CardContent>
-        </Card>
 
         {/* 文件上傳 */}
         <Card>

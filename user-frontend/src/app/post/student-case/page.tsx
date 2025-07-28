@@ -101,7 +101,7 @@ export default function PostStudentCase() {
   const { user, isLoading, error } = useUser();
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>('');
-  const [selectedModes, setSelectedModes] = useState<string[]>([]);
+  const [selectedModes, setSelectedModes] = useState<string[]>(['both']);
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [selectedSubRegions, setSelectedSubRegions] = useState<string[]>([]);
   const [selectedTeachingSubCategories, setSelectedTeachingSubCategories] = useState<string[]>([]);
@@ -452,7 +452,7 @@ export default function PostStudentCase() {
 
             <div className="space-y-2">
               <Label>教學模式</Label>
-              <Select onValueChange={(value) => handleModeChange(value)} value={selectedModes[0] || 'in-person'}>
+                              <Select onValueChange={(value) => handleModeChange(value)} value={selectedModes[0] || 'both'}>
                 <SelectTrigger>
                   <SelectValue placeholder="請選擇教學模式" />
                 </SelectTrigger>
