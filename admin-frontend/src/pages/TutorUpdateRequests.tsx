@@ -189,10 +189,27 @@ export default function TutorUpdateRequestsPage() {
   const fetchRequests = async () => {
     try {
       setLoading(true);
+      console.log('🔍 開始獲取待審批申請...');
+      console.log('🔑 Admin token 存在:', !!localStorage.getItem('adminToken'));
+      
       const response = await api.get('/tutor-update-requests');
-      setRequests(response.data.data || []);
-    } catch (error) {
-      console.error('獲取待審批申請失敗:', error);
+      console.log('✅ API 回應:', response.data);
+      
+      if (response.data.success) {
+        setRequests(response.data.data || []);
+        console.log('📋 成功載入申請資料，共', response.data.data?.length || 0, '筆');
+      } else {
+        console.error('❌ API 回應失敗:', response.data);
+        toast.error('獲取申請列表失敗');
+      }
+    } catch (error: any) {
+      console.error('❌ 獲取待審批申請失敗:', error);
+      console.error('❌ 錯誤詳情:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        statusText: error.response?.statusText
+      });
       toast.error('獲取申請列表失敗');
     } finally {
       setLoading(false);
