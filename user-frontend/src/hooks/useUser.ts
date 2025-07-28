@@ -100,8 +100,13 @@ export function useUser() {
             // 檢查審批狀態，導師名字需要經過審批
             if (tutorData.profileStatus && tutorData.profileStatus !== 'approved') {
               // 如果未通過審批，使用 tutor profile 中的名稱（舊名稱）
-              userData.name = tutorData.name || userData.name
-              console.log('🔍 導師資料未通過審批，使用 tutor profile 名稱:', userData.name)
+              // 如果用戶基本資料中的名稱與 tutor profile 中的名稱不同，說明有改名申請
+              if (userData.name !== tutorData.name) {
+                userData.name = tutorData.name
+                console.log('🔍 導師資料未通過審批，有改名申請，使用舊名稱:', userData.name)
+              } else {
+                console.log('🔍 導師資料未通過審批，無改名申請，使用當前名稱:', userData.name)
+              }
             } else if (tutorData.profileStatus === 'approved') {
               // 審批通過時，使用用戶基本資料中的新名稱
               console.log('🔍 導師資料已通過審批，使用用戶基本資料中的新名稱:', userData.name)
