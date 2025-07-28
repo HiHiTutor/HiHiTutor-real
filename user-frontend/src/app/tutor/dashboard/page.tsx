@@ -537,14 +537,45 @@ export default function TutorDashboardPage() {
         throw new Error('未登入');
       }
 
-      await tutorApi.updateProfile(data);
+      // 使用新的待審批 API 提交更新申請
+      const requestData = {
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        tutorProfile: {
+          ...formData,
+          ...data // 合併更新的資料
+        },
+        documents: formData.documents
+      };
+
+      console.log('🚀 提交導師更新申請:', requestData);
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/tutor-update-requests`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(requestData)
+      });
+
+      console.log('📥 申請提交回應狀態:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('❌ 申請提交失敗:', errorData);
+        throw new Error(errorData.message || '提交申請失敗');
+      }
+
+      const result = await response.json();
+      console.log('✅ 申請提交成功:', result);
       
       // 觸發用戶數據更新事件
       window.dispatchEvent(new Event('userUpdate'));
       
       toast.success('成功提交更新，等待管理員審批');
       
-      // 不更新本地狀態，等待後台審批後再更新
       // 重新獲取資料以確保顯示正確的審批狀態
       await fetchTutorProfile();
     } catch (error) {
