@@ -126,20 +126,26 @@ export function useUser() {
               console.log('🔍 導師資料狀態為:', tutorData.profileStatus, '使用 tutor profile 名稱:', userData.name)
             }
 
-            // 如果有待審批資料，檢查狀態
+            // 檢查 pendingProfile 狀態（導師更新申請）
             if (userData.pendingProfile) {
+              console.log('🔍 發現 pendingProfile:', userData.pendingProfile);
+              
               if (userData.pendingProfile.status === 'pending') {
                 if (userData.pendingProfile.name) {
-                  console.log('🔍 有待審批的名稱變更:', userData.pendingProfile.name)
+                  console.log('🔍 有待審批的名稱變更:', userData.pendingProfile.name);
                   // 不立即更新顯示名稱，保持當前名稱直到審批通過
                 }
               } else if (userData.pendingProfile.status === 'approved') {
                 // 如果待審批已通過，使用待審批中的新名稱
                 if (userData.pendingProfile.name) {
-                  userData.name = userData.pendingProfile.name
-                  console.log('🔍 待審批已通過，使用新名稱:', userData.name)
+                  userData.name = userData.pendingProfile.name;
+                  console.log('🔍 待審批已通過，使用新名稱:', userData.name);
                 }
+              } else if (userData.pendingProfile.status === 'rejected') {
+                console.log('🔍 待審批申請被拒絕');
               }
+            } else {
+              console.log('🔍 沒有 pendingProfile 資料');
             }
           }
         } catch (tutorError) {
