@@ -405,6 +405,14 @@ export default function TutorDashboardPage() {
 
   const handleSectionSave = async (section: string, data: Partial<TutorProfile>) => {
     try {
+      // 驗證部分保存的數據是否包含聯絡資料
+      const validation = validateFormSubmission(data);
+      if (!validation.isValid) {
+        toast.error(validation.message);
+        console.error('部分保存驗證失敗:', validation.violations);
+        return;
+      }
+
       setSavingSection(section);
       const token = localStorage.getItem('token');
       if (!token) {
@@ -416,10 +424,12 @@ export default function TutorDashboardPage() {
       // 觸發用戶數據更新事件
       window.dispatchEvent(new Event('userUpdate'));
       
-      toast.success('成功提交更新，等待管理員審批');
+      toast.success('資料更新成功，已即時生效');
       
-      // 不更新本地狀態，等待後台審批後再更新
-      // 重新獲取資料以確保顯示正確的審批狀態
+      // 更新本地狀態
+      setFormData(prev => ({ ...prev, ...data }));
+      
+      // 重新獲取資料以確保顯示正確的狀態
       await fetchTutorProfile();
     } catch (error) {
       console.error('更新失敗:', error);
