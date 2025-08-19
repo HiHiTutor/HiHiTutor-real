@@ -25,6 +25,7 @@ import TEACHING_MODE_OPTIONS from '@/constants/teachingModeOptions';
 import { useUser } from '@/hooks/useUser';
 import ContactInfoWarning from '@/components/ContactInfoWarning';
 import { validateFormSubmission } from '@/utils/validation';
+import ValidatedInput from '@/components/ValidatedInput';
 
 interface Option {
   value: string;
@@ -780,13 +781,14 @@ export default function TutorDashboardPage() {
 
             {/* 學歷 */}
             <div className="space-y-2">
-              <Label htmlFor="education">學歷</Label>
-              <Textarea
-                id="education"
+              <ValidatedInput
+                label="學歷"
                 value={formData.education}
-                onChange={(e) => setFormData({ ...formData, education: e.target.value })}
+                onChange={(value) => setFormData({ ...formData, education: value })}
                 placeholder="請填寫你的學歷..."
+                type="textarea"
                 required
+                maxLength={500}
               />
             </div>
 
@@ -805,28 +807,30 @@ export default function TutorDashboardPage() {
 
             {/* 相關科目公開試成績 */}
             <div className="space-y-2">
-              <Label htmlFor="examResults">相關科目公開試成績</Label>
-              <Textarea
-                id="examResults"
+              <ValidatedInput
+                label="相關科目公開試成績"
                 value={formData.examResults}
-                onChange={(e) => setFormData({ ...formData, examResults: e.target.value })}
+                onChange={(value) => setFormData({ ...formData, examResults: value })}
                 placeholder="請填寫你的公開試成績..."
+                type="textarea"
                 required
+                maxLength={300}
               />
             </div>
 
             {/* 專業資格 */}
             <div className="space-y-2">
-              <Label htmlFor="qualifications">專業資格</Label>
-              <Textarea
-                id="qualifications"
+              <ValidatedInput
+                label="專業資格"
                 value={formData.qualifications.join('\n')}
-                onChange={(e) => setFormData({ 
+                onChange={(value) => setFormData({ 
                   ...formData, 
-                  qualifications: e.target.value.split('\n').filter(q => q.trim()) 
+                  qualifications: value.split('\n').filter(q => q.trim()) 
                 })}
                 placeholder="請填寫你的專業資格，每行一個...&#10;例如：&#10;香港大學教育學士&#10;IELTS 8.0&#10;Registered Teacher"
+                type="textarea"
                 rows={4}
+                maxLength={1000}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
@@ -847,6 +851,50 @@ export default function TutorDashboardPage() {
               <p className="text-sm text-gray-500">
                 請每行填寫一個專業資格，例如：學歷、證書、認證等
               </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 個人介紹 */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>個人介紹</CardTitle>
+            <Button
+              type="button"
+              onClick={() => handleSectionSave('introduction', {
+                introduction: formData.introduction,
+                courseFeatures: formData.courseFeatures,
+              })}
+              disabled={savingSection === 'introduction'}
+            >
+              {savingSection === 'introduction' ? '保存中...' : '保存'}
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* 個人簡介 */}
+            <div className="space-y-2">
+              <ValidatedInput
+                label="個人簡介"
+                value={formData.introduction}
+                onChange={(value) => setFormData({ ...formData, introduction: value })}
+                placeholder="請介紹你的教學經驗、專長等..."
+                type="textarea"
+                required
+                maxLength={1000}
+              />
+            </div>
+
+            {/* 課程特點 */}
+            <div className="space-y-2">
+              <ValidatedInput
+                label="課程特點"
+                value={formData.courseFeatures}
+                onChange={(value) => setFormData({ ...formData, courseFeatures: value })}
+                placeholder="請描述你的課程特點..."
+                type="textarea"
+                required
+                maxLength={800}
+              />
             </div>
           </CardContent>
         </Card>

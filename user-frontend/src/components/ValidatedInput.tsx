@@ -11,6 +11,7 @@ interface ValidatedInputProps {
   className?: string;
   maxLength?: number;
   rows?: number;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
 
 const ValidatedInput: React.FC<ValidatedInputProps> = ({
@@ -22,7 +23,8 @@ const ValidatedInput: React.FC<ValidatedInputProps> = ({
   required = false,
   className = '',
   maxLength,
-  rows = 3
+  rows = 3,
+  onKeyDown
 }) => {
   const [error, setError] = useState<string>('');
   const [isTouched, setIsTouched] = useState(false);
@@ -70,6 +72,7 @@ const ValidatedInput: React.FC<ValidatedInputProps> = ({
           value={value}
           onChange={(e) => handleChange(e.target.value)}
           onBlur={handleBlur}
+          onKeyDown={onKeyDown}
           placeholder={placeholder}
           required={required}
           className={`${baseClasses} resize-vertical`}
@@ -85,6 +88,7 @@ const ValidatedInput: React.FC<ValidatedInputProps> = ({
         value={value}
         onChange={(e) => handleChange(e.target.value)}
         onBlur={handleBlur}
+        onKeyDown={onKeyDown}
         placeholder={placeholder}
         required={required}
         className={baseClasses}
