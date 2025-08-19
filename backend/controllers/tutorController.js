@@ -1510,6 +1510,9 @@ const updateTutorProfile = async (req, res) => {
     if (updateData.experience !== undefined) updateObject['tutorProfile.teachingExperienceYears'] = updateData.experience;
     if (updateData.education !== undefined) updateObject['tutorProfile.educationLevel'] = updateData.education;
     
+    // 同時更新根級別的education字段，確保一致性
+    if (updateData.education !== undefined) updateObject.education = updateData.education;
+    
     // 確保 subjects 有值，避免驗證錯誤
     if (updateData.subjects !== undefined) {
       updateObject['tutorProfile.subjects'] = Array.isArray(updateData.subjects) && updateData.subjects.length > 0 
