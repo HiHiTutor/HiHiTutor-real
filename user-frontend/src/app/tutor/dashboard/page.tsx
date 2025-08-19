@@ -287,7 +287,7 @@ export default function TutorDashboardPage() {
     const validation = validateFormSubmission(formData);
     if (!validation.isValid) {
       toast.error(validation.message);
-      console.error('表單驗證失敗:', validation.violations);
+      console.log('表單驗證失敗:', validation.violations);
       return;
     }
     
@@ -304,7 +304,9 @@ export default function TutorDashboardPage() {
       window.dispatchEvent(new Event('userUpdate'));
       
       toast.success('資料更新成功，已即時生效');
-      await fetchTutorProfile();
+      
+      // 強制刷新頁面以確保數據更新
+      window.location.reload();
     } catch (error) {
       console.error('Error updating tutor profile:', error);
       toast.error(error instanceof Error ? error.message : '更新導師資料失敗');
@@ -440,7 +442,7 @@ export default function TutorDashboardPage() {
       const validation = validateFormSubmission(data);
       if (!validation.isValid) {
         toast.error(validation.message);
-        console.error('部分保存驗證失敗:', validation.violations);
+        console.log('部分保存驗證失敗:', validation.violations);
         return;
       }
 
@@ -457,11 +459,8 @@ export default function TutorDashboardPage() {
       
       toast.success('資料更新成功，已即時生效');
       
-      // 更新本地狀態
-      setFormData(prev => ({ ...prev, ...data }));
-      
-      // 重新獲取資料以確保顯示正確的狀態
-      await fetchTutorProfile();
+      // 強制刷新頁面以確保數據更新
+      window.location.reload();
     } catch (error) {
       console.error('更新失敗:', error);
       toast.error(error instanceof Error ? error.message : '更新失敗，請稍後再試');
