@@ -191,34 +191,65 @@ export default function TutorDashboardPage() {
         throw new Error('未登入');
       }
 
-      const data = await tutorApi.getProfile();
-      console.log('Fetched tutor profile data:', data); // 調試用
-      console.log('Subjects from API:', data.subjects); // 調試用
+      const response = await tutorApi.getProfile();
+      console.log('🔍 Raw API response:', response);
+      
+      // 處理API回應格式
+      let data;
+      if (response.success && response.data) {
+        // 如果API返回 {success: true, data: {...}} 格式
+        data = response.data;
+        console.log('✅ Using response.data:', data);
+      } else if (response._id || response.userId) {
+        // 如果API直接返回用戶數據
+        data = response;
+        console.log('✅ Using direct response:', data);
+      } else {
+        console.error('❌ Unexpected API response format:', response);
+        throw new Error('API回應格式異常');
+      }
+      
+      console.log('🔍 Processed tutor profile data:', data);
+      console.log('🔍 Education field:', data.tutorProfile?.educationLevel || data.education);
+      console.log('🔍 Profile status:', data.profileStatus);
       
       // 確保科目數據正確設置
-      const subjects = data.subjects || [];
-      const availableTime = data.availableTime || [];
-      const qualifications = data.qualifications || [];
-      const teachingAreas = data.teachingAreas || [];
-      const publicCertificates = data.publicCertificates || [];
+      const subjects = data.tutorProfile?.subjects || data.subjects || [];
+      const availableTime = data.tutorProfile?.availableTime || data.availableTime || [];
+      const qualifications = data.tutorProfile?.qualifications || data.qualifications || [];
+      const teachingAreas = data.tutorProfile?.teachingAreas || data.teachingAreas || [];
+      const publicCertificates = data.tutorProfile?.publicCertificates || data.publicCertificates || [];
       
-      console.log('Processed subjects:', subjects); // 調試用
-      console.log('Processed qualifications:', qualifications); // 調試用
-      console.log('Processed teachingAreas:', teachingAreas); // 調試用
-      console.log('Processed availableTime:', availableTime); // 調試用
-      console.log('Processed publicCertificates:', publicCertificates); // 調試用
-      
-      setFormData({
-        ...data,
+      // 構建新的formData，優先使用tutorProfile中的數據
+      const newFormData = {
+        tutorId: data.tutorId || data.userId || '',
+        name: data.name || '',
+        gender: data.tutorProfile?.gender || data.gender || 'male',
+        birthDate: data.tutorProfile?.birthDate || data.birthDate,
         subjects: subjects,
-        availableTime: availableTime,
-        qualifications: qualifications,
         teachingAreas: teachingAreas,
+        teachingMethods: data.tutorProfile?.teachingMethods || data.teachingMethods || [],
+        experience: data.tutorProfile?.teachingExperienceYears || data.experience || 0,
+        introduction: data.tutorProfile?.introduction || data.introduction || '',
+        education: data.tutorProfile?.educationLevel || data.education || '',
+        qualifications: qualifications,
+        hourlyRate: data.tutorProfile?.sessionRate || data.hourlyRate || 0,
+        availableTime: availableTime,
+        avatar: data.avatar || '',
+        examResults: data.tutorProfile?.examResults || data.examResults || '',
+        courseFeatures: data.tutorProfile?.courseFeatures || data.courseFeatures || '',
         documents: {
           idCard: data.documents?.idCard || '',
           educationCert: data.certificateLogs?.map((log: any) => log.fileUrl) || data.documents?.educationCert || []
-        }
-      });
+        },
+        publicCertificates: publicCertificates,
+        profileStatus: data.profileStatus || 'approved',
+        remarks: data.remarks || ''
+      };
+      
+      console.log('🔍 New form data:', newFormData);
+      
+      setFormData(newFormData);
       setNewSubjects(subjects);
       setNewAvailableTimes(availableTime);
       setPublicCertificates(publicCertificates);
@@ -242,7 +273,7 @@ export default function TutorDashboardPage() {
         setSelectedSubRegionsByRegion(subRegionsByRegion);
       }
     } catch (error) {
-      console.error('獲取資料失敗:', error);
+      console.error('❌ 獲取資料失敗:', error);
       toast.error(error instanceof Error ? error.message : '獲取資料失敗，請稍後再試');
     } finally {
       setLoading(false);
