@@ -93,23 +93,25 @@ export function useUser() {
             const tutorData = await tutorRes.json()
             console.log('🔍 Tutor profile data:', tutorData)
             
-            // 合併 tutor avatar 到 user data
-            userData.avatarUrl = tutorData.avatarUrl || tutorData.avatar
-            userData.profileStatus = tutorData.profileStatus
-            
-            // 檢查審批狀態，優先使用用戶基本資料中的名稱
-            if (tutorData.profileStatus && tutorData.profileStatus !== 'approved') {
-              // 如果未通過審批，保持原始名稱不變
-              console.log('🔍 導師資料未通過審批，保持原始名稱:', userData.name)
-            } else if (tutorData.profileStatus === 'approved') {
-              // 審批通過時，優先使用用戶基本資料中的名稱，只有在基本資料中沒有名稱時才使用 tutor profile 中的名稱
-              if (!userData.name || userData.name.trim() === '') {
-                userData.name = tutorData.name
-                console.log('🔍 導師資料已通過審批，使用 tutor profile 名稱:', userData.name)
-              } else {
-                console.log('🔍 導師資料已通過審批，保持用戶基本資料中的名稱:', userData.name)
-              }
+            // 直接使用 tutor profile 的完整數據
+            const fullTutorData = {
+              ...userData,
+              ...tutorData,
+              // 保持基本用戶信息
+              id: userData.id,
+              userId: userData.userId,
+              email: userData.email,
+              phone: userData.phone,
+              userType: userData.userType,
+              role: userData.role,
+              status: userData.status,
+              createdAt: userData.createdAt,
+              updatedAt: userData.updatedAt
             }
+            
+            console.log('🔍 Full tutor data:', fullTutorData)
+            setUser(fullTutorData)
+            return // 直接返回，不需要後續處理
           }
         } catch (tutorError) {
           console.warn('無法獲取 tutor profile:', tutorError)
