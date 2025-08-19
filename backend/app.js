@@ -229,6 +229,7 @@ console.log("✅ authRoutes loaded and mounted");
 app.use('/api/admin/auth', adminAuthRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin-management', require('./routes/admin'));
+app.use('/api/admin/notifications', require('./routes/adminNotifications'));
 app.use('/api/categories', categoriesRouter);
 app.use('/api/tutors', tutorsRouter);
 app.use('/api/cases', casesRouter);

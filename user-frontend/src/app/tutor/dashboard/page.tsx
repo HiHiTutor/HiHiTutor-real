@@ -23,6 +23,8 @@ import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 import REGION_OPTIONS from '@/constants/regionOptions';
 import TEACHING_MODE_OPTIONS from '@/constants/teachingModeOptions';
 import { useUser } from '@/hooks/useUser';
+import ContactInfoWarning from '@/components/ContactInfoWarning';
+import { validateFormSubmission } from '@/utils/validation';
 
 interface Option {
   value: string;
@@ -248,6 +250,15 @@ export default function TutorDashboardPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // 驗證表單是否包含聯絡資料
+    const validation = validateFormSubmission(formData);
+    if (!validation.isValid) {
+      toast.error(validation.message);
+      console.error('表單驗證失敗:', validation.violations);
+      return;
+    }
+    
     try {
       setSaving(true);
       const token = localStorage.getItem('token');
@@ -260,7 +271,7 @@ export default function TutorDashboardPage() {
       // 觸發用戶數據更新事件
       window.dispatchEvent(new Event('userUpdate'));
       
-      toast.success('資料已提交審核，請等待管理員審批');
+      toast.success('資料更新成功，已即時生效');
       await fetchTutorProfile();
     } catch (error) {
       console.error('Error updating tutor profile:', error);
@@ -565,6 +576,9 @@ export default function TutorDashboardPage() {
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl">
+      {/* 聯絡資料警告 */}
+      <ContactInfoWarning className="mb-6" variant="detailed" />
+      
       {/* 審批狀態顯示 */}
       {formData.profileStatus && formData.profileStatus !== 'approved' && (
         <Card className="mb-6">

@@ -258,7 +258,19 @@ const userSchema = new mongoose.Schema({
       type: String,
       default: null
     }
-  }
+  },
+  // 添加導師資料修改記錄
+  profileChangeLog: [{
+    timestamp: {
+      type: Date,
+      default: Date.now
+    },
+    fields: [String], // 修改的字段列表
+    oldValues: mongoose.Schema.Types.Mixed, // 舊值
+    newValues: mongoose.Schema.Types.Mixed, // 新值
+    ipAddress: String, // 修改時的IP地址
+    userAgent: String // 修改時的用戶代理
+  }]
 }, {
   timestamps: true
 });

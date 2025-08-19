@@ -1603,23 +1603,59 @@ const updateTutorProfile = async (req, res) => {
 
     console.log('📝 更新對象:', updateObject);
 
-    // 更新導師資料並設為待審核狀態
+    // 記錄修改歷史
+    const changeLog = {
+      timestamp: new Date(),
+      fields: Object.keys(updateObject),
+      oldValues: {},
+      newValues: updateObject
+    };
+
+    // 獲取舊值用於比較
+    for (const field of Object.keys(updateObject)) {
+      if (field.includes('.')) {
+        const [parent, child] = field.split('.');
+        changeLog.oldValues[field] = tutor[parent]?.[child];
+      } else {
+        changeLog.oldValues[field] = tutor[field];
+      }
+    }
+
+    // 更新導師資料，即時生效（不再需要審批）
     const updatedTutor = await User.findByIdAndUpdate(
       userId,
       { 
         $set: updateObject,
-        profileStatus: 'pending',
-        remarks: ''
+        profileStatus: 'approved', // 直接設為已批准
+        $push: { 
+          profileChangeLog: changeLog // 添加修改記錄
+        }
       },
       { new: true }
     ).select('-password');
 
-    console.log('✅ 導師 profile 更新成功，狀態設為待審核');
+    console.log('✅ 導師 profile 更新成功，即時生效');
+
+    // 發送管理員通知（可選）
+    try {
+      // 這裡可以添加發送通知到管理員的邏輯
+      console.log('📢 導師資料已更新，發送管理員通知');
+      // await sendAdminNotification({
+      //   type: 'tutor_profile_updated',
+      //   tutorId: tutor.tutorId || tutor.userId,
+      //   tutorName: tutor.name,
+      //   changes: changeLog,
+      //   timestamp: new Date()
+      // });
+    } catch (notificationError) {
+      console.error('⚠️ 發送管理員通知失敗:', notificationError);
+      // 通知失敗不影響主要功能
+    }
 
     res.json({
       success: true,
       data: updatedTutor,
-      message: '導師資料更新成功，已提交審核'
+      message: '導師資料更新成功，已即時生效'
     });
   } catch (error) {
     console.error('❌ 更新導師 profile 錯誤:', error);
