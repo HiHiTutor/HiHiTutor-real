@@ -200,7 +200,7 @@ export default function TutorDashboardPage() {
         // 如果API返回 {success: true, data: {...}} 格式
         data = response.data;
         console.log('✅ Using response.data:', data);
-      } else if (response._id || response.userId) {
+      } else if (response._id || response.userId || response.tutorId) {
         // 如果API直接返回用戶數據
         data = response;
         console.log('✅ Using direct response:', data);
