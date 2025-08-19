@@ -10,6 +10,11 @@ export const containsContactInfo = (text: string): boolean => {
   
   const lowerText = text.toLowerCase();
   
+  // 檢查是否為URL格式，如果是則跳過檢測
+  if (text.startsWith('http://') || text.startsWith('https://') || text.startsWith('//')) {
+    return false;
+  }
+  
   // 檢查連續5個或以上數字（電話號碼）
   if (/\d{5,}/.test(text)) {
     return true;
@@ -98,8 +103,20 @@ export const getContactInfoWarning = (): string => {
 export const validateFormSubmission = (formData: Record<string, any>) => {
   const violations: string[] = [];
   
+  // 不應該驗證的字段（如頭像、文件URL等）
+  const excludeFields = [
+    'avatar', 'documents', 'idCard', 'educationCert', 
+    'publicCertificates', 'certificateLogs', 'profileStatus',
+    'remarks', 'createdAt', 'updatedAt', '_id', '__v'
+  ];
+  
   // 檢查所有文本字段
   Object.entries(formData).forEach(([key, value]) => {
+    // 跳過不應該驗證的字段
+    if (excludeFields.includes(key)) {
+      return;
+    }
+    
     if (typeof value === 'string' && value.trim()) {
       if (containsContactInfo(value)) {
         violations.push(`${key}: 包含聯絡資料`);
