@@ -578,6 +578,29 @@ const getCurrentUser = async (req, res) => {
       updatedAt: user.updatedAt
     };
     
+    // 如果是導師用戶，添加導師資料
+    if (user.userType === 'tutor' || user.userType === 'organization') {
+      userData.tutorProfile = {
+        tutorId: user.tutorId,
+        gender: user.tutorProfile?.gender || 'male',
+        birthDate: user.tutorProfile?.birthDate,
+        subjects: user.tutorProfile?.subjects || [],
+        teachingAreas: user.tutorProfile?.teachingAreas || [],
+        teachingMethods: user.tutorProfile?.teachingMethods || [],
+        experience: user.tutorProfile?.teachingExperienceYears || 0,
+        introduction: user.tutorProfile?.introduction || '',
+        education: user.tutorProfile?.educationLevel || '',
+        qualifications: user.tutorProfile?.qualifications || [],
+        hourlyRate: user.tutorProfile?.sessionRate || 0,
+        availableTime: user.tutorProfile?.availableTime || [],
+        avatar: user.avatar || '',
+        examResults: user.tutorProfile?.examResults || '',
+        courseFeatures: user.tutorProfile?.courseFeatures || '',
+        profileStatus: user.profileStatus || 'approved',
+        remarks: user.remarks || ''
+      };
+    }
+    
     console.log('[getCurrentUser] ✅ 返回用戶資料:', userData);
     res.json(userData);
   } catch (error) {
