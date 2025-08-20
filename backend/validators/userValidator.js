@@ -50,8 +50,11 @@ const validateUserUpdate = (data) => {
       birthDate: Joi.string().optional().allow(''),
       introduction: Joi.string().optional().allow(''),
       courseFeatures: Joi.string().optional().allow(''),
-      avatarUrl: Joi.string().optional().allow('')
-    }).optional(),
+      avatarUrl: Joi.string().optional().allow(''),
+      // 添加缺失的字段
+      qualifications: Joi.array().optional().default([]),
+      publicCertificates: Joi.array().optional().default([])
+    }).optional().unknown(true),
     subjects: Joi.array().items(Joi.string()).optional().default([]),
     teachingAreas: Joi.array().optional().default([]),
     teachingMethods: Joi.array().optional().default([]),
