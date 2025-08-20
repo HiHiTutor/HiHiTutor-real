@@ -9,6 +9,7 @@ import {
   MenuItem,
   Alert,
   CircularProgress,
+  Chip,
 } from '@mui/material';
 import { usersAPI } from '../services/api';
 import api from '../services/api';
@@ -570,6 +571,15 @@ const CreateUser: React.FC = () => {
             {formData.userType === 'tutor' && (
               <>
                 {/* 課程分類 */}
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="h6" color="primary" sx={{ mb: 1 }}>
+                    📚 課程設置
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+                    請按順序選擇：課程分類 → 子科目(可選) → 可教授科目
+                  </Typography>
+                </Box>
+                
                 <TextField
                   select
                   label="課程分類"
@@ -577,6 +587,7 @@ const CreateUser: React.FC = () => {
                   value={formData.tutorProfile.category}
                   onChange={handleChange}
                   required
+                  helperText="選擇您要教授的課程類型"
                 >
                   {Object.entries(CATEGORY_OPTIONS).map(([key, category]) => (
                     <MenuItem key={key} value={key}>{category.label}</MenuItem>
@@ -602,6 +613,27 @@ const CreateUser: React.FC = () => {
                   </TextField>
                 )}
 
+                {/* 科目選擇提示 */}
+                {formData.tutorProfile.category && (
+                  <Box sx={{ 
+                    p: 1.5, 
+                    backgroundColor: '#e3f2fd', 
+                    borderRadius: 1, 
+                    border: '1px solid #bbdefb',
+                    mb: 1
+                  }}>
+                    <Typography variant="body2" color="primary">
+                      💡 提示：您現在可以選擇可教授的科目了
+                      {formData.tutorProfile.category === 'primary-secondary' && 
+                        (formData.tutorProfile.subCategory ? 
+                          `（${formData.tutorProfile.subCategory === 'primary' ? '小學' : '中學'}階段）` : 
+                          '（所有階段）'
+                        )
+                      }
+                    </Typography>
+                  </Box>
+                )}
+
                 {/* 科目 (多選) */}
                 {formData.tutorProfile.category && (
                   <TextField
@@ -622,7 +654,59 @@ const CreateUser: React.FC = () => {
                   </TextField>
                 )}
 
+                {/* 已選科目顯示 */}
+                {formData.tutorProfile.subjects && formData.tutorProfile.subjects.length > 0 && (
+                  <Box sx={{ 
+                    p: 2, 
+                    border: '1px solid #e0e0e0', 
+                    borderRadius: 1, 
+                    backgroundColor: '#f8f9fa',
+                    borderLeft: '4px solid #1976d2'
+                  }}>
+                    <Typography variant="subtitle2" color="primary" sx={{ mb: 1, fontWeight: 'bold' }}>
+                      📚 已選科目 ({formData.tutorProfile.subjects.length}個)
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                      {formData.tutorProfile.subjects.map((subject, index) => {
+                        const subjectInfo = getAvailableSubjects().find(s => s.value === subject);
+                        return (
+                          <Chip
+                            key={index}
+                            label={subjectInfo ? subjectInfo.label : subject}
+                            color="primary"
+                            variant="outlined"
+                            size="small"
+                            onDelete={() => {
+                              const newSubjects = formData.tutorProfile.subjects.filter((_, i) => i !== index);
+                              setFormData({
+                                ...formData,
+                                tutorProfile: {
+                                  ...formData.tutorProfile,
+                                  subjects: newSubjects
+                                }
+                              });
+                            }}
+                            deleteIcon={<span style={{ fontSize: '14px' }}>×</span>}
+                          />
+                        );
+                      })}
+                    </Box>
+                    <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: 'block' }}>
+                      點擊科目標籤上的 × 可移除該科目
+                    </Typography>
+                  </Box>
+                )}
+
                 {/* 教學模式 */}
+                <Box sx={{ mt: 3, mb: 2 }}>
+                  <Typography variant="h6" color="primary" sx={{ mb: 1 }}>
+                    🎯 教學設置
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+                    選擇您的教學方式和相關設置
+                  </Typography>
+                </Box>
+                
                 <TextField
                   select
                   label="教學模式"
@@ -630,6 +714,7 @@ const CreateUser: React.FC = () => {
                   value={formData.tutorProfile.teachingMode}
                   onChange={handleChange}
                   required
+                  helperText="選擇您偏好的教學方式"
                 >
                   {teachingModeOptions.map((mode: any) => (
                     <MenuItem key={mode.value} value={mode.value}>
@@ -673,6 +758,15 @@ const CreateUser: React.FC = () => {
                 {/* 地區 (僅面授或特定子模式顯示) */}
                 {shouldShowRegions() && (
                   <>
+                    <Box sx={{ mt: 3, mb: 2 }}>
+                      <Typography variant="h6" color="primary" sx={{ mb: 1 }}>
+                        🌍 地區設置
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+                        選擇您提供服務的地區範圍
+                      </Typography>
+                    </Box>
+                    
                     <TextField
                       select
                       label="地區"
@@ -680,6 +774,7 @@ const CreateUser: React.FC = () => {
                       value={formData.tutorProfile.region}
                       onChange={handleChange}
                       required
+                      helperText="選擇主要服務地區"
                     >
                       {regionOptions.map((option: any) => (
                         <MenuItem key={option.value} value={option.value}>
