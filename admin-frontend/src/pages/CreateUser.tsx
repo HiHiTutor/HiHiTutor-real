@@ -380,7 +380,8 @@ const CreateUser: React.FC = () => {
         tutorProfile: {
           ...formData.tutorProfile,
           subCategory: value as string,
-          subjects: [] // 重置科目
+          // 不清空已選科目，讓用戶可以跨子科目選擇
+          subjects: formData.tutorProfile.subjects
         }
       });
     } else if (name === 'subjects') {
@@ -602,9 +603,8 @@ const CreateUser: React.FC = () => {
                     name="subCategory"
                     value={formData.tutorProfile.subCategory}
                     onChange={handleChange}
-                    helperText="可選擇特定教育階段，不選則表示可教授所有階段"
+                    helperText="選擇特定教育階段，或留空表示可教授所有階段"
                   >
-                    <MenuItem value="">不限教育階段</MenuItem>
                     {getSubCategories().map((subCategory) => (
                       <MenuItem key={subCategory.value} value={subCategory.value}>
                         {subCategory.label}
@@ -627,7 +627,7 @@ const CreateUser: React.FC = () => {
                       {formData.tutorProfile.category === 'primary-secondary' && 
                         (formData.tutorProfile.subCategory ? 
                           `（${formData.tutorProfile.subCategory === 'primary' ? '小學' : '中學'}階段）` : 
-                          '（所有階段）'
+                          '（可跨階段選擇）'
                         )
                       }
                     </Typography>
