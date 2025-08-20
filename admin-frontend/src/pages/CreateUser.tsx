@@ -330,10 +330,18 @@ const CreateUser: React.FC = () => {
     const category = CATEGORY_OPTIONS[formData.tutorProfile.category as keyof typeof CATEGORY_OPTIONS];
     if (!category) return [];
 
-    if (formData.tutorProfile.category === 'primary-secondary' && formData.tutorProfile.subCategory) {
+    if (formData.tutorProfile.category === 'primary-secondary') {
+      // 中小學教育：顯示所有子科目的科目，允許跨子科目選擇
+      const allSubjects: Array<{ value: string; label: string }> = [];
       const categoryWithSubCategories = category as { subCategories?: Array<{ value: string; label: string; subjects: Array<{ value: string; label: string }> }> };
-      const subCategory = categoryWithSubCategories.subCategories?.find(sub => sub.value === formData.tutorProfile.subCategory);
-      return subCategory?.subjects || [];
+      if (categoryWithSubCategories.subCategories) {
+        categoryWithSubCategories.subCategories.forEach((subCat: { value: string; label: string; subjects: Array<{ value: string; label: string }> }) => {
+          if (subCat.subjects) {
+            allSubjects.push(...subCat.subjects);
+          }
+        });
+      }
+      return allSubjects;
     }
     
     const categoryWithSubjects = category as { subjects: Array<{ value: string; label: string }> };
@@ -343,8 +351,12 @@ const CreateUser: React.FC = () => {
   // 檢查是否需要顯示地區選項
   const shouldShowRegions = () => {
     const mode = formData.tutorProfile.teachingMode;
+    // 如果選擇"皆可"，則不需要強制選擇教學子模式
+    if (mode === 'both') {
+      return true; // 皆可模式顯示地區選項
+    }
     const subModes = formData.tutorProfile.teachingSubModes;
-    return mode === 'in-person' || mode === 'both' || 
+    return mode === 'in-person' || 
            subModes.includes('one-on-one') || subModes.includes('small-group') || subModes.includes('large-center');
   };
 
@@ -434,6 +446,37 @@ const CreateUser: React.FC = () => {
     setError(null);
 
     try {
+      // 前端驗證
+      if (formData.userType === 'tutor') {
+        if (!formData.tutorProfile.category) {
+          setError('請選擇課程分類');
+          setLoading(false);
+          return;
+        }
+        if (!formData.tutorProfile.subjects || formData.tutorProfile.subjects.length === 0) {
+          setError('請至少選擇一個可教授科目');
+          setLoading(false);
+          return;
+        }
+        if (!formData.tutorProfile.teachingMode) {
+          setError('請選擇教學模式');
+          setLoading(false);
+          return;
+        }
+        if (!formData.tutorProfile.sessionRate || Number(formData.tutorProfile.sessionRate) < 100) {
+          setError('堂費不能少於100元');
+          setLoading(false);
+          return;
+        }
+        // 如果選擇面授模式，必須選擇教學子模式
+        if (formData.tutorProfile.teachingMode === 'in-person' && 
+            (!formData.tutorProfile.teachingSubModes || formData.tutorProfile.teachingSubModes.length === 0)) {
+          setError('面授模式必須選擇教學子模式');
+          setLoading(false);
+          return;
+        }
+      }
+
       let submitData: any = { ...formData };
       if (formData.userType === 'tutor') {
         submitData.tutorProfile = {
@@ -540,16 +583,17 @@ const CreateUser: React.FC = () => {
                   ))}
                 </TextField>
 
-                {/* 子科目 (僅中小學教育顯示) */}
+                {/* 子科目 (僅中小學教育顯示，可選) */}
                 {formData.tutorProfile.category === 'primary-secondary' && (
                   <TextField
                     select
-                    label="子科目"
+                    label="子科目 (可選)"
                     name="subCategory"
                     value={formData.tutorProfile.subCategory}
                     onChange={handleChange}
-                    required
+                    helperText="可選擇特定教育階段，不選則表示可教授所有階段"
                   >
+                    <MenuItem value="">不限教育階段</MenuItem>
                     {getSubCategories().map((subCategory) => (
                       <MenuItem key={subCategory.value} value={subCategory.value}>
                         {subCategory.label}
@@ -594,7 +638,7 @@ const CreateUser: React.FC = () => {
                   ))}
                 </TextField>
 
-                                {/* 教學子模式 (僅面授或皆可顯示) */}
+                {/* 教學子模式 (僅面授或皆可顯示，但皆可模式不強制要求) */}
                 {(formData.tutorProfile.teachingMode === 'in-person' || formData.tutorProfile.teachingMode === 'both') && (
                   <TextField
                     select
@@ -603,8 +647,10 @@ const CreateUser: React.FC = () => {
                     SelectProps={{ multiple: true }}
                     value={formData.tutorProfile.teachingSubModes}
                     onChange={handleChange}
-                    required
-                    helperText="可多選，按住 Ctrl/Command 鍵選多個"
+                    required={formData.tutorProfile.teachingMode === 'in-person'} // 僅面授模式強制要求
+                    helperText={formData.tutorProfile.teachingMode === 'both' ? 
+                      "皆可模式：可選填，不填則表示接受所有教學方式" : 
+                      "可多選，按住 Ctrl/Command 鍵選多個"}
                   >
                     {teachingModeOptions.find((mode: any) => mode.value === formData.tutorProfile.teachingMode)?.subCategories?.map((subMode: any) => (
                       <MenuItem key={subMode.value} value={subMode.value}>

@@ -59,7 +59,7 @@ interface EditFormData {
     birthDate?: string;
     teachingExperienceYears?: number;
     educationLevel?: string;
-    subjects?: string[];
+    subjects: string[];
     examResults?: Array<{
       subject: string;
       grade: string;
@@ -76,7 +76,6 @@ interface EditFormData {
     courseFeatures?: string;
     avatarUrl?: string;
   };
-  subjects: string[];
   teachingAreas: string[];
   teachingMethods: string[];
   experience: number;
@@ -140,7 +139,6 @@ const UserDetail: React.FC = () => {
       courseFeatures: '',
       avatarUrl: ''
     },
-    subjects: [],
     teachingAreas: [],
     teachingMethods: [],
     experience: 0,
@@ -229,7 +227,6 @@ const UserDetail: React.FC = () => {
       courseFeatures: '',
       avatarUrl: ''
     },
-        subjects: userData.subjects || [],
         teachingAreas: userData.teachingAreas || [],
         teachingMethods: userData.teachingMethods || [],
         experience: userData.experience || 0,
@@ -1396,6 +1393,47 @@ const UserDetail: React.FC = () => {
                   }
                 }))}
               />
+              
+              {/* 可教授科目編輯 */}
+              <TextField
+                select
+                label="可教授科目 (多選)"
+                fullWidth
+                SelectProps={{ multiple: true }}
+                value={editForm.tutorProfile.subjects || []}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setEditForm(prev => ({
+                    ...prev,
+                    tutorProfile: {
+                      ...prev.tutorProfile,
+                      subjects: Array.isArray(value) ? value : [value]
+                    }
+                  }));
+                }}
+                helperText="可多選，按住 Ctrl/Command 鍵選多個"
+              >
+                {/* 這裡可以根據需要添加科目選項 */}
+                <MenuItem value="primary-chinese">小學中文</MenuItem>
+                <MenuItem value="primary-english">小學英文</MenuItem>
+                <MenuItem value="primary-math">小學數學</MenuItem>
+                <MenuItem value="primary-general">小學常識</MenuItem>
+                <MenuItem value="secondary-chinese">中學中文</MenuItem>
+                <MenuItem value="secondary-english">中學英文</MenuItem>
+                <MenuItem value="secondary-math">中學數學</MenuItem>
+                <MenuItem value="secondary-physics">中學物理</MenuItem>
+                <MenuItem value="secondary-chemistry">中學化學</MenuItem>
+                <MenuItem value="secondary-biology">中學生物</MenuItem>
+                <MenuItem value="secondary-economics">中學經濟</MenuItem>
+                <MenuItem value="secondary-geography">中學地理</MenuItem>
+                <MenuItem value="secondary-history">中學歷史</MenuItem>
+                <MenuItem value="secondary-ls">中學通識</MenuItem>
+                <MenuItem value="art">繪畫</MenuItem>
+                <MenuItem value="music">音樂</MenuItem>
+                <MenuItem value="dance">跳舞</MenuItem>
+                <MenuItem value="programming">編程</MenuItem>
+                <MenuItem value="foreign-language">外語</MenuItem>
+              </TextField>
             </Box>
           )}
           

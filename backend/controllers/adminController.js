@@ -81,11 +81,13 @@ const createUser = async (req, res) => {
 
     if (userType === 'tutor') {
       tutorId = await generateTutorId();
-      // 自動補齊必填欄位
+      // 自動補齊必填欄位，但保持前端傳來的subjects
       finalTutorProfile = {
-        subjects: (tutorProfile && tutorProfile.subjects && tutorProfile.subjects.length > 0) ? tutorProfile.subjects : ['未指定'],
         sessionRate: (tutorProfile && tutorProfile.sessionRate) ? tutorProfile.sessionRate : 100,
-        ...tutorProfile
+        ...tutorProfile,
+        // 確保subjects存在且不為空
+        subjects: (tutorProfile && tutorProfile.subjects && tutorProfile.subjects.length > 0) ? 
+          tutorProfile.subjects : ['未指定']
       };
     }
     if (userType === 'organization') {
@@ -118,6 +120,24 @@ const createUser = async (req, res) => {
     });
   } catch (error) {
     console.error('Error creating user:', error);
+    
+    // 提供更詳細的錯誤信息
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map((err) => err.message);
+      return res.status(400).json({ 
+        message: 'Validation failed', 
+        errors: validationErrors 
+      });
+    }
+    
+    if (error.code === 11000) {
+      // MongoDB 重複鍵錯誤
+      const field = Object.keys(error.keyValue)[0];
+      return res.status(400).json({ 
+        message: `${field} already exists` 
+      });
+    }
+    
     res.status(500).json({ message: 'Internal server error' });
   }
 };
