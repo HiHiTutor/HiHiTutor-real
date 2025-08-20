@@ -345,9 +345,36 @@ const getUserById = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
+    // 預處理科目數據，確保格式正確
+    if (req.body.tutorProfile && req.body.tutorProfile.subjects) {
+      // 確保 subjects 是數組格式
+      if (!Array.isArray(req.body.tutorProfile.subjects)) {
+        req.body.tutorProfile.subjects = [];
+      }
+      // 過濾掉空值和非字符串值
+      req.body.tutorProfile.subjects = req.body.tutorProfile.subjects.filter(
+        subject => subject && typeof subject === 'string' && subject.trim() !== ''
+      );
+    }
+    
+    // 也處理根級別的 subjects
+    if (req.body.subjects) {
+      if (!Array.isArray(req.body.subjects)) {
+        req.body.subjects = [];
+      }
+      req.body.subjects = req.body.subjects.filter(
+        subject => subject && typeof subject === 'string' && subject.trim() !== ''
+      );
+    }
+
     const { error } = validateUserUpdate(req.body);
     if (error) {
-      return res.status(400).json({ message: error.details[0].message });
+      console.error('Validation error:', error.details);
+      return res.status(400).json({ 
+        success: false,
+        message: 'Validation failed',
+        details: error.details[0].message 
+      });
     }
 
     // 檢查是否嘗試將用戶升級為管理員
@@ -417,7 +444,8 @@ const updateUser = async (req, res) => {
       userId: user.userId,
       name: user.name,
       email: user.email,
-      userType: user.userType
+      userType: user.userType,
+      subjects: req.body.tutorProfile?.subjects || req.body.subjects
     });
 
     res.json({
@@ -428,7 +456,8 @@ const updateUser = async (req, res) => {
     console.error('Error updating user:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Internal server error' 
+      message: 'Internal server error',
+      error: error.message 
     });
   }
 };
