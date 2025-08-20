@@ -228,7 +228,8 @@ app.use('/api/auth', authRoutes);
 console.log("✅ authRoutes loaded and mounted");
 app.use('/api/admin/auth', adminAuthRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/admin-management', require('./routes/admin'));
+// 移除重複的路由掛載，避免衝突
+// app.use('/api/admin-management', require('./routes/admin'));
 app.use('/api/admin/notifications', require('./routes/adminNotifications'));
 app.use('/api/categories', categoriesRouter);
 app.use('/api/tutors', tutorsRouter);
