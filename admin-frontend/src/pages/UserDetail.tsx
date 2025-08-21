@@ -457,17 +457,31 @@ const UserDetail: React.FC = () => {
         message: err.message,
         response: err.response?.data,
         status: err.response?.status,
-        statusText: err.response?.statusText
+        statusText: err.response?.statusText,
+        config: err.config,
+        stack: err.stack
       });
       
       // 提供更詳細的錯誤信息
       let errorMessage = '更新失敗';
-      if (err.response?.data?.details) {
+      
+      // 檢查各種錯誤情況
+      if (err.response?.status === 401) {
+        errorMessage = '認證失敗，請重新登入';
+      } else if (err.response?.status === 403) {
+        errorMessage = '權限不足，無法執行此操作';
+      } else if (err.response?.status === 404) {
+        errorMessage = '用戶不存在';
+      } else if (err.response?.status === 500) {
+        errorMessage = '後端服務器錯誤';
+      } else if (err.response?.data?.details) {
         errorMessage = `驗證失敗: ${err.response.data.details}`;
       } else if (err.response?.data?.message) {
         errorMessage = err.response.data.message;
       } else if (err.message) {
         errorMessage = err.message;
+      } else if (err.code) {
+        errorMessage = `錯誤代碼: ${err.code}`;
       }
       
       setError(errorMessage);
