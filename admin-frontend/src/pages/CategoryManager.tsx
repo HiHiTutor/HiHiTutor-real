@@ -122,16 +122,37 @@ const CategoryManager: React.FC = () => {
       
       console.log('📤 準備發送到後端的數據:', categoriesObject);
       console.log('🌐 API 端點: /admin/config/categories');
+      console.log('🔑 檢查認證 token:', localStorage.getItem('adminToken') ? '存在' : '不存在');
       
       const response = await api.post('/admin/config/categories', { categories: categoriesObject });
       
       console.log('✅ API 響應成功:', response);
       setSuccess('Categories saved successfully');
       setTimeout(() => setSuccess(null), 3000);
-    } catch (err) {
+    } catch (err: any) {
       console.error('❌ 儲存失敗:', err);
-      setError('Failed to save categories');
-      console.error('Error saving categories:', err);
+      console.error('❌ 錯誤詳情:', {
+        message: err.message,
+        response: err.response,
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        data: err.response?.data,
+        config: err.config
+      });
+      
+      // 根據錯誤類型顯示不同的錯誤信息
+      let errorMessage = 'Failed to save categories';
+      if (err.response?.status === 401) {
+        errorMessage = '認證失敗，請重新登入';
+      } else if (err.response?.status === 403) {
+        errorMessage = '權限不足，需要管理員權限';
+      } else if (err.response?.status === 500) {
+        errorMessage = '後端服務器錯誤';
+      } else if (!err.response) {
+        errorMessage = '網絡連接錯誤，請檢查網絡連接';
+      }
+      
+      setError(errorMessage);
     } finally {
       console.log('🏁 儲存完成，設置 saving 為 false');
       setSaving(false);

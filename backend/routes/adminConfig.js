@@ -3,13 +3,38 @@ const router = express.Router();
 const fs = require('fs').promises;
 const path = require('path');
 const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
+const Category = require('../models/Category');
 
 // 获取科目配置
 router.get('/categories', verifyToken, isAdmin, async (req, res) => {
   try {
-    const categoryOptions = require('../constants/categoryOptions');
-    res.json(categoryOptions);
+    // 嘗試從數據庫獲取配置
+    const categories = await Category.find({});
+    
+    if (categories.length > 0) {
+      // 如果數據庫有數據，轉換為原來的格式
+      const categoriesObject = categories.reduce((acc, category) => {
+        acc[category.key] = {
+          label: category.label,
+          subjects: category.subjects || [],
+          subCategories: category.subCategories || []
+        };
+        return acc;
+      }, {});
+      
+      res.json(categoriesObject);
+    } else {
+      // 如果數據庫沒有數據，從文件讀取（作為備用）
+      try {
+        const categoryOptions = require('../constants/categoryOptions');
+        res.json(categoryOptions);
+      } catch (fileError) {
+        console.log('無法從文件讀取科目配置，返回空配置');
+        res.json({});
+      }
+    }
   } catch (error) {
+    console.error('Error loading categories from database:', error);
     res.status(500).json({ error: 'Failed to load categories' });
   }
 });
@@ -18,14 +43,28 @@ router.get('/categories', verifyToken, isAdmin, async (req, res) => {
 router.post('/categories', verifyToken, isAdmin, async (req, res) => {
   try {
     const { categories } = req.body;
-    const filePath = path.join(__dirname, '../constants/categoryOptions.js');
+    console.log('📥 接收到科目配置更新:', Object.keys(categories));
     
-    const fileContent = `module.exports = ${JSON.stringify(categories, null, 2)};`;
-    await fs.writeFile(filePath, fileContent, 'utf8');
+    // 清空現有配置
+    await Category.deleteMany({});
     
-    res.json({ message: 'Categories updated successfully' });
+    // 將新的配置保存到數據庫
+    const categoryDocuments = Object.entries(categories).map(([key, category]) => ({
+      key,
+      label: category.label,
+      subjects: category.subjects || [],
+      subCategories: category.subCategories || []
+    }));
+    
+    const savedCategories = await Category.insertMany(categoryDocuments);
+    console.log('✅ 成功保存科目配置到數據庫:', savedCategories.length, '個分類');
+    
+    res.json({ 
+      message: 'Categories updated successfully',
+      savedCount: savedCategories.length
+    });
   } catch (error) {
-    console.error('Error updating categories:', error);
+    console.error('Error updating categories in database:', error);
     res.status(500).json({ error: 'Failed to update categories' });
   }
 });
