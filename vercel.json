@@ -10,9 +10,6 @@
       "dest": "backend/index.js"
     }
   ],
-  "env": {
-    "MONGODB_URI": "@mongodb_uri"
-  },
   "functions": {
     "backend/index.js": {
       "maxDuration": 30
