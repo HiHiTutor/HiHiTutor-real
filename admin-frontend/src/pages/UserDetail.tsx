@@ -1978,7 +1978,26 @@ const UserDetail: React.FC = () => {
                     select
                     label="選擇子地區"
                     value={selectedSubRegion || ''}
-                    onChange={(e) => setSelectedSubRegion(e.target.value)}
+                    onChange={(e) => {
+                      const subRegionValue = e.target.value;
+                      setSelectedSubRegion(subRegionValue);
+                      
+                      // 自動加入已選地區
+                      if (subRegionValue && selectedRegion) {
+                        const newSubRegion = `${selectedRegion}-${subRegionValue}`;
+                        if (!editForm.tutorProfile.subRegions?.includes(newSubRegion)) {
+                          setEditForm(prev => ({
+                            ...prev,
+                            tutorProfile: {
+                              ...prev.tutorProfile,
+                              subRegions: [...(prev.tutorProfile.subRegions || []), newSubRegion]
+                            }
+                          }));
+                        }
+                        // 清空子地區選擇，但保持大區選擇
+                        setSelectedSubRegion('');
+                      }
+                    }}
                     disabled={!selectedRegion}
                     sx={{ minWidth: 120 }}
                   >
@@ -1988,15 +2007,6 @@ const UserDetail: React.FC = () => {
                       </MenuItem>
                     ))}
                   </TextField>
-                  
-                  <Button
-                    variant="outlined"
-                    onClick={handleAddSubRegion}
-                    disabled={!selectedRegion || !selectedSubRegion}
-                    size="small"
-                  >
-                    新增
-                  </Button>
                 </Box>
                 
                 {/* 已選地區顯示 */}
