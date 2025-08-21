@@ -982,38 +982,94 @@ const UserDetail: React.FC = () => {
                   </>
                 )}
                 
-                {/* 導師科目 - 優先顯示 tutorProfile 中的 subjects */}
-                {selectedUser.tutorProfile.subjects && selectedUser.tutorProfile.subjects.length > 0 && (
-                  <>
-                    <Grid item xs={4}>
-                      <Typography color="textSecondary">可教授科目</Typography>
-                    </Grid>
-                    <Grid item xs={8}>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        {selectedUser.tutorProfile.subjects.map((subject, index) => (
-                          <Chip key={index} label={subject} size="small" variant="outlined" />
-                        ))}
-                      </Box>
-                    </Grid>
-                  </>
-                )}
+                                 {/* 導師科目 - 優先顯示 tutorProfile 中的 subjects */}
+                 {selectedUser.tutorProfile.subjects && selectedUser.tutorProfile.subjects.length > 0 && (
+                   <>
+                     <Grid item xs={4}>
+                       <Typography color="textSecondary">可教授科目</Typography>
+                     </Grid>
+                     <Grid item xs={8}>
+                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                         {selectedUser.tutorProfile.subjects.map((subject, index) => {
+                           // 查找科目的中文標籤
+                           let subjectLabel = subject;
+                           
+                           // 從課程分類選項中查找
+                           for (const [categoryKey, category] of Object.entries(CATEGORY_OPTIONS)) {
+                             if ('subCategories' in category && category.subCategories) {
+                               // 中小學教育：檢查子分類
+                               for (const subCat of category.subCategories) {
+                                 if (subCat.subjects) {
+                                   const foundSubject = subCat.subjects.find((s: any) => s.value === subject);
+                                   if (foundSubject) {
+                                     subjectLabel = foundSubject.label;
+                                     break;
+                                   }
+                                 }
+                               }
+                             } else if ('subjects' in category && category.subjects) {
+                               // 其他課程：直接檢查科目
+                               const foundSubject = category.subjects.find((s: any) => s.value === subject);
+                               if (foundSubject) {
+                                 subjectLabel = foundSubject.label;
+                                 break;
+                               }
+                             }
+                           }
+                           
+                           return (
+                             <Chip key={index} label={subjectLabel} size="small" variant="outlined" />
+                           );
+                         })}
+                       </Box>
+                     </Grid>
+                   </>
+                 )}
                 
-                {/* 如果 tutorProfile 中沒有 subjects，則顯示根級別的 subjects */}
-                {(!selectedUser.tutorProfile.subjects || selectedUser.tutorProfile.subjects.length === 0) && 
-                 selectedUser.subjects && selectedUser.subjects.length > 0 && (
-                  <>
-                    <Grid item xs={4}>
-                      <Typography color="textSecondary">可教授科目</Typography>
-                    </Grid>
-                    <Grid item xs={8}>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        {selectedUser.subjects.map((subject, index) => (
-                          <Chip key={index} label={subject} size="small" variant="outlined" />
-                        ))}
-                      </Box>
-                    </Grid>
-                  </>
-                )}
+                                 {/* 如果 tutorProfile 中沒有 subjects，則顯示根級別的 subjects */}
+                 {(!selectedUser.tutorProfile.subjects || selectedUser.tutorProfile.subjects.length === 0) && 
+                  selectedUser.subjects && selectedUser.subjects.length > 0 && (
+                   <>
+                     <Grid item xs={4}>
+                       <Typography color="textSecondary">可教授科目</Typography>
+                     </Grid>
+                     <Grid item xs={8}>
+                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                         {selectedUser.subjects.map((subject, index) => {
+                           // 查找科目的中文標籤
+                           let subjectLabel = subject;
+                           
+                           // 從課程分類選項中查找
+                           for (const [categoryKey, category] of Object.entries(CATEGORY_OPTIONS)) {
+                             if ('subCategories' in category && category.subCategories) {
+                               // 中小學教育：檢查子分類
+                               for (const subCat of category.subCategories) {
+                                 if (subCat.subjects) {
+                                   const foundSubject = subCat.subjects.find((s: any) => s.value === subject);
+                                   if (foundSubject) {
+                                     subjectLabel = foundSubject.label;
+                                     break;
+                                   }
+                                 }
+                               }
+                             } else if ('subjects' in category && category.subjects) {
+                               // 其他課程：直接檢查科目
+                               const foundSubject = category.subjects.find((s: any) => s.value === subject);
+                               if (foundSubject) {
+                                 subjectLabel = foundSubject.label;
+                                 break;
+                               }
+                             }
+                           }
+                           
+                           return (
+                             <Chip key={index} label={subjectLabel} size="small" variant="outlined" />
+                           );
+                         })}
+                       </Box>
+                     </Grid>
+                   </>
+                 )}
                 
                 {/* 教學經驗年數 */}
                 {selectedUser.tutorProfile.teachingExperienceYears !== undefined && (
@@ -1143,25 +1199,59 @@ const UserDetail: React.FC = () => {
                   </>
                 )}
                 
-                {/* 教育模式 */}
-                {(selectedUser.tutorProfile as any).teachingMode && (
-                  <>
-                    <Grid item xs={4}>
-                      <Typography color="textSecondary">教育模式</Typography>
-                    </Grid>
-                    <Grid item xs={8}>
-                      <Chip
-                        label={(selectedUser.tutorProfile as any).teachingMode === 'face-to-face' ? '面授' :
-                               (selectedUser.tutorProfile as any).teachingMode === 'online' ? '網課' :
-                               (selectedUser.tutorProfile as any).teachingMode === 'both' ? '皆可' :
-                               (selectedUser.tutorProfile as any).teachingMode}
-                        color="primary"
-                        size="small"
-                        variant="outlined"
-                      />
-                    </Grid>
-                  </>
-                )}
+                                 {/* 教育模式 */}
+                 {(selectedUser.tutorProfile as any).teachingMode && (
+                   <>
+                     <Grid item xs={4}>
+                       <Typography color="textSecondary">教育模式</Typography>
+                     </Grid>
+                     <Grid item xs={8}>
+                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                         <Chip
+                           label={(selectedUser.tutorProfile as any).teachingMode === 'face-to-face' ? '面授' :
+                                  (selectedUser.tutorProfile as any).teachingMode === 'online' ? '網課' :
+                                  (selectedUser.tutorProfile as any).teachingMode === 'both' ? '皆可' :
+                                  (selectedUser.tutorProfile as any).teachingMode}
+                           color="primary"
+                           size="small"
+                           variant="outlined"
+                         />
+                         
+                         {/* 教育模式子選項 */}
+                         {(selectedUser.tutorProfile as any).teachingSubModes && 
+                          (selectedUser.tutorProfile as any).teachingSubModes.length > 0 && (
+                           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                             {(selectedUser.tutorProfile as any).teachingSubModes.map((subMode: string, idx: number) => {
+                               let subModeLabel = subMode;
+                               
+                               // 轉換子模式標籤
+                               if (subMode === 'home') subModeLabel = '上門';
+                               else if (subMode === 'center') subModeLabel = '補習中心';
+                               else if (subMode === 'library') subModeLabel = '圖書館';
+                               else if (subMode === 'coffee-shop') subModeLabel = '咖啡廳';
+                               else if (subMode === 'student-home') subModeLabel = '學生家';
+                               else if (subMode === 'zoom') subModeLabel = 'Zoom';
+                               else if (subMode === 'teams') subModeLabel = 'Microsoft Teams';
+                               else if (subMode === 'skype') subModeLabel = 'Skype';
+                               else if (subMode === 'google-meet') subModeLabel = 'Google Meet';
+                               else if (subMode === 'other-platform') subModeLabel = '其他平台';
+                               
+                               return (
+                                 <Chip
+                                   key={idx}
+                                   label={subModeLabel}
+                                   color="secondary"
+                                   size="small"
+                                   variant="outlined"
+                                 />
+                               );
+                             })}
+                           </Box>
+                         )}
+                       </Box>
+                     </Grid>
+                   </>
+                 )}
                 
                 {/* 教學模式 */}
                 {selectedUser.tutorProfile.teachingMethods && selectedUser.tutorProfile.teachingMethods.length > 0 && (
@@ -1801,26 +1891,82 @@ const UserDetail: React.FC = () => {
                 }))}
               />
               
-              {/* 教育模式 */}
-              <TextField
-                select
-                label="教育模式"
-                fullWidth
-                value={editForm.tutorProfile.teachingMode || ''}
-                onChange={(e) => setEditForm(prev => ({
-                  ...prev,
-                  tutorProfile: {
-                    ...prev.tutorProfile,
-                    teachingMode: e.target.value
-                  }
-                }))}
-                sx={{ mb: 2 }}
-              >
-                <MenuItem value="">未選擇</MenuItem>
-                <MenuItem value="face-to-face">面授</MenuItem>
-                <MenuItem value="online">網課</MenuItem>
-                <MenuItem value="both">皆可</MenuItem>
-              </TextField>
+                             {/* 教育模式 */}
+               <TextField
+                 select
+                 label="教育模式"
+                 fullWidth
+                 value={editForm.tutorProfile.teachingMode || ''}
+                 onChange={(e) => setEditForm(prev => ({
+                   ...prev,
+                   tutorProfile: {
+                     ...prev.tutorProfile,
+                     teachingMode: e.target.value,
+                     teachingSubModes: [] // 重置子模式
+                   }
+                 }))}
+                 sx={{ mb: 2 }}
+               >
+                 <MenuItem value="">未選擇</MenuItem>
+                 <MenuItem value="face-to-face">面授</MenuItem>
+                 <MenuItem value="online">網課</MenuItem>
+                 <MenuItem value="both">皆可</MenuItem>
+               </TextField>
+               
+               {/* 教育模式子選項 */}
+               {editForm.tutorProfile.teachingMode && (
+                 <TextField
+                   select
+                   label="教育模式子選項"
+                   SelectProps={{ multiple: true }}
+                   fullWidth
+                   value={editForm.tutorProfile.teachingSubModes || []}
+                   onChange={(e) => {
+                     const value = e.target.value;
+                     setEditForm(prev => ({
+                       ...prev,
+                       tutorProfile: {
+                         ...prev.tutorProfile,
+                         teachingSubModes: Array.isArray(value) ? value : [value]
+                       }
+                     }));
+                   }}
+                   sx={{ mb: 2 }}
+                 >
+                   {editForm.tutorProfile.teachingMode === 'face-to-face' && (
+                     <>
+                       <MenuItem value="home">上門</MenuItem>
+                       <MenuItem value="center">補習中心</MenuItem>
+                       <MenuItem value="library">圖書館</MenuItem>
+                       <MenuItem value="coffee-shop">咖啡廳</MenuItem>
+                       <MenuItem value="student-home">學生家</MenuItem>
+                     </>
+                   )}
+                   {editForm.tutorProfile.teachingMode === 'online' && (
+                     <>
+                       <MenuItem value="zoom">Zoom</MenuItem>
+                       <MenuItem value="teams">Microsoft Teams</MenuItem>
+                       <MenuItem value="skype">Skype</MenuItem>
+                       <MenuItem value="google-meet">Google Meet</MenuItem>
+                       <MenuItem value="other-platform">其他平台</MenuItem>
+                     </>
+                   )}
+                   {editForm.tutorProfile.teachingMode === 'both' && (
+                     <>
+                       <MenuItem value="home">上門</MenuItem>
+                       <MenuItem value="center">補習中心</MenuItem>
+                       <MenuItem value="library">圖書館</MenuItem>
+                       <MenuItem value="coffee-shop">咖啡廳</MenuItem>
+                       <MenuItem value="student-home">學生家</MenuItem>
+                       <MenuItem value="zoom">Zoom</MenuItem>
+                       <MenuItem value="teams">Microsoft Teams</MenuItem>
+                       <MenuItem value="skype">Skype</MenuItem>
+                       <MenuItem value="google-meet">Google Meet</MenuItem>
+                       <MenuItem value="other-platform">其他平台</MenuItem>
+                     </>
+                   )}
+                 </TextField>
+               )}
               
               {/* 可教授科目編輯 */}
               <Box sx={{ mb: 2 }}>
@@ -1990,49 +2136,74 @@ const UserDetail: React.FC = () => {
                   </>
                 )}
 
-                {/* 已選科目顯示 */}
-                {editForm.tutorProfile.subjects && editForm.tutorProfile.subjects.length > 0 && (
-                  <Box sx={{ 
-                    p: 2, 
-                    border: '1px solid #e0e0e0', 
-                    borderRadius: 1, 
-                    backgroundColor: '#f8f9fa',
-                    borderLeft: '4px solid #1976d2',
-                    mt: 2
-                  }}>
-                    <Typography variant="subtitle2" color="primary" sx={{ mb: 1, fontWeight: 'bold' }}>
-                      📚 已選科目 ({editForm.tutorProfile.subjects.length}個)
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                      {editForm.tutorProfile.subjects.map((subject, index) => {
-                        const subjectInfo = getAvailableSubjects().find(s => s.value === subject);
-                        return (
-                          <Chip
-                            key={index}
-                            label={subjectInfo ? subjectInfo.label : subject}
-                            color="primary"
-                            variant="outlined"
-                            size="small"
-                            onDelete={() => {
-                              const newSubjects = editForm.tutorProfile.subjects.filter((_, i) => i !== index);
-                              setEditForm(prev => ({
-                                ...prev,
-                                tutorProfile: {
-                                  ...prev.tutorProfile,
-                                  subjects: newSubjects
-                                }
-                              }));
-                            }}
-                            deleteIcon={<span style={{ fontSize: '14px' }}>×</span>}
-                          />
-                        );
-                      })}
-                    </Box>
-                    <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: 'block' }}>
-                      點擊科目標籤上的 × 可移除該科目
-                    </Typography>
-                  </Box>
-                )}
+                                 {/* 已選科目顯示 */}
+                 {editForm.tutorProfile.subjects && editForm.tutorProfile.subjects.length > 0 && (
+                   <Box sx={{ 
+                     p: 2, 
+                     border: '1px solid #e0e0e0', 
+                     borderRadius: 1, 
+                     backgroundColor: '#f8f9fa',
+                     borderLeft: '4px solid #1976d2',
+                     mt: 2
+                   }}>
+                     <Typography variant="subtitle2" color="primary" sx={{ mb: 1, fontWeight: 'bold' }}>
+                       📚 已選科目 ({editForm.tutorProfile.subjects.length}個)
+                     </Typography>
+                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                       {editForm.tutorProfile.subjects.map((subject, index) => {
+                         // 查找科目的中文標籤
+                         let subjectLabel = subject;
+                         
+                         // 從課程分類選項中查找
+                         for (const [categoryKey, category] of Object.entries(CATEGORY_OPTIONS)) {
+                           if ('subCategories' in category && category.subCategories) {
+                             // 中小學教育：檢查子分類
+                             for (const subCat of category.subCategories) {
+                               if (subCat.subjects) {
+                                 const foundSubject = subCat.subjects.find((s: any) => s.value === subject);
+                                 if (foundSubject) {
+                                   subjectLabel = foundSubject.label;
+                                   break;
+                                 }
+                               }
+                             }
+                           } else if ('subjects' in category && category.subjects) {
+                             // 其他課程：直接檢查科目
+                             const foundSubject = category.subjects.find((s: any) => s.value === subject);
+                             if (foundSubject) {
+                               subjectLabel = foundSubject.label;
+                               break;
+                             }
+                           }
+                         }
+                         
+                         return (
+                           <Chip
+                             key={index}
+                             label={subjectLabel}
+                             color="primary"
+                             variant="outlined"
+                             size="small"
+                             onDelete={() => {
+                               const newSubjects = editForm.tutorProfile.subjects.filter((_, i) => i !== index);
+                               setEditForm(prev => ({
+                                 ...prev,
+                                 tutorProfile: {
+                                   ...prev.tutorProfile,
+                                   subjects: newSubjects
+                                 }
+                               }));
+                             }}
+                             deleteIcon={<span style={{ fontSize: '14px' }}>×</span>}
+                           />
+                         );
+                       })}
+                     </Box>
+                     <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: 'block' }}>
+                       點擊科目標籤上的 × 可移除該科目
+                     </Typography>
+                   </Box>
+                 )}
               </Box>
 
               {/* 地區選擇 (支持跨大區) */}
