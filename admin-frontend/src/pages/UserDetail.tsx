@@ -1948,6 +1948,306 @@ const UserDetail: React.FC = () => {
                   </Box>
                 )}
               </Box>
+
+              {/* 地區選擇 (支持跨大區) */}
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle1" color="primary" sx={{ mb: 1, fontWeight: 'bold' }}>
+                  🌍 地區設置
+                </Typography>
+                <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+                  選擇子地區 (可跨大區選擇)
+                </Typography>
+                
+                {/* 地區選擇器 */}
+                <Box sx={{ display: 'flex', gap: 1, mb: 2, alignItems: 'center' }}>
+                  <TextField
+                    select
+                    label="選擇大區"
+                    value={selectedRegion || ''}
+                    onChange={(e) => setSelectedRegion(e.target.value)}
+                    sx={{ minWidth: 120 }}
+                  >
+                    {REGION_OPTIONS.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                  
+                  <TextField
+                    select
+                    label="選擇子地區"
+                    value={selectedSubRegion || ''}
+                    onChange={(e) => setSelectedSubRegion(e.target.value)}
+                    disabled={!selectedRegion}
+                    sx={{ minWidth: 120 }}
+                  >
+                    {selectedRegion && REGION_OPTIONS.find((option) => option.value === selectedRegion)?.regions?.map((subRegion) => (
+                      <MenuItem key={subRegion.value} value={subRegion.value}>
+                        {subRegion.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                  
+                  <Button
+                    variant="outlined"
+                    onClick={handleAddSubRegion}
+                    disabled={!selectedRegion || !selectedSubRegion}
+                    size="small"
+                  >
+                    新增
+                  </Button>
+                </Box>
+                
+                {/* 已選地區顯示 */}
+                {(editForm.tutorProfile.subRegions || []).length > 0 && (
+                  <Box>
+                    <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+                      已選地區:
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {(editForm.tutorProfile.subRegions || []).map((subRegion, index) => {
+                        // 找到對應的大區名稱和子地區標籤
+                        let regionName = '未知地區';
+                        let subRegionLabel = subRegion;
+                        
+                        for (const option of REGION_OPTIONS) {
+                          const foundSubRegion = option.regions?.find(r => r.value === subRegion);
+                          if (foundSubRegion) {
+                            regionName = option.label;
+                            subRegionLabel = foundSubRegion.label;
+                            break;
+                          }
+                        }
+                        
+                        return (
+                          <Chip
+                            key={index}
+                            label={`${regionName} - ${subRegionLabel}`}
+                            onDelete={() => handleDeleteSubRegion(subRegion)}
+                            color="primary"
+                            variant="outlined"
+                            size="small"
+                          />
+                        );
+                      })}
+                    </Box>
+                  </Box>
+                )}
+              </Box>
+
+              {/* 可教授科目編輯 */}
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle1" color="primary" sx={{ mb: 1, fontWeight: 'bold' }}>
+                  📚 課程設置
+                </Typography>
+                <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+                  請按順序選擇：課程分類 → 子科目(可選) → 可教授科目
+                </Typography>
+                
+                {/* 課程分類 */}
+                <TextField
+                  select
+                  label="課程分類"
+                  name="category"
+                  value={editForm.tutorProfile.category || ''}
+                  onChange={handleInputChange}
+                  fullWidth
+                  sx={{ mb: 2 }}
+                  helperText="選擇您要教授的課程類型"
+                >
+                  {Object.entries(CATEGORY_OPTIONS).map(([key, category]) => (
+                    <MenuItem key={key} value={key}>{category.label}</MenuItem>
+                  ))}
+                </TextField>
+
+                {/* 子科目 (僅中小學教育顯示，可選) */}
+                {editForm.tutorProfile.category === 'primary-secondary' && (
+                  <TextField
+                    select
+                    label="子科目 (可選)"
+                    name="subCategory"
+                    value={editForm.tutorProfile.subCategory || ''}
+                    onChange={handleInputChange}
+                    fullWidth
+                    sx={{ mb: 2 }}
+                    helperText="選擇特定教育階段，或留空表示可教授所有階段"
+                  >
+                    {getSubCategories().map((subCategory) => (
+                      <MenuItem key={subCategory.value} value={subCategory.value}>
+                        {subCategory.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                )}
+
+                {/* 科目選擇提示 */}
+                {editForm.tutorProfile.category && (
+                  <Box sx={{ 
+                    p: 1.5, 
+                    backgroundColor: '#e3f2fd', 
+                    borderRadius: 1, 
+                    border: '1px solid #bbdefb',
+                    mb: 2
+                  }}>
+                    <Typography variant="body2" color="primary">
+                      💡 提示：您現在可以選擇可教授的科目了
+                      {editForm.tutorProfile.category === 'primary-secondary' && 
+                        (editForm.tutorProfile.subCategory ? 
+                          `（${editForm.tutorProfile.subCategory === 'primary' ? '小學' : '中學'}階段）` : 
+                          '（可跨階段選擇）'
+                        )
+                      }
+                    </Typography>
+                  </Box>
+                )}
+
+                {/* 科目 (多選) */}
+                {editForm.tutorProfile.category && (
+                  <>
+                    {editForm.tutorProfile.category === 'primary-secondary' ? (
+                      // 中小學教育：分組顯示科目
+                      <Box>
+                        <Typography variant="subtitle1" color="primary" sx={{ mb: 1, fontWeight: 'bold' }}>
+                          可教授科目 (多選)
+                        </Typography>
+                        
+                        {/* 小學教育科目 */}
+                        <Box sx={{ mb: 2 }}>
+                          <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
+                            🏫 小學教育科目
+                          </Typography>
+                          <TextField
+                            select
+                            label="小學科目"
+                            SelectProps={{ multiple: true }}
+                            value={editForm.tutorProfile.subjects.filter(subject => subject.startsWith('primary-'))}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              const selectedPrimarySubjects = Array.isArray(value) ? value : [value];
+                              const existingSecondarySubjects = editForm.tutorProfile.subjects.filter(subject => subject.startsWith('secondary-'));
+                              const allSubjects = [...selectedPrimarySubjects, ...existingSecondarySubjects];
+                              setEditForm(prev => ({
+                                ...prev,
+                                tutorProfile: { ...prev.tutorProfile, subjects: allSubjects }
+                              }));
+                            }}
+                            helperText="可多選小學科目"
+                            fullWidth
+                          >
+                            {CATEGORY_OPTIONS['primary-secondary'].subCategories?.find(sub => sub.value === 'primary')?.subjects?.map((subject) => (
+                              <MenuItem key={subject.value} value={subject.value}>
+                                {subject.label}
+                              </MenuItem>
+                            ))}
+                          </TextField>
+                        </Box>
+
+                        {/* 中學教育科目 */}
+                        <Box sx={{ mb: 2 }}>
+                          <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
+                            🎓 中學教育科目
+                          </Typography>
+                          <TextField
+                            select
+                            label="中學科目"
+                            SelectProps={{ multiple: true }}
+                            value={editForm.tutorProfile.subjects.filter(subject => subject.startsWith('secondary-'))}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              const selectedSecondarySubjects = Array.isArray(value) ? value : [value];
+                              const existingPrimarySubjects = editForm.tutorProfile.subjects.filter(subject => subject.startsWith('primary-'));
+                              const allSubjects = [...existingPrimarySubjects, ...selectedSecondarySubjects];
+                              setEditForm(prev => ({
+                                ...prev,
+                                tutorProfile: { ...prev.tutorProfile, subjects: allSubjects }
+                              }));
+                            }}
+                            helperText="可多選中學科目"
+                            fullWidth
+                          >
+                            {CATEGORY_OPTIONS['primary-secondary'].subCategories?.find(sub => sub.value === 'secondary')?.subjects?.map((subject) => (
+                              <MenuItem key={subject.value} value={subject.value}>
+                                {subject.label}
+                              </MenuItem>
+                            ))}
+                          </TextField>
+                        </Box>
+                      </Box>
+                    ) : (
+                      // 其他課程分類：正常顯示
+                      <TextField
+                        select
+                        label="可教授科目 (多選)"
+                        SelectProps={{ multiple: true }}
+                        value={editForm.tutorProfile.subjects || []}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setEditForm(prev => ({
+                            ...prev,
+                            tutorProfile: {
+                              ...prev.tutorProfile,
+                              subjects: Array.isArray(value) ? value : [value]
+                            }
+                          }));
+                        }}
+                        fullWidth
+                        helperText="可多選，按住 Ctrl/Command 鍵選多個"
+                      >
+                        {getAvailableSubjects().map((subject) => (
+                          <MenuItem key={subject.value} value={subject.value}>
+                            {subject.label}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    )}
+                  </>
+                )}
+
+                {/* 已選科目顯示 */}
+                {editForm.tutorProfile.subjects && editForm.tutorProfile.subjects.length > 0 && (
+                  <Box sx={{ 
+                    p: 2, 
+                    border: '1px solid #e0e0e0', 
+                    borderRadius: 1, 
+                    backgroundColor: '#f8f9fa',
+                    borderLeft: '4px solid #1976d2',
+                    mt: 2
+                  }}>
+                    <Typography variant="subtitle2" color="primary" sx={{ mb: 1, fontWeight: 'bold' }}>
+                      📚 已選科目 ({editForm.tutorProfile.subjects.length}個)
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                      {editForm.tutorProfile.subjects.map((subject, index) => {
+                        const subjectInfo = getAvailableSubjects().find(s => s.value === subject);
+                        return (
+                          <Chip
+                            key={index}
+                            label={subjectInfo ? subjectInfo.label : subject}
+                            color="primary"
+                            variant="outlined"
+                            size="small"
+                            onDelete={() => {
+                              const newSubjects = editForm.tutorProfile.subjects.filter((_, i) => i !== index);
+                              setEditForm(prev => ({
+                                ...prev,
+                                tutorProfile: {
+                                  ...prev.tutorProfile,
+                                  subjects: newSubjects
+                                }
+                              }));
+                            }}
+                            deleteIcon={<span style={{ fontSize: '14px' }}>×</span>}
+                          />
+                        );
+                      })}
+                    </Box>
+                    <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: 'block' }}>
+                      點擊科目標籤上的 × 可移除該科目
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
             </Box>
           )}
           
