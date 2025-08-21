@@ -371,15 +371,21 @@ const UserDetail: React.FC = () => {
   // 載入教學模式資料
   const fetchTeachingModes = async () => {
     try {
-      const response = await fetch('/api/teaching-modes');
+      // 使用正確的後端 API URL
+      const response = await fetch('https://hi-hi-tutor-real-backend2.vercel.app/api/teaching-modes');
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
           setTeachingModes(data.data);
+          console.log('✅ 教學模式載入成功:', data.data);
+        } else {
+          console.error('❌ 教學模式 API 回應失敗:', data);
         }
+      } else {
+        console.error('❌ 教學模式 API 請求失敗:', response.status, response.statusText);
       }
     } catch (error) {
-      console.error('載入教學模式失敗:', error);
+      console.error('❌ 載入教學模式失敗:', error);
     }
   };
 
