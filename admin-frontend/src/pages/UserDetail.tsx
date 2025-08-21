@@ -1313,10 +1313,31 @@ const UserDetail: React.FC = () => {
                             const parts = subRegion.split('-');
                             if (parts.length >= 3) {
                               // 格式：hong-kong-island-admiralty
-                              const regionValue = parts.slice(0, -1).join('-');
-                              const subRegionValue = parts[parts.length - 1];
+                              // 需要找到正確的大區和子地區分界點
+                              let regionValue = '';
+                              let subRegionValue = '';
                               
-                              console.log('解析地區:', { subRegion, regionValue, subRegionValue });
+                              // 嘗試不同的組合來找到匹配的大區
+                              for (let i = 1; i < parts.length; i++) {
+                                const possibleRegion = parts.slice(0, i).join('-');
+                                const possibleSubRegion = parts.slice(i).join('-');
+                                
+                                const regionOption = REGION_OPTIONS.find(option => option.value === possibleRegion);
+                                if (regionOption) {
+                                  const foundSubRegion = regionOption.regions?.find(r => r.value === possibleSubRegion);
+                                  if (foundSubRegion) {
+                                    regionValue = possibleRegion;
+                                    subRegionValue = possibleSubRegion;
+                                    break;
+                                  }
+                                }
+                              }
+                              
+                              // 如果沒找到，使用最後一個部分作為子地區
+                              if (!regionValue) {
+                                regionValue = parts.slice(0, -1).join('-');
+                                subRegionValue = parts[parts.length - 1];
+                              }
                               
                               const regionOption = REGION_OPTIONS.find(option => option.value === regionValue);
                               if (regionOption) {
@@ -1324,11 +1345,7 @@ const UserDetail: React.FC = () => {
                                 const foundSubRegion = regionOption.regions?.find(r => r.value === subRegionValue);
                                 if (foundSubRegion) {
                                   subRegionLabel = foundSubRegion.label;
-                                } else {
-                                  console.log('找不到子地區:', subRegionValue, '在', regionValue);
                                 }
-                              } else {
-                                console.log('找不到大區:', regionValue);
                               }
                             } else if (parts.length === 2) {
                               // 格式：region-subregion 
@@ -2319,8 +2336,31 @@ const UserDetail: React.FC = () => {
                           const parts = subRegion.split('-');
                           if (parts.length >= 3) {
                             // 格式：hong-kong-island-admiralty
-                            const regionValue = parts.slice(0, -1).join('-'); // hong-kong-island
-                            const subRegionValue = parts[parts.length - 1]; // admiralty
+                            // 需要找到正確的大區和子地區分界點
+                            let regionValue = '';
+                            let subRegionValue = '';
+                            
+                            // 嘗試不同的組合來找到匹配的大區
+                            for (let i = 1; i < parts.length; i++) {
+                              const possibleRegion = parts.slice(0, i).join('-');
+                              const possibleSubRegion = parts.slice(i).join('-');
+                              
+                              const regionOption = REGION_OPTIONS.find(option => option.value === possibleRegion);
+                              if (regionOption) {
+                                const foundSubRegion = regionOption.regions?.find(r => r.value === possibleSubRegion);
+                                if (foundSubRegion) {
+                                  regionValue = possibleRegion;
+                                  subRegionValue = possibleSubRegion;
+                                  break;
+                                }
+                              }
+                            }
+                            
+                            // 如果沒找到，使用最後一個部分作為子地區
+                            if (!regionValue) {
+                              regionValue = parts.slice(0, -1).join('-');
+                              subRegionValue = parts[parts.length - 1];
+                            }
                             
                             const regionOption = REGION_OPTIONS.find(option => option.value === regionValue);
                             if (regionOption) {
