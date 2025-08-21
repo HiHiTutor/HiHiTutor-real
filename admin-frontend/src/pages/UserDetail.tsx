@@ -1782,15 +1782,23 @@ const UserDetail: React.FC = () => {
                       </Typography>
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                         {(editForm.tutorProfile.subRegions || []).map((subRegion, index) => {
-                          // 找到對應的大區名稱
-                          const regionName = REGION_OPTIONS.find(option => 
-                            option.regions?.some((r: any) => r.value === subRegion)
-                          )?.label || '未知地區';
+                          // 找到對應的大區名稱和子地區標籤
+                          let regionName = '未知地區';
+                          let subRegionLabel = subRegion;
+                          
+                          for (const option of REGION_OPTIONS) {
+                            const foundSubRegion = option.regions?.find(r => r.value === subRegion);
+                            if (foundSubRegion) {
+                              regionName = option.label;
+                              subRegionLabel = foundSubRegion.label;
+                              break;
+                            }
+                          }
                           
                           return (
                             <Chip
                               key={index}
-                              label={`${regionName} - ${subRegion}`}
+                              label={`${regionName} - ${subRegionLabel}`}
                               onDelete={() => handleDeleteSubRegion(subRegion)}
                               color="primary"
                               variant="outlined"

@@ -1,20 +1,32 @@
 const express = require('express');
 const router = express.Router();
-const regionOptions = require('../constants/regionOptions');
+const Region = require('../models/Region');
+const regionOptions = require('../constants/regionOptions'); // 作為備用
 
 // 獲取所有地區選項
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
   try {
+    // 優先從數據庫獲取
+    let regions = await Region.find({ isActive: true }).sort({ sortOrder: 1 });
+    
+    // 如果數據庫沒有數據，使用備用配置
+    if (!regions || regions.length === 0) {
+      console.log('⚠️ 數據庫中沒有地區數據，使用備用配置');
+      regions = regionOptions;
+    }
+    
     res.json({
       success: true,
-      data: regionOptions
+      data: regions,
+      source: 'database'
     });
   } catch (error) {
     console.error('❌ 獲取地區選項錯誤:', error);
-    res.status(500).json({
-      success: false,
-      message: '獲取地區選項失敗',
-      error: error.message
+    // 出錯時使用備用配置
+    res.json({
+      success: true,
+      data: regionOptions,
+      source: 'fallback'
     });
   }
 });
@@ -88,6 +100,26 @@ router.get('/subregion/label/:value', (req, res) => {
     res.status(500).json({
       success: false,
       message: '獲取子地區標籤失敗',
+      error: error.message
+    });
+  }
+});
+
+// 初始化地區數據庫 (僅用於開發/部署)
+router.post('/init', async (req, res) => {
+  try {
+    const { initRegions } = require('../scripts/initRegions');
+    await initRegions();
+    
+    res.json({
+      success: true,
+      message: '地區數據庫初始化成功'
+    });
+  } catch (error) {
+    console.error('❌ 初始化地區數據庫失敗:', error);
+    res.status(500).json({
+      success: false,
+      message: '初始化地區數據庫失敗',
       error: error.message
     });
   }
