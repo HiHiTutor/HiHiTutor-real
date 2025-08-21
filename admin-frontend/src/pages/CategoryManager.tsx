@@ -84,8 +84,13 @@ const CategoryManager: React.FC = () => {
   };
 
   const saveCategories = async () => {
+    console.log('🔍 儲存函數被調用');
+    console.log('📊 當前 categories 狀態:', categories);
+    
     try {
       setSaving(true);
+      console.log('⏳ 開始儲存...');
+      
       // Convert array back to object format for backend
       const categoriesObject = categories.reduce((acc, category) => {
         acc[category.value] = {
@@ -96,15 +101,28 @@ const CategoryManager: React.FC = () => {
         return acc;
       }, {} as any);
       
-      await api.post('/admin/config/categories', { categories: categoriesObject });
+      console.log('📤 準備發送到後端的數據:', categoriesObject);
+      console.log('🌐 API 端點: /admin/config/categories');
+      
+      const response = await api.post('/admin/config/categories', { categories: categoriesObject });
+      
+      console.log('✅ API 響應成功:', response);
       setSuccess('Categories saved successfully');
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
+      console.error('❌ 儲存失敗:', err);
       setError('Failed to save categories');
       console.error('Error saving categories:', err);
     } finally {
+      console.log('🏁 儲存完成，設置 saving 為 false');
       setSaving(false);
     }
+  };
+
+  // 測試函數：驗證按鈕點擊是否正常工作
+  const testSaveButton = () => {
+    console.log('🧪 測試儲存按鈕點擊');
+    alert('儲存按鈕點擊測試成功！');
   };
 
   const handleAddCategory = () => {
@@ -277,6 +295,14 @@ const CategoryManager: React.FC = () => {
             sx={{ mr: 2 }}
           >
             新增科目分類
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={testSaveButton}
+            sx={{ mr: 2 }}
+          >
+            測試按鈕
           </Button>
           <Button
             variant="contained"
