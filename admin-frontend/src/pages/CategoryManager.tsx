@@ -57,7 +57,7 @@ const CategoryManager: React.FC = () => {
   const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
   const [editingSubCategory, setEditingSubCategory] = useState<SubCategory | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogType, setDialogType] = useState<'category' | 'subject' | 'subcategory'>('category');
+  const [dialogType, setDialogType] = useState<'category' | 'subject' | 'subcategory' | 'subcategory-subject'>('category');
 
   useEffect(() => {
     loadCategories();
@@ -169,6 +169,28 @@ const CategoryManager: React.FC = () => {
     setCategories(newCategories);
   };
 
+  // 新增：子分類科目管理函數
+  const handleAddSubCategorySubject = (categoryIndex: number, subCategoryIndex: number) => {
+    setEditingSubject({ value: '', label: '' });
+    setEditingCategory(categories[categoryIndex]);
+    setEditingSubCategory(categories[categoryIndex].subCategories[subCategoryIndex]);
+    setDialogType('subcategory-subject');
+    setDialogOpen(true);
+  };
+
+  const handleEditSubCategorySubjects = (categoryIndex: number, subCategoryIndex: number) => {
+    setEditingCategory(categories[categoryIndex]);
+    setEditingSubCategory(categories[categoryIndex].subCategories[subCategoryIndex]);
+    setDialogType('subcategory-subject');
+    setDialogOpen(true);
+  };
+
+  const handleDeleteSubCategorySubject = (categoryIndex: number, subCategoryIndex: number, subjectIndex: number) => {
+    const newCategories = [...categories];
+    newCategories[categoryIndex].subCategories[subCategoryIndex].subjects.splice(subjectIndex, 1);
+    setCategories(newCategories);
+  };
+
   const handleDialogSave = () => {
     if (!editingCategory) return;
 
@@ -205,6 +227,20 @@ const CategoryManager: React.FC = () => {
           newCategories[categoryIndex].subCategories.push(editingSubCategory);
         }
         setCategories(newCategories);
+      }
+    } else if (dialogType === 'subcategory-subject' && editingSubject && editingSubCategory) {
+      const newCategories = [...categories];
+      if (categoryIndex >= 0) {
+        const subCategoryIndex = newCategories[categoryIndex].subCategories.findIndex(sc => sc.id === editingSubCategory.id);
+        if (subCategoryIndex >= 0) {
+          const subjectIndex = newCategories[categoryIndex].subCategories[subCategoryIndex].subjects.findIndex(s => s.value === editingSubject.value);
+          if (subjectIndex >= 0) {
+            newCategories[categoryIndex].subCategories[subCategoryIndex].subjects[subjectIndex] = editingSubject;
+          } else {
+            newCategories[categoryIndex].subCategories[subCategoryIndex].subjects.push(editingSubject);
+          }
+          setCategories(newCategories);
+        }
       }
     }
 
@@ -324,12 +360,40 @@ const CategoryManager: React.FC = () => {
                         </Box>
                         <Box mt={1} mb={1} display="flex" flexWrap="wrap" sx={{ ml: 2 }}>
                           {subCategory.subjects && subCategory.subjects.length > 0 ? (
-                            subCategory.subjects.map((subject) => (
-                              <Chip key={subject.value} label={subject.label} size="small" sx={{ mr: 1, mb: 1 }} />
+                            subCategory.subjects.map((subject, subjectIndex) => (
+                              <Chip 
+                                key={subject.value} 
+                                label={subject.label} 
+                                size="small" 
+                                sx={{ mr: 1, mb: 1 }}
+                                onDelete={() => handleDeleteSubCategorySubject(categoryIndex, subCategoryIndex, subjectIndex)}
+                              />
                             ))
                           ) : (
                             <Typography variant="body2" color="textSecondary">無科目</Typography>
                           )}
+                        </Box>
+                        
+                        {/* 新增：子分類的科目管理按鈕 */}
+                        <Box display="flex" gap={1} sx={{ ml: 2, mt: 1 }}>
+                          <Button
+                            size="small"
+                            startIcon={<AddIcon />}
+                            onClick={() => handleAddSubCategorySubject(categoryIndex, subCategoryIndex)}
+                            variant="outlined"
+                            color="primary"
+                          >
+                            新增科目
+                          </Button>
+                          <Button
+                            size="small"
+                            startIcon={<EditIcon />}
+                            onClick={() => handleEditSubCategorySubjects(categoryIndex, subCategoryIndex)}
+                            variant="outlined"
+                            color="secondary"
+                          >
+                            編輯科目
+                          </Button>
                         </Box>
                       </CardContent>
                     </Card>
@@ -380,6 +444,7 @@ const CategoryManager: React.FC = () => {
           {dialogType === 'category' && (editingCategory?.value ? '編輯科目分類' : '新增科目分類')}
           {dialogType === 'subject' && (editingSubject?.value ? '編輯科目' : '新增科目')}
           {dialogType === 'subcategory' && (editingSubCategory?.id ? '編輯子分類' : '新增子分類')}
+          {dialogType === 'subcategory-subject' && (editingSubject?.value ? '編輯子分類科目' : '新增子分類科目')}
         </DialogTitle>
         <DialogContent>
           {dialogType === 'category' && editingCategory && (
@@ -449,6 +514,25 @@ const CategoryManager: React.FC = () => {
                 })}
                 margin="normal"
                 helperText="例如: primary-chinese:中文, primary-english:英文, primary-math:數學"
+              />
+            </Box>
+          )}
+
+          {dialogType === 'subcategory-subject' && editingSubject && (
+            <Box>
+              <TextField
+                fullWidth
+                label="科目值 (Value)"
+                value={editingSubject.value}
+                onChange={(e) => setEditingSubject({ ...editingSubject, value: e.target.value })}
+                margin="normal"
+              />
+              <TextField
+                fullWidth
+                label="科目名稱 (Label)"
+                value={editingSubject.label}
+                onChange={(e) => setEditingSubject({ ...editingSubject, label: e.target.value })}
+                margin="normal"
               />
             </Box>
           )}
