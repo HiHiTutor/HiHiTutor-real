@@ -139,8 +139,7 @@ const CreateUser: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [teachingModeOptions, setTeachingModeOptions] = useState<any[]>([]);
   const [regionOptions, setRegionOptions] = useState<any[]>([]);
-  const [selectedRegion, setSelectedRegion] = useState<string | ''>('');
-  const [selectedSubRegion, setSelectedSubRegion] = useState<string | ''>('');
+  // 移除舊的地區選擇狀態，改用多選框方式
 
   // 獲取教學模式和地區選項
   useEffect(() => {
@@ -444,29 +443,7 @@ const CreateUser: React.FC = () => {
     }
   };
 
-  const handleAddSubRegion = () => {
-    if (selectedRegion && selectedSubRegion) {
-      setFormData(prev => ({
-        ...prev,
-        tutorProfile: {
-          ...prev.tutorProfile,
-          subRegions: [...prev.tutorProfile.subRegions, `${selectedRegion}-${selectedSubRegion}`]
-        }
-      }));
-      setSelectedRegion('');
-      setSelectedSubRegion('');
-    }
-  };
-
-  const handleDeleteSubRegion = (subRegionToDelete: string) => {
-    setFormData(prev => ({
-      ...prev,
-      tutorProfile: {
-        ...prev.tutorProfile,
-        subRegions: prev.tutorProfile.subRegions.filter(sub => sub !== subRegionToDelete)
-      }
-    }));
-  };
+  // 移除舊的地區處理函數，改用多選框方式
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -896,74 +873,60 @@ const CreateUser: React.FC = () => {
                         選擇子地區 (可跨大區選擇)
                       </Typography>
                       
-                      {/* 地區選擇器 */}
-                      <Box sx={{ display: 'flex', gap: 1, mb: 2, alignItems: 'center' }}>
-                        <TextField
-                          select
-                          label="選擇大區"
-                          value={selectedRegion || ''}
-                          onChange={(e) => setSelectedRegion(e.target.value)}
-                          sx={{ minWidth: 120 }}
-                        >
-                          {regionOptions.map((option: any) => (
-                            <MenuItem key={option.value} value={option.value}>
-                              {option.label}
-                            </MenuItem>
+                      {/* 地區選擇器 - 多選框方式 */}
+                      <Box sx={{ mb: 2 }}>
+                        <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
+                          上堂地區 (可多選)
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                          {regionOptions.map((regionOption: any) => (
+                            <Box key={regionOption.value} sx={{ border: 1, borderColor: 'divider', borderRadius: 1, p: 2 }}>
+                              <Typography variant="subtitle2" color="primary" sx={{ mb: 2, fontWeight: 'bold' }}>
+                                {regionOption.label}
+                              </Typography>
+                              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr' }, gap: 1 }}>
+                                {regionOption.regions?.map((subRegion: any) => (
+                                  <Box key={subRegion.value} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <input
+                                      type="checkbox"
+                                      checked={formData.tutorProfile.subRegions.includes(subRegion.value)}
+                                      onChange={(e) => {
+                                        if (e.target.checked) {
+                                          setFormData(prev => ({
+                                            ...prev,
+                                            tutorProfile: {
+                                              ...prev.tutorProfile,
+                                              subRegions: [...prev.tutorProfile.subRegions, subRegion.value]
+                                            }
+                                          }));
+                                        } else {
+                                          setFormData(prev => ({
+                                            ...prev,
+                                            tutorProfile: {
+                                              ...prev.tutorProfile,
+                                              subRegions: prev.tutorProfile.subRegions.filter(sub => sub !== subRegion.value)
+                                            }
+                                          }));
+                                        }
+                                      }}
+                                      style={{
+                                        width: '16px',
+                                        height: '16px',
+                                        borderRadius: '4px',
+                                        border: '1px solid #d1d5db',
+                                        accentColor: '#3b82f6'
+                                      }}
+                                    />
+                                    <Typography variant="body2" color="textSecondary">
+                                      {subRegion.label}
+                                    </Typography>
+                                  </Box>
+                                ))}
+                              </Box>
+                            </Box>
                           ))}
-                        </TextField>
-                        
-                        <TextField
-                          select
-                          label="選擇子地區"
-                          value={selectedSubRegion || ''}
-                          onChange={(e) => setSelectedSubRegion(e.target.value)}
-                          disabled={!selectedRegion}
-                          sx={{ minWidth: 120 }}
-                        >
-                          {selectedRegion && regionOptions.find((option: any) => option.value === selectedRegion)?.regions?.map((subRegion: any) => (
-                            <MenuItem key={subRegion.value} value={subRegion.value}>
-                              {subRegion.label}
-                            </MenuItem>
-                          ))}
-                        </TextField>
-                        
-                        <Button
-                          variant="outlined"
-                          onClick={handleAddSubRegion}
-                          disabled={!selectedRegion || !selectedSubRegion}
-                          size="small"
-                        >
-                          新增
-                        </Button>
-                      </Box>
-                      
-                      {/* 已選地區顯示 */}
-                      {formData.tutorProfile.subRegions.length > 0 && (
-                        <Box sx={{ mb: 2 }}>
-                          <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
-                            已選地區:
-                          </Typography>
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                            {formData.tutorProfile.subRegions.map((subRegion, index) => {
-                              // 找到對應的大區名稱
-                              const regionName = regionOptions.find(option => 
-                                option.regions?.some((r: any) => r.value === subRegion)
-                              )?.label || '未知地區';
-                              
-                              return (
-                                <Chip
-                                  key={index}
-                                  label={`${regionName} - ${subRegion}`}
-                                  onDelete={() => handleDeleteSubRegion(subRegion)}
-                                  color="primary"
-                                  variant="outlined"
-                                  size="small"
-                                />
-                              );
-                            })}
-                          </Box>
                         </Box>
-                      )}
+                      </Box>
                     </Box>
                   </>
                 )}
