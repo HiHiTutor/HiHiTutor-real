@@ -1316,13 +1316,19 @@ const UserDetail: React.FC = () => {
                               const regionValue = parts.slice(0, -1).join('-');
                               const subRegionValue = parts[parts.length - 1];
                               
+                              console.log('解析地區:', { subRegion, regionValue, subRegionValue });
+                              
                               const regionOption = REGION_OPTIONS.find(option => option.value === regionValue);
                               if (regionOption) {
                                 regionName = regionOption.label;
                                 const foundSubRegion = regionOption.regions?.find(r => r.value === subRegionValue);
                                 if (foundSubRegion) {
                                   subRegionLabel = foundSubRegion.label;
+                                } else {
+                                  console.log('找不到子地區:', subRegionValue, '在', regionValue);
                                 }
+                              } else {
+                                console.log('找不到大區:', regionValue);
                               }
                             } else if (parts.length === 2) {
                               // 格式：region-subregion 
