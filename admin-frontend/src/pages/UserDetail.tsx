@@ -1908,9 +1908,9 @@ const UserDetail: React.FC = () => {
                  sx={{ mb: 2 }}
                >
                  <MenuItem value="">未選擇</MenuItem>
+                 <MenuItem value="both">皆可</MenuItem>
                  <MenuItem value="face-to-face">面授</MenuItem>
                  <MenuItem value="online">網課</MenuItem>
-                 <MenuItem value="both">皆可</MenuItem>
                </TextField>
                
                {/* 教育模式子選項 */}
