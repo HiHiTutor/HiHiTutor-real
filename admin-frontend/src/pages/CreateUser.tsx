@@ -139,6 +139,8 @@ const CreateUser: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [teachingModeOptions, setTeachingModeOptions] = useState<any[]>([]);
   const [regionOptions, setRegionOptions] = useState<any[]>([]);
+  const [selectedRegion, setSelectedRegion] = useState<string | ''>('');
+  const [selectedSubRegion, setSelectedSubRegion] = useState<string | ''>('');
 
   // 獲取教學模式和地區選項
   useEffect(() => {
@@ -440,6 +442,30 @@ const CreateUser: React.FC = () => {
         [name as string]: value as string
       });
     }
+  };
+
+  const handleAddSubRegion = () => {
+    if (selectedRegion && selectedSubRegion) {
+      setFormData(prev => ({
+        ...prev,
+        tutorProfile: {
+          ...prev.tutorProfile,
+          subRegions: [...prev.tutorProfile.subRegions, `${selectedRegion}-${selectedSubRegion}`]
+        }
+      }));
+      setSelectedRegion('');
+      setSelectedSubRegion('');
+    }
+  };
+
+  const handleDeleteSubRegion = (subRegionToDelete: string) => {
+    setFormData(prev => ({
+      ...prev,
+      tutorProfile: {
+        ...prev.tutorProfile,
+        subRegions: prev.tutorProfile.subRegions.filter(sub => sub !== subRegionToDelete)
+      }
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -847,6 +873,7 @@ const CreateUser: React.FC = () => {
                       </Typography>
                     </Box>
                     
+                    {/* 地區選擇 */}
                     <TextField
                       select
                       label="地區"
@@ -863,25 +890,81 @@ const CreateUser: React.FC = () => {
                       ))}
                     </TextField>
 
-                    {/* 子地區 (多選) */}
-                    {formData.tutorProfile.region && formData.tutorProfile.region !== 'all-hong-kong' && (
-                      <TextField
-                        select
-                        label="子地區 (多選)"
-                        name="subRegions"
-                        SelectProps={{ multiple: true }}
-                        value={formData.tutorProfile.subRegions}
-                        onChange={handleChange}
-                        required
-                        helperText="可多選，按住 Ctrl/Command 鍵選多個"
-                      >
-                        {regionOptions.find((option: any) => option.value === formData.tutorProfile.region)?.regions?.map((subRegion: any) => (
-                          <MenuItem key={subRegion.value} value={subRegion.value}>
-                            {subRegion.label}
-                          </MenuItem>
-                        ))}
-                      </TextField>
-                    )}
+                    {/* 子地區選擇 (支持跨大區) */}
+                    <Box sx={{ mt: 2 }}>
+                      <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                        選擇子地區 (可跨大區選擇)
+                      </Typography>
+                      
+                      {/* 地區選擇器 */}
+                      <Box sx={{ display: 'flex', gap: 1, mb: 2, alignItems: 'center' }}>
+                        <TextField
+                          select
+                          label="選擇大區"
+                          value={selectedRegion || ''}
+                          onChange={(e) => setSelectedRegion(e.target.value)}
+                          sx={{ minWidth: 120 }}
+                        >
+                          {regionOptions.map((option: any) => (
+                            <MenuItem key={option.value} value={option.value}>
+                              {option.label}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                        
+                        <TextField
+                          select
+                          label="選擇子地區"
+                          value={selectedSubRegion || ''}
+                          onChange={(e) => setSelectedSubRegion(e.target.value)}
+                          disabled={!selectedRegion}
+                          sx={{ minWidth: 120 }}
+                        >
+                          {selectedRegion && regionOptions.find((option: any) => option.value === selectedRegion)?.regions?.map((subRegion: any) => (
+                            <MenuItem key={subRegion.value} value={subRegion.value}>
+                              {subRegion.label}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                        
+                        <Button
+                          variant="outlined"
+                          onClick={handleAddSubRegion}
+                          disabled={!selectedRegion || !selectedSubRegion}
+                          size="small"
+                        >
+                          新增
+                        </Button>
+                      </Box>
+                      
+                      {/* 已選地區顯示 */}
+                      {formData.tutorProfile.subRegions.length > 0 && (
+                        <Box sx={{ mb: 2 }}>
+                          <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+                            已選地區:
+                          </Typography>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                            {formData.tutorProfile.subRegions.map((subRegion, index) => {
+                              // 找到對應的大區名稱
+                              const regionName = regionOptions.find(option => 
+                                option.regions?.some((r: any) => r.value === subRegion)
+                              )?.label || '未知地區';
+                              
+                              return (
+                                <Chip
+                                  key={index}
+                                  label={`${regionName} - ${subRegion}`}
+                                  onDelete={() => handleDeleteSubRegion(subRegion)}
+                                  color="primary"
+                                  variant="outlined"
+                                  size="small"
+                                />
+                              );
+                            })}
+                          </Box>
+                        </Box>
+                      )}
+                    </Box>
                   </>
                 )}
               </>

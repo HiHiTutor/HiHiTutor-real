@@ -380,7 +380,24 @@ const approveTutorApplication = async (req, res) => {
 // 3. 手動創建導師用戶
 const createTutorUser = async (req, res) => {
   try {
-    const { name, email, password, phone, education, experience, subjects } = req.body;
+    const { 
+      name, 
+      email, 
+      password, 
+      phone, 
+      education, 
+      experience, 
+      subjects,
+      region,
+      subRegions,
+      category,
+      subCategory,
+      teachingMode,
+      teachingSubModes,
+      sessionRate,
+      introduction,
+      courseFeatures
+    } = req.body;
 
     // 檢查必要欄位
     if (!name || !email || !password || !phone || !education || !experience || !subjects) {
@@ -407,9 +424,21 @@ const createTutorUser = async (req, res) => {
       password,
       phone,
       role: 'tutor',
+      userType: 'tutor',
       education,
       experience,
       subjects,
+      // 添加地區相關信息
+      region: region || '',
+      subRegions: subRegions || [],
+      // 添加課程相關信息
+      category: category || '',
+      subCategory: subCategory || '',
+      teachingMode: teachingMode || '',
+      teachingSubModes: teachingSubModes || [],
+      sessionRate: sessionRate || 0,
+      introduction: introduction || '',
+      courseFeatures: courseFeatures || '',
       createdAt: Date.now()
     };
 
@@ -425,7 +454,9 @@ const createTutorUser = async (req, res) => {
         id: newTutor.id,
         name: newTutor.name,
         email: newTutor.email,
-        role: newTutor.role
+        role: newTutor.role,
+        region: newTutor.region,
+        subRegions: newTutor.subRegions
       }
     });
   } catch (error) {

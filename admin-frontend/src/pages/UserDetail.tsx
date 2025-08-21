@@ -109,15 +109,60 @@ const CATEGORY_OPTIONS = {
   'adult': {
     label: '成人教育',
     subjects: [
-      { value: 'business-english', label: '商務英文' },
-      { value: 'conversation', label: '生活英語會話' },
-      { value: 'chinese-language', label: '廣東話／普通話' },
-      { value: 'second-language', label: '興趣／第二語言學習' },
-      { value: 'computer-skills', label: '電腦技能（Excel／Photoshop 等）' },
-      { value: 'exam-prep', label: '考試準備（IELTS／TOEFL／JLPT）' }
+      { value: 'adult-chinese', label: '中文（寫作、閱讀、會話）' },
+      { value: 'adult-english', label: '英文（寫作、閱讀、會話）' },
+      { value: 'adult-math', label: '數學（基礎、進階）' },
+      { value: 'adult-computer', label: '電腦技能' },
+      { value: 'adult-business', label: '商業技能' },
+      { value: 'adult-language', label: '外語學習' }
     ]
   }
 };
+
+// 地區選項配置
+const REGION_OPTIONS = [
+  {
+    value: 'all-hong-kong',
+    label: '全香港',
+    regions: []
+  },
+  {
+    value: 'hong-kong-island',
+    label: '香港島',
+    regions: [
+      { value: 'central-western', label: '中西區' },
+      { value: 'wan-chai', label: '灣仔區' },
+      { value: 'eastern', label: '東區' },
+      { value: 'southern', label: '南區' }
+    ]
+  },
+  {
+    value: 'kowloon',
+    label: '九龍',
+    regions: [
+      { value: 'yau-tsim-mong', label: '油尖旺區' },
+      { value: 'sham-shui-po', label: '深水埗區' },
+      { value: 'kowloon-city', label: '九龍城區' },
+      { value: 'wong-tai-sin', label: '黃大仙區' },
+      { value: 'kwun-tong', label: '觀塘區' }
+    ]
+  },
+  {
+    value: 'new-territories',
+    label: '新界',
+    regions: [
+      { value: 'tsuen-wan', label: '荃灣區' },
+      { value: 'tuen-mun', label: '屯門區' },
+      { value: 'yuen-long', label: '元朗區' },
+      { value: 'north', label: '北區' },
+      { value: 'tai-po', label: '大埔區' },
+      { value: 'sai-kung', label: '西貢區' },
+      { value: 'sha-tin', label: '沙田區' },
+      { value: 'kwai-tsing', label: '葵青區' },
+      { value: 'islands', label: '離島區' }
+    ]
+  }
+];
 
 interface EditFormData {
   userId?: string;
@@ -257,6 +302,35 @@ const UserDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  // 地區選擇相關狀態
+  const [selectedRegion, setSelectedRegion] = useState<string>('');
+  const [selectedSubRegion, setSelectedSubRegion] = useState<string>('');
+
+  // 地區處理函數
+  const handleAddSubRegion = () => {
+    if (selectedRegion && selectedSubRegion) {
+      setEditForm(prev => ({
+        ...prev,
+        tutorProfile: {
+          ...prev.tutorProfile,
+          subRegions: [...(prev.tutorProfile.subRegions || []), `${selectedRegion}-${selectedSubRegion}`]
+        }
+      }));
+      setSelectedRegion('');
+      setSelectedSubRegion('');
+    }
+  };
+
+  const handleDeleteSubRegion = (subRegionToDelete: string) => {
+    setEditForm(prev => ({
+      ...prev,
+      tutorProfile: {
+        ...prev.tutorProfile,
+        subRegions: (prev.tutorProfile.subRegions || []).filter(sub => sub !== subRegionToDelete)
+      }
+    }));
+  };
 
   const fetchUserData = async () => {
     if (!id) {
@@ -1601,6 +1675,111 @@ const UserDetail: React.FC = () => {
                 }))}
               />
               
+              {/* 地區設置 */}
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="subtitle2" color="primary" sx={{ mb: 1 }}>
+                  🌍 地區設置
+                </Typography>
+                
+                {/* 主要地區 */}
+                <TextField
+                  select
+                  label="主要地區"
+                  fullWidth
+                  value={editForm.tutorProfile.region || ''}
+                  onChange={(e) => setEditForm(prev => ({
+                    ...prev,
+                    tutorProfile: {
+                      ...prev.tutorProfile,
+                      region: e.target.value
+                    }
+                  }))}
+                  sx={{ mb: 2 }}
+                >
+                  {REGION_OPTIONS.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </TextField>
+                
+                {/* 子地區選擇 (支持跨大區) */}
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    選擇子地區 (可跨大區選擇)
+                  </Typography>
+                  
+                  {/* 地區選擇器 */}
+                  <Box sx={{ display: 'flex', gap: 1, mb: 2, alignItems: 'center' }}>
+                    <TextField
+                      select
+                      label="選擇大區"
+                      value={selectedRegion || ''}
+                      onChange={(e) => setSelectedRegion(e.target.value)}
+                      sx={{ minWidth: 120 }}
+                    >
+                      {REGION_OPTIONS.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.label}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                    
+                    <TextField
+                      select
+                      label="選擇子地區"
+                      value={selectedSubRegion || ''}
+                      onChange={(e) => setSelectedSubRegion(e.target.value)}
+                      disabled={!selectedRegion}
+                      sx={{ minWidth: 120 }}
+                    >
+                      {selectedRegion && REGION_OPTIONS.find((option) => option.value === selectedRegion)?.regions?.map((subRegion) => (
+                        <MenuItem key={subRegion.value} value={subRegion.value}>
+                          {subRegion.label}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                    
+                    <Button
+                      variant="outlined"
+                      onClick={handleAddSubRegion}
+                      disabled={!selectedRegion || !selectedSubRegion}
+                      size="small"
+                    >
+                      新增
+                    </Button>
+                  </Box>
+                  
+                  {/* 已選地區顯示 */}
+                  {(editForm.tutorProfile.subRegions || []).length > 0 && (
+                    <Box>
+                      <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+                        已選地區:
+                      </Typography>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {(editForm.tutorProfile.subRegions || []).map((subRegion, index) => {
+                          // 找到對應的大區名稱
+                          const regionName = REGION_OPTIONS.find(option => 
+                            option.regions?.some((r: any) => r.value === subRegion)
+                          )?.label || '未知地區';
+                          
+                          return (
+                            <Chip
+                              key={index}
+                              label={`${regionName} - ${subRegion}`}
+                              onDelete={() => handleDeleteSubRegion(subRegion)}
+                              color="primary"
+                              variant="outlined"
+                              size="small"
+                            />
+                          );
+                        })}
+                      </Box>
+                    </Box>
+                  )}
+                </Box>
+              </Box>
+
               {/* 可教授科目編輯 */}
               <Box sx={{ mb: 2 }}>
                 <Typography variant="subtitle1" color="primary" sx={{ mb: 1, fontWeight: 'bold' }}>
