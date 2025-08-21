@@ -850,82 +850,58 @@ const CreateUser: React.FC = () => {
                       </Typography>
                     </Box>
                     
-                    {/* 地區選擇 */}
-                    <TextField
-                      select
-                      label="地區"
-                      name="region"
-                      value={formData.tutorProfile.region}
-                      onChange={handleChange}
-                      required
-                      helperText="選擇主要服務地區"
-                    >
-                      {regionOptions.map((option: any) => (
-                        <MenuItem key={option.value} value={option.value}>
-                          {option.label}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-
-                    {/* 子地區選擇 (支持跨大區) */}
-                    <Box sx={{ mt: 2 }}>
-                      <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                        選擇子地區 (可跨大區選擇)
+                    {/* 地區選擇器 - 多選框方式 */}
+                    <Box sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
+                        上堂地區 (可多選)
                       </Typography>
-                      
-                      {/* 地區選擇器 - 多選框方式 */}
-                      <Box sx={{ mb: 2 }}>
-                        <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
-                          上堂地區 (可多選)
-                        </Typography>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                          {regionOptions.map((regionOption: any) => (
-                            <Box key={regionOption.value} sx={{ border: 1, borderColor: 'divider', borderRadius: 1, p: 2 }}>
-                              <Typography variant="subtitle2" color="primary" sx={{ mb: 2, fontWeight: 'bold' }}>
-                                {regionOption.label}
-                              </Typography>
-                              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr' }, gap: 1 }}>
-                                {regionOption.regions?.map((subRegion: any) => (
-                                  <Box key={subRegion.value} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <input
-                                      type="checkbox"
-                                      checked={formData.tutorProfile.subRegions.includes(subRegion.value)}
-                                      onChange={(e) => {
-                                        if (e.target.checked) {
-                                          setFormData(prev => ({
-                                            ...prev,
-                                            tutorProfile: {
-                                              ...prev.tutorProfile,
-                                              subRegions: [...prev.tutorProfile.subRegions, subRegion.value]
-                                            }
-                                          }));
-                                        } else {
-                                          setFormData(prev => ({
-                                            ...prev,
-                                            tutorProfile: {
-                                              ...prev.tutorProfile,
-                                              subRegions: prev.tutorProfile.subRegions.filter(sub => sub !== subRegion.value)
-                                            }
-                                          }));
-                                        }
-                                      }}
-                                      style={{
-                                        width: '16px',
-                                        height: '16px',
-                                        borderRadius: '4px',
-                                        border: '1px solid #d1d5db',
-                                        accentColor: '#3b82f6'
-                                      }}
-                                    />
-                                    <Typography variant="body2" color="textSecondary">
-                                      {subRegion.label}
-                                    </Typography>
-                                  </Box>
-                                ))}
-                              </Box>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        {regionOptions.map((regionOption: any) => (
+                          <Box key={regionOption.value} sx={{ border: 1, borderColor: 'divider', borderRadius: 1, p: 2 }}>
+                            <Typography variant="subtitle2" color="primary" sx={{ mb: 2, fontWeight: 'bold' }}>
+                              {regionOption.label}
+                            </Typography>
+                            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr' }, gap: 1 }}>
+                              {regionOption.regions?.map((subRegion: any) => (
+                                <Box key={subRegion.value} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                  <input
+                                    type="checkbox"
+                                    checked={formData.tutorProfile.subRegions.includes(subRegion.value)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setFormData(prev => ({
+                                          ...prev,
+                                          tutorProfile: {
+                                            ...prev.tutorProfile,
+                                            subRegions: [...prev.tutorProfile.subRegions, subRegion.value]
+                                          }
+                                        }));
+                                      } else {
+                                        setFormData(prev => ({
+                                          ...prev,
+                                          tutorProfile: {
+                                            ...prev.tutorProfile,
+                                            subRegions: prev.tutorProfile.subRegions.filter(sub => sub !== subRegion.value)
+                                          }
+                                        }));
+                                      }
+                                    }}
+                                    style={{
+                                      width: '16px',
+                                      height: '16px',
+                                      borderRadius: '4px',
+                                      border: '1px solid #d1d5db',
+                                      accentColor: '#3b82f6'
+                                    }}
+                                  />
+                                  <Typography variant="body2" color="textSecondary">
+                                    {subRegion.label}
+                                  </Typography>
+                                </Box>
+                              ))}
                             </Box>
-                          ))}
-                        </Box>
+                          </Box>
+                        ))}
                       </Box>
                     </Box>
                   </>
