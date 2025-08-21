@@ -66,7 +66,7 @@ export interface CreateCaseData {
   subCategory?: string;
   subjects: string[];
   regions: string[];
-  subRegions: string[];
+  subRegions: string[] | { region: string; subRegion: string }[];
   budget: string;
   mode: string;
   experience?: string;
