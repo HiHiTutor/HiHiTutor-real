@@ -300,6 +300,7 @@ const UserDetail: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deleteReason, setDeleteReason] = useState('');
   const [editTabValue, setEditTabValue] = useState(0);
+  const [teachingModes, setTeachingModes] = useState<any[]>([]);
   const [editForm, setEditForm] = useState<EditFormData>({
     userId: '',
     tutorId: '',
@@ -366,6 +367,21 @@ const UserDetail: React.FC = () => {
   // 地區選擇相關狀態
   const [selectedRegion, setSelectedRegion] = useState<string>('');
   const [selectedSubRegion, setSelectedSubRegion] = useState<string>('');
+
+  // 載入教學模式資料
+  const fetchTeachingModes = async () => {
+    try {
+      const response = await fetch('/api/teaching-modes');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setTeachingModes(data.data);
+        }
+      }
+    } catch (error) {
+      console.error('載入教學模式失敗:', error);
+    }
+  };
 
   // 地區處理函數
   const handleAddSubRegion = () => {
@@ -502,7 +518,14 @@ const UserDetail: React.FC = () => {
 
   useEffect(() => {
     fetchUserData();
+    fetchTeachingModes();
   }, [id]);
+
+  // 獲取可用的教學子模式
+  const getAvailableSubModes = (teachingMode: string) => {
+    const mode = teachingModes.find(m => m.value === teachingMode);
+    return mode?.subCategories || [];
+  };
 
   // 獲取可用的子分類
   const getSubCategories = () => {
@@ -1219,10 +1242,7 @@ const UserDetail: React.FC = () => {
                      <Grid item xs={8}>
                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                                  <Chip
-                          label={(selectedUser.tutorProfile as any).teachingMode === 'in-person' ? '面授' :
-                                 (selectedUser.tutorProfile as any).teachingMode === 'online' ? '網課' :
-                                 (selectedUser.tutorProfile as any).teachingMode === 'both' ? '皆可' :
-                                 (selectedUser.tutorProfile as any).teachingMode}
+                          label={teachingModes.find(m => m.value === (selectedUser.tutorProfile as any).teachingMode)?.label || (selectedUser.tutorProfile as any).teachingMode}
                           color="primary"
                           size="small"
                           variant="outlined"
@@ -1233,18 +1253,15 @@ const UserDetail: React.FC = () => {
                           (selectedUser.tutorProfile as any).teachingSubModes.length > 0 && (
                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                              {(selectedUser.tutorProfile as any).teachingSubModes.map((subMode: string, idx: number) => {
+                               // 從 API 數據中找到對應的標籤
                                let subModeLabel = subMode;
-                               
-                               // 轉換子模式標籤 (基於原始 teachingModeOptions.js)
-                               if (subMode === 'one-on-one') subModeLabel = '一對一';
-                               else if (subMode === 'small-group') subModeLabel = '小班教學';
-                               else if (subMode === 'large-center') subModeLabel = '補習社';
-                               // 向後兼容舊格式
-                               else if (subMode === 'home') subModeLabel = '一對一';
-                               else if (subMode === 'center') subModeLabel = '補習社';
-                               else if (subMode === 'library') subModeLabel = '一對一';
-                               else if (subMode === 'coffee-shop') subModeLabel = '一對一';
-                               else if (subMode === 'student-home') subModeLabel = '一對一';
+                               for (const mode of teachingModes) {
+                                 const foundSubMode = mode.subCategories?.find((sub: any) => sub.value === subMode);
+                                 if (foundSubMode) {
+                                   subModeLabel = foundSubMode.label;
+                                   break;
+                                 }
+                               }
                                
                                return (
                                  <Chip
@@ -1942,9 +1959,11 @@ const UserDetail: React.FC = () => {
                 sx={{ mb: 2 }}
               >
                 <MenuItem value="">未選擇</MenuItem>
-                <MenuItem value="both">皆可</MenuItem>
-                <MenuItem value="in-person">面授</MenuItem>
-                <MenuItem value="online">網課</MenuItem>
+                {teachingModes.map((mode) => (
+                  <MenuItem key={mode.value} value={mode.value}>
+                    {mode.label}
+                  </MenuItem>
+                ))}
               </TextField>
                
                {/* 教育模式子選項 */}
@@ -1967,22 +1986,11 @@ const UserDetail: React.FC = () => {
                    }}
                    sx={{ mb: 2 }}
                  >
-                                     {editForm.tutorProfile.teachingMode === 'in-person' && (
-                    <>
-                      <MenuItem value="one-on-one">一對一</MenuItem>
-                      <MenuItem value="small-group">小班教學</MenuItem>
-                      <MenuItem value="large-center">補習社</MenuItem>
-                    </>
-                  )}
-                  {/* 網課沒有子分類 (as per original teachingModeOptions.js) */}
-                  {editForm.tutorProfile.teachingMode === 'both' && (
-                    <>
-                      {/* 皆可模式只包含面授選項 (網課沒有子分類) */}
-                      <MenuItem value="one-on-one">一對一</MenuItem>
-                      <MenuItem value="small-group">小班教學</MenuItem>
-                      <MenuItem value="large-center">補習社</MenuItem>
-                    </>
-                  )}
+                                     {getAvailableSubModes(editForm.tutorProfile.teachingMode).map((subMode: any) => (
+                    <MenuItem key={subMode.value} value={subMode.value}>
+                      {subMode.label}
+                    </MenuItem>
+                  ))}
                  </TextField>
                )}
               
