@@ -20,6 +20,7 @@ import {
   Checkbox,
   Tabs,
   Tab,
+  ListSubheader,
 } from '@mui/material';
 import { usePermissions } from '../hooks/usePermissions';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
@@ -993,9 +994,12 @@ const UserDetail: React.FC = () => {
                          {selectedUser.tutorProfile.subjects.map((subject, index) => {
                            // 查找科目的中文標籤
                            let subjectLabel = subject;
+                           let found = false;
                            
                            // 從課程分類選項中查找
                            for (const [categoryKey, category] of Object.entries(CATEGORY_OPTIONS)) {
+                             if (found) break; // 已找到，退出外層迴圈
+                             
                              if ('subCategories' in category && category.subCategories) {
                                // 中小學教育：檢查子分類
                                for (const subCat of category.subCategories) {
@@ -1003,6 +1007,7 @@ const UserDetail: React.FC = () => {
                                    const foundSubject = subCat.subjects.find((s: any) => s.value === subject);
                                    if (foundSubject) {
                                      subjectLabel = foundSubject.label;
+                                     found = true;
                                      break;
                                    }
                                  }
@@ -1012,6 +1017,7 @@ const UserDetail: React.FC = () => {
                                const foundSubject = category.subjects.find((s: any) => s.value === subject);
                                if (foundSubject) {
                                  subjectLabel = foundSubject.label;
+                                 found = true;
                                  break;
                                }
                              }
@@ -1038,9 +1044,12 @@ const UserDetail: React.FC = () => {
                          {selectedUser.subjects.map((subject, index) => {
                            // 查找科目的中文標籤
                            let subjectLabel = subject;
+                           let found = false;
                            
                            // 從課程分類選項中查找
                            for (const [categoryKey, category] of Object.entries(CATEGORY_OPTIONS)) {
+                             if (found) break; // 已找到，退出外層迴圈
+                             
                              if ('subCategories' in category && category.subCategories) {
                                // 中小學教育：檢查子分類
                                for (const subCat of category.subCategories) {
@@ -1048,6 +1057,7 @@ const UserDetail: React.FC = () => {
                                    const foundSubject = subCat.subjects.find((s: any) => s.value === subject);
                                    if (foundSubject) {
                                      subjectLabel = foundSubject.label;
+                                     found = true;
                                      break;
                                    }
                                  }
@@ -1057,6 +1067,7 @@ const UserDetail: React.FC = () => {
                                const foundSubject = category.subjects.find((s: any) => s.value === subject);
                                if (foundSubject) {
                                  subjectLabel = foundSubject.label;
+                                 found = true;
                                  break;
                                }
                              }
@@ -1207,15 +1218,15 @@ const UserDetail: React.FC = () => {
                      </Grid>
                      <Grid item xs={8}>
                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                         <Chip
-                           label={(selectedUser.tutorProfile as any).teachingMode === 'face-to-face' ? '面授' :
-                                  (selectedUser.tutorProfile as any).teachingMode === 'online' ? '網課' :
-                                  (selectedUser.tutorProfile as any).teachingMode === 'both' ? '皆可' :
-                                  (selectedUser.tutorProfile as any).teachingMode}
-                           color="primary"
-                           size="small"
-                           variant="outlined"
-                         />
+                                                 <Chip
+                          label={(selectedUser.tutorProfile as any).teachingMode === 'in-person' ? '面授' :
+                                 (selectedUser.tutorProfile as any).teachingMode === 'online' ? '網課' :
+                                 (selectedUser.tutorProfile as any).teachingMode === 'both' ? '皆可' :
+                                 (selectedUser.tutorProfile as any).teachingMode}
+                          color="primary"
+                          size="small"
+                          variant="outlined"
+                        />
                          
                          {/* 教育模式子選項 */}
                          {(selectedUser.tutorProfile as any).teachingSubModes && 
@@ -1224,17 +1235,16 @@ const UserDetail: React.FC = () => {
                              {(selectedUser.tutorProfile as any).teachingSubModes.map((subMode: string, idx: number) => {
                                let subModeLabel = subMode;
                                
-                               // 轉換子模式標籤
-                               if (subMode === 'home') subModeLabel = '上門';
-                               else if (subMode === 'center') subModeLabel = '補習中心';
-                               else if (subMode === 'library') subModeLabel = '圖書館';
-                               else if (subMode === 'coffee-shop') subModeLabel = '咖啡廳';
-                               else if (subMode === 'student-home') subModeLabel = '學生家';
-                               else if (subMode === 'zoom') subModeLabel = 'Zoom';
-                               else if (subMode === 'teams') subModeLabel = 'Microsoft Teams';
-                               else if (subMode === 'skype') subModeLabel = 'Skype';
-                               else if (subMode === 'google-meet') subModeLabel = 'Google Meet';
-                               else if (subMode === 'other-platform') subModeLabel = '其他平台';
+                               // 轉換子模式標籤 (基於原始 teachingModeOptions.js)
+                               if (subMode === 'one-on-one') subModeLabel = '一對一';
+                               else if (subMode === 'small-group') subModeLabel = '小班教學';
+                               else if (subMode === 'large-center') subModeLabel = '補習社';
+                               // 向後兼容舊格式
+                               else if (subMode === 'home') subModeLabel = '一對一';
+                               else if (subMode === 'center') subModeLabel = '補習社';
+                               else if (subMode === 'library') subModeLabel = '一對一';
+                               else if (subMode === 'coffee-shop') subModeLabel = '一對一';
+                               else if (subMode === 'student-home') subModeLabel = '一對一';
                                
                                return (
                                  <Chip
@@ -1285,6 +1295,7 @@ const UserDetail: React.FC = () => {
                           if (subRegion.includes('-')) {
                             const parts = subRegion.split('-');
                             if (parts.length >= 3) {
+                              // 格式：hong-kong-island-admiralty
                               const regionValue = parts.slice(0, -1).join('-');
                               const subRegionValue = parts[parts.length - 1];
                               
@@ -1295,6 +1306,29 @@ const UserDetail: React.FC = () => {
                                 if (foundSubRegion) {
                                   subRegionLabel = foundSubRegion.label;
                                 }
+                              }
+                            } else if (parts.length === 2) {
+                              // 格式：region-subregion 
+                              const regionValue = parts[0];
+                              const subRegionValue = parts[1];
+                              
+                              const regionOption = REGION_OPTIONS.find(option => option.value === regionValue);
+                              if (regionOption) {
+                                regionName = regionOption.label;
+                                const foundSubRegion = regionOption.regions?.find(r => r.value === subRegionValue);
+                                if (foundSubRegion) {
+                                  subRegionLabel = foundSubRegion.label;
+                                }
+                              }
+                            }
+                          } else {
+                            // 直接是子地區值，需要找到對應的大區
+                            for (const option of REGION_OPTIONS) {
+                              const foundSubRegion = option.regions?.find(r => r.value === subRegion);
+                              if (foundSubRegion) {
+                                regionName = option.label;
+                                subRegionLabel = foundSubRegion.label;
+                                break;
                               }
                             }
                           }
@@ -1892,26 +1926,26 @@ const UserDetail: React.FC = () => {
               />
               
                              {/* 教育模式 */}
-               <TextField
-                 select
-                 label="教育模式"
-                 fullWidth
-                 value={editForm.tutorProfile.teachingMode || ''}
-                 onChange={(e) => setEditForm(prev => ({
-                   ...prev,
-                   tutorProfile: {
-                     ...prev.tutorProfile,
-                     teachingMode: e.target.value,
-                     teachingSubModes: [] // 重置子模式
-                   }
-                 }))}
-                 sx={{ mb: 2 }}
-               >
-                 <MenuItem value="">未選擇</MenuItem>
-                 <MenuItem value="both">皆可</MenuItem>
-                 <MenuItem value="face-to-face">面授</MenuItem>
-                 <MenuItem value="online">網課</MenuItem>
-               </TextField>
+                             <TextField
+                select
+                label="教育模式"
+                fullWidth
+                value={editForm.tutorProfile.teachingMode || ''}
+                onChange={(e) => setEditForm(prev => ({
+                  ...prev,
+                  tutorProfile: {
+                    ...prev.tutorProfile,
+                    teachingMode: e.target.value,
+                    teachingSubModes: [] // 重置子模式
+                  }
+                }))}
+                sx={{ mb: 2 }}
+              >
+                <MenuItem value="">未選擇</MenuItem>
+                <MenuItem value="both">皆可</MenuItem>
+                <MenuItem value="in-person">面授</MenuItem>
+                <MenuItem value="online">網課</MenuItem>
+              </TextField>
                
                {/* 教育模式子選項 */}
                {editForm.tutorProfile.teachingMode && (
@@ -1933,38 +1967,22 @@ const UserDetail: React.FC = () => {
                    }}
                    sx={{ mb: 2 }}
                  >
-                   {editForm.tutorProfile.teachingMode === 'face-to-face' && (
-                     <>
-                       <MenuItem value="home">上門</MenuItem>
-                       <MenuItem value="center">補習中心</MenuItem>
-                       <MenuItem value="library">圖書館</MenuItem>
-                       <MenuItem value="coffee-shop">咖啡廳</MenuItem>
-                       <MenuItem value="student-home">學生家</MenuItem>
-                     </>
-                   )}
-                   {editForm.tutorProfile.teachingMode === 'online' && (
-                     <>
-                       <MenuItem value="zoom">Zoom</MenuItem>
-                       <MenuItem value="teams">Microsoft Teams</MenuItem>
-                       <MenuItem value="skype">Skype</MenuItem>
-                       <MenuItem value="google-meet">Google Meet</MenuItem>
-                       <MenuItem value="other-platform">其他平台</MenuItem>
-                     </>
-                   )}
-                   {editForm.tutorProfile.teachingMode === 'both' && (
-                     <>
-                       <MenuItem value="home">上門</MenuItem>
-                       <MenuItem value="center">補習中心</MenuItem>
-                       <MenuItem value="library">圖書館</MenuItem>
-                       <MenuItem value="coffee-shop">咖啡廳</MenuItem>
-                       <MenuItem value="student-home">學生家</MenuItem>
-                       <MenuItem value="zoom">Zoom</MenuItem>
-                       <MenuItem value="teams">Microsoft Teams</MenuItem>
-                       <MenuItem value="skype">Skype</MenuItem>
-                       <MenuItem value="google-meet">Google Meet</MenuItem>
-                       <MenuItem value="other-platform">其他平台</MenuItem>
-                     </>
-                   )}
+                                     {editForm.tutorProfile.teachingMode === 'in-person' && (
+                    <>
+                      <MenuItem value="one-on-one">一對一</MenuItem>
+                      <MenuItem value="small-group">小班教學</MenuItem>
+                      <MenuItem value="large-center">補習社</MenuItem>
+                    </>
+                  )}
+                  {/* 網課沒有子分類 (as per original teachingModeOptions.js) */}
+                  {editForm.tutorProfile.teachingMode === 'both' && (
+                    <>
+                      {/* 皆可模式只包含面授選項 (網課沒有子分類) */}
+                      <MenuItem value="one-on-one">一對一</MenuItem>
+                      <MenuItem value="small-group">小班教學</MenuItem>
+                      <MenuItem value="large-center">補習社</MenuItem>
+                    </>
+                  )}
                  </TextField>
                )}
               
@@ -2153,9 +2171,12 @@ const UserDetail: React.FC = () => {
                        {editForm.tutorProfile.subjects.map((subject, index) => {
                          // 查找科目的中文標籤
                          let subjectLabel = subject;
+                         let found = false;
                          
                          // 從課程分類選項中查找
                          for (const [categoryKey, category] of Object.entries(CATEGORY_OPTIONS)) {
+                           if (found) break; // 已找到，退出外層迴圈
+                           
                            if ('subCategories' in category && category.subCategories) {
                              // 中小學教育：檢查子分類
                              for (const subCat of category.subCategories) {
@@ -2163,6 +2184,7 @@ const UserDetail: React.FC = () => {
                                  const foundSubject = subCat.subjects.find((s: any) => s.value === subject);
                                  if (foundSubject) {
                                    subjectLabel = foundSubject.label;
+                                   found = true;
                                    break;
                                  }
                                }
@@ -2172,6 +2194,7 @@ const UserDetail: React.FC = () => {
                              const foundSubject = category.subjects.find((s: any) => s.value === subject);
                              if (foundSubject) {
                                subjectLabel = foundSubject.label;
+                               found = true;
                                break;
                              }
                            }
@@ -2279,11 +2302,24 @@ const UserDetail: React.FC = () => {
                         let subRegionLabel = subRegion;
                         
                         if (subRegion.includes('-')) {
-                          // 格式：hong-kong-island-admiralty
                           const parts = subRegion.split('-');
                           if (parts.length >= 3) {
+                            // 格式：hong-kong-island-admiralty
                             const regionValue = parts.slice(0, -1).join('-'); // hong-kong-island
                             const subRegionValue = parts[parts.length - 1]; // admiralty
+                            
+                            const regionOption = REGION_OPTIONS.find(option => option.value === regionValue);
+                            if (regionOption) {
+                              regionName = regionOption.label;
+                              const foundSubRegion = regionOption.regions?.find(r => r.value === subRegionValue);
+                              if (foundSubRegion) {
+                                subRegionLabel = foundSubRegion.label;
+                              }
+                            }
+                          } else if (parts.length === 2) {
+                            // 格式：region-subregion
+                            const regionValue = parts[0];
+                            const subRegionValue = parts[1];
                             
                             const regionOption = REGION_OPTIONS.find(option => option.value === regionValue);
                             if (regionOption) {
