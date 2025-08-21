@@ -1,7 +1,12 @@
 module.exports = [
   {
+    value: 'unlimited',
+    label: '不限',
+    regions: []
+  },
+  {
     value: 'all-hong-kong',
-    label: '全港',
+    label: '全香港',
     regions: []
   },
   {

@@ -1703,6 +1703,30 @@ const UserDetail: React.FC = () => {
                   ))}
                 </TextField>
                 
+                {/* 當前地區顯示 */}
+                {editForm.tutorProfile.region && (
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+                      當前選擇：
+                    </Typography>
+                    <Typography variant="body1">
+                      {REGION_OPTIONS.find(r => r.value === editForm.tutorProfile.region)?.label || editForm.tutorProfile.region}
+                      {editForm.tutorProfile.subRegions && editForm.tutorProfile.subRegions.length > 0 && (
+                        <span>
+                          {' - '}
+                          {editForm.tutorProfile.subRegions
+                            .map(sub => REGION_OPTIONS
+                              .find(r => r.value === editForm.tutorProfile.region)
+                              ?.regions?.find(sr => sr.value === sub)?.label || sub
+                            )
+                            .join('、')
+                          }
+                        </span>
+                      )}
+                    </Typography>
+                  </Box>
+                )}
+                
                 {/* 子地區選擇 (支持跨大區) */}
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="body2" sx={{ mb: 1 }}>
