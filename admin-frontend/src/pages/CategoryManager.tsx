@@ -67,13 +67,32 @@ const CategoryManager: React.FC = () => {
     try {
       setLoading(true);
       const response = await api.get('/admin/config/categories');
+      console.log('📥 從後端獲取的原始數據:', response.data);
+      
       // Convert object to array format for frontend
-      const categoriesArray = Object.entries(response.data).map(([value, category]: [string, any]) => ({
-        value,
-        label: category.label,
-        subjects: category.subjects || [],
-        subCategories: category.subCategories || []
-      }));
+      const categoriesArray = Object.entries(response.data).map(([value, category]: [string, any]) => {
+        console.log(`🔍 處理分類: ${value}`, category);
+        
+        // 確保子分類有正確的 id 和 name 屬性
+        const subCategories = (category.subCategories || []).map((subCat: any, index: number) => ({
+          id: subCat.id || subCat.value || `sub-${index}`,
+          name: subCat.name || subCat.label || subCat.value || `子分類${index}`,
+          value: subCat.value || subCat.id || `sub-${index}`,
+          label: subCat.label || subCat.name || subCat.value || `子分類${index}`,
+          subjects: subCat.subjects || []
+        }));
+        
+        console.log(`📊 處理後的子分類:`, subCategories);
+        
+        return {
+          value,
+          label: category.label,
+          subjects: category.subjects || [],
+          subCategories
+        };
+      });
+      
+      console.log('📊 最終處理後的分類數組:', categoriesArray);
       setCategories(categoriesArray);
     } catch (err) {
       setError('Failed to load categories');
@@ -247,18 +266,37 @@ const CategoryManager: React.FC = () => {
         setCategories(newCategories);
       }
     } else if (dialogType === 'subcategory-subject' && editingSubject && editingSubCategory) {
+      console.log('🔍 處理子分類科目保存');
+      console.log('📊 當前編輯的子分類:', editingSubCategory);
+      console.log('📊 當前編輯的科目:', editingSubject);
+      
       const newCategories = [...categories];
       if (categoryIndex >= 0) {
+        // 找到正確的子分類索引
         const subCategoryIndex = newCategories[categoryIndex].subCategories.findIndex(sc => sc.id === editingSubCategory.id);
+        console.log('🔍 找到子分類索引:', subCategoryIndex, '在分類:', categoryIndex);
+        
         if (subCategoryIndex >= 0) {
+          // 檢查科目是否已存在
           const subjectIndex = newCategories[categoryIndex].subCategories[subCategoryIndex].subjects.findIndex(s => s.value === editingSubject.value);
+          
           if (subjectIndex >= 0) {
+            // 更新現有科目
+            console.log('🔄 更新現有科目:', subjectIndex);
             newCategories[categoryIndex].subCategories[subCategoryIndex].subjects[subjectIndex] = editingSubject;
           } else {
+            // 添加新科目
+            console.log('➕ 添加新科目到子分類:', subCategoryIndex);
             newCategories[categoryIndex].subCategories[subCategoryIndex].subjects.push(editingSubject);
           }
+          
+          console.log('✅ 科目保存完成，新的子分類科目列表:', newCategories[categoryIndex].subCategories[subCategoryIndex].subjects);
           setCategories(newCategories);
+        } else {
+          console.error('❌ 找不到對應的子分類:', editingSubCategory.id);
         }
+      } else {
+        console.error('❌ 找不到對應的分類:', editingCategory.value);
       }
     }
 
