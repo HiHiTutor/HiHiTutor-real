@@ -128,7 +128,13 @@ router.get('/recent-changes', verifyToken, isAdmin, async (req, res) => {
   try {
     const { limit = 10 } = req.query;
     
-    // 獲取最近的修改記錄
+    // 計算24小時前的時間
+    const now = new Date();
+    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    
+    console.log(`📊 recent-changes API: 只返回 ${oneDayAgo.toLocaleString()} 之後的修改記錄`);
+    
+    // 獲取最近的修改記錄，只包含24小時內的
     const recentChanges = await User.aggregate([
       {
         $match: {
@@ -138,6 +144,11 @@ router.get('/recent-changes', verifyToken, isAdmin, async (req, res) => {
       },
       {
         $unwind: '$profileChangeLog'
+      },
+      {
+        $match: {
+          'profileChangeLog.timestamp': { $gte: oneDayAgo }
+        }
       },
       {
         $sort: { 'profileChangeLog.timestamp': -1 }
@@ -170,7 +181,7 @@ router.get('/recent-changes', verifyToken, isAdmin, async (req, res) => {
       change.change.fields.length > 0
     );
     
-    console.log(`📊 recent-changes API: 找到 ${recentChanges.length} 條記錄，有效記錄 ${validChanges.length} 條`);
+    console.log(`📊 recent-changes API: 找到 ${recentChanges.length} 條24小時內的記錄，有效記錄 ${validChanges.length} 條`);
     
     res.json({
       success: true,

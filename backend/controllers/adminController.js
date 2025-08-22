@@ -1084,46 +1084,103 @@ const updateCase = async (req, res) => {
     let case_;
     if (type === 'student') {
       console.log('🔍 在 StudentCase 集合中查找案例...');
+      
+      // 首先尝试使用id字段查找
       case_ = await StudentCase.findOneAndUpdate(
-        buildQuery(id),
+        { id: id },
         { $set: updateData },
         { new: true }
       ).lean();
-      console.log('🔍 StudentCase 查找結果:', case_);
+      
+      console.log('🔍 StudentCase 使用id字段查找結果:', case_);
+      
+      // 如果没有找到，尝试使用_id字段（如果id是ObjectId格式）
+      if (!case_ && /^[0-9a-fA-F]{24}$/.test(id)) {
+        console.log('🔍 嘗試使用_id字段查找...');
+        case_ = await StudentCase.findOneAndUpdate(
+          { _id: id },
+          { $set: updateData },
+          { new: true }
+        ).lean();
+        console.log('🔍 StudentCase 使用_id字段查找結果:', case_);
+      }
+      
     } else if (type === 'tutor') {
-      console.log('🔍 TutorCase 查找結果:', case_);
+      console.log('🔍 在 TutorCase 集合中查找案例...');
+      
+      // 首先尝试使用id字段查找
       case_ = await TutorCase.findOneAndUpdate(
-        buildQuery(id),
+        { id: id },
         { $set: updateData },
         { new: true }
       ).lean();
-      console.log('🔍 TutorCase 查找結果:', case_);
+      
+      console.log('🔍 TutorCase 使用id字段查找結果:', case_);
+      
+      // 如果没有找到，尝试使用_id字段（如果id是ObjectId格式）
+      if (!case_ && /^[0-9a-fA-F]{24}$/.test(id)) {
+        console.log('🔍 嘗試使用_id字段查找...');
+        case_ = await TutorCase.findOneAndUpdate(
+          { _id: id },
+          { $set: updateData },
+          { new: true }
+        ).lean();
+        console.log('🔍 TutorCase 使用_id字段查找結果:', case_);
+      }
+      
     } else {
       // Try both collections if type is not specified
       console.log('🔍 類型未指定，嘗試在兩個集合中查找...');
+      
+      // 先尝试StudentCase
       case_ = await StudentCase.findOneAndUpdate(
-        buildQuery(id),
+        { id: id },
         { $set: updateData },
         { new: true }
       ).lean();
       console.log('🔍 StudentCase 查找結果:', case_);
+      
       if (!case_) {
+        // 如果StudentCase没找到，尝试TutorCase
         case_ = await TutorCase.findOneAndUpdate(
-          buildQuery(id),
+          { id: id },
           { $set: updateData },
           { new: true }
         ).lean();
         console.log('🔍 TutorCase 查找結果:', case_);
       }
+      
+      // 如果还是没找到，尝试使用_id字段
+      if (!case_ && /^[0-9a-fA-F]{24}$/.test(id)) {
+        console.log('🔍 嘗試使用_id字段在StudentCase中查找...');
+        case_ = await StudentCase.findOneAndUpdate(
+          { _id: id },
+          { $set: updateData },
+          { new: true }
+        ).lean();
+        console.log('🔍 StudentCase 使用_id字段查找結果:', case_);
+        
+        if (!case_) {
+          console.log('🔍 嘗試使用_id字段在TutorCase中查找...');
+          case_ = await TutorCase.findOneAndUpdate(
+            { _id: id },
+            { $set: updateData },
+            { new: true }
+          ).lean();
+          console.log('🔍 TutorCase 使用_id字段查找結果:', case_);
+        }
+      }
     }
 
     if (!case_) {
+      console.log('❌ 在所有集合中都找不到案例');
       return res.status(404).json({
         success: false,
         message: 'Case not found'
       });
     }
 
+    console.log('✅ 案例更新成功:', case_);
     res.json({
       success: true,
       data: case_
