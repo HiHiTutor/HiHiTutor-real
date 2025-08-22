@@ -511,87 +511,89 @@ const CreateCase: React.FC = () => {
                       需要科目
                     </Typography>
                     
-                    <Box sx={{ mb: 2 }}>
-                      <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
-                        🏫 小學教育科目
-                      </Typography>
-                      <TextField
-                        select
-                        label="小學科目"
-                        value={Array.isArray(formData.subjects) ? formData.subjects.find(subject => subject.startsWith('primary-')) || '' : ''}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          const existingSecondarySubjects = Array.isArray(formData.subjects) ? formData.subjects.filter(subject => subject.startsWith('secondary-')) : [];
-                          const allSubjects = value ? [value, ...existingSecondarySubjects] : existingSecondarySubjects;
-                          setFormData({
-                            ...formData,
-                            subjects: allSubjects
-                          });
-                        }}
-                        helperText="選擇小學科目"
-                        fullWidth
-                      >
-                        <MenuItem value="">請選擇小學科目</MenuItem>
-                        {CATEGORY_OPTIONS['primary-secondary'].subCategories?.find(sub => sub.value === 'primary')?.subjects && Array.isArray(CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'primary')?.subjects) && CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'primary')?.subjects?.map((subject) => (
-                          <MenuItem key={subject.value} value={subject.value}>
-                            {subject.label}
-                          </MenuItem>
-                        ))}
-                      </TextField>
-                    </Box>
+                                         <Box sx={{ mb: 2 }}>
+                       <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
+                         🏫 小學教育科目
+                       </Typography>
+                       <TextField
+                         select
+                         label="小學科目"
+                         SelectProps={{ multiple: true }}
+                         value={Array.isArray(formData.subjects) ? formData.subjects.filter(subject => subject.startsWith('primary-')) : []}
+                         onChange={(e) => {
+                           const value = e.target.value;
+                           const selectedPrimarySubjects = Array.isArray(value) ? value : [value];
+                           const existingSecondarySubjects = Array.isArray(formData.subjects) ? formData.subjects.filter(subject => subject.startsWith('secondary-')) : [];
+                           const allSubjects = [...selectedPrimarySubjects, ...existingSecondarySubjects];
+                           setFormData({
+                             ...formData,
+                             subjects: allSubjects
+                           });
+                         }}
+                         helperText="可多選小學科目"
+                         fullWidth
+                       >
+                         {CATEGORY_OPTIONS['primary-secondary'].subCategories?.find(sub => sub.value === 'primary')?.subjects && Array.isArray(CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'primary')?.subjects) && CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'primary')?.subjects?.map((subject) => (
+                           <MenuItem key={subject.value} value={subject.value}>
+                             {subject.label}
+                           </MenuItem>
+                         ))}
+                       </TextField>
+                     </Box>
 
-                    <Box sx={{ mb: 2 }}>
-                      <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
-                        🎓 中學教育科目
-                      </Typography>
-                      <TextField
-                        select
-                        label="中學科目"
-                        value={Array.isArray(formData.subjects) ? formData.subjects.find(subject => subject.startsWith('secondary-')) || '' : ''}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          const existingPrimarySubjects = Array.isArray(formData.subjects) ? formData.subjects.filter(subject => subject.startsWith('primary-')) : [];
-                          const allSubjects = value ? [...existingPrimarySubjects, value] : existingPrimarySubjects;
-                          setFormData({
-                            ...formData,
-                            subjects: allSubjects
-                          });
-                        }}
-                        helperText="選擇中學科目"
-                        fullWidth
-                      >
-                        <MenuItem value="">請選擇中學科目</MenuItem>
-                        {CATEGORY_OPTIONS['primary-secondary'].subCategories?.find(sub => sub.value === 'secondary')?.subjects && Array.isArray(CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'secondary')?.subjects) && CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'secondary')?.subjects?.map((subject) => (
-                          <MenuItem key={subject.value} value={subject.value}>
-                            {subject.label}
-                          </MenuItem>
-                        ))}
-                      </TextField>
-                    </Box>
+                     <Box sx={{ mb: 2 }}>
+                       <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
+                         🎓 中學教育科目
+                       </Typography>
+                       <TextField
+                         select
+                         label="中學科目"
+                         SelectProps={{ multiple: true }}
+                         value={Array.isArray(formData.subjects) ? formData.subjects.filter(subject => subject.startsWith('secondary-')) : []}
+                         onChange={(e) => {
+                           const value = e.target.value;
+                           const selectedSecondarySubjects = Array.isArray(value) ? value : [value];
+                           const existingPrimarySubjects = Array.isArray(formData.subjects) ? formData.subjects.filter(subject => subject.startsWith('primary-')) : [];
+                           const allSubjects = [...existingPrimarySubjects, ...selectedSecondarySubjects];
+                           setFormData({
+                             ...formData,
+                             subjects: allSubjects
+                           });
+                         }}
+                         helperText="可多選中學科目"
+                         fullWidth
+                       >
+                         {CATEGORY_OPTIONS['primary-secondary'].subCategories?.find(sub => sub.value === 'secondary')?.subjects && Array.isArray(CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'secondary')?.subjects) && CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'secondary')?.subjects?.map((subject) => (
+                           <MenuItem key={subject.value} value={subject.value}>
+                             {subject.label}
+                           </MenuItem>
+                         ))}
+                       </TextField>
+                     </Box>
                   </Box>
                 ) : (
-                  <TextField
-                    select
-                    label="需要科目"
-                    name="subjects"
-                    value={Array.isArray(formData.subjects) ? formData.subjects[0] || '' : ''}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setFormData({
-                        ...formData,
-                        subjects: value ? [value] : []
-                      });
-                    }}
-                    required
-                    helperText="選擇需要的科目"
-                  >
-                    <MenuItem value="">請選擇科目</MenuItem>
-                    {Array.isArray(getAvailableSubjects()) && getAvailableSubjects().map((subject) => (
-                      <MenuItem key={subject.value} value={subject.value}>
-                        {subject.label}
-                      </MenuItem>
-                    ))}
-                  </TextField>
+                                     <TextField
+                     select
+                     label="需要科目"
+                     name="subjects"
+                     SelectProps={{ multiple: true }}
+                     value={Array.isArray(formData.subjects) ? formData.subjects : []}
+                     onChange={(e) => {
+                       const value = e.target.value;
+                       setFormData({
+                         ...formData,
+                         subjects: Array.isArray(value) ? value : [value]
+                       });
+                     }}
+                     required
+                     helperText="可多選，按住 Ctrl/Command 鍵選多個"
+                   >
+                     {Array.isArray(getAvailableSubjects()) && getAvailableSubjects().map((subject) => (
+                       <MenuItem key={subject.value} value={subject.value}>
+                         {subject.label}
+                       </MenuItem>
+                     ))}
+                   </TextField>
                 )}
               </>
             )}
@@ -667,30 +669,30 @@ const CreateCase: React.FC = () => {
                 </Select>
               </FormControl>
 
-              {formData.regions[0] && formData.regions[0] !== 'all-hong-kong' && (
-                <FormControl fullWidth required>
-                  <InputLabel>子地區</InputLabel>
-                  <Select
-                    name="subRegions"
-                    value={formData.subRegions[0] || ''}
-                    label="子地區"
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setFormData({
-                        ...formData,
-                        subRegions: value ? [value] : []
-                      });
-                    }}
-                  >
-                    <MenuItem value="">請選擇子地區</MenuItem>
-                    {REGION_OPTIONS.find(r => r.value === formData.regions[0])?.regions?.map((subRegion) => (
-                      <MenuItem key={subRegion.value} value={subRegion.value}>
-                        {subRegion.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
+                             {formData.regions[0] && formData.regions[0] !== 'all-hong-kong' && (
+                 <FormControl fullWidth required>
+                   <InputLabel>子地區</InputLabel>
+                   <Select
+                     name="subRegions"
+                     multiple
+                     value={Array.isArray(formData.subRegions) ? formData.subRegions : []}
+                     label="子地區"
+                     onChange={(e) => {
+                       const value = e.target.value;
+                       setFormData({
+                         ...formData,
+                         subRegions: Array.isArray(value) ? value : [value]
+                       });
+                     }}
+                   >
+                     {REGION_OPTIONS.find(r => r.value === formData.regions[0])?.regions?.map((subRegion) => (
+                       <MenuItem key={subRegion.value} value={subRegion.value}>
+                         {subRegion.label}
+                       </MenuItem>
+                     ))}
+                   </Select>
+                 </FormControl>
+               )}
             </Box>
 
             <TextField
