@@ -221,8 +221,30 @@ const CreateCase: React.FC = () => {
     subRegions: [] as string[],
     budget: '',
     mode: '',
+    modes: [] as string[],        // 新增：匹配user-frontend的modes字段
     experience: '',
-    posterId: '', // 新增發布者ID字段
+    posterId: '',                 // 發布者ID
+    student: '',                  // 新增：匹配user-frontend的student字段
+    // 新增：匹配user-frontend的字段
+    price: 0,                     // 價格（數字）
+    duration: 60,                 // 時長（分鐘）
+    durationUnit: 'minutes',      // 時長單位
+    weeklyLessons: 1,             // 每週堂數
+    requirement: '',              // 要求
+    requirements: '',             // 要求（複數）
+    region: [] as string[],       // 地區
+    priceRange: '',               // 價格範圍
+    featured: false,              // 特色
+    isVip: false,                 // VIP
+    vipLevel: 0,                  // VIP等級
+    isTop: false,                 // 置頂
+    topLevel: 0,                  // 置頂等級
+    ratingScore: 0,               // 評分
+    ratingCount: 0,               // 評分數量
+    isPaid: false,                // 付費
+    paymentType: 'free',          // 付費類型
+    promotionLevel: 0,            // 推廣等級
+    isApproved: true,             // 已審批
   });
   
   const [teachingModes, setTeachingModes] = useState<any[]>([]);
@@ -740,6 +762,183 @@ const CreateCase: React.FC = () => {
               helperText="輸入發布此案例的用戶ID"
               fullWidth
             />
+
+            <TextField
+              label="學生ID"
+              name="student"
+              value={formData.student}
+              onChange={handleChange}
+              helperText="輸入學生用戶ID"
+              fullWidth
+            />
+
+            <TextField
+              label="價格"
+              name="price"
+              type="number"
+              value={formData.price}
+              onChange={handleChange}
+              helperText="輸入價格（數字）"
+              fullWidth
+            />
+
+            <TextField
+              label="時長（分鐘）"
+              name="duration"
+              type="number"
+              value={formData.duration}
+              onChange={handleChange}
+              helperText="輸入課程時長（分鐘）"
+              fullWidth
+            />
+
+            <TextField
+              label="每週堂數"
+              name="weeklyLessons"
+              type="number"
+              value={formData.weeklyLessons}
+              onChange={handleChange}
+              helperText="輸入每週上課次數"
+              fullWidth
+            />
+
+            <TextField
+              label="要求"
+              name="requirement"
+              value={formData.requirement}
+              onChange={handleChange}
+              multiline
+              rows={2}
+              helperText="輸入課程要求"
+              fullWidth
+            />
+
+            <TextField
+              label="要求（複數）"
+              name="requirements"
+              value={formData.requirements}
+              onChange={handleChange}
+              multiline
+              rows={2}
+              helperText="輸入課程要求（複數）"
+              fullWidth
+            />
+
+            <TextField
+              label="價格範圍"
+              name="priceRange"
+              value={formData.priceRange}
+              onChange={handleChange}
+              helperText="輸入價格範圍（如：100-200）"
+              fullWidth
+            />
+
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <TextField
+                label="特色案例"
+                name="featured"
+                type="checkbox"
+                checked={formData.featured}
+                onChange={(e) => setFormData({...formData, featured: e.target.checked})}
+              />
+              <TextField
+                label="VIP案例"
+                name="isVip"
+                type="checkbox"
+                checked={formData.isVip}
+                onChange={(e) => setFormData({...formData, isVip: e.target.checked})}
+              />
+              <TextField
+                label="置頂案例"
+                name="isTop"
+                type="checkbox"
+                checked={formData.isTop}
+                onChange={(e) => setFormData({...formData, isTop: e.target.checked})}
+              />
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                label="VIP等級"
+                name="vipLevel"
+                type="number"
+                value={formData.vipLevel}
+                onChange={handleChange}
+                helperText="VIP等級（0-2）"
+                sx={{ flex: 1 }}
+              />
+              <TextField
+                label="置頂等級"
+                name="topLevel"
+                type="number"
+                value={formData.topLevel}
+                onChange={handleChange}
+                helperText="置頂等級（0-2）"
+                sx={{ flex: 1 }}
+              />
+              <TextField
+                label="推廣等級"
+                name="promotionLevel"
+                type="number"
+                value={formData.promotionLevel}
+                onChange={handleChange}
+                helperText="推廣等級（0-5）"
+                sx={{ flex: 1 }}
+              />
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                label="評分"
+                name="ratingScore"
+                type="number"
+                value={formData.ratingScore}
+                onChange={handleChange}
+                helperText="評分（0-5）"
+                sx={{ flex: 1 }}
+              />
+              <TextField
+                label="評分數量"
+                name="ratingCount"
+                type="number"
+                value={formData.ratingCount}
+                onChange={handleChange}
+                helperText="評分數量"
+                sx={{ flex: 1 }}
+              />
+            </Box>
+
+            <FormControl fullWidth>
+              <InputLabel>付費類型</InputLabel>
+              <Select
+                name="paymentType"
+                value={formData.paymentType}
+                label="付費類型"
+                onChange={handleSelectChange}
+              >
+                <MenuItem value="free">免費</MenuItem>
+                <MenuItem value="basic">基本</MenuItem>
+                <MenuItem value="premium">高級</MenuItem>
+                <MenuItem value="vip">VIP</MenuItem>
+              </Select>
+            </FormControl>
+
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <TextField
+                label="付費案例"
+                name="isPaid"
+                type="checkbox"
+                checked={formData.isPaid}
+                onChange={(e) => setFormData({...formData, isPaid: e.target.checked})}
+              />
+              <TextField
+                label="已審批"
+                name="isApproved"
+                type="checkbox"
+                checked={formData.isApproved}
+                onChange={(e) => setFormData({...formData, isApproved: e.target.checked})}
+              />
+            </Box>
 
             <Box sx={{ mt: 2 }}>
               <Button

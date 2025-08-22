@@ -846,7 +846,29 @@ const createCase = async (req, res) => {
       subRegions,
       budget,
       mode,
+      modes,           // 新增：匹配user-frontend
       experience,
+      // 新增：匹配user-frontend的字段
+      price,
+      duration,
+      durationUnit,
+      weeklyLessons,
+      requirement,
+      requirements,
+      region,
+      priceRange,
+      featured,
+      isVip,
+      vipLevel,
+      isTop,
+      topLevel,
+      ratingScore,
+      ratingCount,
+      isPaid,
+      paymentType,
+      promotionLevel,
+      isApproved,
+      posterId,
     } = req.body;
 
     let newCase;
@@ -866,14 +888,30 @@ const createCase = async (req, res) => {
         subRegions: subRegions || [],
         budget: budget || '',
         mode: mode || '線上',
-        modes: mode ? [mode] : ['線上'],
-        requirement: description || '',
+        modes: modes || (mode ? [mode] : ['線上']), // 新增：支持modes字段
+        requirement: requirement || description || '',
+        requirements: requirements || description || '', // 新增：支持requirements字段
         status: 'open',
-        isApproved: true,
-        featured: false,
-        isVip: false,
-        isTop: false,
-        isPaid: false,
+        isApproved: isApproved !== undefined ? isApproved : true,
+        featured: featured !== undefined ? featured : false,
+        isVip: isVip !== undefined ? isVip : false,
+        vipLevel: vipLevel !== undefined ? vipLevel : 0,
+        isTop: isTop !== undefined ? isTop : false,
+        topLevel: topLevel !== undefined ? topLevel : 0,
+        ratingScore: ratingScore !== undefined ? ratingScore : 0,
+        ratingCount: ratingCount !== undefined ? ratingCount : 0,
+        isPaid: isPaid !== undefined ? isPaid : false,
+        paymentType: paymentType || 'free',
+        promotionLevel: promotionLevel !== undefined ? promotionLevel : 0,
+        // 新增：支持user-frontend的字段
+        price: price !== undefined ? price : 0,
+        duration: duration !== undefined ? duration : 60,
+        durationUnit: durationUnit || 'minutes',
+        weeklyLessons: weeklyLessons !== undefined ? weeklyLessons : 1,
+        region: region || [],
+        priceRange: priceRange || '',
+        posterId: posterId || '',
+        student: student || '',
         createdAt: new Date(),
         updatedAt: new Date()
       };
@@ -895,16 +933,16 @@ const createCase = async (req, res) => {
         regions: regions || [],
         subRegions: subRegions || [],
         mode: mode || '面對面',
-        modes: mode ? [mode] : ['面對面'],
+        modes: modes || (mode ? [mode] : ['面對面']), // 新增：支持modes字段
         experience: experience || '無教學經驗要求',
         status: 'open',
-        isApproved: false,
-        featured: false,
+        isApproved: isApproved !== undefined ? isApproved : false,
+        featured: featured !== undefined ? featured : false,
         student: student || null, // 如果沒有提供學生ID，設為null
         lessonDetails: {
-          duration: 60,
-          pricePerLesson: parseInt(budget) || 0,
-          lessonsPerWeek: 1
+          duration: duration || 60,
+          pricePerLesson: parseInt(budget) || price || 0,
+          lessonsPerWeek: weeklyLessons || 1
         }
       };
 
@@ -952,7 +990,7 @@ const getAllCases = async (req, res) => {
     if (!type || type === 'student') {
       // Get student cases
       const studentCases = await StudentCase.find(query)
-        .select('id title subject subjects budget mode modes requirement category subCategory region regions subRegions duration durationUnit weeklyLessons featured isVip vipLevel isTop topLevel ratingScore ratingCount isPaid paymentType promotionLevel isApproved status studentId posterId createdAt updatedAt')
+        .select('id title subject subjects budget mode modes requirement requirements category subCategory region regions subRegions priceRange duration durationUnit weeklyLessons featured isVip vipLevel isTop topLevel ratingScore ratingCount isPaid paymentType promotionLevel isApproved status studentId posterId student createdAt updatedAt')
         .sort({ createdAt: -1 })
         .populate('studentId', 'name email userId');
       cases = cases.concat(studentCases.map(c => ({...c.toObject(), type: 'student'})));

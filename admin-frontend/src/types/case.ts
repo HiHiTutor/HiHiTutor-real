@@ -15,15 +15,11 @@ export interface Case {
   subRegions: string[];
   budget: string;
   mode: string;
+  modes?: string[];           // 新增：匹配user-frontend的modes字段
   experience?: string;
-  posterId?: string; // 新增發布者ID字段
+  posterId?: string;          // 發布者ID
+  student?: string;           // 新增：匹配user-frontend的student字段
   studentId?: {
-    _id?: string;
-    userId?: string;
-    name?: string;
-    email?: string;
-  };
-  student?: {
     _id?: string;
     userId?: string;
     name?: string;
@@ -33,6 +29,26 @@ export interface Case {
     id: string;
     name: string;
   };
+  // 新增：匹配user-frontend的字段
+  price?: number;             // 價格（數字）
+  duration?: number;          // 時長（分鐘）
+  durationUnit?: string;      // 時長單位
+  weeklyLessons?: number;     // 每週堂數
+  requirement?: string;       // 要求
+  requirements?: string;      // 要求（複數）
+  region?: string[];          // 地區
+  priceRange?: string;        // 價格範圍
+  featured?: boolean;         // 特色
+  isVip?: boolean;            // VIP
+  vipLevel?: number;          // VIP等級
+  isTop?: boolean;            // 置頂
+  topLevel?: number;          // 置頂等級
+  ratingScore?: number;       // 評分
+  ratingCount?: number;       // 評分數量
+  isPaid?: boolean;           // 付費
+  paymentType?: string;       // 付費類型
+  promotionLevel?: number;    // 推廣等級
+  isApproved?: boolean;       // 已審批
   createdAt: string;
   updatedAt: string;
 }
@@ -70,6 +86,28 @@ export interface CreateCaseData {
   subRegions: string[] | { region: string; subRegion: string }[];
   budget: string;
   mode: string;
+  modes?: string[];           // 新增：匹配user-frontend的modes字段
   experience?: string;
-  posterId?: string; // 新增發布者ID字段
+  posterId?: string;          // 發布者ID
+  student?: string;           // 新增：匹配user-frontend的student字段
+  // 新增：匹配user-frontend的字段
+  price?: number;             // 價格（數字）
+  duration?: number;          // 時長（分鐘）
+  durationUnit?: string;      // 時長單位
+  weeklyLessons?: number;     // 每週堂數
+  requirement?: string;       // 要求
+  requirements?: string;      // 要求（複數）
+  region?: string[];          // 地區
+  priceRange?: string;        // 價格範圍
+  featured?: boolean;         // 特色
+  isVip?: boolean;            // VIP
+  vipLevel?: number;          // VIP等級
+  isTop?: boolean;            // 置頂
+  topLevel?: number;          // 置頂等級
+  ratingScore?: number;       // 評分
+  ratingCount?: number;       // 評分數量
+  isPaid?: boolean;           // 付費
+  paymentType?: string;       // 付費類型
+  promotionLevel?: number;    // 推廣等級
+  isApproved?: boolean;       // 已審批
 } 
