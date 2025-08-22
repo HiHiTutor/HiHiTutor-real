@@ -158,6 +158,11 @@ const studentCaseSchema = new mongoose.Schema({
     ref: 'User',
     required: false
   },
+  posterId: {
+    type: String,
+    required: false,
+    description: '发布者ID'
+  },
   createdAt: {
     type: Date,
     default: Date.now
