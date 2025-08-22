@@ -13,7 +13,7 @@ import {
   Close as CloseIcon,
   Visibility as VisibilityIcon
 } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../services/api';
 
 interface TutorChangeNotificationProps {
@@ -35,61 +35,35 @@ const TutorChangeNotification: React.FC<TutorChangeNotificationProps> = ({ onClo
   const [open, setOpen] = useState(false);
   const [recentChanges, setRecentChanges] = useState<TutorChange[]>([]);
   const [loading, setLoading] = useState(false);
-  const [readChanges, setReadChanges] = useState<Set<string>>(new Set()); // 已讀的修改記錄
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // 從 localStorage 加載已讀狀態
+  // 檢查是否在導師修改監控頁面
+  const isOnTutorChangeMonitor = location.pathname === '/tutor-change-monitor';
+
+  // 當進入導師修改監控頁面時，自動標記所有通知為已讀
   useEffect(() => {
-    const savedReadChanges = localStorage.getItem('tutorChangeReadStatus');
-    if (savedReadChanges) {
-      try {
-        const parsed = JSON.parse(savedReadChanges);
-        setReadChanges(new Set(parsed));
-        console.log('🔔 從 localStorage 加載已讀狀態:', parsed.length, '條記錄');
-      } catch (error) {
-        console.error('🔔 解析已讀狀態失敗:', error);
-        // 如果解析失敗，清空已讀狀態
-        setReadChanges(new Set());
-        localStorage.removeItem('tutorChangeReadStatus');
+    if (isOnTutorChangeMonitor) {
+      console.log('🔔 進入導師修改監控頁面，自動標記所有通知為已讀');
+      // 清除所有通知狀態
+      setOpen(false);
+      setRecentChanges([]);
+      // 清除 localStorage 中的通知狀態
+      localStorage.removeItem('tutorChangeReadStatus');
+      // 通知父組件更新徽章數量
+      if (onClose) {
+        onClose();
       }
-    } else {
-      console.log('🔔 localStorage 中沒有已讀狀態，初始化為空');
     }
-  }, []);
-
-  // 生成修改記錄的唯一標識符
-  const generateChangeId = (change: TutorChange) => {
-    const id = `${change.tutorId}_${change.change.timestamp}`;
-    console.log(`🔔 生成修改記錄ID: ${id}`);
-    return id;
-  };
-
-  // 檢查是否有未讀的新修改記錄
-  const hasUnreadChanges = () => {
-    const unreadCount = recentChanges.filter((change: TutorChange) => {
-      const changeId = generateChangeId(change);
-      const isRead = readChanges.has(changeId);
-      console.log(`🔔 檢查記錄 ${changeId}: ${isRead ? '已讀' : '未讀'}`);
-      return !isRead;
-    }).length;
-    
-    console.log(`🔔 未讀記錄數量: ${unreadCount}`);
-    return unreadCount > 0;
-  };
-
-  // 保存已讀狀態到 localStorage
-  const saveReadStatus = (newReadChanges: Set<string>) => {
-    try {
-      const arrayData = Array.from(newReadChanges);
-      localStorage.setItem('tutorChangeReadStatus', JSON.stringify(arrayData));
-      console.log('🔔 已讀狀態已保存到 localStorage:', arrayData.length, '條記錄');
-      console.log('🔔 已讀記錄ID:', arrayData);
-    } catch (error) {
-      console.error('🔔 保存已讀狀態失敗:', error);
-    }
-  };
+  }, [isOnTutorChangeMonitor, onClose]);
 
   const fetchRecentChanges = async () => {
+    // 如果已經在導師修改監控頁面，不需要獲取通知
+    if (isOnTutorChangeMonitor) {
+      console.log('🔔 已在導師修改監控頁面，跳過通知獲取');
+      return;
+    }
+
     try {
       console.log('🔔 TutorChangeNotification: 開始獲取最近修改記錄...');
       setLoading(true);
@@ -101,14 +75,12 @@ const TutorChangeNotification: React.FC<TutorChangeNotificationProps> = ({ onClo
         setRecentChanges(newChanges);
         console.log('🔔 獲取到修改記錄:', newChanges);
         
-        // 檢查是否有新的未讀修改記錄
-        const hasNewChanges = newChanges.some((change: TutorChange) => !readChanges.has(generateChangeId(change)));
-        
-        if (hasNewChanges) {
-          console.log('🔔 發現新的未讀修改記錄，觸發通知彈出');
+        // 如果有修改記錄，顯示通知
+        if (newChanges.length > 0) {
+          console.log('🔔 發現修改記錄，觸發通知彈出');
           setOpen(true);
         } else {
-          console.log('🔔 沒有新的未讀修改記錄');
+          console.log('🔔 沒有修改記錄');
           setOpen(false);
         }
       } else {
@@ -123,27 +95,31 @@ const TutorChangeNotification: React.FC<TutorChangeNotificationProps> = ({ onClo
 
   useEffect(() => {
     console.log('🔔 TutorChangeNotification: 組件已掛載，開始初始化...');
-    // 初始檢查
-    fetchRecentChanges();
     
-    // 每 30 秒檢查一次新的修改記錄
-    const interval = setInterval(() => {
-      console.log('🔔 定期檢查新的修改記錄...');
+    // 如果不在導師修改監控頁面，才開始獲取通知
+    if (!isOnTutorChangeMonitor) {
+      // 初始檢查
       fetchRecentChanges();
-    }, 30000);
-    
-    return () => {
-      console.log('🔔 清理定時器');
-      clearInterval(interval);
-    };
-  }, [readChanges]); // 當已讀狀態改變時重新檢查
+      
+      // 每 30 秒檢查一次新的修改記錄
+      const interval = setInterval(() => {
+        console.log('🔔 定期檢查新的修改記錄...');
+        fetchRecentChanges();
+      }, 30000);
+      
+      return () => {
+        console.log('🔔 清理定時器');
+        clearInterval(interval);
+      };
+    }
+  }, [isOnTutorChangeMonitor]);
 
   // 調試渲染
   console.log('🔔 TutorChangeNotification 渲染:', { 
     open, 
     recentChanges: recentChanges.length, 
     loading,
-    unreadCount: recentChanges.filter((change: TutorChange) => !readChanges.has(generateChangeId(change))).length
+    isOnTutorChangeMonitor
   });
 
   const handleClose = () => {
@@ -152,12 +128,6 @@ const TutorChangeNotification: React.FC<TutorChangeNotificationProps> = ({ onClo
   };
 
   const handleViewDetails = () => {
-    // 標記所有當前顯示的修改記錄為已讀
-    const currentChangeIds = recentChanges.map(change => generateChangeId(change));
-    const newReadChanges = new Set([...Array.from(readChanges), ...currentChangeIds]);
-    setReadChanges(newReadChanges);
-    saveReadStatus(newReadChanges); // 保存更新後的已讀狀態
-    
     // 關閉通知
     setOpen(false);
     
@@ -166,44 +136,19 @@ const TutorChangeNotification: React.FC<TutorChangeNotificationProps> = ({ onClo
   };
 
   const handleMarkAsRead = () => {
-    // 標記所有當前顯示的修改記錄為已讀
-    const currentChangeIds = recentChanges.map(change => generateChangeId(change));
-    const newReadChanges = new Set([...Array.from(readChanges), ...currentChangeIds]);
-    setReadChanges(newReadChanges);
-    saveReadStatus(newReadChanges); // 保存更新後的已讀狀態
-    
-    console.log('🔔 已標記以下記錄為已讀:', currentChangeIds);
-    
     // 關閉通知
     setOpen(false);
+    onClose?.();
   };
 
-  // 手動清除所有已讀狀態（用於測試）
-  const handleClearAllReadStatus = () => {
-    console.log('🔔 手動清除所有已讀狀態');
-    setReadChanges(new Set());
-    localStorage.removeItem('tutorChangeReadStatus');
-    // 重新檢查通知
-    setTimeout(() => {
-      fetchRecentChanges();
-    }, 100);
-  };
+  // 如果在導師修改監控頁面，不顯示任何內容
+  if (isOnTutorChangeMonitor) {
+    return null;
+  }
 
-  // 如果沒有未讀的修改記錄，不顯示通知
-  if (!hasUnreadChanges()) {
-    console.log('🔔 沒有未讀的修改記錄，不顯示通知');
-    return (
-      <Box sx={{ position: 'fixed', top: 20, right: 20, zIndex: 9999 }}>
-        <Button
-          size="small"
-          variant="outlined"
-          onClick={handleClearAllReadStatus}
-          sx={{ bgcolor: 'background.paper' }}
-        >
-          重置通知狀態
-        </Button>
-      </Box>
-    );
+  // 如果沒有修改記錄，不顯示通知
+  if (recentChanges.length === 0) {
+    return null;
   }
 
   const formatTimestamp = (timestamp: string) => {
@@ -315,7 +260,7 @@ const TutorChangeNotification: React.FC<TutorChangeNotificationProps> = ({ onClo
               variant="outlined"
               onClick={handleMarkAsRead}
             >
-              標記為已讀
+              稍後查看
             </Button>
           </Box>
         </Box>

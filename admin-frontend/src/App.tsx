@@ -24,6 +24,7 @@ import ModeManager from './pages/ModeManager';
 import TutorChangeMonitor from './pages/TutorChangeMonitor';
 import TutorChangeNotification from './components/TutorChangeNotification';
 import NotificationTest from './components/NotificationTest';
+import { useNotifications } from './hooks/useNotifications';
 
 // 管理員前端應用主組件
 // 包含路由保護和導航邏輯
@@ -44,6 +45,7 @@ const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({ element }) 
 
 const App: React.FC = () => {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { clearTutorChangeNotifications } = useNotifications();
 
   return (
     <>
@@ -78,7 +80,7 @@ const App: React.FC = () => {
       </Routes>
       
       {/* 實時導師修改通知 - 需要在 Routes 外部，這樣所有頁面都能顯示 */}
-      {isAuthenticated && <TutorChangeNotification />}
+      {isAuthenticated && <TutorChangeNotification onClose={clearTutorChangeNotifications} />}
     </>
   );
 };

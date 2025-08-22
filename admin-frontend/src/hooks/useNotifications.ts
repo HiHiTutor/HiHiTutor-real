@@ -67,6 +67,19 @@ export const useNotifications = () => {
     }
   };
 
+  // 清除導師修改通知
+  const clearTutorChangeNotifications = () => {
+    if (notifications) {
+      const updatedNotifications = {
+        ...notifications,
+        tutorChanges: 0,
+        total: notifications.total - notifications.tutorChanges
+      };
+      setNotifications(updatedNotifications);
+      console.log('🔔 已清除導師修改通知，徽章數量重置為 0');
+    }
+  };
+
   useEffect(() => {
     fetchNotifications();
     
@@ -80,6 +93,7 @@ export const useNotifications = () => {
     notifications,
     loading,
     error,
-    refetch: fetchNotifications
+    refetch: fetchNotifications,
+    clearTutorChangeNotifications
   };
 }; 
