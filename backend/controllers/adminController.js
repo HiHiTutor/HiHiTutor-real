@@ -1107,6 +1107,12 @@ const updateCase = async (req, res) => {
     
     console.log('🔍 後端接收到的參數:', { id, type, updateDataKeys: Object.keys(updateData) });
 
+    // 將posterId映射到student字段，確保數據一致性
+    if (updateData.posterId !== undefined) {
+      updateData.student = updateData.posterId;
+      console.log('🔍 將posterId映射到student字段:', updateData.posterId);
+    }
+
     // 構建查詢條件，優先使用 id 字段，如果是有效的 ObjectId 才嘗試 _id
     const buildQuery = (id) => {
       const query = { id: id };
