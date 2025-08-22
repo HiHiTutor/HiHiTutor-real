@@ -952,6 +952,7 @@ const getAllCases = async (req, res) => {
     if (!type || type === 'student') {
       // Get student cases
       const studentCases = await StudentCase.find(query)
+        .select('id title subject subjects budget mode modes requirement category subCategory region regions subRegions duration durationUnit weeklyLessons featured isVip vipLevel isTop topLevel ratingScore ratingCount isPaid paymentType promotionLevel isApproved status studentId posterId createdAt updatedAt')
         .sort({ createdAt: -1 })
         .populate('studentId', 'name email userId');
       cases = cases.concat(studentCases.map(c => ({...c.toObject(), type: 'student'})));
