@@ -34,19 +34,24 @@ router.get('/tutor-changes', verifyToken, isAdmin, async (req, res) => {
     const total = await User.countDocuments(query);
     
     // 格式化修改記錄
-    const formattedChanges = tutors.map(tutor => ({
-      tutorId: tutor.tutorId || tutor.userId,
-      name: tutor.name,
-      email: tutor.email,
-      changes: tutor.profileChangeLog.map(change => ({
-        timestamp: change.timestamp,
-        fields: change.fields,
-        oldValues: change.oldValues,
-        newValues: change.newValues,
-        ipAddress: change.ipAddress,
-        userAgent: change.userAgent
-      }))
-    }));
+    const formattedChanges = tutors.map(tutor => {
+      // 確保有有效的ID
+      const validTutorId = tutor.tutorId || tutor.userId || `unknown_${tutor._id}`;
+      
+      return {
+        tutorId: validTutorId,
+        name: tutor.name || '未知姓名',
+        email: tutor.email || '未知郵箱',
+        changes: (tutor.profileChangeLog || []).map(change => ({
+          timestamp: change.timestamp,
+          fields: change.fields || [],
+          oldValues: change.oldValues || {},
+          newValues: change.newValues || {},
+          ipAddress: change.ipAddress,
+          userAgent: change.userAgent
+        }))
+      };
+    }).filter(tutor => tutor.changes && tutor.changes.length > 0); // 只返回有修改記錄的導師
     
     res.json({
       success: true,
@@ -90,14 +95,14 @@ router.get('/tutor-changes/:tutorId', verifyToken, isAdmin, async (req, res) => 
     }
     
     const formattedChanges = {
-      tutorId: tutor.tutorId || tutor.userId,
-      name: tutor.name,
-      email: tutor.email,
-      changes: tutor.profileChangeLog.map(change => ({
+      tutorId: tutor.tutorId || tutor.userId || `unknown_${tutor._id}`,
+      name: tutor.name || '未知姓名',
+      email: tutor.email || '未知郵箱',
+      changes: (tutor.profileChangeLog || []).map(change => ({
         timestamp: change.timestamp,
-        fields: change.fields,
-        oldValues: change.oldValues,
-        newValues: change.newValues,
+        fields: change.fields || [],
+        oldValues: change.oldValues || {},
+        newValues: change.newValues || {},
         ipAddress: change.ipAddress,
         userAgent: change.userAgent
       }))
