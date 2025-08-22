@@ -71,14 +71,51 @@ const TutorChangeMonitor: React.FC<TutorChangeMonitorProps> = ({ className }) =>
       
       if (response.data.success) {
         console.log('🔍 獲取到的修改記錄數據:', response.data.data);
-        setChanges(response.data.data);
-        setTotal(response.data.pagination.total);
+        
+        // 驗證每個記錄的數據結構
+        const validatedData = response.data.data.map((tutor: any, index: number) => {
+          console.log(`🔍 驗證導師 ${index + 1}:`, {
+            tutorId: tutor.tutorId,
+            name: tutor.name,
+            email: tutor.email,
+            changesCount: tutor.changes?.length || 0,
+            changes: tutor.changes
+          });
+          
+          // 確保數據結構完整
+          if (!tutor.changes || !Array.isArray(tutor.changes)) {
+            console.warn(`⚠️ 導師 ${index + 1} 的 changes 數據不完整:`, tutor);
+            return {
+              ...tutor,
+              changes: []
+            };
+          }
+          
+          return tutor;
+        }).filter((tutor: any) => tutor.changes && tutor.changes.length > 0); // 只保留有修改記錄的導師
+        
+        console.log(`✅ 驗證後的有效數據: ${validatedData.length} 條記錄`);
+        setChanges(validatedData);
+        
+        // 更新總數為實際有效的記錄數
+        const actualTotal = Math.max(validatedData.length, 1); // 至少顯示1條記錄
+        setTotal(actualTotal);
+        
+        // 如果沒有有效數據，清除錯誤狀態
+        if (validatedData.length === 0) {
+          setError(null);
+        }
       } else {
         throw new Error(response.data.message || '獲取數據失敗');
       }
     } catch (err) {
       console.error('❌ 獲取修改記錄失敗:', err);
-      setError(err instanceof Error ? err.message : '未知錯誤');
+      const errorMessage = err instanceof Error ? err.message : '未知錯誤';
+      setError(errorMessage);
+      
+      // 清空數據
+      setChanges([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
@@ -186,7 +223,19 @@ const TutorChangeMonitor: React.FC<TutorChangeMonitorProps> = ({ className }) =>
       </Box>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
+        <Alert 
+          severity="error" 
+          sx={{ mb: 2 }}
+          action={
+            <Button 
+              color="inherit" 
+              size="small" 
+              onClick={() => setError(null)}
+            >
+              清除
+            </Button>
+          }
+        >
           {error}
         </Alert>
       )}
@@ -212,39 +261,48 @@ const TutorChangeMonitor: React.FC<TutorChangeMonitorProps> = ({ className }) =>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {changes.map((tutor) => (
-                  <TableRow key={tutor.tutorId}>
-                    <TableCell>
-                      <Chip label={tutor.tutorId} size="small" variant="outlined" />
-                    </TableCell>
-                    <TableCell>{tutor.name}</TableCell>
-                    <TableCell>{tutor.email}</TableCell>
-                    <TableCell>
-                      {tutor.changes && tutor.changes.length > 0 ? (
-                        format(new Date(tutor.changes[0]?.timestamp || new Date()), 'yyyy-MM-dd HH:mm', { locale: zhTW })
-                      ) : (
-                        '無記錄'
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Chip 
-                        label={tutor.changes?.length || 0} 
-                        color="primary" 
-                        size="small" 
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Tooltip title="查看詳細修改記錄">
-                        <IconButton 
-                          size="small"
-                          onClick={() => handleViewDetails(tutor)}
-                        >
-                          <VisibilityIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {changes.map((tutor, index) => {
+                  // 安全檢查數據完整性
+                  if (!tutor || !tutor.tutorId) {
+                    console.warn(`⚠️ 跳過無效的導師記錄 ${index}:`, tutor);
+                    return null;
+                  }
+                  
+                  return (
+                    <TableRow key={tutor.tutorId}>
+                      <TableCell>
+                        <Chip label={tutor.tutorId} size="small" variant="outlined" />
+                      </TableCell>
+                      <TableCell>{tutor.name || '未知'}</TableCell>
+                      <TableCell>{tutor.email || '未知'}</TableCell>
+                      <TableCell>
+                        {tutor.changes && Array.isArray(tutor.changes) && tutor.changes.length > 0 ? (
+                          format(new Date(tutor.changes[0]?.timestamp || new Date()), 'yyyy-MM-dd HH:mm', { locale: zhTW })
+                        ) : (
+                          '無記錄'
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Chip 
+                          label={Array.isArray(tutor.changes) ? tutor.changes.length : 0} 
+                          color="primary" 
+                          size="small" 
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Tooltip title="查看詳細修改記錄">
+                          <IconButton 
+                            size="small"
+                            onClick={() => handleViewDetails(tutor)}
+                            disabled={!tutor.changes || !Array.isArray(tutor.changes) || tutor.changes.length === 0}
+                          >
+                            <VisibilityIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  );
+                }).filter(Boolean)}
               </TableBody>
             </Table>
           </TableContainer>
