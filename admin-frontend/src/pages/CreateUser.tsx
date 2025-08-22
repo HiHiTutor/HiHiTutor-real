@@ -145,13 +145,14 @@ const CreateUser: React.FC = () => {
   useEffect(() => {
     const fetchOptions = async () => {
       try {
-        // 從後端 API 獲取教學模式選項
+                // 從後端 API 獲取教學模式選項
         try {
           const response = await api.get('/teaching-modes');
-          if (response.data) {
+          if (response.data && Array.isArray(response.data)) {
             setTeachingModeOptions(response.data);
           } else {
-            // 如果 API 失敗，使用預設值
+            console.warn('API response data is not an array, using fallback data');
+            // 如果 API 失敗或返回格式不正確，使用預設值
             const teachingModes = [
               { 
                 value: 'in-person', 
@@ -211,7 +212,7 @@ const CreateUser: React.FC = () => {
         }
 
         // 暫時使用硬編碼的地區選項，等 API 修復後改回動態獲取
-        const regions = [
+        const regions: any[] = [
           {
             value: 'all-hong-kong',
             label: '全港',
@@ -359,7 +360,7 @@ const CreateUser: React.FC = () => {
     }
     const subModes = formData.tutorProfile.teachingSubModes;
     return mode === 'in-person' || 
-           subModes.includes('one-on-one') || subModes.includes('small-group') || subModes.includes('large-center');
+           (Array.isArray(subModes) && (subModes.includes('one-on-one') || subModes.includes('small-group') || subModes.includes('large-center')));
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
@@ -382,7 +383,7 @@ const CreateUser: React.FC = () => {
           ...formData.tutorProfile,
           subCategory: value as string,
           // 不清空已選科目，讓用戶可以跨子科目選擇
-          subjects: formData.tutorProfile.subjects
+          subjects: Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects : []
         }
       });
     } else if (name === 'subjects') {
@@ -458,7 +459,7 @@ const CreateUser: React.FC = () => {
           setLoading(false);
           return;
         }
-        if (!formData.tutorProfile.subjects || formData.tutorProfile.subjects.length === 0) {
+                        if (!Array.isArray(formData.tutorProfile.subjects) || formData.tutorProfile.subjects.length === 0) {
           setError('請至少選擇一個可教授科目');
           setLoading(false);
           return;
@@ -475,7 +476,7 @@ const CreateUser: React.FC = () => {
         }
         // 如果選擇面授模式，必須選擇教學子模式
         if (formData.tutorProfile.teachingMode === 'in-person' && 
-            (!formData.tutorProfile.teachingSubModes || formData.tutorProfile.teachingSubModes.length === 0)) {
+                            (!Array.isArray(formData.tutorProfile.teachingSubModes) || formData.tutorProfile.teachingSubModes.length === 0)) {
           setError('面授模式必須選擇教學子模式');
           setLoading(false);
           return;
@@ -487,12 +488,12 @@ const CreateUser: React.FC = () => {
         submitData.tutorProfile = {
           category: formData.tutorProfile.category,
           subCategory: formData.tutorProfile.subCategory,
-          subjects: formData.tutorProfile.subjects,
+          subjects: Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects : [],
           teachingMode: formData.tutorProfile.teachingMode,
-          teachingSubModes: formData.tutorProfile.teachingSubModes,
+          teachingSubModes: Array.isArray(formData.tutorProfile.teachingSubModes) ? formData.tutorProfile.teachingSubModes : [],
           sessionRate: Number(formData.tutorProfile.sessionRate),
           region: formData.tutorProfile.region,
-          subRegions: formData.tutorProfile.subRegions
+          subRegions: Array.isArray(formData.tutorProfile.subRegions) ? formData.tutorProfile.subRegions : []
         };
       } else {
         delete submitData.tutorProfile;
@@ -608,11 +609,11 @@ const CreateUser: React.FC = () => {
                     onChange={handleChange}
                     helperText="選擇特定教育階段，或留空表示可教授所有階段"
                   >
-                    {getSubCategories().map((subCategory) => (
-                      <MenuItem key={subCategory.value} value={subCategory.value}>
-                        {subCategory.label}
-                      </MenuItem>
-                    ))}
+                                      {Array.isArray(getSubCategories()) && getSubCategories().map((subCategory) => (
+                    <MenuItem key={subCategory.value} value={subCategory.value}>
+                      {subCategory.label}
+                    </MenuItem>
+                  ))}
                   </TextField>
                 )}
 
@@ -656,11 +657,11 @@ const CreateUser: React.FC = () => {
                             select
                             label="小學科目"
                             SelectProps={{ multiple: true }}
-                            value={formData.tutorProfile.subjects.filter(subject => subject.startsWith('primary-'))}
+                            value={Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter(subject => subject.startsWith('primary-')) : []}
                             onChange={(e) => {
                               const value = e.target.value;
                               const selectedPrimarySubjects = Array.isArray(value) ? value : [value];
-                              const existingSecondarySubjects = formData.tutorProfile.subjects.filter(subject => subject.startsWith('secondary-'));
+                              const existingSecondarySubjects = Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter(subject => subject.startsWith('secondary-')) : [];
                               const allSubjects = [...selectedPrimarySubjects, ...existingSecondarySubjects];
                               setFormData({
                                 ...formData,
@@ -673,7 +674,7 @@ const CreateUser: React.FC = () => {
                             helperText="可多選小學科目"
                             fullWidth
                           >
-                            {CATEGORY_OPTIONS['primary-secondary'].subCategories?.find(sub => sub.value === 'primary')?.subjects?.map((subject) => (
+                            {CATEGORY_OPTIONS['primary-secondary'].subCategories?.find(sub => sub.value === 'primary')?.subjects && Array.isArray(CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'primary')?.subjects) && CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'primary')?.subjects?.map((subject) => (
                               <MenuItem key={subject.value} value={subject.value}>
                                 {subject.label}
                               </MenuItem>
@@ -690,11 +691,11 @@ const CreateUser: React.FC = () => {
                             select
                             label="中學科目"
                             SelectProps={{ multiple: true }}
-                            value={formData.tutorProfile.subjects.filter(subject => subject.startsWith('secondary-'))}
+                            value={Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter(subject => subject.startsWith('secondary-')) : []}
                             onChange={(e) => {
                               const value = e.target.value;
                               const selectedSecondarySubjects = Array.isArray(value) ? value : [value];
-                              const existingPrimarySubjects = formData.tutorProfile.subjects.filter(subject => subject.startsWith('primary-'));
+                              const existingPrimarySubjects = Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter(subject => subject.startsWith('primary-')) : [];
                               const allSubjects = [...existingPrimarySubjects, ...selectedSecondarySubjects];
                               setFormData({
                                 ...formData,
@@ -707,7 +708,7 @@ const CreateUser: React.FC = () => {
                             helperText="可多選中學科目"
                             fullWidth
                           >
-                            {CATEGORY_OPTIONS['primary-secondary'].subCategories?.find(sub => sub.value === 'secondary')?.subjects?.map((subject) => (
+                            {CATEGORY_OPTIONS['primary-secondary'].subCategories?.find(sub => sub.value === 'secondary')?.subjects && Array.isArray(CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'secondary')?.subjects) && CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'secondary')?.subjects?.map((subject) => (
                               <MenuItem key={subject.value} value={subject.value}>
                                 {subject.label}
                               </MenuItem>
@@ -722,12 +723,12 @@ const CreateUser: React.FC = () => {
                         label="可教授科目 (多選)"
                         name="subjects"
                         SelectProps={{ multiple: true }}
-                        value={formData.tutorProfile.subjects}
+                        value={Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects : []}
                         onChange={handleChange}
                         required
                         helperText="可多選，按住 Ctrl/Command 鍵選多個"
                       >
-                        {getAvailableSubjects().map((subject) => (
+                        {Array.isArray(getAvailableSubjects()) && getAvailableSubjects().map((subject) => (
                           <MenuItem key={subject.value} value={subject.value}>
                             {subject.label}
                           </MenuItem>
@@ -738,7 +739,7 @@ const CreateUser: React.FC = () => {
                 )}
 
                 {/* 已選科目顯示 */}
-                {formData.tutorProfile.subjects && formData.tutorProfile.subjects.length > 0 && (
+                {Array.isArray(formData.tutorProfile.subjects) && formData.tutorProfile.subjects.length > 0 && (
                   <Box sx={{ 
                     p: 2, 
                     border: '1px solid #e0e0e0', 
@@ -747,10 +748,10 @@ const CreateUser: React.FC = () => {
                     borderLeft: '4px solid #1976d2'
                   }}>
                     <Typography variant="subtitle2" color="primary" sx={{ mb: 1, fontWeight: 'bold' }}>
-                      📚 已選科目 ({formData.tutorProfile.subjects.length}個)
+                      📚 已選科目 ({Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.length : 0}個)
                     </Typography>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                      {formData.tutorProfile.subjects.map((subject, index) => {
+                      {Array.isArray(formData.tutorProfile.subjects) && formData.tutorProfile.subjects.map((subject, index) => {
                         const subjectInfo = getAvailableSubjects().find(s => s.value === subject);
                         return (
                           <Chip
@@ -760,7 +761,7 @@ const CreateUser: React.FC = () => {
                             variant="outlined"
                             size="small"
                             onDelete={() => {
-                              const newSubjects = formData.tutorProfile.subjects.filter((_, i) => i !== index);
+                              const newSubjects = Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter((_, i) => i !== index) : [];
                               setFormData({
                                 ...formData,
                                 tutorProfile: {
@@ -799,7 +800,7 @@ const CreateUser: React.FC = () => {
                   required
                   helperText="選擇您偏好的教學方式"
                 >
-                  {teachingModeOptions.map((mode: any) => (
+                  {Array.isArray(teachingModeOptions) && teachingModeOptions.map((mode: any) => (
                     <MenuItem key={mode.value} value={mode.value}>
                       {mode.label}
                     </MenuItem>
@@ -813,14 +814,14 @@ const CreateUser: React.FC = () => {
                     label="教學子模式 (多選)"
                     name="teachingSubModes"
                     SelectProps={{ multiple: true }}
-                    value={formData.tutorProfile.teachingSubModes}
+                    value={Array.isArray(formData.tutorProfile.teachingSubModes) ? formData.tutorProfile.teachingSubModes : []}
                     onChange={handleChange}
                     required={formData.tutorProfile.teachingMode === 'in-person'} // 僅面授模式強制要求
                     helperText={formData.tutorProfile.teachingMode === 'both' ? 
                       "皆可模式：可選填，不填則表示接受所有教學方式" : 
                       "可多選，按住 Ctrl/Command 鍵選多個"}
                   >
-                    {teachingModeOptions.find((mode: any) => mode.value === formData.tutorProfile.teachingMode)?.subCategories?.map((subMode: any) => (
+                    {Array.isArray(teachingModeOptions) && teachingModeOptions.find((mode: any) => mode.value === formData.tutorProfile.teachingMode)?.subCategories?.map((subMode: any) => (
                       <MenuItem key={subMode.value} value={subMode.value}>
                         {subMode.label}
                       </MenuItem>
@@ -856,24 +857,24 @@ const CreateUser: React.FC = () => {
                         上堂地區 (可多選)
                       </Typography>
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                        {regionOptions.map((regionOption: any) => (
+                        {Array.isArray(regionOptions) && regionOptions.map((regionOption: any) => (
                           <Box key={regionOption.value} sx={{ border: 1, borderColor: 'divider', borderRadius: 1, p: 2 }}>
                             <Typography variant="subtitle2" color="primary" sx={{ mb: 2, fontWeight: 'bold' }}>
                               {regionOption.label}
                             </Typography>
                             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '1fr 1fr 1fr' }, gap: 1 }}>
-                              {regionOption.regions?.map((subRegion: any) => (
+                              {Array.isArray(regionOption.regions) && regionOption.regions.map((subRegion: any) => (
                                 <Box key={subRegion.value} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                   <input
                                     type="checkbox"
-                                    checked={formData.tutorProfile.subRegions.includes(subRegion.value)}
+                                    checked={Array.isArray(formData.tutorProfile.subRegions) && formData.tutorProfile.subRegions.includes(subRegion.value)}
                                     onChange={(e) => {
                                       if (e.target.checked) {
                                         setFormData(prev => ({
                                           ...prev,
                                           tutorProfile: {
                                             ...prev.tutorProfile,
-                                            subRegions: [...prev.tutorProfile.subRegions, subRegion.value]
+                                            subRegions: Array.isArray(prev.tutorProfile.subRegions) ? [...prev.tutorProfile.subRegions, subRegion.value] : [subRegion.value]
                                           }
                                         }));
                                       } else {
@@ -881,7 +882,7 @@ const CreateUser: React.FC = () => {
                                           ...prev,
                                           tutorProfile: {
                                             ...prev.tutorProfile,
-                                            subRegions: prev.tutorProfile.subRegions.filter(sub => sub !== subRegion.value)
+                                            subRegions: Array.isArray(prev.tutorProfile.subRegions) ? prev.tutorProfile.subRegions.filter(sub => sub !== subRegion.value) : []
                                           }
                                         }));
                                       }
