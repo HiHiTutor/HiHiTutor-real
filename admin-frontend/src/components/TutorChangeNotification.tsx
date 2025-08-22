@@ -39,31 +39,55 @@ const TutorChangeNotification: React.FC<TutorChangeNotificationProps> = ({ onClo
 
   const fetchRecentChanges = async () => {
     try {
+      console.log('🔔 TutorChangeNotification: 開始獲取最近修改記錄...');
       setLoading(true);
       const response = await api.get('/admin/notifications/recent-changes?limit=5');
+      console.log('🔔 API 響應:', response.data);
+      
       if (response.data.success) {
         setRecentChanges(response.data.data);
+        console.log('🔔 獲取到修改記錄:', response.data.data);
+        
         // 如果有新的修改記錄，顯示通知
         if (response.data.data.length > 0) {
+          console.log('🔔 發現修改記錄，觸發通知彈出');
           setOpen(true);
+        } else {
+          console.log('🔔 沒有發現修改記錄');
         }
+      } else {
+        console.log('🔔 API 返回失敗:', response.data);
       }
     } catch (error) {
-      console.error('獲取最近修改記錄失敗:', error);
+      console.error('🔔 獲取最近修改記錄失敗:', error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    console.log('🔔 TutorChangeNotification: 組件已掛載，開始初始化...');
     // 初始檢查
     fetchRecentChanges();
     
     // 每 30 秒檢查一次新的修改記錄
-    const interval = setInterval(fetchRecentChanges, 30000);
+    const interval = setInterval(() => {
+      console.log('🔔 定期檢查新的修改記錄...');
+      fetchRecentChanges();
+    }, 30000);
     
-    return () => clearInterval(interval);
+    return () => {
+      console.log('🔔 清理定時器');
+      clearInterval(interval);
+    };
   }, []);
+
+  // 調試渲染
+  console.log('🔔 TutorChangeNotification 渲染:', { 
+    open, 
+    recentChanges: recentChanges.length, 
+    loading 
+  });
 
   const handleClose = () => {
     setOpen(false);
@@ -109,7 +133,10 @@ const TutorChangeNotification: React.FC<TutorChangeNotificationProps> = ({ onClo
     return fieldMap[field] || field;
   };
 
-  if (recentChanges.length === 0) return null;
+  if (recentChanges.length === 0) {
+    console.log('🔔 沒有修改記錄，不顯示通知');
+    return null;
+  }
 
   return (
     <Snackbar

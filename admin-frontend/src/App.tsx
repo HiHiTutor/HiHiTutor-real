@@ -23,6 +23,7 @@ import RegionManager from './pages/RegionManager';
 import ModeManager from './pages/ModeManager';
 import TutorChangeMonitor from './pages/TutorChangeMonitor';
 import TutorChangeNotification from './components/TutorChangeNotification';
+import NotificationTest from './components/NotificationTest';
 
 // 管理員前端應用主組件
 // 包含路由保護和導航邏輯
@@ -45,34 +46,40 @@ const App: React.FC = () => {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
 
   return (
-    <Routes>
-      {/* 登入頁面 - 未認證時顯示登入，已認證時重定向到儀表板 */}
-      <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" replace />} />
+    <>
+      <Routes>
+        {/* 登入頁面 - 未認證時顯示登入，已認證時重定向到儀表板 */}
+        <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" replace />} />
+        
+        {/* 受保護的管理員路由 */}
+        <Route path="/" element={<ProtectedRoute element={<Layout><Dashboard /></Layout>} />} />
+        <Route path="/dashboard" element={<ProtectedRoute element={<Layout><Dashboard /></Layout>} />} />
+        <Route path="/users" element={<ProtectedRoute element={<Layout><Users /></Layout>} />} />
+        <Route path="/users/create" element={<ProtectedRoute element={<Layout><CreateUser /></Layout>} />} />
+        <Route path="/users/:id" element={<ProtectedRoute element={<Layout><UserDetail /></Layout>} />} />
+        <Route path="/cases" element={<ProtectedRoute element={<Layout><Cases /></Layout>} />} />
+        <Route path="/cases/create" element={<ProtectedRoute element={<Layout><CreateCase /></Layout>} />} />
+        <Route path="/cases/:id" element={<ProtectedRoute element={<Layout><CaseDetail /></Layout>} />} />
+        <Route path="/statistics" element={<ProtectedRoute element={<Layout><Statistics /></Layout>} />} />
+        <Route path="/search-statistics" element={<ProtectedRoute element={<Layout><SearchStatistics /></Layout>} />} />
+        <Route path="/tutor-applications" element={<ProtectedRoute element={<Layout><TutorApplications /></Layout>} />} />
+        <Route path="/tutor-profile-approvals" element={<ProtectedRoute element={<Layout><TutorProfileApprovals /></Layout>} />} />
+        <Route path="/AdManager" element={<ProtectedRoute element={<Layout><AdManager /></Layout>} />} />
+        <Route path="/ad-create" element={<ProtectedRoute element={<Layout><AdCreate /></Layout>} />} />
+        <Route path="/ad-edit/:id" element={<ProtectedRoute element={<Layout><AdEdit /></Layout>} />} />
+        <Route path="/category-manager" element={<ProtectedRoute element={<Layout><CategoryManager /></Layout>} />} />
+        <Route path="/region-manager" element={<ProtectedRoute element={<Layout><RegionManager /></Layout>} />} />
+        <Route path="/mode-manager" element={<ProtectedRoute element={<Layout><ModeManager /></Layout>} />} />
+        <Route path="/tutor-change-monitor" element={<ProtectedRoute element={<Layout><TutorChangeMonitor /></Layout>} />} />
+        <Route path="/notification-test" element={<ProtectedRoute element={<Layout><NotificationTest /></Layout>} />} />
+        
+        {/* 404 頁面 - 處理未找到的路由 */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
       
-      {/* 受保護的管理員路由 */}
-      <Route path="/" element={<ProtectedRoute element={<Layout><Dashboard /></Layout>} />} />
-      <Route path="/dashboard" element={<ProtectedRoute element={<Layout><Dashboard /></Layout>} />} />
-      <Route path="/users" element={<ProtectedRoute element={<Layout><Users /></Layout>} />} />
-      <Route path="/users/create" element={<ProtectedRoute element={<Layout><CreateUser /></Layout>} />} />
-      <Route path="/users/:id" element={<ProtectedRoute element={<Layout><UserDetail /></Layout>} />} />
-      <Route path="/cases" element={<ProtectedRoute element={<Layout><Cases /></Layout>} />} />
-      <Route path="/cases/create" element={<ProtectedRoute element={<Layout><CreateCase /></Layout>} />} />
-      <Route path="/cases/:id" element={<ProtectedRoute element={<Layout><CaseDetail /></Layout>} />} />
-      <Route path="/statistics" element={<ProtectedRoute element={<Layout><Statistics /></Layout>} />} />
-      <Route path="/search-statistics" element={<ProtectedRoute element={<Layout><SearchStatistics /></Layout>} />} />
-      <Route path="/tutor-applications" element={<ProtectedRoute element={<Layout><TutorApplications /></Layout>} />} />
-      <Route path="/tutor-profile-approvals" element={<ProtectedRoute element={<Layout><TutorProfileApprovals /></Layout>} />} />
-      <Route path="/AdManager" element={<ProtectedRoute element={<Layout><AdManager /></Layout>} />} />
-      <Route path="/ad-create" element={<ProtectedRoute element={<Layout><AdCreate /></Layout>} />} />
-      <Route path="/ad-edit/:id" element={<ProtectedRoute element={<Layout><AdEdit /></Layout>} />} />
-      <Route path="/category-manager" element={<ProtectedRoute element={<Layout><CategoryManager /></Layout>} />} />
-      <Route path="/region-manager" element={<ProtectedRoute element={<Layout><RegionManager /></Layout>} />} />
-      <Route path="/mode-manager" element={<ProtectedRoute element={<Layout><ModeManager /></Layout>} />} />
-      <Route path="/tutor-change-monitor" element={<ProtectedRoute element={<Layout><TutorChangeMonitor /></Layout>} />} />
-      
-      {/* 404 頁面 - 處理未找到的路由 */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+      {/* 實時導師修改通知 - 需要在 Routes 外部，這樣所有頁面都能顯示 */}
+      {isAuthenticated && <TutorChangeNotification />}
+    </>
   );
 };
 
