@@ -17,7 +17,13 @@ import {
   CircularProgress,
   Card,
   CardContent,
-  Grid
+  Grid,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Divider
 } from '@mui/material';
 import {
   Visibility as VisibilityIcon,
@@ -52,6 +58,8 @@ const TutorChangeMonitor: React.FC<TutorChangeMonitorProps> = ({ className }) =>
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [total, setTotal] = useState(0);
+  const [selectedTutor, setSelectedTutor] = useState<TutorChange | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const fetchChanges = async () => {
     try {
@@ -90,6 +98,16 @@ const TutorChangeMonitor: React.FC<TutorChangeMonitorProps> = ({ className }) =>
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
+  };
+
+  const handleViewDetails = (tutor: TutorChange) => {
+    setSelectedTutor(tutor);
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+    setSelectedTutor(null);
   };
 
   const handleExport = async () => {
@@ -217,7 +235,10 @@ const TutorChangeMonitor: React.FC<TutorChangeMonitorProps> = ({ className }) =>
                     </TableCell>
                     <TableCell>
                       <Tooltip title="查看詳細修改記錄">
-                        <IconButton size="small">
+                        <IconButton 
+                          size="small"
+                          onClick={() => handleViewDetails(tutor)}
+                        >
                           <VisibilityIcon />
                         </IconButton>
                       </Tooltip>
@@ -242,7 +263,140 @@ const TutorChangeMonitor: React.FC<TutorChangeMonitorProps> = ({ className }) =>
         </>
       )}
 
-      {/* 詳細修改記錄彈窗可以後續添加 */}
+      {/* 詳細修改記錄對話框 */}
+      <Dialog 
+        open={dialogOpen} 
+        onClose={handleCloseDialog}
+        maxWidth="lg"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Typography variant="h6">
+              導師修改記錄詳情
+            </Typography>
+            {selectedTutor && (
+              <Chip 
+                label={`${selectedTutor.name} (${selectedTutor.tutorId})`}
+                color="primary"
+                variant="outlined"
+              />
+            )}
+          </Box>
+        </DialogTitle>
+        
+        <DialogContent dividers>
+          {selectedTutor && selectedTutor.changes.length > 0 ? (
+            <Box>
+              {selectedTutor.changes.map((change, index) => (
+                <Card key={index} sx={{ mb: 2 }}>
+                  <CardContent>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} md={6}>
+                        <Typography variant="subtitle2" color="primary" gutterBottom>
+                          修改時間
+                        </Typography>
+                        <Typography variant="body2" sx={{ mb: 2 }}>
+                          {format(new Date(change.timestamp), 'yyyy-MM-dd HH:mm:ss', { locale: zhTW })}
+                        </Typography>
+                      </Grid>
+                      
+                      <Grid item xs={12} md={6}>
+                        <Typography variant="subtitle2" color="primary" gutterBottom>
+                          修改字段
+                        </Typography>
+                        <Box sx={{ mb: 2 }}>
+                          {change.fields.map((field, fieldIndex) => (
+                            <Chip
+                              key={fieldIndex}
+                              label={getFieldDisplayName(field)}
+                              size="small"
+                              sx={{ mr: 1, mb: 1 }}
+                            />
+                          ))}
+                        </Box>
+                      </Grid>
+                      
+                      {change.ipAddress && (
+                        <Grid item xs={12} md={6}>
+                          <Typography variant="subtitle2" color="primary" gutterBottom>
+                            IP 地址
+                          </Typography>
+                          <Typography variant="body2" sx={{ mb: 2 }}>
+                            {change.ipAddress}
+                          </Typography>
+                        </Grid>
+                      )}
+                      
+                      {change.userAgent && (
+                        <Grid item xs={12} md={6}>
+                          <Typography variant="subtitle2" color="primary" gutterBottom>
+                            用戶代理
+                          </Typography>
+                          <Typography variant="body2" sx={{ mb: 2, wordBreak: 'break-all' }}>
+                            {change.userAgent}
+                          </Typography>
+                        </Grid>
+                      )}
+                      
+                      <Grid item xs={12}>
+                        <Divider sx={{ my: 1 }} />
+                        <Typography variant="subtitle2" color="primary" gutterBottom>
+                          修改內容對比
+                        </Typography>
+                        
+                        <Grid container spacing={2}>
+                          <Grid item xs={12} md={6}>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                              修改前：
+                            </Typography>
+                            <Paper sx={{ p: 2, bgcolor: 'grey.50' }}>
+                              <pre style={{ 
+                                margin: 0, 
+                                whiteSpace: 'pre-wrap', 
+                                fontSize: '0.875rem',
+                                fontFamily: 'monospace'
+                              }}>
+                                {JSON.stringify(change.oldValues, null, 2)}
+                              </pre>
+                            </Paper>
+                          </Grid>
+                          
+                          <Grid item xs={12} md={6}>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                              修改後：
+                            </Typography>
+                            <Paper sx={{ p: 2, bgcolor: 'success.50' }}>
+                              <pre style={{ 
+                                margin: 0, 
+                                whiteSpace: 'pre-wrap', 
+                                fontSize: '0.875rem',
+                                fontFamily: 'monospace'
+                              }}>
+                                {JSON.stringify(change.newValues, null, 2)}
+                              </pre>
+                            </Paper>
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+                </Card>
+              ))}
+            </Box>
+          ) : (
+            <Typography color="text.secondary" textAlign="center" sx={{ py: 4 }}>
+              沒有修改記錄
+            </Typography>
+          )}
+        </DialogContent>
+        
+        <DialogActions>
+          <Button onClick={handleCloseDialog} variant="contained">
+            關閉
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
