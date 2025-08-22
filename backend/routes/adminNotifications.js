@@ -147,17 +147,34 @@ router.get('/recent-changes', verifyToken, isAdmin, async (req, res) => {
       },
       {
         $project: {
-          tutorId: { $ifNull: ['$tutorId', '$userId'] },
-          name: 1,
-          email: 1,
-          change: '$profileChangeLog'
+          tutorId: { $ifNull: ['$tutorId', '$userId', { $concat: ['unknown_', { $toString: '$_id' }] }] },
+          name: { $ifNull: ['$name', '未知姓名'] },
+          email: { $ifNull: ['$email', '未知郵箱'] },
+          change: {
+            timestamp: '$profileChangeLog.timestamp',
+            fields: { $ifNull: ['$profileChangeLog.fields', []] },
+            newValues: { $ifNull: ['$profileChangeLog.newValues', {}] },
+            oldValues: { $ifNull: ['$profileChangeLog.oldValues', {}] },
+            ipAddress: '$profileChangeLog.ipAddress',
+            userAgent: '$profileChangeLog.userAgent'
+          }
         }
       }
     ]);
     
+    // 過濾掉無效的記錄
+    const validChanges = recentChanges.filter(change => 
+      change.change && 
+      change.change.timestamp && 
+      Array.isArray(change.change.fields) && 
+      change.change.fields.length > 0
+    );
+    
+    console.log(`📊 recent-changes API: 找到 ${recentChanges.length} 條記錄，有效記錄 ${validChanges.length} 條`);
+    
     res.json({
       success: true,
-      data: recentChanges
+      data: validChanges
     });
     
   } catch (error) {
