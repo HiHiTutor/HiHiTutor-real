@@ -512,11 +512,11 @@ const CaseDetail: React.FC = () => {
                         select
                         label="小學科目"
                         SelectProps={{ multiple: true }}
-                        value={Array.isArray(editData.subjects) ? editData.subjects.filter(subject => subject.startsWith('primary-')) : []}
+                                                 value={Array.isArray(editData.subjects) ? editData.subjects.filter((subject: string) => subject.startsWith('primary-')) : []}
                         onChange={(e) => {
                           const value = e.target.value;
                           const selectedPrimarySubjects = Array.isArray(value) ? value : [value];
-                          const existingSecondarySubjects = Array.isArray(editData.subjects) ? editData.subjects.filter(subject => subject.startsWith('secondary-')) : [];
+                                                     const existingSecondarySubjects = Array.isArray(editData.subjects) ? editData.subjects.filter((subject: string) => subject.startsWith('secondary-')) : [];
                           const allSubjects = [...selectedPrimarySubjects, ...existingSecondarySubjects];
                           setEditData({
                             ...editData,
@@ -542,11 +542,11 @@ const CaseDetail: React.FC = () => {
                         select
                         label="中學科目"
                         SelectProps={{ multiple: true }}
-                        value={Array.isArray(editData.subjects) ? editData.subjects.filter(subject => subject.startsWith('secondary-')) : []}
+                                                 value={Array.isArray(editData.subjects) ? editData.subjects.filter((subject: string) => subject.startsWith('secondary-')) : []}
                         onChange={(e) => {
                           const value = e.target.value;
                           const selectedSecondarySubjects = Array.isArray(value) ? value : [value];
-                          const existingPrimarySubjects = Array.isArray(editData.subjects) ? editData.subjects.filter(subject => subject.startsWith('primary-')) : [];
+                                                     const existingPrimarySubjects = Array.isArray(editData.subjects) ? editData.subjects.filter((subject: string) => subject.startsWith('primary-')) : [];
                           const allSubjects = [...existingPrimarySubjects, ...selectedSecondarySubjects];
                           setEditData({
                             ...editData,
