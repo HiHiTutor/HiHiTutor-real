@@ -92,10 +92,10 @@ const tutorCaseSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  posterId: {
+  userID: {
     type: String,
     required: false,
-    description: '发布者ID'
+    description: '用户ID'
   },
   isApproved: {
     type: Boolean,

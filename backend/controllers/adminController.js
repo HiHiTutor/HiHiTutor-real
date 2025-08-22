@@ -1113,10 +1113,9 @@ const updateCase = async (req, res) => {
     
     console.log('🔍 後端接收到的參數:', { id, type, updateDataKeys: Object.keys(updateData) });
 
-    // 將posterId映射到userID字段，確保數據一致性
-    if (updateData.posterId !== undefined) {
-      updateData.userID = updateData.posterId;
-      console.log('🔍 將posterId映射到userID字段:', updateData.posterId);
+    // 確保userID字段存在，如果沒有則設置為空字符串
+    if (!updateData.userID) {
+      updateData.userID = '';
     }
 
     // 構建查詢條件，優先使用 id 字段，如果是有效的 ObjectId 才嘗試 _id

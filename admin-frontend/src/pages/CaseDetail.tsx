@@ -673,9 +673,9 @@ const CaseDetail: React.FC = () => {
             />
 
             <TextField
-              label="發布者ID"
-              name="posterId"
-              value={editData.posterId || ''}
+              label="用戶ID"
+              name="userID"
+              value={editData.userID || ''}
               onChange={handleEditChange}
               helperText="發布此案例的用戶ID"
               fullWidth
