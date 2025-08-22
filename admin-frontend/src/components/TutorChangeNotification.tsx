@@ -35,7 +35,43 @@ const TutorChangeNotification: React.FC<TutorChangeNotificationProps> = ({ onClo
   const [open, setOpen] = useState(false);
   const [recentChanges, setRecentChanges] = useState<TutorChange[]>([]);
   const [loading, setLoading] = useState(false);
+  const [readChanges, setReadChanges] = useState<Set<string>>(new Set()); // 已讀的修改記錄
   const navigate = useNavigate();
+
+  // 從 localStorage 加載已讀狀態
+  useEffect(() => {
+    const savedReadChanges = localStorage.getItem('tutorChangeReadStatus');
+    if (savedReadChanges) {
+      try {
+        const parsed = JSON.parse(savedReadChanges);
+        setReadChanges(new Set(parsed));
+        console.log('🔔 從 localStorage 加載已讀狀態:', parsed.length, '條記錄');
+      } catch (error) {
+        console.error('🔔 解析已讀狀態失敗:', error);
+      }
+    }
+  }, []);
+
+  // 生成修改記錄的唯一標識符
+  const generateChangeId = (change: TutorChange) => {
+    return `${change.tutorId}_${change.change.timestamp}`;
+  };
+
+  // 檢查是否有未讀的新修改記錄
+  const hasUnreadChanges = () => {
+    return recentChanges.some((change: TutorChange) => !readChanges.has(generateChangeId(change)));
+  };
+
+  // 保存已讀狀態到 localStorage
+  const saveReadStatus = (newReadChanges: Set<string>) => {
+    try {
+      const arrayData = Array.from(newReadChanges);
+      localStorage.setItem('tutorChangeReadStatus', JSON.stringify(arrayData));
+      console.log('🔔 已讀狀態已保存到 localStorage:', arrayData.length, '條記錄');
+    } catch (error) {
+      console.error('🔔 保存已讀狀態失敗:', error);
+    }
+  };
 
   const fetchRecentChanges = async () => {
     try {
@@ -45,15 +81,19 @@ const TutorChangeNotification: React.FC<TutorChangeNotificationProps> = ({ onClo
       console.log('🔔 API 響應:', response.data);
       
       if (response.data.success) {
-        setRecentChanges(response.data.data);
-        console.log('🔔 獲取到修改記錄:', response.data.data);
+        const newChanges = response.data.data;
+        setRecentChanges(newChanges);
+        console.log('🔔 獲取到修改記錄:', newChanges);
         
-        // 如果有新的修改記錄，顯示通知
-        if (response.data.data.length > 0) {
-          console.log('🔔 發現修改記錄，觸發通知彈出');
+        // 檢查是否有新的未讀修改記錄
+        const hasNewChanges = newChanges.some((change: TutorChange) => !readChanges.has(generateChangeId(change)));
+        
+        if (hasNewChanges) {
+          console.log('🔔 發現新的未讀修改記錄，觸發通知彈出');
           setOpen(true);
         } else {
-          console.log('🔔 沒有發現修改記錄');
+          console.log('🔔 沒有新的未讀修改記錄');
+          setOpen(false);
         }
       } else {
         console.log('🔔 API 返回失敗:', response.data);
@@ -80,13 +120,14 @@ const TutorChangeNotification: React.FC<TutorChangeNotificationProps> = ({ onClo
       console.log('🔔 清理定時器');
       clearInterval(interval);
     };
-  }, []);
+  }, [readChanges]); // 當已讀狀態改變時重新檢查
 
   // 調試渲染
   console.log('🔔 TutorChangeNotification 渲染:', { 
     open, 
     recentChanges: recentChanges.length, 
-    loading 
+    loading,
+    unreadCount: recentChanges.filter((change: TutorChange) => !readChanges.has(generateChangeId(change))).length
   });
 
   const handleClose = () => {
@@ -95,9 +136,35 @@ const TutorChangeNotification: React.FC<TutorChangeNotificationProps> = ({ onClo
   };
 
   const handleViewDetails = () => {
+    // 標記所有當前顯示的修改記錄為已讀
+    const currentChangeIds = recentChanges.map(change => generateChangeId(change));
+    const newReadChanges = new Set([...Array.from(readChanges), ...currentChangeIds]);
+    setReadChanges(newReadChanges);
+    saveReadStatus(newReadChanges); // 保存更新後的已讀狀態
+    
+    // 關閉通知
+    setOpen(false);
+    
+    // 跳轉到導師修改監控頁面
     navigate('/tutor-change-monitor');
+  };
+
+  const handleMarkAsRead = () => {
+    // 標記所有當前顯示的修改記錄為已讀
+    const currentChangeIds = recentChanges.map(change => generateChangeId(change));
+    const newReadChanges = new Set([...Array.from(readChanges), ...currentChangeIds]);
+    setReadChanges(newReadChanges);
+    saveReadStatus(newReadChanges); // 保存更新後的已讀狀態
+    
+    // 關閉通知
     setOpen(false);
   };
+
+  // 如果沒有未讀的修改記錄，不顯示通知
+  if (!hasUnreadChanges()) {
+    console.log('🔔 沒有未讀的修改記錄，不顯示通知');
+    return null;
+  }
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
@@ -132,11 +199,6 @@ const TutorChangeNotification: React.FC<TutorChangeNotificationProps> = ({ onClo
     
     return fieldMap[field] || field;
   };
-
-  if (recentChanges.length === 0) {
-    console.log('🔔 沒有修改記錄，不顯示通知');
-    return null;
-  }
 
   return (
     <Snackbar
@@ -211,9 +273,9 @@ const TutorChangeNotification: React.FC<TutorChangeNotificationProps> = ({ onClo
             <Button
               size="small"
               variant="outlined"
-              onClick={handleClose}
+              onClick={handleMarkAsRead}
             >
-              稍後查看
+              標記為已讀
             </Button>
           </Box>
         </Box>
