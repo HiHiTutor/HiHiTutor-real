@@ -685,11 +685,13 @@ const CreateCase: React.FC = () => {
                        });
                      }}
                    >
-                     {REGION_OPTIONS.find(r => r.value === formData.regions[0])?.regions?.map((subRegion) => (
-                       <MenuItem key={subRegion.value} value={subRegion.value}>
-                         {subRegion.label}
-                       </MenuItem>
-                     ))}
+                     {REGION_OPTIONS.map((regionOption) => 
+                       regionOption.regions && regionOption.regions.map((subRegion) => (
+                         <MenuItem key={subRegion.value} value={subRegion.value}>
+                           {regionOption.label} - {subRegion.label}
+                         </MenuItem>
+                       ))
+                     )}
                    </Select>
                  </FormControl>
                )}
