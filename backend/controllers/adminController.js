@@ -849,27 +849,65 @@ const createCase = async (req, res) => {
       experience,
     } = req.body;
 
-    const caseData = {
-      title,
-      description,
-      subject,
-      student,
-      tutor,
-      category,
-      subCategory,
-      subjects,
-      regions,
-      subRegions,
-      budget,
-      mode,
-      experience,
-      status: 'open',
-    };
-
     let newCase;
     if (type === 'student') {
+      // 生成唯一的案例ID
+      const timestamp = Date.now();
+      const uniqueId = `S${timestamp}`;
+      
+      const caseData = {
+        id: uniqueId, // StudentCase 模型需要這個字段
+        title: title || '',
+        subject: subject || '',
+        subjects: subjects || [],
+        category: category || '',
+        subCategory: subCategory || '',
+        regions: regions || [],
+        subRegions: subRegions || [],
+        budget: budget || '',
+        mode: mode || '線上',
+        modes: mode ? [mode] : ['線上'],
+        requirement: description || '',
+        status: 'open',
+        isApproved: true,
+        featured: false,
+        isVip: false,
+        isTop: false,
+        isPaid: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+
       newCase = new StudentCase(caseData);
     } else if (type === 'tutor') {
+      // 生成唯一的案例ID
+      const timestamp = Date.now();
+      const uniqueId = `T${timestamp}`;
+      
+      const caseData = {
+        id: uniqueId, // TutorCase 模型需要這個字段
+        title: title || '未命名案例',
+        description: description || '無描述',
+        subject: subject || '未指定科目',
+        subjects: subjects || ['未指定'],
+        category: category || '未指定分類',
+        subCategory: subCategory || '',
+        regions: regions || [],
+        subRegions: subRegions || [],
+        mode: mode || '面對面',
+        modes: mode ? [mode] : ['面對面'],
+        experience: experience || '無教學經驗要求',
+        status: 'open',
+        isApproved: false,
+        featured: false,
+        student: student || null, // 如果沒有提供學生ID，設為null
+        lessonDetails: {
+          duration: 60,
+          pricePerLesson: parseInt(budget) || 0,
+          lessonsPerWeek: 1
+        }
+      };
+
       newCase = new TutorCase(caseData);
     } else {
       return res.status(400).json({
@@ -883,10 +921,15 @@ const createCase = async (req, res) => {
     res.status(201).json({
       success: true,
       data: newCase,
+      message: `成功創建${type === 'student' ? '學生' : '導師'}案例`
     });
   } catch (error) {
     console.error('Error creating case:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Internal server error',
+      error: error.message 
+    });
   }
 };
 
