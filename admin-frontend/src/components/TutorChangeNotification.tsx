@@ -45,7 +45,7 @@ const TutorChangeNotification: React.FC<TutorChangeNotificationProps> = ({ onClo
   useEffect(() => {
     if (isOnTutorChangeMonitor) {
       console.log('🔔 進入導師修改監控頁面，自動標記所有通知為已讀');
-      // 清除所有通知狀態
+      // 強制清除所有通知狀態
       setOpen(false);
       setRecentChanges([]);
       // 清除 localStorage 中的通知狀態
@@ -56,6 +56,23 @@ const TutorChangeNotification: React.FC<TutorChangeNotificationProps> = ({ onClo
       }
     }
   }, [isOnTutorChangeMonitor, onClose]);
+
+  // 監聽路由變化，當離開導師修改監控頁面時重新啟用通知
+  useEffect(() => {
+    const handleRouteChange = () => {
+      if (!isOnTutorChangeMonitor && recentChanges.length === 0) {
+        console.log('🔔 離開導師修改監控頁面，重新啟用通知檢查');
+        // 延遲一下再重新獲取通知，避免立即彈出
+        setTimeout(() => {
+          fetchRecentChanges();
+        }, 1000);
+      }
+    };
+
+    // 使用 setTimeout 來檢測路由變化
+    const timer = setTimeout(handleRouteChange, 100);
+    return () => clearTimeout(timer);
+  }, [location.pathname, isOnTutorChangeMonitor, recentChanges.length]);
 
   const fetchRecentChanges = async () => {
     // 如果已經在導師修改監控頁面，不需要獲取通知
@@ -123,19 +140,23 @@ const TutorChangeNotification: React.FC<TutorChangeNotificationProps> = ({ onClo
   });
 
   const handleClose = () => {
+    console.log('🔔 手動關閉通知');
     setOpen(false);
     onClose?.();
   };
 
   const handleViewDetails = () => {
+    console.log('🔔 點擊查看詳情，關閉通知');
     // 關閉通知
     setOpen(false);
+    onClose?.();
     
     // 跳轉到導師修改監控頁面
     navigate('/tutor-change-monitor');
   };
 
   const handleMarkAsRead = () => {
+    console.log('🔔 點擊標記為已讀，關閉通知');
     // 關閉通知
     setOpen(false);
     onClose?.();
@@ -143,11 +164,13 @@ const TutorChangeNotification: React.FC<TutorChangeNotificationProps> = ({ onClo
 
   // 如果在導師修改監控頁面，不顯示任何內容
   if (isOnTutorChangeMonitor) {
+    console.log('🔔 在導師修改監控頁面，不顯示通知');
     return null;
   }
 
-  // 如果沒有修改記錄，不顯示通知
-  if (recentChanges.length === 0) {
+  // 如果沒有修改記錄或通知已關閉，不顯示通知
+  if (recentChanges.length === 0 || !open) {
+    console.log('🔔 沒有修改記錄或通知已關閉，不顯示通知');
     return null;
   }
 
