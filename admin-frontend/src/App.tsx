@@ -21,6 +21,7 @@ import AdEdit from './pages/AdEdit';
 import CategoryManager from './pages/CategoryManager';
 import RegionManager from './pages/RegionManager';
 import ModeManager from './pages/ModeManager';
+import TutorChangeMonitor from './pages/TutorChangeMonitor';
 
 // 管理員前端應用主組件
 // 包含路由保護和導航邏輯
@@ -66,6 +67,7 @@ const App: React.FC = () => {
       <Route path="/category-manager" element={<ProtectedRoute element={<Layout><CategoryManager /></Layout>} />} />
       <Route path="/region-manager" element={<ProtectedRoute element={<Layout><RegionManager /></Layout>} />} />
       <Route path="/mode-manager" element={<ProtectedRoute element={<Layout><ModeManager /></Layout>} />} />
+      <Route path="/tutor-change-monitor" element={<ProtectedRoute element={<Layout><TutorChangeMonitor /></Layout>} />} />
       
       {/* 404 頁面 - 處理未找到的路由 */}
       <Route path="*" element={<NotFound />} />
