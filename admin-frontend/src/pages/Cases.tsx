@@ -220,21 +220,35 @@ const Cases: React.FC = () => {
                 <TableCell>{caseItem.title}</TableCell>
                 <TableCell>
                   {caseItem.type === 'student'
-                    ? (caseItem.studentId?.userId
+                    ? (caseItem.student
                         ? (
                             <Button
                               variant="text"
                               size="small"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                navigate(`/users/${caseItem.studentId!.userId}`);
+                                navigate(`/users/${caseItem.student}`);
                               }}
                               sx={{ textTransform: 'none', p: 0, minWidth: 'auto' }}
                             >
-                              {caseItem.studentId.userId}
+                              {caseItem.student}
                             </Button>
                           )
-                        : '不適用')
+                        : (caseItem.studentId?.userId
+                            ? (
+                                <Button
+                                  variant="text"
+                                  size="small"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(`/users/${caseItem.studentId!.userId}`);
+                                  }}
+                                  sx={{ textTransform: 'none', p: 0, minWidth: 'auto' }}
+                                >
+                                  {caseItem.studentId.userId}
+                                </Button>
+                              )
+                            : '不適用'))
                     : (caseItem.student
                         ? (
                             <Button

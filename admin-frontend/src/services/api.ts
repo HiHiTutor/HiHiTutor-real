@@ -191,6 +191,28 @@ interface CreateCaseData {
   budget: string;
   mode: string;
   experience?: string;
+  student?: string;           // 新增：發布者ID/用戶ID
+  // 新增：匹配user-frontend的字段
+  modes?: string[];
+  price?: number;
+  duration?: number;
+  durationUnit?: string;
+  weeklyLessons?: number;
+  requirement?: string;
+  requirements?: string;
+  region?: string[];
+  priceRange?: string;
+  featured?: boolean;
+  isVip?: boolean;
+  vipLevel?: number;
+  isTop?: boolean;
+  topLevel?: number;
+  ratingScore?: number;
+  ratingCount?: number;
+  isPaid?: boolean;
+  paymentType?: string;
+  promotionLevel?: number;
+  isApproved?: boolean;
 }
 
 export const casesAPI = {
