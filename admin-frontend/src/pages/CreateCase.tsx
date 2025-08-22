@@ -222,6 +222,7 @@ const CreateCase: React.FC = () => {
     budget: '',
     mode: '',
     experience: '',
+    posterId: '', // 新增發布者ID字段
   });
   
   const [teachingModes, setTeachingModes] = useState<any[]>([]);
@@ -729,6 +730,15 @@ const CreateCase: React.FC = () => {
               onChange={handleChange}
               multiline
               rows={2}
+            />
+
+            <TextField
+              label="發布者ID"
+              name="posterId"
+              value={formData.posterId}
+              onChange={handleChange}
+              helperText="輸入發布此案例的用戶ID"
+              fullWidth
             />
 
             <Box sx={{ mt: 2 }}>

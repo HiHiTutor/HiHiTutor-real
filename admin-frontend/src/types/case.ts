@@ -16,6 +16,7 @@ export interface Case {
   budget: string;
   mode: string;
   experience?: string;
+  posterId?: string; // 新增發布者ID字段
   studentId?: {
     _id?: string;
     userId?: string;
@@ -70,4 +71,5 @@ export interface CreateCaseData {
   budget: string;
   mode: string;
   experience?: string;
+  posterId?: string; // 新增發布者ID字段
 } 

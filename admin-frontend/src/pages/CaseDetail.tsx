@@ -656,6 +656,15 @@ const CaseDetail: React.FC = () => {
               fullWidth
             />
 
+            <TextField
+              label="發布者ID"
+              name="posterId"
+              value={editData.posterId || ''}
+              onChange={handleEditChange}
+              helperText="發布此案例的用戶ID"
+              fullWidth
+            />
+
             <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
               <Button
                 variant="contained"
@@ -789,6 +798,16 @@ const CaseDetail: React.FC = () => {
                 {new Date(selectedCase.createdAt).toLocaleString('zh-TW')}
               </Typography>
             </Grid>
+
+            <Grid item xs={12}>
+              <Typography variant="subtitle1" gutterBottom>
+                發布者ID
+              </Typography>
+              <Typography>
+                {selectedCase.posterId || selectedCase.studentId?._id || selectedCase.student?._id || '未指定'}
+              </Typography>
+            </Grid>
+
           </Grid>
         )}
       </Paper>
