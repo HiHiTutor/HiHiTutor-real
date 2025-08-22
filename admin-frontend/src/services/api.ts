@@ -191,7 +191,7 @@ interface CreateCaseData {
   budget: string;
   mode: string;
   experience?: string;
-  student?: string;           // 新增：發布者ID/用戶ID
+  userID?: string;            // 新增：用戶ID
   // 新增：匹配user-frontend的字段
   modes?: string[];
   price?: number;

@@ -220,18 +220,18 @@ const Cases: React.FC = () => {
                 <TableCell>{caseItem.title}</TableCell>
                 <TableCell>
                   {caseItem.type === 'student'
-                    ? (caseItem.student
+                    ? (caseItem.userID
                         ? (
                             <Button
                               variant="text"
                               size="small"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                navigate(`/users/${caseItem.student}`);
+                                navigate(`/users/${caseItem.userID}`);
                               }}
                               sx={{ textTransform: 'none', p: 0, minWidth: 'auto' }}
                             >
-                              {caseItem.student}
+                              {caseItem.userID}
                             </Button>
                           )
                         : (caseItem.studentId?.userId
@@ -249,18 +249,18 @@ const Cases: React.FC = () => {
                                 </Button>
                               )
                             : '不適用'))
-                    : (caseItem.student
+                    : (caseItem.userID
                         ? (
                             <Button
                               variant="text"
                               size="small"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                navigate(`/users/${caseItem.student}`);
+                                navigate(`/users/${caseItem.userID}`);
                               }}
                               sx={{ textTransform: 'none', p: 0, minWidth: 'auto' }}
                             >
-                              {caseItem.student}
+                              {caseItem.userID}
                             </Button>
                           )
                         : '不適用')}

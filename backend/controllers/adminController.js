@@ -411,6 +411,12 @@ const updateUser = async (req, res) => {
       ...(req.body && req.body.role === 'super_admin' ? { userType: 'super_admin', status: 'active' } : {})
     };
 
+    // 將posterId映射到userID字段，確保數據一致性
+    if (updateData.posterId !== undefined) {
+      updateData.userID = updateData.posterId;
+      console.log('🔍 將posterId映射到userID字段:', updateData.posterId);
+    }
+
     // 支援通過 userId 或 MongoDB _id 查找用戶
     let user;
     const { id } = req.params;
@@ -837,7 +843,7 @@ const createCase = async (req, res) => {
       description,
       subject,
       type,
-      student,
+      userID,              // 改為userID
       tutor,
       category,
       subCategory,
@@ -909,7 +915,7 @@ const createCase = async (req, res) => {
         weeklyLessons: weeklyLessons !== undefined ? weeklyLessons : 1,
         region: region || [],
         priceRange: priceRange || '',
-        student: student || '',
+        userID: userID || '',           // 改為userID
         createdAt: new Date(),
         updatedAt: new Date()
       };
@@ -1107,10 +1113,10 @@ const updateCase = async (req, res) => {
     
     console.log('🔍 後端接收到的參數:', { id, type, updateDataKeys: Object.keys(updateData) });
 
-    // 將posterId映射到student字段，確保數據一致性
+    // 將posterId映射到userID字段，確保數據一致性
     if (updateData.posterId !== undefined) {
-      updateData.student = updateData.posterId;
-      console.log('🔍 將posterId映射到student字段:', updateData.posterId);
+      updateData.userID = updateData.posterId;
+      console.log('🔍 將posterId映射到userID字段:', updateData.posterId);
     }
 
     // 構建查詢條件，優先使用 id 字段，如果是有效的 ObjectId 才嘗試 _id
