@@ -194,7 +194,8 @@ const Cases: React.FC = () => {
               <TableCell>編號</TableCell>
               <TableCell>類型</TableCell>
               <TableCell>標題</TableCell>
-              <TableCell>發佈者ID</TableCell>
+              <TableCell>學生ID</TableCell>
+              <TableCell>發布者ID</TableCell>
               <TableCell>分類</TableCell>
               <TableCell>狀態</TableCell>
               <TableCell>建立時間</TableCell>
@@ -250,6 +251,23 @@ const Cases: React.FC = () => {
                             </Button>
                           )
                         : '不適用')}
+                </TableCell>
+                <TableCell>
+                  {caseItem.posterId
+                    ? (
+                        <Button
+                          variant="text"
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/users/${caseItem.posterId}`);
+                          }}
+                          sx={{ textTransform: 'none', p: 0, minWidth: 'auto' }}
+                        >
+                          {caseItem.posterId}
+                        </Button>
+                      )
+                    : '不適用'}
                 </TableCell>
                 <TableCell>{getCategoryLabel(caseItem.category)}</TableCell>
                 <TableCell>
