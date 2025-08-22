@@ -32,6 +32,7 @@ import {
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { zhTW } from 'date-fns/locale';
+import api from '../services/api';
 
 interface TutorChange {
   tutorId: string;
@@ -66,21 +67,17 @@ const TutorChangeMonitor: React.FC<TutorChangeMonitorProps> = ({ className }) =>
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`/api/admin/notifications/tutor-changes?page=${page + 1}&limit=${rowsPerPage}`);
+      const response = await api.get(`/notifications/tutor-changes?page=${page + 1}&limit=${rowsPerPage}`);
       
-      if (!response.ok) {
-        throw new Error('獲取修改記錄失敗');
-      }
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setChanges(data.data);
-        setTotal(data.pagination.total);
+      if (response.data.success) {
+        console.log('🔍 獲取到的修改記錄數據:', response.data.data);
+        setChanges(response.data.data);
+        setTotal(response.data.pagination.total);
       } else {
-        throw new Error(data.message || '獲取數據失敗');
+        throw new Error(response.data.message || '獲取數據失敗');
       }
     } catch (err) {
+      console.error('❌ 獲取修改記錄失敗:', err);
       setError(err instanceof Error ? err.message : '未知錯誤');
     } finally {
       setLoading(false);
@@ -112,13 +109,12 @@ const TutorChangeMonitor: React.FC<TutorChangeMonitorProps> = ({ className }) =>
 
   const handleExport = async () => {
     try {
-      const response = await fetch('/api/admin/notifications/export-changes');
+      const response = await api.get('/notifications/export-changes', {
+        responseType: 'blob'
+      });
       
-      if (!response.ok) {
-        throw new Error('導出失敗');
-      }
-      
-      const blob = await response.blob();
+      // 創建下載鏈接
+      const blob = new Blob([response.data], { type: 'text/csv' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -224,11 +220,15 @@ const TutorChangeMonitor: React.FC<TutorChangeMonitorProps> = ({ className }) =>
                     <TableCell>{tutor.name}</TableCell>
                     <TableCell>{tutor.email}</TableCell>
                     <TableCell>
-                      {format(new Date(tutor.changes[0]?.timestamp), 'yyyy-MM-dd HH:mm', { locale: zhTW })}
+                      {tutor.changes && tutor.changes.length > 0 ? (
+                        format(new Date(tutor.changes[0]?.timestamp || new Date()), 'yyyy-MM-dd HH:mm', { locale: zhTW })
+                      ) : (
+                        '無記錄'
+                      )}
                     </TableCell>
                     <TableCell>
                       <Chip 
-                        label={tutor.changes.length} 
+                        label={tutor.changes?.length || 0} 
                         color="primary" 
                         size="small" 
                       />
@@ -286,7 +286,7 @@ const TutorChangeMonitor: React.FC<TutorChangeMonitorProps> = ({ className }) =>
         </DialogTitle>
         
         <DialogContent dividers>
-          {selectedTutor && selectedTutor.changes.length > 0 ? (
+          {selectedTutor && selectedTutor.changes && selectedTutor.changes.length > 0 ? (
             <Box>
               {selectedTutor.changes.map((change, index) => (
                 <Card key={index} sx={{ mb: 2 }}>
@@ -297,7 +297,10 @@ const TutorChangeMonitor: React.FC<TutorChangeMonitorProps> = ({ className }) =>
                           修改時間
                         </Typography>
                         <Typography variant="body2" sx={{ mb: 2 }}>
-                          {format(new Date(change.timestamp), 'yyyy-MM-dd HH:mm:ss', { locale: zhTW })}
+                          {change.timestamp ? 
+                            format(new Date(change.timestamp), 'yyyy-MM-dd HH:mm:ss', { locale: zhTW }) : 
+                            '時間未知'
+                          }
                         </Typography>
                       </Grid>
                       
@@ -306,14 +309,20 @@ const TutorChangeMonitor: React.FC<TutorChangeMonitorProps> = ({ className }) =>
                           修改字段
                         </Typography>
                         <Box sx={{ mb: 2 }}>
-                          {change.fields.map((field, fieldIndex) => (
-                            <Chip
-                              key={fieldIndex}
-                              label={getFieldDisplayName(field)}
-                              size="small"
-                              sx={{ mr: 1, mb: 1 }}
-                            />
-                          ))}
+                          {change.fields && Array.isArray(change.fields) ? (
+                            change.fields.map((field, fieldIndex) => (
+                              <Chip
+                                key={fieldIndex}
+                                label={getFieldDisplayName(field)}
+                                size="small"
+                                sx={{ mr: 1, mb: 1 }}
+                              />
+                            ))
+                          ) : (
+                            <Typography variant="body2" color="text.secondary">
+                              無字段信息
+                            </Typography>
+                          )}
                         </Box>
                       </Grid>
                       
@@ -357,7 +366,7 @@ const TutorChangeMonitor: React.FC<TutorChangeMonitorProps> = ({ className }) =>
                                 fontSize: '0.875rem',
                                 fontFamily: 'monospace'
                               }}>
-                                {JSON.stringify(change.oldValues, null, 2)}
+                                {change.oldValues ? JSON.stringify(change.oldValues, null, 2) : '無數據'}
                               </pre>
                             </Paper>
                           </Grid>
@@ -373,7 +382,7 @@ const TutorChangeMonitor: React.FC<TutorChangeMonitorProps> = ({ className }) =>
                                 fontSize: '0.875rem',
                                 fontFamily: 'monospace'
                               }}>
-                                {JSON.stringify(change.newValues, null, 2)}
+                                {change.newValues ? JSON.stringify(change.newValues, null, 2) : '無數據'}
                               </pre>
                             </Paper>
                           </Grid>
