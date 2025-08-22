@@ -358,8 +358,13 @@ const CaseDetail: React.FC = () => {
       setEditLoading(true);
       setEditError(null);
       
+      // 添加調試信息
+      console.log('🔍 準備提交的編輯數據:', editData);
+      console.log('🔍 案例ID:', id);
+      
       const response = await casesAPI.updateCase(id!, editData);
       if (response.data.success) {
+        console.log('✅ 案例更新成功:', response.data);
         dispatch(setSelectedCase(editData));
         setIsEditing(false);
         // 重新獲取案例數據
@@ -369,9 +374,13 @@ const CaseDetail: React.FC = () => {
           setEditData(refreshResponse.data.data.case);
         }
       } else {
+        console.error('❌ 案例更新失敗:', response.data);
         setEditError(response.data.message || '更新失敗');
       }
     } catch (error: any) {
+      console.error('❌ 案例更新異常:', error);
+      console.error('❌ 錯誤響應:', error.response);
+      console.error('❌ 錯誤數據:', error.response?.data);
       setEditError(error.response?.data?.message || '更新失敗');
     } finally {
       setEditLoading(false);
