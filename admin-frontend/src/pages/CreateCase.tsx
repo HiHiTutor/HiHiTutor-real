@@ -223,8 +223,7 @@ const CreateCase: React.FC = () => {
     mode: '',
     modes: [] as string[],        // 新增：匹配user-frontend的modes字段
     experience: '',
-    posterId: '',                 // 發布者ID
-    student: '',                  // 新增：匹配user-frontend的student字段
+    student: '',                  // 用戶ID
     // 新增：匹配user-frontend的字段
     price: 0,                     // 價格（數字）
     duration: 60,                 // 時長（分鐘）
@@ -752,15 +751,6 @@ const CreateCase: React.FC = () => {
               onChange={handleChange}
               multiline
               rows={2}
-            />
-
-            <TextField
-              label="發布者ID"
-              name="posterId"
-              value={formData.posterId}
-              onChange={handleChange}
-              helperText="輸入發布此案例的用戶ID"
-              fullWidth
             />
 
             <TextField

@@ -868,7 +868,6 @@ const createCase = async (req, res) => {
       paymentType,
       promotionLevel,
       isApproved,
-      posterId,
     } = req.body;
 
     let newCase;
@@ -910,7 +909,6 @@ const createCase = async (req, res) => {
         weeklyLessons: weeklyLessons !== undefined ? weeklyLessons : 1,
         region: region || [],
         priceRange: priceRange || '',
-        posterId: posterId || '',
         student: student || '',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -990,7 +988,7 @@ const getAllCases = async (req, res) => {
     if (!type || type === 'student') {
       // Get student cases
       const studentCases = await StudentCase.find(query)
-        .select('id title subject subjects budget mode modes requirement requirements category subCategory region regions subRegions priceRange duration durationUnit weeklyLessons featured isVip vipLevel isTop topLevel ratingScore ratingCount isPaid paymentType promotionLevel isApproved status studentId posterId student createdAt updatedAt')
+        .select('id title subject subjects budget mode modes requirement requirements category subCategory region regions subRegions priceRange duration durationUnit weeklyLessons featured isVip vipLevel isTop topLevel ratingScore ratingCount isPaid paymentType promotionLevel isApproved status studentId student createdAt updatedAt')
         .sort({ createdAt: -1 })
         .populate('studentId', 'name email userId');
       cases = cases.concat(studentCases.map(c => ({...c.toObject(), type: 'student'})));

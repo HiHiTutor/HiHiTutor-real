@@ -194,8 +194,7 @@ const Cases: React.FC = () => {
               <TableCell>編號</TableCell>
               <TableCell>類型</TableCell>
               <TableCell>標題</TableCell>
-              <TableCell>學生ID</TableCell>
-              <TableCell>發布者ID</TableCell>
+              <TableCell>用戶ID</TableCell>
               <TableCell>分類</TableCell>
               <TableCell>狀態</TableCell>
               <TableCell>建立時間</TableCell>
@@ -236,38 +235,21 @@ const Cases: React.FC = () => {
                             </Button>
                           )
                         : '不適用')
-                    : (caseItem.student?.userId
+                    : (caseItem.student
                         ? (
                             <Button
                               variant="text"
                               size="small"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                navigate(`/users/${caseItem.student!.userId}`);
+                                navigate(`/users/${caseItem.student}`);
                               }}
                               sx={{ textTransform: 'none', p: 0, minWidth: 'auto' }}
                             >
-                              {caseItem.student.userId}
+                              {caseItem.student}
                             </Button>
                           )
                         : '不適用')}
-                </TableCell>
-                <TableCell>
-                  {caseItem.posterId
-                    ? (
-                        <Button
-                          variant="text"
-                          size="small"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/users/${caseItem.posterId}`);
-                          }}
-                          sx={{ textTransform: 'none', p: 0, minWidth: 'auto' }}
-                        >
-                          {caseItem.posterId}
-                        </Button>
-                      )
-                    : '不適用'}
                 </TableCell>
                 <TableCell>{getCategoryLabel(caseItem.category)}</TableCell>
                 <TableCell>

@@ -17,8 +17,7 @@ export interface Case {
   mode: string;
   modes?: string[];           // 新增：匹配user-frontend的modes字段
   experience?: string;
-  posterId?: string;          // 發布者ID
-  student?: string;           // 新增：匹配user-frontend的student字段
+  student?: string;           // 用戶ID
   studentId?: {
     _id?: string;
     userId?: string;
@@ -88,8 +87,7 @@ export interface CreateCaseData {
   mode: string;
   modes?: string[];           // 新增：匹配user-frontend的modes字段
   experience?: string;
-  posterId?: string;          // 發布者ID
-  student?: string;           // 新增：匹配user-frontend的student字段
+  student?: string;           // 用戶ID
   // 新增：匹配user-frontend的字段
   price?: number;             // 價格（數字）
   duration?: number;          // 時長（分鐘）
