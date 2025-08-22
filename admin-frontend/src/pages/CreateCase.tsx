@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -16,41 +16,113 @@ import {
   Select,
 } from '@mui/material';
 import { casesAPI } from '../services/api';
-import {
-  getTypeLabel,
-  getModeLabel,
-} from '../utils/translations';
+import api from '../services/api';
 
-// 地區配置
-const REGIONS_CONFIG = {
-  '香港島': ['中西區', '灣仔區', '東區', '南區'],
-  '九龍': ['油尖旺區', '深水埗區', '九龍城區', '黃大仙區', '觀塘區'],
-  '新界': ['荃灣區', '屯門區', '元朗區', '北區', '大埔區', '西貢區', '沙田區', '葵青區', '離島區']
-};
+// 定義介面
+interface Subject {
+  value: string;
+  label: string;
+}
+
+interface SubCategory {
+  id: string;
+  name: string;
+  value: string;
+  label: string;
+  subjects: Subject[];
+}
+
+interface Category {
+  value: string;
+  label: string;
+  subjects: Subject[];
+  subCategories: SubCategory[];
+}
+
+interface Region {
+  value: string;
+  label: string;
+}
+
+interface TeachingMode {
+  value: string;
+  label: string;
+}
 
 const CreateCase: React.FC = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    type: 'student' as 'student' | 'tutor',
+    type: 'student' as 'student', // 固定為學生案例
     category: '',
     subCategory: '',
     subjects: [] as string[],
     regions: [] as string[],
-    subRegions: [] as { region: string; subRegion: string }[], // 修改為對象數組
+    subRegions: [] as string[], // 添加缺失的 subRegions 字段
     budget: '',
-    mode: 'online',
+    mode: '',
     experience: '',
   });
+  
+  // 數據源狀態
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [regions, setRegions] = useState<Region[]>([]);
+  const [teachingModes, setTeachingModes] = useState<TeachingMode[]>([]);
   const [loading, setLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [newSubject, setNewSubject] = useState('');
-  const [newRegion, setNewRegion] = useState('');
-  const [selectedRegion, setSelectedRegion] = useState('');
-  const [selectedSubRegion, setSelectedSubRegion] = useState('');
+
+  // 載入數據源
+  useEffect(() => {
+    loadDataSources();
+  }, []);
+
+  const loadDataSources = async () => {
+    try {
+      setDataLoading(true);
+      
+      // 並行載入所有數據源
+      const [categoriesRes, regionsRes, modesRes] = await Promise.all([
+        api.get('/admin/config/categories').then((res: any) => res.data),
+        api.get('/admin/config/regions').then((res: any) => res.data),
+        api.get('/admin/config/teaching-modes').then((res: any) => res.data)
+      ]);
+
+      // 處理分類數據
+      const categoriesArray = Object.entries(categoriesRes).map(([value, category]: [string, any]) => ({
+        value,
+        label: category.label,
+        subjects: category.subjects || [],
+        subCategories: (category.subCategories || []).map((subCat: any, index: number) => ({
+          id: subCat.id || subCat.value || `sub-${index}`,
+          name: subCat.name || subCat.label || subCat.value || `子分類${index}`,
+          value: subCat.value || subCat.id || `sub-${index}`,
+          label: subCat.label || subCat.name || subCat.value || `子分類${index}`,
+          subjects: subCat.subjects || []
+        }))
+      }));
+
+      setCategories(categoriesArray);
+      setRegions(regionsRes);
+      setTeachingModes(modesRes);
+    } catch (err) {
+      console.error('載入數據源失敗:', err);
+      setError('載入數據源失敗，請稍後重試');
+    } finally {
+      setDataLoading(false);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSelectChange = (e: any) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -67,60 +139,10 @@ const CreateCase: React.FC = () => {
     }
   };
 
-  const handleAddRegion = () => {
-    if (newRegion && !formData.regions.includes(newRegion)) {
-      setFormData({
-        ...formData,
-        regions: [...formData.regions, newRegion],
-      });
-      setNewRegion('');
-    }
-  };
-
-  // 修改子地區添加邏輯
-  const handleAddSubRegion = () => {
-    if (selectedRegion && selectedSubRegion) {
-      const newSubRegion = { region: selectedRegion, subRegion: selectedSubRegion };
-      
-      // 檢查是否已經存在相同的組合
-      const exists = formData.subRegions.some(
-        sr => sr.region === selectedRegion && sr.subRegion === selectedSubRegion
-      );
-      
-      if (!exists) {
-        setFormData({
-          ...formData,
-          subRegions: [...formData.subRegions, newSubRegion],
-        });
-        // 重置選擇
-        setSelectedRegion('');
-        setSelectedSubRegion('');
-      }
-    }
-  };
-
   const handleDeleteSubject = (subject: string) => {
     setFormData({
       ...formData,
       subjects: formData.subjects.filter((s) => s !== subject),
-    });
-  };
-
-  const handleDeleteRegion = (region: string) => {
-    setFormData({
-      ...formData,
-      regions: formData.regions.filter((r) => r !== region),
-      // 同時刪除相關的子地區
-      subRegions: formData.subRegions.filter((sr) => sr.region !== region),
-    });
-  };
-
-  const handleDeleteSubRegion = (subRegionObj: { region: string; subRegion: string }) => {
-    setFormData({
-      ...formData,
-      subRegions: formData.subRegions.filter(
-        (sr) => !(sr.region === subRegionObj.region && sr.subRegion === subRegionObj.subRegion)
-      ),
     });
   };
 
@@ -130,10 +152,10 @@ const CreateCase: React.FC = () => {
     setError(null);
 
     try {
-      // 轉換子地區格式為後端期望的格式
+      // 確保數據包含所有必需字段
       const submitData = {
         ...formData,
-        subRegions: formData.subRegions.map(sr => `${sr.region} - ${sr.subRegion}`)
+        subRegions: formData.subRegions || [] // 確保 subRegions 存在
       };
       
       console.log('📤 提交數據:', submitData);
@@ -150,6 +172,14 @@ const CreateCase: React.FC = () => {
       setLoading(false);
     }
   };
+
+  if (dataLoading) {
+    return (
+      <Box sx={{ p: 3, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ p: 3 }}>
@@ -176,6 +206,7 @@ const CreateCase: React.FC = () => {
               onChange={handleChange}
               required
             />
+            
             <TextField
               label="描述"
               name="description"
@@ -185,32 +216,55 @@ const CreateCase: React.FC = () => {
               rows={4}
               required
             />
+
+            {/* 類型 - 固定為學生案例 */}
             <TextField
-              select
               label="類型"
               name="type"
-              value={formData.type}
-              onChange={handleChange}
-              required
-            >
-              <MenuItem value="student">學生案例</MenuItem>
-              <MenuItem value="tutor">導師案例</MenuItem>
-            </TextField>
-            <TextField
-              label="分類"
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              required
-            />
-            <TextField
-              label="子分類"
-              name="subCategory"
-              value={formData.subCategory}
-              onChange={handleChange}
+              value="學生案例"
+              disabled
+              helperText="案例類型固定為學生案例"
             />
 
-            {/* Subjects */}
+            {/* 課程分類 */}
+            <FormControl fullWidth required>
+              <InputLabel>課程分類</InputLabel>
+              <Select
+                name="category"
+                value={formData.category}
+                label="課程分類"
+                onChange={handleSelectChange}
+              >
+                {categories.map((category) => (
+                  <MenuItem key={category.value} value={category.value}>
+                    {category.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            {/* 子分類 */}
+            {formData.category && (
+              <FormControl fullWidth>
+                <InputLabel>子分類</InputLabel>
+                <Select
+                  name="subCategory"
+                  value={formData.subCategory}
+                  label="子分類"
+                  onChange={handleSelectChange}
+                >
+                  {categories
+                    .find(cat => cat.value === formData.category)
+                    ?.subCategories?.map((subCat) => (
+                      <MenuItem key={subCat.id} value={subCat.value}>
+                        {subCat.label}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+            )}
+
+            {/* 科目 */}
             <Box>
               <Typography variant="subtitle1">科目</Typography>
               <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
@@ -235,98 +289,33 @@ const CreateCase: React.FC = () => {
               </Stack>
             </Box>
 
-            {/* Regions */}
-            <Box>
-              <Typography variant="subtitle1">地區</Typography>
-              <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                <TextField
-                  label="新增地區"
-                  value={newRegion}
-                  onChange={(e) => setNewRegion(e.target.value)}
-                  size="small"
-                />
-                <Button variant="outlined" onClick={handleAddRegion}>
-                  新增
-                </Button>
-              </Box>
-              <Stack direction="row" spacing={1} flexWrap="wrap">
-                {formData.regions.map((region) => (
-                  <Chip
-                    key={region}
-                    label={region}
-                    onDelete={() => handleDeleteRegion(region)}
-                  />
-                ))}
-              </Stack>
-            </Box>
-
-            {/* Sub Regions */}
-            <Box>
-              <Typography variant="subtitle1">子地區</Typography>
-              <Box sx={{ display: 'flex', gap: 1, mb: 1, alignItems: 'center' }}>
-                <FormControl sx={{ minWidth: 120 }}>
-                  <InputLabel id="region-select-label">地區</InputLabel>
-                  <Select
-                    labelId="region-select-label"
-                    value={selectedRegion}
-                    label="地區"
-                    onChange={(e) => {
-                      setSelectedRegion(e.target.value as string);
-                      setSelectedSubRegion(''); // 重置子地區選擇
-                    }}
-                  >
-                    {Object.keys(REGIONS_CONFIG).map((region) => (
-                      <MenuItem key={region} value={region}>
-                        {region}
-                      </MenuItem>
+            {/* 地區 */}
+            <FormControl fullWidth required>
+              <InputLabel>地區</InputLabel>
+              <Select
+                name="regions"
+                multiple
+                value={formData.regions}
+                label="地區"
+                onChange={(e) => setFormData({
+                  ...formData,
+                  regions: typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value
+                })}
+                renderValue={(selected) => (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {selected.map((value) => (
+                      <Chip key={value} label={regions.find(r => r.value === value)?.label || value} />
                     ))}
-                  </Select>
-                </FormControl>
-                
-                <FormControl sx={{ minWidth: 120 }}>
-                  <InputLabel id="subregion-select-label">子地區</InputLabel>
-                  <Select
-                    labelId="subregion-select-label"
-                    value={selectedSubRegion}
-                    label="子地區"
-                    onChange={(e) => setSelectedSubRegion(e.target.value as string)}
-                    disabled={!selectedRegion}
-                  >
-                    {selectedRegion && REGIONS_CONFIG[selectedRegion as keyof typeof REGIONS_CONFIG]?.map((subRegion) => (
-                      <MenuItem key={subRegion} value={subRegion}>
-                        {subRegion}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                
-                <Button 
-                  variant="outlined" 
-                  onClick={handleAddSubRegion}
-                  disabled={!selectedRegion || !selectedSubRegion}
-                >
-                  新增
-                </Button>
-              </Box>
-              
-              <Stack direction="row" spacing={1} flexWrap="wrap">
-                {formData.subRegions.map((subRegion) => (
-                  <Chip
-                    key={`${subRegion.region}-${subRegion.subRegion}`}
-                    label={`${subRegion.region} - ${subRegion.subRegion}`}
-                    onDelete={() => handleDeleteSubRegion(subRegion)}
-                    color="primary"
-                    variant="outlined"
-                  />
+                  </Box>
+                )}
+              >
+                {regions.map((region) => (
+                  <MenuItem key={region.value} value={region.value}>
+                    {region.label}
+                  </MenuItem>
                 ))}
-              </Stack>
-              
-              {formData.subRegions.length === 0 && (
-                <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                  暫未選擇子地區
-                </Typography>
-              )}
-            </Box>
+              </Select>
+            </FormControl>
 
             <TextField
               label="預算"
@@ -336,18 +325,24 @@ const CreateCase: React.FC = () => {
               onChange={handleChange}
               required
             />
-            <TextField
-              select
-              label="教學模式"
-              name="mode"
-              value={formData.mode}
-              onChange={handleChange}
-              required
-            >
-              <MenuItem value="online">網上教學</MenuItem>
-              <MenuItem value="offline">面授教學</MenuItem>
-              <MenuItem value="hybrid">混合教學</MenuItem>
-            </TextField>
+
+            {/* 教學模式 */}
+            <FormControl fullWidth required>
+              <InputLabel>教學模式</InputLabel>
+              <Select
+                name="mode"
+                value={formData.mode}
+                label="教學模式"
+                onChange={handleSelectChange}
+              >
+                {teachingModes.map((mode) => (
+                  <MenuItem key={mode.value} value={mode.value}>
+                    {mode.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
             <TextField
               label="經驗要求"
               name="experience"
