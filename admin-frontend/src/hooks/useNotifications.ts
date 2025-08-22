@@ -6,8 +6,8 @@ export interface NotificationData {
   pendingTutorProfiles: number;
   pendingTutorApplications: number;
   pendingUserUpgrades: number;
-  pendingOrganizationUsers: number;
   openCases: number;
+  tutorChanges: number; // 新增：導師修改通知數量
   lastUpdated: string;
 }
 
@@ -21,10 +21,41 @@ export const useNotifications = () => {
       setLoading(true);
       setError(null);
       
-      const response = await api.get('/admin/notifications');
+      // 獲取基本通知數據
+      const notificationsResponse = await api.get('/admin/notifications');
       
-      if (response.data.success) {
-        setNotifications(response.data.data);
+      // 獲取導師修改通知數據
+      const tutorChangesResponse = await api.get('/admin/notifications/recent-changes?limit=1');
+      
+      if (notificationsResponse.data.success) {
+        const baseNotifications = notificationsResponse.data.data;
+        
+        // 計算導師修改通知數量
+        let tutorChangesCount = 0;
+        if (tutorChangesResponse.data.success) {
+          // 獲取最近24小時內的修改記錄數量
+          const recentChangesResponse = await api.get('/admin/notifications/tutor-changes?page=1&limit=100');
+          if (recentChangesResponse.data.success) {
+            const now = new Date();
+            const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            
+            recentChangesResponse.data.data.forEach((tutor: any) => {
+              tutor.changes.forEach((change: any) => {
+                if (new Date(change.timestamp) > oneDayAgo) {
+                  tutorChangesCount++;
+                }
+              });
+            });
+          }
+        }
+        
+        const enhancedNotifications = {
+          ...baseNotifications,
+          tutorChanges: tutorChangesCount,
+          total: baseNotifications.total + tutorChangesCount
+        };
+        
+        setNotifications(enhancedNotifications);
       } else {
         setError('Failed to fetch notifications');
       }

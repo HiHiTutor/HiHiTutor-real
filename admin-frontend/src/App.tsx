@@ -22,6 +22,7 @@ import CategoryManager from './pages/CategoryManager';
 import RegionManager from './pages/RegionManager';
 import ModeManager from './pages/ModeManager';
 import TutorChangeMonitor from './pages/TutorChangeMonitor';
+import TutorChangeNotification from './components/TutorChangeNotification';
 
 // 管理員前端應用主組件
 // 包含路由保護和導航邏輯
