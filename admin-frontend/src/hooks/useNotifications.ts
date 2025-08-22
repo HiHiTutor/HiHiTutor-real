@@ -22,10 +22,14 @@ export const useNotifications = () => {
       setError(null);
       
       // 獲取基本通知數據
-      const notificationsResponse = await api.get('/admin/notifications');
+      const notificationsResponse = await api.get('/admin/notifications', {
+        timeout: 10000 // 設置10秒超時
+      });
       
       // 獲取導師修改通知數據
-      const tutorChangesResponse = await api.get('/admin/notifications/recent-changes?limit=1');
+      const tutorChangesResponse = await api.get('/admin/notifications/recent-changes?limit=1', {
+        timeout: 10000 // 設置10秒超時
+      });
       
       if (notificationsResponse.data.success) {
         const baseNotifications = notificationsResponse.data.data;
@@ -34,7 +38,9 @@ export const useNotifications = () => {
         let tutorChangesCount = 0;
         if (tutorChangesResponse.data.success) {
           // 獲取最近24小時內的修改記錄數量
-          const recentChangesResponse = await api.get('/admin/notifications/tutor-changes?page=1&limit=100');
+          const recentChangesResponse = await api.get('/admin/notifications/tutor-changes?page=1&limit=100', {
+            timeout: 15000 // 設置15秒超時
+          });
           if (recentChangesResponse.data.success) {
             const now = new Date();
             const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
@@ -59,9 +65,21 @@ export const useNotifications = () => {
       } else {
         setError('Failed to fetch notifications');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching notifications:', err);
-      setError('Failed to fetch notifications');
+      
+      // 處理不同的錯誤類型
+      if (err.code === 'ECONNABORTED') {
+        setError('請求超時，請檢查網絡連接');
+      } else if (err.response?.status === 401) {
+        setError('未授權，請重新登入');
+      } else if (err.response?.status === 403) {
+        setError('權限不足');
+      } else if (err.message === 'Network Error') {
+        setError('網絡錯誤，請檢查網絡連接');
+      } else {
+        setError('獲取通知失敗，請稍後重試');
+      }
     } finally {
       setLoading(false);
     }
@@ -77,14 +95,35 @@ export const useNotifications = () => {
       };
       setNotifications(updatedNotifications);
       console.log('🔔 已清除導師修改通知，徽章數量重置為 0');
+      
+      // 強制重新獲取數據以確保同步
+      setTimeout(() => {
+        fetchNotifications();
+      }, 100);
     }
   };
 
   useEffect(() => {
+    // 檢查是否有有效的認證 token
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.log('🔔 未找到認證 token，跳過通知獲取');
+      return;
+    }
+
     fetchNotifications();
     
     // 每 30 秒更新一次通知數據
-    const interval = setInterval(fetchNotifications, 30000);
+    const interval = setInterval(() => {
+      // 再次檢查 token 是否有效
+      const currentToken = localStorage.getItem('token');
+      if (currentToken) {
+        fetchNotifications();
+      } else {
+        console.log('🔔 Token 已失效，停止通知更新');
+        clearInterval(interval);
+      }
+    }, 30000);
     
     return () => clearInterval(interval);
   }, []);
