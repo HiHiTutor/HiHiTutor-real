@@ -1611,7 +1611,9 @@ const updateTutorProfile = async (req, res) => {
       timestamp: new Date(),
       fields: Object.keys(updateObject),
       oldValues: {},
-      newValues: updateObject
+      newValues: updateObject,
+      ipAddress: req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'] || 'unknown',
+      userAgent: req.headers['user-agent'] || 'unknown'
     };
 
     // 獲取舊值用於比較
