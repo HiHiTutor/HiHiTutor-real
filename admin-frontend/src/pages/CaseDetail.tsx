@@ -362,7 +362,14 @@ const CaseDetail: React.FC = () => {
       console.log('🔍 準備提交的編輯數據:', editData);
       console.log('🔍 案例ID:', id);
       
-      const response = await casesAPI.updateCase(id!, editData);
+      // 從 URL 參數中獲取案例類型
+      const searchParams = new URLSearchParams(location.search);
+      const type = searchParams.get('type');
+      
+      console.log('🔍 案例類型:', type);
+      console.log('🔍 URL 參數:', location.search);
+      
+      const response = await casesAPI.updateCase(id!, editData, type || undefined);
       if (response.data.success) {
         console.log('✅ 案例更新成功:', response.data);
         dispatch(setSelectedCase(editData));

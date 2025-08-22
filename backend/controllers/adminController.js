@@ -1067,6 +1067,8 @@ const updateCase = async (req, res) => {
     const { id } = req.params;
     const { type } = req.query;
     const updateData = req.body;
+    
+    console.log('🔍 後端接收到的參數:', { id, type, updateDataKeys: Object.keys(updateData) });
 
     // 構建查詢條件，優先使用 id 字段，如果是有效的 ObjectId 才嘗試 _id
     const buildQuery = (id) => {
@@ -1075,34 +1077,44 @@ const updateCase = async (req, res) => {
       if (/^[0-9a-fA-F]{24}$/.test(id)) {
         query._id = id;
       }
+      console.log('🔍 構建的查詢條件:', query);
       return query;
     };
 
     let case_;
     if (type === 'student') {
+      console.log('🔍 在 StudentCase 集合中查找案例...');
       case_ = await StudentCase.findOneAndUpdate(
         buildQuery(id),
         { $set: updateData },
         { new: true }
       ).lean();
+      console.log('🔍 StudentCase 查找結果:', case_);
     } else if (type === 'tutor') {
+      console.log('🔍 TutorCase 查找結果:', case_);
       case_ = await TutorCase.findOneAndUpdate(
         buildQuery(id),
         { $set: updateData },
         { new: true }
       ).lean();
+      console.log('🔍 TutorCase 查找結果:', case_);
     } else {
       // Try both collections if type is not specified
+      console.log('🔍 類型未指定，嘗試在兩個集合中查找...');
       case_ = await StudentCase.findOneAndUpdate(
         buildQuery(id),
         { $set: updateData },
         { new: true }
-      ).lean() ||
-      await TutorCase.findOneAndUpdate(
-        buildQuery(id),
-        { $set: updateData },
-        { new: true }
       ).lean();
+      console.log('🔍 StudentCase 查找結果:', case_);
+      if (!case_) {
+        case_ = await TutorCase.findOneAndUpdate(
+          buildQuery(id),
+          { $set: updateData },
+          { new: true }
+        ).lean();
+        console.log('🔍 TutorCase 查找結果:', case_);
+      }
     }
 
     if (!case_) {

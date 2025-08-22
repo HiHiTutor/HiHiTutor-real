@@ -212,8 +212,9 @@ export const casesAPI = {
     return api.post<SingleCaseResponse>(`/admin/cases`, data);
   },
 
-  updateCase: (id: string, data: Partial<Case>) => {
-    return api.put<SingleCaseResponse>(`/admin/cases/${id}`, data);
+  updateCase: (id: string, data: Partial<Case>, type?: string) => {
+    const params = type ? { type } : {};
+    return api.put<SingleCaseResponse>(`/admin/cases/${id}`, data, { params });
   },
 };
 
