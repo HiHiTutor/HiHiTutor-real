@@ -1068,28 +1068,38 @@ const updateCase = async (req, res) => {
     const { type } = req.query;
     const updateData = req.body;
 
+    // 構建查詢條件，優先使用 id 字段，如果是有效的 ObjectId 才嘗試 _id
+    const buildQuery = (id) => {
+      const query = { id: id };
+      // 只有當 id 是有效的 ObjectId 格式時才添加到 _id 查詢中
+      if (/^[0-9a-fA-F]{24}$/.test(id)) {
+        query._id = id;
+      }
+      return query;
+    };
+
     let case_;
     if (type === 'student') {
       case_ = await StudentCase.findOneAndUpdate(
-        { $or: [{ _id: id }, { id: id }] },
+        buildQuery(id),
         { $set: updateData },
         { new: true }
       ).lean();
     } else if (type === 'tutor') {
       case_ = await TutorCase.findOneAndUpdate(
-        { $or: [{ _id: id }, { id: id }] },
+        buildQuery(id),
         { $set: updateData },
         { new: true }
       ).lean();
     } else {
       // Try both collections if type is not specified
       case_ = await StudentCase.findOneAndUpdate(
-        { $or: [{ _id: id }, { id: id }] },
+        buildQuery(id),
         { $set: updateData },
         { new: true }
       ).lean() ||
       await TutorCase.findOneAndUpdate(
-        { $or: [{ _id: id }, { id: id }] },
+        buildQuery(id),
         { $set: updateData },
         { new: true }
       ).lean();
@@ -1122,28 +1132,38 @@ const updateCaseStatus = async (req, res) => {
     const { type } = req.query;
     const { status } = req.body;
 
+    // 構建查詢條件，優先使用 id 字段，如果是有效的 ObjectId 才嘗試 _id
+    const buildQuery = (id) => {
+      const query = { id: id };
+      // 只有當 id 是有效的 ObjectId 格式時才添加到 _id 查詢中
+      if (/^[0-9a-fA-F]{24}$/.test(id)) {
+        query._id = id;
+      }
+      return query;
+    };
+
     let case_;
     if (type === 'student') {
       case_ = await StudentCase.findOneAndUpdate(
-        { $or: [{ _id: id }, { id: id }] },
+        buildQuery(id),
         { $set: { status, updatedAt: new Date() } },
         { new: true }
       ).lean();
     } else if (type === 'tutor') {
       case_ = await TutorCase.findOneAndUpdate(
-        { $or: [{ _id: id }, { id: id }] },
+        buildQuery(id),
         { $set: { status, updatedAt: new Date() } },
         { new: true }
       ).lean();
     } else {
       // Try both collections if type is not specified
       case_ = await StudentCase.findOneAndUpdate(
-        { $or: [{ _id: id }, { id: id }] },
+        buildQuery(id),
         { $set: { status, updatedAt: new Date() } },
         { new: true }
       ).lean() ||
       await TutorCase.findOneAndUpdate(
-        { $or: [{ _id: id }, { id: id }] },
+        buildQuery(id),
         { $set: { status, updatedAt: new Date() } },
         { new: true }
       ).lean();
@@ -1176,10 +1196,20 @@ const updatePromotionLevel = async (req, res) => {
     const { type } = req.query;
     const { level } = req.body;
 
+    // 構建查詢條件，優先使用 id 字段，如果是有效的 ObjectId 才嘗試 _id
+    const buildQuery = (id) => {
+      const query = { id: id };
+      // 只有當 id 是有效的 ObjectId 格式時才添加到 _id 查詢中
+      if (/^[0-9a-fA-F]{24}$/.test(id)) {
+        query._id = id;
+      }
+      return query;
+    };
+
     let case_;
     if (type === 'student') {
-      case_ = await StudentCase.findByIdAndUpdate(
-        id,
+      case_ = await StudentCase.findOneAndUpdate(
+        buildQuery(id),
         {
           $set: {
             promotionLevel: level,
@@ -1189,8 +1219,8 @@ const updatePromotionLevel = async (req, res) => {
         { new: true }
       ).lean();
     } else if (type === 'tutor') {
-      case_ = await TutorCase.findByIdAndUpdate(
-        id,
+      case_ = await TutorCase.findOneAndUpdate(
+        buildQuery(id),
         {
           $set: {
             promotionLevel: level,
@@ -1201,8 +1231,8 @@ const updatePromotionLevel = async (req, res) => {
       ).lean();
     } else {
       // Try both collections if type is not specified
-      case_ = await StudentCase.findByIdAndUpdate(
-        id,
+      case_ = await StudentCase.findOneAndUpdate(
+        buildQuery(id),
         {
           $set: {
             promotionLevel: level,
@@ -1211,8 +1241,8 @@ const updatePromotionLevel = async (req, res) => {
         },
         { new: true }
       ).lean() ||
-      await TutorCase.findByIdAndUpdate(
-        id,
+      await TutorCase.findOneAndUpdate(
+        buildQuery(id),
         {
           $set: {
             promotionLevel: level,
