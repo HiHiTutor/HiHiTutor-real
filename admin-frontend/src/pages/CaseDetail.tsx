@@ -820,7 +820,7 @@ const CaseDetail: React.FC = () => {
                 發布者ID
               </Typography>
               <Typography>
-                {selectedCase.posterId || selectedCase.studentId?._id || selectedCase.student?._id || '未指定'}
+                {selectedCase.posterId || selectedCase.studentId?.userId || selectedCase.student || '未指定'}
               </Typography>
             </Grid>
 
