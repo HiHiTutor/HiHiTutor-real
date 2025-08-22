@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { verifyAdmin } = require('../middleware/adminMiddleware');
+const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 const User = require('../models/User');
 
 // 獲取所有導師資料修改記錄
-router.get('/tutor-changes', verifyAdmin, async (req, res) => {
+router.get('/tutor-changes', verifyToken, isAdmin, async (req, res) => {
   try {
     const { page = 1, limit = 20, tutorId } = req.query;
     
@@ -70,7 +70,7 @@ router.get('/tutor-changes', verifyAdmin, async (req, res) => {
 });
 
 // 獲取特定導師的修改記錄
-router.get('/tutor-changes/:tutorId', verifyAdmin, async (req, res) => {
+router.get('/tutor-changes/:tutorId', verifyToken, isAdmin, async (req, res) => {
   try {
     const { tutorId } = req.params;
     
@@ -119,7 +119,7 @@ router.get('/tutor-changes/:tutorId', verifyAdmin, async (req, res) => {
 });
 
 // 獲取最近的修改記錄（用於儀表板）
-router.get('/recent-changes', verifyAdmin, async (req, res) => {
+router.get('/recent-changes', verifyToken, isAdmin, async (req, res) => {
   try {
     const { limit = 10 } = req.query;
     
@@ -166,7 +166,7 @@ router.get('/recent-changes', verifyAdmin, async (req, res) => {
 });
 
 // 導出修改記錄為CSV（可選功能）
-router.get('/export-changes', verifyAdmin, async (req, res) => {
+router.get('/export-changes', verifyToken, isAdmin, async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
     
