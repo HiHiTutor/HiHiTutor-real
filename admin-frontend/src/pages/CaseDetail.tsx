@@ -817,7 +817,7 @@ const CaseDetail: React.FC = () => {
 
             <Grid item xs={12}>
               <Typography variant="subtitle1" gutterBottom>
-                用戶ID
+                發布者ID
               </Typography>
               <Typography>
                 {selectedCase.studentId?.userId || selectedCase.student || '未指定'}

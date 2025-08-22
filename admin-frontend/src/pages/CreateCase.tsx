@@ -13,6 +13,8 @@ import {
   FormControl,
   InputLabel,
   Select,
+  Checkbox,
+  FormControlLabel,
 } from '@mui/material';
 import { casesAPI } from '../services/api';
 import api from '../services/api';
@@ -754,11 +756,11 @@ const CreateCase: React.FC = () => {
             />
 
             <TextField
-              label="學生ID"
+              label="發布者ID"
               name="student"
               value={formData.student}
               onChange={handleChange}
-              helperText="輸入學生用戶ID"
+              helperText="輸入發布此案例的用戶ID"
               fullWidth
             />
 
@@ -824,26 +826,35 @@ const CreateCase: React.FC = () => {
             />
 
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              <TextField
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name="featured"
+                    checked={formData.featured}
+                    onChange={(e) => setFormData({...formData, featured: e.target.checked})}
+                  />
+                }
                 label="特色案例"
-                name="featured"
-                type="checkbox"
-                checked={formData.featured}
-                onChange={(e) => setFormData({...formData, featured: e.target.checked})}
               />
-              <TextField
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name="isVip"
+                    checked={formData.isVip}
+                    onChange={(e) => setFormData({...formData, isVip: e.target.checked})}
+                  />
+                }
                 label="VIP案例"
-                name="isVip"
-                type="checkbox"
-                checked={formData.isVip}
-                onChange={(e) => setFormData({...formData, isVip: e.target.checked})}
               />
-              <TextField
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name="isTop"
+                    checked={formData.isTop}
+                    onChange={(e) => setFormData({...formData, isTop: e.target.checked})}
+                  />
+                }
                 label="置頂案例"
-                name="isTop"
-                type="checkbox"
-                checked={formData.isTop}
-                onChange={(e) => setFormData({...formData, isTop: e.target.checked})}
               />
             </Box>
 
@@ -914,19 +925,25 @@ const CreateCase: React.FC = () => {
             </FormControl>
 
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              <TextField
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name="isPaid"
+                    checked={formData.isPaid}
+                    onChange={(e) => setFormData({...formData, isPaid: e.target.checked})}
+                  />
+                }
                 label="付費案例"
-                name="isPaid"
-                type="checkbox"
-                checked={formData.isPaid}
-                onChange={(e) => setFormData({...formData, isPaid: e.target.checked})}
               />
-              <TextField
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name="isApproved"
+                    checked={formData.isApproved}
+                    onChange={(e) => setFormData({...formData, isApproved: e.target.checked})}
+                  />
+                }
                 label="已審批"
-                name="isApproved"
-                type="checkbox"
-                checked={formData.isApproved}
-                onChange={(e) => setFormData({...formData, isApproved: e.target.checked})}
               />
             </Box>
 
