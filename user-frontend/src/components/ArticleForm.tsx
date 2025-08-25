@@ -45,7 +45,34 @@ export default function ArticleForm() {
 
       const result = await res.json()
       console.log('✅ 提交成功:', result)
-      router.push('/articles')
+      
+      // 顯示成功提示
+      setError('') // 清除錯誤
+      
+      // 創建成功提示元素
+      const successDiv = document.createElement('div')
+      successDiv.className = 'bg-green-50 text-green-700 p-4 rounded-md mb-4'
+      successDiv.innerHTML = `
+        <div class="flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+          </svg>
+          <span class="font-medium">✅ 文章投稿成功！</span>
+        </div>
+        <p class="mt-2 text-sm">管理員將在24小時內審核您的文章。審核通過後，文章將在專欄中顯示。</p>
+      `
+      
+      // 插入到表單前面
+      const form = document.querySelector('form')
+      form.parentNode.insertBefore(successDiv, form)
+      
+      // 清空表單
+      form.reset()
+      
+      // 延遲跳轉，讓用戶看到成功提示
+      setTimeout(() => {
+        router.push('/articles')
+      }, 3000)
     } catch (err) {
       setError(err instanceof Error ? err.message : '提交失敗')
     } finally {
