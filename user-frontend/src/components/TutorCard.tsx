@@ -46,22 +46,18 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
       <div className="bg-white border border-yellow-200 p-4 rounded-2xl shadow-md hover:shadow-lg hover:border-yellow-300 transition-all duration-200 cursor-pointer max-sm:p-3 max-[700px]:p-4 bg-gradient-to-br from-white to-yellow-50">
         <div className="relative mx-auto mb-4 max-sm:mb-3 max-[700px]:mb-3">
           <div
-            className="w-[100px] h-[100px] rounded-full overflow-hidden bg-center bg-cover mx-auto max-sm:w-[80px] max-sm:h-[80px] max-[700px]:w-[90px] max-[700px]:h-[90px] border-4 border-yellow-100"
+            className={`w-[100px] h-[100px] rounded-full overflow-hidden bg-center bg-cover mx-auto max-sm:w-[80px] max-sm:h-[80px] max-[700px]:w-[90px] max-[700px]:h-[90px] border-4 ${
+              gender === 'male' 
+                ? 'border-blue-400' 
+                : gender === 'female' 
+                ? 'border-pink-400' 
+                : 'border-yellow-100'
+            }`}
             style={{
               backgroundImage: `url(${displayAvatar})`,
               backgroundPositionX: `${avatarOffsetX}%`,
             }}
           />
-          {/* 性別圖示 - 右下角 */}
-          {gender && (
-            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-2 border-white shadow-sm flex items-center justify-center max-sm:w-5 max-sm:h-5 max-[700px]:w-5 max-[700px]:h-5">
-              {gender === 'male' ? (
-                <span className="text-blue-500 text-xs max-sm:text-[10px] max-[700px]:text-[10px]">👤</span>
-              ) : (
-                <span className="text-red-500 text-xs max-sm:text-[10px] max-[700px]:text-[10px]">👤</span>
-              )}
-            </div>
-          )}
           {/* 調試信息 - 開發環境顯示 */}
           {process.env.NODE_ENV === 'development' && (
             <div className="absolute top-0 left-0 bg-black bg-opacity-75 text-white text-xs p-1 rounded">
