@@ -15,7 +15,16 @@ async function loadArticles() {
 }
 
 async function saveArticles(articles) {
-  await fs.writeFile(ARTICLES_FILE, JSON.stringify(articles, null, 2));
+  try {
+    // 確保目錄存在
+    const dir = path.dirname(ARTICLES_FILE);
+    await fs.mkdir(dir, { recursive: true });
+    
+    await fs.writeFile(ARTICLES_FILE, JSON.stringify(articles, null, 2));
+  } catch (err) {
+    console.error('保存文章失敗:', err);
+    throw err;
+  }
 }
 
 // GET /api/articles - 取得所有文章
@@ -44,12 +53,18 @@ router.get('/:id', async (req, res) => {
 // 投稿（導師付費才能用）
 router.post('/submit', async (req, res) => {
   try {
+    console.log('📝 開始處理文章投稿請求');
+    
     const { title, summary, content, tags, authorId } = req.body;
     if (!title || !summary || !content || !authorId) {
+      console.log('❌ 缺少必要欄位:', { title: !!title, summary: !!summary, content: !!content, authorId: !!authorId });
       return res.status(400).json({ message: '缺少必要欄位' });
     }
 
+    console.log('📝 載入現有文章...');
     const articles = await loadArticles();
+    console.log('📝 現有文章數量:', articles.length);
+    
     const newArticle = {
       id: Date.now().toString(),
       title,
@@ -63,11 +78,17 @@ router.post('/submit', async (req, res) => {
       featured: false
     };
 
+    console.log('📝 創建新文章:', newArticle);
     articles.push(newArticle);
+    
+    console.log('📝 保存文章到文件...');
     await saveArticles(articles);
+    
+    console.log('✅ 文章投稿成功');
     res.json({ success: true, article: newArticle });
   } catch (err) {
-    res.status(500).json({ message: '提交文章失敗' });
+    console.error('❌ 文章投稿失敗:', err);
+    res.status(500).json({ message: '提交文章失敗', error: err.message });
   }
 });
 
