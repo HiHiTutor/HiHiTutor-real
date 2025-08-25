@@ -7,6 +7,7 @@ router.get('/', async (req, res) => {
   try {
     const { featured, limit } = req.query;
     console.log('📝 查詢參數:', { featured, limit });
+    console.log('🔍 完整請求對象:', req.query);
     
     let query = { userType: 'tutor' };
     if (featured === 'true') {
@@ -28,11 +29,13 @@ router.get('/', async (req, res) => {
     if (tutors.length > 0) {
       console.log('🔍 第一個導師的原始數據:', JSON.stringify(tutors[0], null, 2));
       console.log('🔍 第一個導師的性別:', tutors[0].tutorProfile?.gender);
+      console.log('🔍 第一個導師的 tutorProfile 完整結構:', JSON.stringify(tutors[0].tutorProfile, null, 2));
     }
 
     const formattedTutors = tutors.map(tutor => {
       const gender = tutor.tutorProfile?.gender;
       console.log(`👤 導師 ${tutor.name} 的性別: ${gender}`);
+      console.log(`👤 導師 ${tutor.name} 的完整 tutorProfile:`, JSON.stringify(tutor.tutorProfile, null, 2));
       
       return {
         id: tutor._id,
@@ -55,6 +58,7 @@ router.get('/', async (req, res) => {
 
     console.log('📤 返回格式化後的導師數據');
     console.log('🔍 格式化後的性別信息:', formattedTutors.map(t => ({ name: t.name, gender: t.tutorProfile.gender })));
+    console.log('🔍 完整響應 body:', JSON.stringify(formattedTutors, null, 2));
     res.json(formattedTutors);
   } catch (error) {
     console.error('❌ 獲取導師數據時出錯:', error);
@@ -66,6 +70,7 @@ router.get('/', async (req, res) => {
 router.get('/recommended', async (req, res) => {
   try {
     console.log('🔍 獲取推薦導師');
+    console.log('🔍 完整請求對象:', req.query);
     
     const recommendedTutors = await User.find({
       userType: 'tutor',
@@ -79,11 +84,13 @@ router.get('/recommended', async (req, res) => {
     if (recommendedTutors.length > 0) {
       console.log('🔍 第一個推薦導師的原始數據:', JSON.stringify(recommendedTutors[0], null, 2));
       console.log('🔍 第一個推薦導師的性別:', recommendedTutors[0].tutorProfile?.gender);
+      console.log('🔍 第一個推薦導師的 tutorProfile 完整結構:', JSON.stringify(recommendedTutors[0].tutorProfile, null, 2));
     }
 
     const formattedTutors = recommendedTutors.map(tutor => {
       const gender = tutor.tutorProfile?.gender;
       console.log(`👤 推薦導師 ${tutor.name} 的性別: ${gender}`);
+      console.log(`👤 推薦導師 ${tutor.name} 的完整 tutorProfile:`, JSON.stringify(tutor.tutorProfile, null, 2));
       
       return {
         id: tutor._id,
@@ -106,6 +113,7 @@ router.get('/recommended', async (req, res) => {
 
     console.log('📤 返回格式化後的推薦導師數據');
     console.log('🔍 格式化後的推薦導師性別信息:', formattedTutors.map(t => ({ name: t.name, gender: t.tutorProfile.gender })));
+    console.log('🔍 完整響應 body:', JSON.stringify(formattedTutors, null, 2));
     res.json(formattedTutors);
   } catch (error) {
     console.error('❌ 獲取推薦導師時出錯:', error);
