@@ -24,8 +24,11 @@ router.get('/', async (req, res) => {
       }
     }
     
-    // 獲取已審核通過的文章
-    const approvedArticles = await Article.find({ status: 'approved' })
+    // 獲取已審核通過的文章（不包括已歸檔的）
+    const approvedArticles = await Article.find({ 
+      status: 'approved',
+      isEdit: { $ne: true } // 排除編輯中的文章
+    })
       .populate('authorId', 'name')
       .sort({ createdAt: -1 });
     
@@ -117,6 +120,11 @@ router.post('/submit', async (req, res) => {
     }
 
     console.log('📝 創建新文章...');
+    
+    // 檢查是否是編輯的文章
+    const isEdit = req.body.originalArticleId ? true : false;
+    const originalArticleId = req.body.originalArticleId || null;
+    
     const newArticle = new Article({
       title,
       summary,
@@ -126,7 +134,9 @@ router.post('/submit', async (req, res) => {
       author: user.name || user.username,
       status: 'pending',
       views: 0,
-      featured: false
+      featured: false,
+      originalArticleId,
+      isEdit
     });
 
     console.log('📝 保存文章到數據庫...');
@@ -150,6 +160,40 @@ router.post('/:id/approve', async (req, res) => {
       return res.status(404).json({ message: '文章不存在' });
     }
 
+    // 如果是編輯的文章，需要處理舊文章
+    if (article.originalArticleId && article.isEdit) {
+      console.log('📝 審批編輯文章，處理舊文章替換...');
+      
+      try {
+        // 找到舊文章
+        const oldArticle = await Article.findById(article.originalArticleId);
+        if (oldArticle) {
+          // 將舊文章設為 archived 狀態
+          oldArticle.status = 'archived';
+          await oldArticle.save();
+          console.log('📝 舊文章已設為 archived:', oldArticle._id);
+        }
+        
+        // 更新新文章，移除編輯標記
+        article.originalArticleId = null;
+        article.isEdit = false;
+        article.status = 'approved';
+        await article.save();
+        
+        console.log('✅ 編輯文章審批成功，已取代舊文章');
+        res.json({ 
+          success: true, 
+          article,
+          message: '編輯文章審批成功，已取代舊文章'
+        });
+        return;
+      } catch (replaceError) {
+        console.error('❌ 處理舊文章替換失敗:', replaceError);
+        // 即使替換失敗，也要審批通過新文章
+      }
+    }
+
+    // 普通文章審批
     article.status = 'approved';
     await article.save();
     res.json({ success: true, article });

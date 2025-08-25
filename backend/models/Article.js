@@ -30,7 +30,7 @@ const articleSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'approved', 'rejected'],
+    enum: ['pending', 'approved', 'rejected', 'archived'],
     default: 'pending'
   },
   views: {
@@ -44,6 +44,16 @@ const articleSchema = new mongoose.Schema({
   coverImage: {
     type: String,
     default: null
+  },
+  originalArticleId: {
+    type: String,
+    default: null,
+    description: '如果是編輯的文章，記錄原文章ID'
+  },
+  isEdit: {
+    type: Boolean,
+    default: false,
+    description: '標記是否為編輯版本'
   }
 }, {
   timestamps: true,
