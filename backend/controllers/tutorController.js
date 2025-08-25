@@ -316,7 +316,7 @@ const getAllTutors = async (req, res) => {
               isActive: true,
               status: 'active',
               isVip: true 
-            }).select('name avatar tutorProfile rating isVip isTop createdAt tutorId');
+            }).select('name avatar tutorProfile rating isVip isTop createdAt tutorId subjects');
             
             const topTutors = await User.find({ 
               userType: 'tutor',
@@ -324,7 +324,7 @@ const getAllTutors = async (req, res) => {
               status: 'active',
               isTop: true,
               isVip: false  // 排除 VIP，避免重複
-            }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId');
+            }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects');
             
             const normalTutors = await User.find({ 
               userType: 'tutor',
@@ -332,12 +332,26 @@ const getAllTutors = async (req, res) => {
               status: 'active',
               isVip: false,
               isTop: false
-            }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId');
+            }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects');
             
             console.log(`📊 找到導師數量:`);
             console.log(`- VIP 導師: ${vipTutors.length} 個`);
             console.log(`- 置頂導師: ${topTutors.length} 個`);
             console.log(`- 普通導師: ${normalTutors.length} 個`);
+            
+            // 調試：檢查第一個導師的數據結構
+            if (vipTutors.length > 0) {
+              console.log('🔍 第一個VIP導師的原始數據:', JSON.stringify(vipTutors[0], null, 2));
+              console.log('🔍 第一個VIP導師的性別:', vipTutors[0].tutorProfile?.gender);
+            }
+            if (topTutors.length > 0) {
+              console.log('🔍 第一個置頂導師的原始數據:', JSON.stringify(topTutors[0], null, 2));
+              console.log('🔍 第一個置頂導師的性別:', topTutors[0].tutorProfile?.gender);
+            }
+            if (normalTutors.length > 0) {
+              console.log('🔍 第一個普通導師的原始數據:', JSON.stringify(normalTutors[0], null, 2));
+              console.log('🔍 第一個普通導師的性別:', normalTutors[0].tutorProfile?.gender);
+            }
             
             // 如果沒有VIP或置頂導師，自動提升一些導師
             if (vipTutors.length === 0 && topTutors.length === 0 && normalTutors.length > 0) {
@@ -574,7 +588,7 @@ const getAllTutors = async (req, res) => {
             isActive: true,
             status: 'active',
             isVip: true 
-          }).select('name avatar tutorProfile rating isVip isTop createdAt tutorId');
+          }).select('name avatar tutorProfile rating isVip isTop createdAt tutorId subjects');
           
           const topTutors = await User.find({ 
             userType: 'tutor',
@@ -582,7 +596,7 @@ const getAllTutors = async (req, res) => {
             status: 'active',
             isTop: true,
             isVip: false  // 排除 VIP，避免重複
-          }).select('name avatar tutorProfile rating isVip isTop createdAt tutorId');
+          }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects');
           
           const regularTutors = await User.find({ 
             userType: 'tutor',
@@ -590,7 +604,7 @@ const getAllTutors = async (req, res) => {
             status: 'active',
             isVip: false,
             isTop: false
-          }).select('name avatar tutorProfile rating isVip isTop createdAt tutorId');
+          }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects');
           
           console.log(`📊 Fallback 查詢結果:`);
           console.log(`- VIP 導師: ${vipTutors.length} 個`);
@@ -798,7 +812,7 @@ const getAllTutors = async (req, res) => {
           if (featured === 'true') {
             console.log('🎯 精選導師查詢：不限制數量');
             dbTutors = await User.find(query)
-              .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId');
+              .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects');
           } else {
             console.log('📊 普通查詢：限制數量');
             // 檢查是否為導師列表頁面（沒有其他篩選條件）
@@ -807,13 +821,13 @@ const getAllTutors = async (req, res) => {
             if (isTutorListPage) {
               console.log('🎯 導師列表頁面：unlimited，顯示所有導師');
               dbTutors = await User.find(query)
-                .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId');
+                .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects');
             } else {
               // 其他頁面使用預設限制，過萬個才考慮限制
               const limitNum = parseInt(limit) || 10000;
               console.log(`📊 使用限制: ${limitNum} (導師列表頁面: ${isTutorListPage})`);
               dbTutors = await User.find(query)
-                .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId')
+                .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects')
                 .limit(limitNum);
             }
           }
@@ -912,6 +926,11 @@ const getAllTutors = async (req, res) => {
         avatarUrl = `https://hi-hi-tutor-real-backend2.vercel.app${avatarUrl}`;
       }
 
+      // 處理性別信息
+      const gender = tutor.tutorProfile?.gender;
+      console.log(`👤 導師 ${tutor.name} 的性別: ${gender}`);
+      console.log(`👤 導師 ${tutor.name} 的完整 tutorProfile:`, JSON.stringify(tutor.tutorProfile, null, 2));
+
       return {
         id: tutor._id,
         userId: tutor.userId,
@@ -927,11 +946,17 @@ const getAllTutors = async (req, res) => {
         createdAt: tutor.createdAt,
         date: tutor.createdAt,
         teachingModes: tutor.teachingModes,
-        regions: tutor.regions
+        regions: tutor.regions,
+        // 添加性別信息
+        tutorProfile: {
+          gender: gender || null
+        }
       };
     });
 
     console.log(`📤 返回 ${formattedTutors.length} 個導師數據`);
+    console.log('🔍 格式化後的性別信息:', formattedTutors.map(t => ({ name: t.name, gender: t.tutorProfile?.gender })));
+    console.log('🔍 完整響應 body:', JSON.stringify(formattedTutors, null, 2));
     res.json({ 
       success: true,
       data: { tutors: formattedTutors },
