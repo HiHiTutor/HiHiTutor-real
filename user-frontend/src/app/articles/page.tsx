@@ -47,19 +47,30 @@ export default function ArticlesPage() {
         
         // 嘗試載入用戶自己的文章
         const token = localStorage.getItem('token')
+        console.log('🔍 檢查用戶登入狀態:', { hasToken: !!token })
+        
         if (token) {
           try {
             // 從 localStorage 獲取用戶信息
             const userStr = localStorage.getItem('user')
+            console.log('🔍 用戶信息:', userStr)
+            
             if (userStr) {
               const user = JSON.parse(userStr)
+              console.log('🔍 解析後的用戶:', user)
+              
               const myRes = await fetch(`${baseUrl}/api/articles/my-articles?authorId=${user.id}`, {
                 headers: {
                   'Authorization': `Bearer ${token}`
                 }
               })
+              
+              console.log('🔍 我的文章 API 響應:', { status: myRes.status, ok: myRes.ok })
+              
               if (myRes.ok) {
                 const myData = await myRes.json()
+                console.log('🔍 我的文章數據:', myData)
+                
                 const myArticles = myData.map((a: any) => ({
                   ...a,
                   author: a.author || '你',
@@ -69,11 +80,19 @@ export default function ArticlesPage() {
                   coverImage: a.coverImage || 'https://source.unsplash.com/400x200/?education'
                 }))
                 setMyArticles(myArticles)
+                console.log('🔍 設置我的文章:', myArticles)
+              } else {
+                const errorData = await myRes.json().catch(() => ({}))
+                console.error('❌ 載入我的文章失敗:', { status: myRes.status, error: errorData })
               }
+            } else {
+              console.log('🔍 沒有用戶信息')
             }
           } catch (err) {
-            console.log('載入用戶文章失敗:', err)
+            console.error('❌ 載入用戶文章失敗:', err)
           }
+        } else {
+          console.log('🔍 沒有登入 token')
         }
       } catch (err) {
         console.error('文章載入失敗:', err)
@@ -196,6 +215,20 @@ export default function ArticlesPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </section>
+      )}
+
+      {/* 調試信息 */}
+      {process.env.NODE_ENV === 'development' && (
+        <section className="bg-gray-100 border border-gray-300 rounded-lg p-4 mb-6">
+          <h3 className="text-lg font-semibold mb-2">🔍 調試信息</h3>
+          <div className="text-sm space-y-1">
+            <p>載入狀態: {loading ? '載入中' : '完成'}</p>
+            <p>文章總數: {articles.length}</p>
+            <p>我的文章數: {myArticles.length}</p>
+            <p>Token: {localStorage.getItem('token') ? '存在' : '不存在'}</p>
+            <p>用戶信息: {localStorage.getItem('user') ? '存在' : '不存在'}</p>
           </div>
         </section>
       )}
