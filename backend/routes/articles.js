@@ -1,39 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const fs = require('fs').promises;
-const path = require('path');
-
-const ARTICLES_FILE = path.join(__dirname, '../data/articles.json');
-
-async function loadArticles() {
-  try {
-    const data = await fs.readFile(ARTICLES_FILE, 'utf8');
-    return JSON.parse(data);
-  } catch (err) {
-    return [];
-  }
-}
-
-async function saveArticles(articles) {
-  try {
-    // 確保目錄存在
-    const dir = path.dirname(ARTICLES_FILE);
-    await fs.mkdir(dir, { recursive: true });
-    
-    await fs.writeFile(ARTICLES_FILE, JSON.stringify(articles, null, 2));
-  } catch (err) {
-    console.error('保存文章失敗:', err);
-    throw err;
-  }
-}
+const Article = require('../models/Article');
+const User = require('../models/User');
 
 // GET /api/articles - 取得所有文章
 router.get('/', async (req, res) => {
   try {
-    const articles = await loadArticles();
-    const approvedArticles = articles.filter(a => a.status === 'approved');
-    res.json(approvedArticles);
+    const articles = await Article.find({ status: 'approved' })
+      .populate('authorId', 'name')
+      .sort({ createdAt: -1 });
+    res.json(articles);
   } catch (err) {
+    console.error('載入文章失敗:', err);
     res.status(500).json({ message: '載入文章失敗' });
   }
 });
@@ -41,11 +19,12 @@ router.get('/', async (req, res) => {
 // 根據 ID 取得單篇文章
 router.get('/:id', async (req, res) => {
   try {
-    const articles = await loadArticles();
-    const article = articles.find((a) => a.id === req.params.id);
+    const article = await Article.findById(req.params.id)
+      .populate('authorId', 'name');
     if (article) return res.json(article);
     res.status(404).json({ message: '找不到文章' });
   } catch (err) {
+    console.error('載入文章失敗:', err);
     res.status(500).json({ message: '載入文章失敗' });
   }
 });
@@ -61,28 +40,33 @@ router.post('/submit', async (req, res) => {
       return res.status(400).json({ message: '缺少必要欄位' });
     }
 
-    console.log('📝 載入現有文章...');
-    const articles = await loadArticles();
-    console.log('📝 現有文章數量:', articles.length);
-    
-    const newArticle = {
-      id: Date.now().toString(),
+    // 驗證用戶是否存在且是導師
+    const user = await User.findById(authorId);
+    if (!user) {
+      console.log('❌ 用戶不存在:', authorId);
+      return res.status(404).json({ message: '用戶不存在' });
+    }
+
+    if (user.userType !== 'tutor') {
+      console.log('❌ 用戶不是導師:', user.userType);
+      return res.status(403).json({ message: '只有導師可以投稿文章' });
+    }
+
+    console.log('📝 創建新文章...');
+    const newArticle = new Article({
       title,
       summary,
       content,
       tags: tags || [],
       authorId,
+      author: user.name || user.username,
       status: 'pending',
-      createdAt: new Date().toISOString(),
       views: 0,
       featured: false
-    };
+    });
 
-    console.log('📝 創建新文章:', newArticle);
-    articles.push(newArticle);
-    
-    console.log('📝 保存文章到文件...');
-    await saveArticles(articles);
+    console.log('📝 保存文章到數據庫...');
+    await newArticle.save();
     
     console.log('✅ 文章投稿成功');
     res.json({ success: true, article: newArticle });
@@ -96,17 +80,17 @@ router.post('/submit', async (req, res) => {
 router.post('/:id/approve', async (req, res) => {
   try {
     const { id } = req.params;
-    const articles = await loadArticles();
-    const article = articles.find(a => a.id === id);
+    const article = await Article.findById(id);
 
     if (!article) {
       return res.status(404).json({ message: '文章不存在' });
     }
 
     article.status = 'approved';
-    await saveArticles(articles);
+    await article.save();
     res.json({ success: true, article });
   } catch (err) {
+    console.error('審批文章失敗:', err);
     res.status(500).json({ message: '審批文章失敗' });
   }
 });
