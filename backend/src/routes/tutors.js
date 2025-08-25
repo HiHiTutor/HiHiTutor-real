@@ -20,20 +20,26 @@ router.get('/', async (req, res) => {
 
     const tutors = await User.find(query)
       .limit(limitNum)
-      .select('name subject education experience rating avatar isVip isTop');
+      .select('name subjects tutorProfile rating avatar isVip isTop tutorId');
     
     console.log(`✅ 從 MongoDB 找到 ${tutors.length} 個導師`);
 
     const formattedTutors = tutors.map(tutor => ({
       id: tutor._id,
+      tutorId: tutor.tutorId,
       name: tutor.name,
-      subject: tutor.subjects?.[0] || '未指定',
-      education: tutor.tutorProfile?.education || '未指定',
-      experience: tutor.tutorProfile?.experience || '未指定',
+      subjects: tutor.subjects || [],
+      experience: tutor.tutorProfile?.teachingExperienceYears || 0,
+      education: tutor.tutorProfile?.educationLevel || '未指定',
       rating: tutor.rating || 0,
-      avatarUrl: tutor.avatar || `https://randomuser.me/api/portraits/${tutor.gender || 'men'}/${Math.floor(Math.random() * 100)}.jpg`,
+      avatarUrl: tutor.avatar || 'https://hi-hi-tutor-real-backend2.vercel.app/avatars/default.png',
+      avatarOffsetX: tutor.tutorProfile?.avatarOffsetX || 50,
       isVip: tutor.isVip || false,
-      isTop: tutor.isTop || false
+      isTop: tutor.isTop || false,
+      // 添加性別信息
+      tutorProfile: {
+        gender: tutor.tutorProfile?.gender || null
+      }
     }));
 
     console.log('📤 返回格式化後的導師數據');
@@ -53,20 +59,26 @@ router.get('/recommended', async (req, res) => {
       userType: 'tutor',
       'tutorProfile.applicationStatus': 'approved',
       isTop: true
-    }).select('name subject education experience rating avatar isVip isTop');
+    }).select('name subjects tutorProfile rating avatar isVip isTop tutorId');
     
     console.log(`✅ 從 MongoDB 找到 ${recommendedTutors.length} 個推薦導師`);
 
     const formattedTutors = recommendedTutors.map(tutor => ({
       id: tutor._id,
+      tutorId: tutor.tutorId,
       name: tutor.name,
-      subject: tutor.subjects?.[0] || '未指定',
-      education: tutor.tutorProfile?.education || '未指定',
-      experience: tutor.tutorProfile?.experience || '未指定',
+      subjects: tutor.subjects || [],
+      experience: tutor.tutorProfile?.teachingExperienceYears || 0,
+      education: tutor.tutorProfile?.educationLevel || '未指定',
       rating: tutor.rating || 0,
-      avatarUrl: tutor.avatar || `https://randomuser.me/api/portraits/${tutor.gender || 'men'}/${Math.floor(Math.random() * 100)}.jpg`,
+      avatarUrl: tutor.avatar || 'https://hi-hi-tutor-real-backend2.vercel.app/avatars/default.png',
+      avatarOffsetX: tutor.tutorProfile?.avatarOffsetX || 50,
       isVip: tutor.isVip || false,
-      isTop: tutor.isTop || false
+      isTop: tutor.isTop || false,
+      // 添加性別信息
+      tutorProfile: {
+        gender: tutor.tutorProfile?.gender || null
+      }
     }));
 
     console.log('📤 返回格式化後的推薦導師數據');

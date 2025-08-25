@@ -1010,7 +1010,11 @@ const getTutorByTutorId = async (req, res) => {
       examResults: user.tutorProfile?.examResults?.map(exam => `${exam.subject} ${exam.grade}`) || [],
       courseFeatures: user.tutorProfile?.courseFeatures || '',
       publicCertificates: user.tutorProfile?.publicCertificates || [],
-      rating: user.rating || 0
+      rating: user.rating || 0,
+      // 添加性別信息
+      tutorProfile: {
+        gender: user.tutorProfile?.gender || null
+      }
     };
     
     res.json({
