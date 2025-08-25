@@ -3,7 +3,7 @@ const router = express.Router();
 const Article = require('../models/Article');
 const User = require('../models/User');
 
-// GET /api/articles - 取得所有文章
+// GET /api/articles - 取得所有文章（公開）
 router.get('/', async (req, res) => {
   try {
     // 檢查是否有用戶認證
@@ -36,6 +36,21 @@ router.get('/', async (req, res) => {
   } catch (err) {
     console.error('載入文章失敗:', err);
     res.status(500).json({ message: '載入文章失敗' });
+  }
+});
+
+// GET /api/articles/all - 管理員獲取所有文章（包括待審核的）
+router.get('/all', async (req, res) => {
+  try {
+    // TODO: 驗證管理員權限
+    const articles = await Article.find()
+      .populate('authorId', 'name')
+      .sort({ createdAt: -1 });
+    
+    res.json(articles);
+  } catch (err) {
+    console.error('載入所有文章失敗:', err);
+    res.status(500).json({ message: '載入所有文章失敗' });
   }
 });
 
@@ -141,6 +156,32 @@ router.post('/:id/approve', async (req, res) => {
   } catch (err) {
     console.error('審批文章失敗:', err);
     res.status(500).json({ message: '審批文章失敗' });
+  }
+});
+
+// 拒絕文章（需要 admin 權限）
+router.post('/:id/reject', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+    
+    if (!reason || !reason.trim()) {
+      return res.status(400).json({ message: '請提供拒絕原因' });
+    }
+
+    const article = await Article.findById(id);
+    if (!article) {
+      return res.status(404).json({ message: '文章不存在' });
+    }
+
+    article.status = 'rejected';
+    // 可以在這裡添加拒絕原因字段，如果 Article 模型支持的話
+    await article.save();
+    
+    res.json({ success: true, article });
+  } catch (err) {
+    console.error('拒絕文章失敗:', err);
+    res.status(500).json({ message: '拒絕文章失敗' });
   }
 });
 
