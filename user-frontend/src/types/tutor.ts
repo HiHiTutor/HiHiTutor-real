@@ -24,6 +24,7 @@ export interface Tutor {
   isTop?: boolean;
   region?: string;
   teachingModes?: string[];
+  gender?: 'male' | 'female'; // 添加根級別性別字段
   
   // 新增：用戶升級做導師時填寫的欄位
   tutorProfile?: {
