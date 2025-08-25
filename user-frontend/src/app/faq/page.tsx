@@ -13,11 +13,11 @@ const faqData = [
   },
   {
     question: '如何支付學費？',
-    answer: '本平台會代收第一堂堂費作為配對及留位費用。家長/學生可透過「轉數快」繳交相關堂費，FPS ID: 117665562，帳戶名稱: HiHiTutor Limited。\n如需協助，請 <a href="https://wa.me/85295011159" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">聯絡我們</a>。',
+    answer: null, // 由JSX渲染
   },
   {
     question: '如果家長/學生認為導師不適合，我可以要求更換嗎？',
-    answer: '敬請聯絡配對專員，我們會嘗試了解課堂情況，同時向導師反映，協助調解。\n\nHiHiTutor 同時亦明白，導師與學生磨合需時，任何進步都需要時間。希望家長可多與導師溝通，互相了解合理期望，從而調整課堂安排。\n\n如必要時更換導師，本平台雖然不會收取額外手續費，只會代收新導師一堂堂費作為行政費用，但學生同時亦重新適應教法，提出更換前亦請家長認真考慮。',
+    answer: null, // 由JSX渲染
   },
   {
     question: '家長/學生可否在補習開始前約見導師以確保導師適合學生的需要？',
@@ -219,6 +219,20 @@ export default function FAQPage() {
                         <div>
                           當導師確認課堂詳情後，包括上堂時間、地點、堂費等，本平台會代收第一堂堂費作為配對及留位費用。本平台收取相關費用後，則協助家長/學生和導師雙方協助交換聯絡資料，雙方根據協定時間開始上上第一堂。而由第二堂開始，堂費則直接交予導師，而交付方式則由家長/學生與導師自行協定。
                         </div>
+                      </>
+                    ) : faq.question === '如何支付學費？' ? (
+                      <>
+                        <div>本平台會代收第一堂堂費作為配對及留位費用。家長/學生可透過「轉數快」繳交相關堂費，FPS ID: 117665562，帳戶名稱: HiHiTutor Limited。</div>
+                        <br />
+                        <div>如需協助，請 <a href="https://wa.me/85295011159" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">聯絡我們</a>。</div>
+                      </>
+                    ) : faq.question === '如果家長/學生認為導師不適合，我可以要求更換嗎？' ? (
+                      <>
+                        <div>敬請聯絡<a href="https://wa.me/85295011159" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">配對專員</a>，我們會嘗試了解課堂情況，同時向導師反映，協助調解。</div>
+                        <br />
+                        <div>HiHiTutor 同時亦明白，導師與學生磨合需時，任何進步都需要時間。希望家長可多與導師溝通，互相了解合理期望，從而調整課堂安排。</div>
+                        <br />
+                        <div>如必要時更換導師，本平台雖然不會收取額外手續費，只會代收新導師一堂堂費作為行政費用，但學生同時亦重新適應教法，提出更換前亦請家長認真考慮。</div>
                       </>
                     ) : faq.answer}
                   </div>
