@@ -55,11 +55,22 @@ export default function ArticlesPage() {
           try {
             console.log('🔍 使用 useUser hook 獲取的用戶:', user)
             
-            const myRes = await fetch(`${baseUrl}/api/articles/my-articles?authorId=${user.id}`, {
+            // 嘗試兩種 ID 格式
+            let myRes = await fetch(`${baseUrl}/api/articles/my-articles?authorId=${user.id}`, {
               headers: {
                 'Authorization': `Bearer ${token}`
               }
             })
+            
+            // 如果第一個失敗，嘗試使用 userId
+            if (!myRes.ok && user.userId) {
+              console.log('🔍 嘗試使用 userId:', user.userId)
+              myRes = await fetch(`${baseUrl}/api/articles/my-articles?authorId=${user.userId}`, {
+                headers: {
+                  'Authorization': `Bearer ${token}`
+                }
+              })
+            }
             
             console.log('🔍 我的文章 API 響應:', { status: myRes.status, ok: myRes.ok })
             
