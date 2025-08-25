@@ -108,9 +108,7 @@ export default function ArticlesPage() {
     // 如果用戶還沒載入，等待一下再載入文章
     if (!user) {
       const timer = setTimeout(() => {
-        if (user) {
-          loadArticles()
-        }
+        loadArticles() // 即使沒有用戶也要載入公開文章
       }, 1000)
       return () => clearTimeout(timer)
     }

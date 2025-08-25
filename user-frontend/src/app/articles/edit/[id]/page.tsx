@@ -60,8 +60,14 @@ export default function EditArticlePage() {
 
       const data = await response.json()
       
-      // 檢查是否是作者本人
-      if (data.authorId !== user?.id) {
+      // 檢查是否是作者本人 - 嘗試兩種 ID 格式
+      const isAuthor = data.authorId === user?.id || data.authorId === user?.userId
+      if (!isAuthor) {
+        console.log('🔍 權限檢查失敗:', { 
+          articleAuthorId: data.authorId, 
+          userID: user?.id, 
+          userUserId: user?.userId 
+        })
         setError('您只能編輯自己的文章')
         return
       }
