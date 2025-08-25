@@ -17,7 +17,7 @@ const faqData = [
   },
   {
     question: '如果家長/學生認為導師不適合，我可以要求更換嗎？',
-    answer: '敬請聯絡 配對專員(https://wa.me/85295011159)，我們會嘗試了解課堂情況，同時向導師反映，協助調解。HiHiTutor 同時亦明白，導師與學生磨合需時，任何進步都需要時間。希望家長可多與導師溝通，互相了解合理期望，從而調整課堂安排。如必要時更換導師，本平台雖然不會收取額外手續費，只會代收新導師一堂堂費作為行政費用，但學生同時亦重新適應教法，提出更換前亦請家長認真考慮。',
+    answer: '敬請聯絡 <a href="https://wa.me/85295011159" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">配對專員</a>，我們會嘗試了解課堂情況，同時向導師反映，協助調解。HiHiTutor 同時亦明白，導師與學生磨合需時，任何進步都需要時間。希望家長可多與導師溝通，互相了解合理期望，從而調整課堂安排。如必要時更換導師，本平台雖然不會收取額外手續費，只會代收新導師一堂堂費作為行政費用，但學生同時亦重新適應教法，提出更換前亦請家長認真考慮。',
   },
   {
     question: '家長/學生可否在補習開始前約見導師以確保導師適合學生的需要？',
@@ -237,7 +237,7 @@ export default function FAQPage() {
               rel="noopener noreferrer"
               className="text-blue-600 hover:text-blue-800 font-medium ml-1"
             >
-              聯絡我們
+              聯繫我們
             </a>
           </p>
         </div>
