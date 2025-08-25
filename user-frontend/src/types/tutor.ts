@@ -31,6 +31,7 @@ export interface Tutor {
     education?: string;
     experience?: string;
     rating?: number;
+    gender?: 'male' | 'female'; // 性別
     // 新增欄位
     teachingMode?: string; // 補習形式，如：上門／網上／面授
     teachingSubModes?: string[]; // 教學方式細項，如：Zoom／Google Meet
