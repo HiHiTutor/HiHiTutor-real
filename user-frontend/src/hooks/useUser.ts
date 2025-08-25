@@ -83,7 +83,7 @@ export function useUser() {
       // 如果係 tutor，額外 fetch tutor profile 來獲取 avatarUrl 和檢查審批狀態
       if (userData.userType === 'tutor') {
         try {
-          const tutorRes = await fetch('/api/tutors/profile', {
+          const tutorRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/tutors/profile`, {
             headers: {
               'Authorization': `Bearer ${token}`,
             },
