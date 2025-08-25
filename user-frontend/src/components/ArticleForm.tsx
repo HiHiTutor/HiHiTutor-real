@@ -1,11 +1,11 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSession } from '@/hooks/useSession'
+import { useUser } from '@/hooks/useUser'
 
 export default function ArticleForm() {
   const router = useRouter()
-  const { user } = useSession()
+  const { user } = useUser()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -23,17 +23,28 @@ export default function ArticleForm() {
       authorId: user?.id,
     }
 
+    console.log('🔍 提交文章數據:', data)
+    console.log('🔍 用戶信息:', user)
+    console.log('🔍 API URL:', `${process.env.NEXT_PUBLIC_API_BASE}/api/articles/submit`)
+
     try {
-      const res = await fetch('/api/articles/submit', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/articles/submit`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
         body: JSON.stringify(data),
       })
 
       if (!res.ok) {
-        throw new Error('提交失敗')
+        const errorData = await res.json().catch(() => ({}))
+        console.error('❌ 提交失敗:', res.status, res.statusText, errorData)
+        throw new Error(`提交失敗: ${res.status} ${res.statusText}`)
       }
 
+      const result = await res.json()
+      console.log('✅ 提交成功:', result)
       router.push('/articles')
     } catch (err) {
       setError(err instanceof Error ? err.message : '提交失敗')
