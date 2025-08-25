@@ -21,6 +21,7 @@ import {
   LocationOn as LocationIcon,
   Settings as SettingsIcon,
   Notifications as NotificationsIcon,
+  Article as ArticleIcon,
 } from '@mui/icons-material';
 import { useNotifications } from '../../hooks/useNotifications';
 
@@ -39,6 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open }) => {
     { text: '儀表板', icon: <DashboardIcon />, path: '/dashboard' },
     { text: '用戶管理', icon: <PeopleIcon />, path: '/users' },
     { text: '案例管理', icon: <DescriptionIcon />, path: '/cases', badge: notifications?.openCases },
+    { text: '文章審批', icon: <ArticleIcon />, path: '/article-approvals' },
     { text: '廣告管理', icon: <CampaignIcon />, path: '/AdManager' },
     { text: '統計分析', icon: <BarChartIcon />, path: '/statistics' },
     { text: '搜尋統計', icon: <SearchIcon />, path: '/search-statistics' },

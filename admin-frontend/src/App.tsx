@@ -15,6 +15,7 @@ import CreateCase from './pages/CreateCase';
 import NotFound from './pages/NotFound';
 import TutorApplications from './pages/TutorApplications';
 import TutorProfileApprovals from './pages/TutorProfileApprovals';
+import ArticleApprovals from './pages/ArticleApprovals';
 import AdManager from './pages/AdManager';
 import AdCreate from './pages/AdCreate';
 import AdEdit from './pages/AdEdit';
@@ -66,6 +67,7 @@ const App: React.FC = () => {
         <Route path="/search-statistics" element={<ProtectedRoute element={<Layout><SearchStatistics /></Layout>} />} />
         <Route path="/tutor-applications" element={<ProtectedRoute element={<Layout><TutorApplications /></Layout>} />} />
         <Route path="/tutor-profile-approvals" element={<ProtectedRoute element={<Layout><TutorProfileApprovals /></Layout>} />} />
+        <Route path="/article-approvals" element={<ProtectedRoute element={<Layout><ArticleApprovals /></Layout>} />} />
         <Route path="/AdManager" element={<ProtectedRoute element={<Layout><AdManager /></Layout>} />} />
         <Route path="/ad-create" element={<ProtectedRoute element={<Layout><AdCreate /></Layout>} />} />
         <Route path="/ad-edit/:id" element={<ProtectedRoute element={<Layout><AdEdit /></Layout>} />} />
