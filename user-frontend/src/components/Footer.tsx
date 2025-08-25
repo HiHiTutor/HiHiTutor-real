@@ -15,7 +15,7 @@ const Footer = () => {
           {/* 連結 - 第二行 */}
           <div className="flex space-x-6 max-[700px]:space-x-4 max-[700px]:flex-wrap max-[700px]:justify-center">
             <a href="https://wa.me/85295011159" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors text-sm">聯絡我們</a>
-            <Link href="/about" className="hover:text-primary transition-colors text-sm">關於我們</Link>
+            <Link href="/faq" className="hover:text-primary transition-colors text-sm">關於我們</Link>
             <Link href="/terms" className="hover:text-primary transition-colors text-sm">服務條款</Link>
             <Link href="/privacy" className="hover:text-primary transition-colors text-sm">私隱政策</Link>
           </div>
