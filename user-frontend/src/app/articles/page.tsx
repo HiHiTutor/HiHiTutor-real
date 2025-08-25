@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { ArticleCard } from '@/components/ArticleCard'
+import { useUser } from '@/hooks/useUser'
 
 interface Article {
   id: string
@@ -21,6 +22,7 @@ interface Article {
 }
 
 export default function ArticlesPage() {
+  const { user } = useUser()
   const [articles, setArticles] = useState<Article[]>([])
   const [myArticles, setMyArticles] = useState<Article[]>([])
   const [loading, setLoading] = useState(true)
@@ -47,52 +49,43 @@ export default function ArticlesPage() {
         
         // 嘗試載入用戶自己的文章
         const token = localStorage.getItem('token')
-        console.log('🔍 檢查用戶登入狀態:', { hasToken: !!token })
+        console.log('🔍 檢查用戶登入狀態:', { hasToken: !!token, user: user })
         
-        if (token) {
+        if (token && user) {
           try {
-            // 從 localStorage 獲取用戶信息
-            const userStr = localStorage.getItem('user')
-            console.log('🔍 用戶信息:', userStr)
+            console.log('🔍 使用 useUser hook 獲取的用戶:', user)
             
-            if (userStr) {
-              const user = JSON.parse(userStr)
-              console.log('🔍 解析後的用戶:', user)
-              
-              const myRes = await fetch(`${baseUrl}/api/articles/my-articles?authorId=${user.id}`, {
-                headers: {
-                  'Authorization': `Bearer ${token}`
-                }
-              })
-              
-              console.log('🔍 我的文章 API 響應:', { status: myRes.status, ok: myRes.ok })
-              
-              if (myRes.ok) {
-                const myData = await myRes.json()
-                console.log('🔍 我的文章數據:', myData)
-                
-                const myArticles = myData.map((a: any) => ({
-                  ...a,
-                  author: a.author || '你',
-                  date: a.date || a.createdAt || '2024-01-01',
-                  views: a.views || 0,
-                  featured: a.featured || false,
-                  coverImage: a.coverImage || 'https://source.unsplash.com/400x200/?education'
-                }))
-                setMyArticles(myArticles)
-                console.log('🔍 設置我的文章:', myArticles)
-              } else {
-                const errorData = await myRes.json().catch(() => ({}))
-                console.error('❌ 載入我的文章失敗:', { status: myRes.status, error: errorData })
+            const myRes = await fetch(`${baseUrl}/api/articles/my-articles?authorId=${user.id}`, {
+              headers: {
+                'Authorization': `Bearer ${token}`
               }
+            })
+            
+            console.log('🔍 我的文章 API 響應:', { status: myRes.status, ok: myRes.ok })
+            
+            if (myRes.ok) {
+              const myData = await myRes.json()
+              console.log('🔍 我的文章數據:', myData)
+              
+              const myArticles = myData.map((a: any) => ({
+                ...a,
+                author: a.author || '你',
+                date: a.date || a.createdAt || '2024-01-01',
+                views: a.views || 0,
+                featured: a.featured || false,
+                coverImage: a.coverImage || 'https://source.unsplash.com/400x200/?education'
+              }))
+              setMyArticles(myArticles)
+              console.log('🔍 設置我的文章:', myArticles)
             } else {
-              console.log('🔍 沒有用戶信息')
+              const errorData = await myRes.json().catch(() => ({}))
+              console.error('❌ 載入我的文章失敗:', { status: myRes.status, error: errorData })
             }
           } catch (err) {
             console.error('❌ 載入用戶文章失敗:', err)
           }
         } else {
-          console.log('🔍 沒有登入 token')
+          console.log('🔍 沒有登入 token 或用戶信息:', { hasToken: !!token, hasUser: !!user })
         }
       } catch (err) {
         console.error('文章載入失敗:', err)
@@ -228,7 +221,8 @@ export default function ArticlesPage() {
             <p>文章總數: {articles.length}</p>
             <p>我的文章數: {myArticles.length}</p>
             <p>Token: {localStorage.getItem('token') ? '存在' : '不存在'}</p>
-            <p>用戶信息: {localStorage.getItem('user') ? '存在' : '不存在'}</p>
+            <p>useUser Hook 狀態: {user ? `已載入 (ID: ${user.id})` : '未載入'}</p>
+            <p>用戶類型: {user?.userType || '未知'}</p>
           </div>
         </section>
       )}
