@@ -26,6 +26,9 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
   const displayAvatar = tutor.avatarUrl || tutor.avatar || 'https://hi-hi-tutor-real-backend2.vercel.app/avatars/default.png';
   const avatarOffsetX = tutor.avatarOffsetX || 50; // 預設置中
   
+  // 獲取性別信息 - 處理兩種數據結構
+  const gender = tutor.tutorProfile?.gender || tutor.gender;
+  
   // 使用 tutorId 作為導航 ID，如果沒有則使用 userId 或 id
   const navigationId = tutor.tutorId;
 
@@ -50,12 +53,12 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
             }}
           />
           {/* 性別圖示 - 右下角 */}
-          {tutor.tutorProfile?.gender && (
+          {gender && (
             <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-2 border-white shadow-sm flex items-center justify-center max-sm:w-5 max-sm:h-5 max-[700px]:w-5 max-[700px]:h-5">
-              {tutor.tutorProfile.gender === 'male' ? (
-                <span className="text-blue-500 text-xs max-sm:text-[10px] max-[700px]:text-[10px]">👨</span>
+              {gender === 'male' ? (
+                <span className="text-blue-500 text-xs max-sm:text-[10px] max-[700px]:text-[10px]">👤</span>
               ) : (
-                <span className="text-pink-500 text-xs max-sm:text-[10px] max-[700px]:text-[10px]">👩</span>
+                <span className="text-red-500 text-xs max-sm:text-[10px] max-[700px]:text-[10px]">👤</span>
               )}
             </div>
           )}
