@@ -13,7 +13,7 @@ const faqData = [
   },
   {
     question: '如何支付學費？',
-    answer: '學生與導師確認上課後，平台會提供安全的支付方式，保障雙方利益。',
+    answer: '本平台會代收第一堂堂費作為配對及留位費用。家長/學生可透過「轉數快」繳交相關堂費，FPS ID: 117665562，帳戶名稱: HiHiTutor Limited。如需協助，請聯絡我們(https://wa.me/85295011159)。',
   },
   {
     question: '如果對導師不滿意怎麼辦？',
@@ -135,14 +135,14 @@ export default function FAQPage() {
                       <>
                         <div>第一步：</div>
                         <div>
-                          <a href="https://www.hihitutor.com/register" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mx-1">"註冊"</a>
+                          <a href="https://www.hihitutor.com/register" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mx-1">註冊</a>
                           成為HiHiTutor 用戶。
                         </div>
                         <br />
                         <div>第二步：</div>
                         <div>
                           到 
-                          <a href="https://www.hihitutor.com/profile" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mx-1">"帳戶設定"</a>
+                          <a href="https://www.hihitutor.com/profile" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mx-1">帳戶設定</a>
                           填寫導師資料並上載相關學歷證明，經配對專員審核後，帳戶會升級成導師帳戶。
                         </div>
                         <br />
@@ -150,7 +150,7 @@ export default function FAQPage() {
                         <div>自助搜尋導師</div>
                         <div>
                           前往
-                          <a href="https://www.hihitutor.com/find-student-cases" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mx-1">"補習個案"</a>
+                          <a href="https://www.hihitutor.com/find-student-cases" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mx-1">補習個案</a>
                           找導心儀補習個案, 並按 "📱 申請此個案"，配對專員會盡快為你協調課堂安排。
                         </div>
                         <br />
