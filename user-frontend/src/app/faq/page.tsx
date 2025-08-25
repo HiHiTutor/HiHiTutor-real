@@ -9,7 +9,7 @@ const faqData = [
   },
   {
     question: '「招學生」流程',
-    answer: '未完成~~',
+    answer: null, // 由JSX渲染
   },
   {
     question: '如何支付學費？',
@@ -110,7 +110,7 @@ export default function FAQPage() {
                         <div>
                           前往
                           <a href="https://www.hihitutor.com/tutors" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mx-1">導師列表</a>
-                          自行篩選合適導師, 並按 “立即預約上堂”，配對專員會盡快為你協調課堂安排。
+                          自行篩選合適導師, 並按 "立即預約上堂"，配對專員會盡快為你協調課堂安排。
                         </div>
                         <br />
                         <div>方法2 – 招募導師</div>
@@ -129,6 +129,35 @@ export default function FAQPage() {
                         <div>第二步: 確認上堂細節</div>
                         <div>
                           當家長/學生確認課堂詳情後，包括導師、上堂時間、地點、堂費等，本平台會代收第一堂堂費作為配對及留位費用。本平台收取相關費用後，則協助家長/學生和導師雙方協助交換聯絡資料，雙方根據協定時間開始上上第一堂。而由第二堂開始，堂費則直接交予導師，而交付方式則由家長/學生與導師自行協定。原則上，家長/學生在配對過程中是完全無須繳交任何額外費用。
+                        </div>
+                      </>
+                    ) : faq.question === '「招學生」流程' ? (
+                      <>
+                        <div>第一步：</div>
+                        <div>
+                          <a href="https://www.hihitutor.com/register" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mx-1">"註冊"</a>
+                          成為HiHiTutor 用戶。
+                        </div>
+                        <br />
+                        <div>第二步：</div>
+                        <div>
+                          到 
+                          <a href="https://www.hihitutor.com/profile" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mx-1">"帳戶設定"</a>
+                          填寫導師資料並上載相關學歷證明，經配對專員審核後，帳戶會升級成導師帳戶。
+                        </div>
+                        <br />
+                        <div>第三步：</div>
+                        <div>自助搜尋導師</div>
+                        <div>
+                          前往
+                          <a href="https://www.hihitutor.com/find-student-cases" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mx-1">"補習個案"</a>
+                          找導心儀補習個案, 並按 "📱 申請此個案"，配對專員會盡快為你協調課堂安排。
+                        </div>
+                        <br />
+                        <div>第四步：</div>
+                        <div>確認上堂細節</div>
+                        <div>
+                          當導師確認課堂詳情後，包括上堂時間、地點、堂費等，本平台會代收第一堂堂費作為配對及留位費用。本平台收取相關費用後，則協助家長/學生和導師雙方協助交換聯絡資料，雙方根據協定時間開始上上第一堂。而由第二堂開始，堂費則直接交予導師，而交付方式則由家長/學生與導師自行協定。
                         </div>
                       </>
                     ) : faq.answer}
