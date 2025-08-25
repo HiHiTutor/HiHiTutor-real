@@ -94,8 +94,18 @@ export default function ArticlesPage() {
       }
     }
     
+    // 如果用戶還沒載入，等待一下再載入文章
+    if (!user) {
+      const timer = setTimeout(() => {
+        if (user) {
+          loadArticles()
+        }
+      }, 1000)
+      return () => clearTimeout(timer)
+    }
+    
     loadArticles()
-  }, [baseUrl])
+  }, [baseUrl, user])
 
   const featured = articles.filter((a) => a.featured)
   const latest = articles.filter((a) => !a.featured)
@@ -223,6 +233,12 @@ export default function ArticlesPage() {
             <p>Token: {localStorage.getItem('token') ? '存在' : '不存在'}</p>
             <p>useUser Hook 狀態: {user ? `已載入 (ID: ${user.id})` : '未載入'}</p>
             <p>用戶類型: {user?.userType || '未知'}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600"
+            >
+              🔄 強制刷新頁面
+            </button>
           </div>
         </section>
       )}

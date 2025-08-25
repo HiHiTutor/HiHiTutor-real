@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 interface User {
   id: string
@@ -16,7 +16,7 @@ export function useUser() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchUser = async () => {
+  const fetchUser = useCallback(async () => {
     try {
       setError(null)
       const token = localStorage.getItem('token')
@@ -175,7 +175,7 @@ export function useUser() {
       window.removeEventListener('logout', handleLogout)
       window.removeEventListener('userUpdate', handleUserUpdate)
     }
-  }, [])
+  }, [fetchUser])
 
   return { user, isLoading, error }
 } 
