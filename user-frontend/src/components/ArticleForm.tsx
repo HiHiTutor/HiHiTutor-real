@@ -64,10 +64,12 @@ export default function ArticleForm() {
       
       // 插入到表單前面
       const form = document.querySelector('form')
-      form.parentNode.insertBefore(successDiv, form)
-      
-      // 清空表單
-      form.reset()
+      if (form && form.parentNode) {
+        form.parentNode.insertBefore(successDiv, form)
+        
+        // 清空表單
+        form.reset()
+      }
       
       // 延遲跳轉，讓用戶看到成功提示
       setTimeout(() => {
