@@ -316,7 +316,7 @@ const getAllTutors = async (req, res) => {
               isActive: true,
               status: 'active',
               isVip: true 
-            }).select('name avatar tutorProfile.gender tutorProfile.rating rating isVip isTop createdAt tutorId subjects');
+            }).select('name avatar tutorProfile rating isVip isTop createdAt tutorId subjects');
             
             const topTutors = await User.find({ 
               userType: 'tutor',
@@ -324,7 +324,7 @@ const getAllTutors = async (req, res) => {
               status: 'active',
               isTop: true,
               isVip: false  // 排除 VIP，避免重複
-            }).select('name email avatar tutorProfile.gender tutorProfile.rating rating isVip isTop createdAt tutorId subjects');
+            }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects');
             
             const normalTutors = await User.find({ 
               userType: 'tutor',
@@ -332,7 +332,7 @@ const getAllTutors = async (req, res) => {
               status: 'active',
               isVip: false,
               isTop: false
-            }).select('name email avatar tutorProfile.gender tutorProfile.rating rating isVip isTop createdAt tutorId subjects');
+            }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects');
             
             console.log(`📊 找到導師數量:`);
             console.log(`- VIP 導師: ${vipTutors.length} 個`);
@@ -473,7 +473,11 @@ const getAllTutors = async (req, res) => {
               createdAt: tutor.createdAt,
               date: tutor.createdAt,
               teachingModes: tutor.tutorProfile?.teachingMethods || [],
-              regions: tutor.tutorProfile?.teachingAreas || []
+              regions: tutor.tutorProfile?.teachingAreas || [],
+              // 添加性別信息
+              tutorProfile: {
+                gender: tutor.tutorProfile?.gender || null
+              }
             }));
             
           } catch (weightedError) {
@@ -555,7 +559,11 @@ const getAllTutors = async (req, res) => {
           createdAt: new Date().toISOString(),
           date: new Date().toISOString(),
           teachingModes: tutor.teachingModes || [],
-          regions: tutor.regions || []
+          regions: tutor.regions || [],
+          // 添加性別信息（mock 數據默認為男性）
+          tutorProfile: {
+            gender: 'male'
+          }
         }));
         
         console.log(`✅ 使用模擬數據，找到 ${mappedTutors.length} 個導師`);
@@ -588,7 +596,7 @@ const getAllTutors = async (req, res) => {
             isActive: true,
             status: 'active',
             isVip: true 
-          }).select('name avatar tutorProfile.gender tutorProfile.rating rating isVip isTop createdAt tutorId subjects');
+          }).select('name avatar tutorProfile rating isVip isTop createdAt tutorId subjects');
           
           const topTutors = await User.find({ 
             userType: 'tutor',
@@ -596,7 +604,7 @@ const getAllTutors = async (req, res) => {
             status: 'active',
             isTop: true,
             isVip: false  // 排除 VIP，避免重複
-          }).select('name email avatar tutorProfile.gender tutorProfile.rating rating isVip isTop createdAt tutorId subjects');
+          }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects');
           
           const regularTutors = await User.find({ 
             userType: 'tutor',
@@ -604,7 +612,7 @@ const getAllTutors = async (req, res) => {
             status: 'active',
             isVip: false,
             isTop: false
-          }).select('name email avatar tutorProfile.gender tutorProfile.rating rating isVip isTop createdAt tutorId subjects');
+          }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects');
           
           console.log(`📊 Fallback 查詢結果:`);
           console.log(`- VIP 導師: ${vipTutors.length} 個`);
@@ -812,7 +820,7 @@ const getAllTutors = async (req, res) => {
           if (featured === 'true') {
             console.log('🎯 精選導師查詢：不限制數量');
             dbTutors = await User.find(query)
-              .select('name email avatar tutorProfile.gender tutorProfile.rating rating isVip isTop createdAt tutorId subjects');
+              .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects');
           } else {
             console.log('📊 普通查詢：限制數量');
             // 檢查是否為導師列表頁面（沒有其他篩選條件）
@@ -821,13 +829,13 @@ const getAllTutors = async (req, res) => {
             if (isTutorListPage) {
               console.log('🎯 導師列表頁面：unlimited，顯示所有導師');
               dbTutors = await User.find(query)
-                .select('name email avatar tutorProfile.gender tutorProfile.rating rating isVip isTop createdAt tutorId subjects');
+                .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects');
             } else {
               // 其他頁面使用預設限制，過萬個才考慮限制
               const limitNum = parseInt(limit) || 10000;
               console.log(`📊 使用限制: ${limitNum} (導師列表頁面: ${isTutorListPage})`);
               dbTutors = await User.find(query)
-                .select('name email avatar tutorProfile.gender tutorProfile.rating rating isVip isTop createdAt tutorId subjects')
+                .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects')
                 .limit(limitNum);
             }
           }
@@ -868,7 +876,11 @@ const getAllTutors = async (req, res) => {
             createdAt: tutor.createdAt,
             date: tutor.createdAt,
             teachingModes: tutor.tutorProfile?.teachingMethods || [],
-            regions: tutor.tutorProfile?.teachingAreas || []
+            regions: tutor.tutorProfile?.teachingAreas || [],
+            // 添加性別信息
+            tutorProfile: {
+              gender: tutor.tutorProfile?.gender || null
+            }
           }));
         }
         
@@ -893,7 +905,11 @@ const getAllTutors = async (req, res) => {
           createdAt: new Date().toISOString(),
           date: new Date().toISOString(),
           teachingModes: tutor.teachingModes || [],
-          regions: tutor.regions || []
+          regions: tutor.regions || [],
+          // 添加性別信息（mock 數據默認為男性）
+          tutorProfile: {
+            gender: 'male'
+          }
         }));
       }
     }
