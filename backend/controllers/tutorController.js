@@ -476,7 +476,7 @@ const getAllTutors = async (req, res) => {
               regions: tutor.tutorProfile?.teachingAreas || [],
               // 添加性別信息
               tutorProfile: {
-                gender: tutor.tutorProfile?.gender || null
+                gender: tutor.tutorProfile?.gender || 'male'
               }
             }));
             
@@ -879,7 +879,7 @@ const getAllTutors = async (req, res) => {
             regions: tutor.tutorProfile?.teachingAreas || [],
             // 添加性別信息
             tutorProfile: {
-              gender: tutor.tutorProfile?.gender || null
+              gender: tutor.tutorProfile?.gender || 'male'
             }
           }));
         }
@@ -965,7 +965,7 @@ const getAllTutors = async (req, res) => {
         regions: tutor.regions,
         // 添加性別信息
         tutorProfile: {
-          gender: gender || null
+          gender: gender || 'male'
         }
       };
     });
@@ -1054,7 +1054,7 @@ const getTutorByTutorId = async (req, res) => {
       rating: user.rating || 0,
       // 添加性別信息
       tutorProfile: {
-        gender: user.tutorProfile?.gender || null
+        gender: user.tutorProfile?.gender || 'male'
       }
     };
     
