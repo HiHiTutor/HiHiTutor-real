@@ -194,7 +194,7 @@ export default function TutorDetailPage() {
             <CardContent className="pt-6 max-sm:pt-4 max-[700px]:pt-5">
               <h2 className="text-xl font-semibold mb-4 max-sm:text-lg max-sm:mb-3 max-[700px]:text-lg max-[700px]:mb-3">專業資格</h2>
               <ul className="list-disc list-inside text-muted-foreground max-sm:text-sm max-[700px]:text-sm">
-                {(tutor.qualifications || []).map((qualification, index) => (
+                {(tutor.qualifications || []).map((qualification: string, index: number) => (
                   <li key={index}>{qualification}</li>
                 ))}
               </ul>
@@ -221,11 +221,10 @@ export default function TutorDetailPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {tutor.publicCertificates.map((cert: string, index: number) => (
                     <div key={index} className="relative w-full h-48 border rounded-lg overflow-hidden">
-                      <AvatarImage
+                                              <img
                         src={cert}
                         alt={`公開證書 ${index + 1}`}
-                        fill
-                        className="object-cover"
+                        className="object-cover w-full h-full"
                       />
                     </div>
                   ))}
@@ -262,7 +261,7 @@ export default function TutorDetailPage() {
                     <div className="flex items-start">
                       <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">可教科目：</span>
                       <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
-                        {tutor.tutorProfile.subjects.map(subject => getSubjectName(subject)).join('、')}
+                        {tutor.tutorProfile.subjects.map((subject: string) => getSubjectName(subject)).join('、')}
                       </span>
                     </div>
                   )}
