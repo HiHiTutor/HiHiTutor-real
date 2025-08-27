@@ -104,7 +104,7 @@ export default function TutorDetailPage() {
                     教學經驗 {tutor.experience} 年 | 評分 {Number(tutor.rating).toFixed(1)} / 5.0
                   </div>
                   <div className="flex flex-wrap gap-2 max-sm:gap-1 max-sm:justify-center max-[700px]:gap-2 max-[700px]:justify-center">
-                    {(tutor.subjects || []).map((subject) => (
+                    {(tutor.subjects || []).map((subject: string) => (
                       <Badge key={subject} variant="secondary" className="max-sm:text-xs max-[700px]:text-xs">
                         {getSubjectName(subject)}
                       </Badge>
