@@ -162,29 +162,29 @@ const getAllTutors = async (req, res) => {
     if (featured === 'true') {
       console.log('🎯 查詢精選導師 (featured=true) - 分批輪播 + 置頂保障機制');
       
-      // 分別查詢不同類型的導師
-      const vipTutors = await User.find({ 
-        userType: 'tutor',
-        isActive: true,
-        status: 'active',
-        isVip: true 
-      }).select('name avatar tutorProfile rating isVip isTop createdAt tutorId subjects tutorProfile.gender');
-      
-      const topTutors = await User.find({ 
-        userType: 'tutor',
-        isActive: true,
-        status: 'active',
-        isTop: true,
-        isVip: false  // 排除 VIP，避免重複
-      }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects tutorProfile.gender');
-      
-      const normalTutors = await User.find({ 
-        userType: 'tutor',
-        isActive: true,
-        status: 'active',
-        isVip: false,
-        isTop: false
-      }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects tutorProfile.gender');
+              // 分別查詢不同類型的導師
+        const vipTutors = await User.find({ 
+          userType: 'tutor',
+          isActive: true,
+          status: 'active',
+          isVip: true 
+        }).select('name avatar tutorProfile rating isVip isTop createdAt tutorId subjects');
+        
+        const topTutors = await User.find({ 
+          userType: 'tutor',
+          isActive: true,
+          status: 'active',
+          isTop: true,
+          isVip: false  // 排除 VIP，避免重複
+        }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects');
+        
+        const normalTutors = await User.find({ 
+          userType: 'tutor',
+          isActive: true,
+          status: 'active',
+          isVip: false,
+          isTop: false
+        }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects');
       
       console.log(`📊 找到導師數量:`);
       console.log(`- VIP 導師: ${vipTutors.length} 個`);
@@ -398,11 +398,11 @@ const getAllTutors = async (req, res) => {
       
       console.log('🔍 查詢條件:', JSON.stringify(query, null, 2));
       
-      // 執行查詢
-      const limitNum = parseInt(limit) || 10000;
-      const dbTutors = await User.find(query)
-        .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects tutorProfile.gender')
-        .limit(limitNum);
+             // 執行查詢
+       const limitNum = parseInt(limit) || 10000;
+       const dbTutors = await User.find(query)
+         .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects')
+         .limit(limitNum);
       
       // 按優先級排序：VIP > 置頂 > 評分 > 註冊時間
       const sortedTutors = dbTutors.sort((a, b) => {
@@ -716,7 +716,7 @@ const getTutors = async (req, res) => {
 
     // 執行查詢
     const tutorResults = await User.find(query)
-      .select('userId tutorId name avatar subjects teachingAreas teachingMethods experience rating introduction tutorProfile.gender')
+      .select('userId tutorId name avatar subjects teachingAreas teachingMethods experience rating introduction')
       .sort(sort)
       .skip((page - 1) * limit)
       .limit(parseInt(limit));
