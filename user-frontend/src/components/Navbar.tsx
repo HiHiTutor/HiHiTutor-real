@@ -10,6 +10,7 @@ import {
 } from '@heroicons/react/24/outline';
 import React from 'react';
 import LoginModal from './LoginModal';
+import { useRouter } from 'next/navigation';
 
 const Navbar = () => {
   const { user, isLoading, error } = useUser();
@@ -17,6 +18,7 @@ const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const checkLogin = () => {
@@ -98,104 +100,48 @@ const Navbar = () => {
                 <img
                   src={user.avatarUrl || user.avatar || '/avatars/default.png'}
                   alt="avatar"
-                  className="w-8 h-8 rounded-full object-cover border"
+                  className="w-8 h-8 rounded-full border-2 border-gray-300"
                 />
               )}
-              <button
-                className="bg-gray-100 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-200 transition flex items-center"
-                onClick={() => setDropdownOpen((v) => !v)}
-              >
-                <span>{user.name}</span>
-                <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
-              </button>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-700">
+                  {user.name || '用戶'}
+                </span>
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+                >
+                  <UserGroupIcon className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
+              
+              {/* 下拉選單 */}
               {dropdownOpen && (
-                <div className="absolute left-0 top-full mt-2 w-44 bg-white border rounded-md shadow-lg z-50">
-                  {user?.userType === 'tutor' && (
-                    <Link href="/tutor/dashboard" className="block px-4 py-2 hover:bg-gray-100">我的導師介面</Link>
-                  )}
-                  {user?.userType === 'organization' && (
-                    <Link href="/org/dashboard" className="block px-4 py-2 hover:bg-gray-100">機構儀表板</Link>
-                  )}
-                  <Link href="/profile" className="block px-4 py-2 hover:bg-gray-100">編列個人資料</Link>
+                <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                  <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    個人資料
+                  </Link>
+                  <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    儀表板
+                  </Link>
                   <button
-                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500"
                     onClick={() => {
                       localStorage.removeItem('token');
                       window.dispatchEvent(new Event('logout'));
-                      window.location.href = '/login';
+                      setDropdownOpen(false);
+                      router.push('/');
                     }}
-                  >登出</button>
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    登出
+                  </button>
                 </div>
               )}
             </div>
           )}
+          
+          {/* 未登入狀態 */}
           {!isLoggedIn && (
-            <div className="flex items-center gap-2">
-              <Link href="/login">
-                <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">用戶登入</button>
-              </Link>
-              <Link href="/register">
-                <button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">註冊用戶</button>
-              </Link>
-            </div>
-          )}
-        </div>
-        {/* 手機版icon+名+三合一 */}
-        <div className="md:hidden flex items-center gap-2 ml-auto">
-          {isLoggedIn && user ? (
-            <div className="relative flex items-center gap-2">
-              {user.userType === 'tutor' && (
-                <img
-                  src={user.avatarUrl || user.avatar || '/avatars/default.png'}
-                  alt="avatar"
-                  className="w-6 h-6 rounded-full object-cover border"
-                />
-              )}
-              <button
-                className="flex items-center gap-1 bg-gray-100 text-gray-800 px-2 py-1 rounded-md hover:bg-gray-200 transition text-sm"
-                onClick={() => setDropdownOpen((v) => !v)}
-              >
-                <span className="max-w-[80px] truncate">{user.name}</span>
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              {dropdownOpen && (
-                <div className="absolute left-0 top-full mt-2 w-32 bg-white border rounded-md shadow-lg z-50 text-sm">
-                  {user?.userType === 'tutor' && (
-                    <Link href="/tutor/dashboard" className="block px-3 py-2 hover:bg-gray-100">我的導師介面</Link>
-                  )}
-                  {user?.userType === 'organization' && (
-                    <Link href="/org/dashboard" className="block px-3 py-2 hover:bg-gray-100">機構儀表板</Link>
-                  )}
-                  <Link href="/profile" className="block px-3 py-2 hover:bg-gray-100">編列個人資料</Link>
-                  <button
-                    className="block w-full text-left px-3 py-2 hover:bg-gray-100 text-red-500"
-                    onClick={() => {
-                      localStorage.removeItem('token');
-                      window.dispatchEvent(new Event('logout'));
-                      window.location.href = '/login';
-                    }}
-                  >登出</button>
-                </div>
-              )}
-              <button
-                className="p-2"
-                aria-label="Open menu"
-                onClick={() => setMenuOpen((v) => !v)}
-              >
-                {menuOpen ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                  </svg>
-                )}
-              </button>
-            </div>
-          ) : (
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1">
                 <Link href="/login">
@@ -276,8 +222,8 @@ const Navbar = () => {
         onClose={() => setShowLoginModal(false)}
         onSuccess={() => {
           setShowLoginModal(false);
-          // Optionally redirect to the post page after successful login
-          window.location.href = '/post/student-case';
+          // 使用 Next.js router 進行重定向，確保頁面狀態正確更新
+          router.push('/post/student-case');
         }}
       />
     </header>

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getSubjectNames, getRegionName, getSubRegionName, getModeName } from '@/utils/translate';
 import { caseApi } from '@/services/api';
+import { useUser } from '@/hooks/useUser';
 
 // 經驗要求映射
 const EXPERIENCES: { [key: string]: string } = {
@@ -16,24 +17,13 @@ const EXPERIENCES: { [key: string]: string } = {
 export default function FindStudentCaseDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { user, isLoading: userLoading } = useUser();
   const id = typeof params?.id === 'string' ? params.id : '';
   const [caseDetail, setCaseDetail] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
   const [showError, setShowError] = useState(false);
 
   useEffect(() => {
-    // 從 localStorage 獲取完整的用戶資料
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      try {
-        const userData = JSON.parse(userStr);
-        setUser(userData);
-      } catch (error) {
-        console.error('解析用戶資料失敗:', error);
-      }
-    }
-
     const fetchCase = async () => {
       try {
         const result = await caseApi.getStudentCaseById(id);
@@ -67,7 +57,8 @@ export default function FindStudentCaseDetailPage() {
     fetchCase();
   }, [id]);
 
-  if (loading) return (
+  // 等待用戶資料載入完成
+  if (userLoading || loading) return (
     <div className="flex items-center justify-center min-h-[400px]">
       <div className="text-blue-600 text-lg">載入中...</div>
     </div>

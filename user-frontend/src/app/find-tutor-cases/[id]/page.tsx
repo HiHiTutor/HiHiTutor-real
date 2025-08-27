@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { getSubjectNames, getRegionName, getSubRegionName, getModeName } from '@/utils/translate';
 import { caseApi } from '@/services/api';
+import { useUser } from '@/hooks/useUser';
 
 // 教學模式映射
 const MODES: { [key: string]: string } = {
@@ -25,24 +26,13 @@ const EXPERIENCES: { [key: string]: string } = {
 
 export default function FindTutorCaseDetailPage() {
   const params = useParams();
+  const { user, isLoading: userLoading } = useUser();
   const id = typeof params?.id === 'string' ? params.id : '';
   const [caseDetail, setCaseDetail] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
   const [showError, setShowError] = useState(false);
 
   useEffect(() => {
-    // 從 localStorage 獲取完整的用戶資料
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      try {
-        const userData = JSON.parse(userStr);
-        setUser(userData);
-      } catch (error) {
-        console.error('解析用戶資料失敗:', error);
-      }
-    }
-
     const fetchCase = async () => {
       try {
         const result = await caseApi.getStudentCaseById(id);
@@ -58,8 +48,18 @@ export default function FindTutorCaseDetailPage() {
     fetchCase();
   }, [id]);
 
-  if (loading) return <div>Loading...</div>;
-  if (!caseDetail) return <div>此個案未找到或已被刪除。</div>;
+  // 等待用戶資料載入完成
+  if (userLoading || loading) return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="text-blue-600 text-lg">載入中...</div>
+    </div>
+  );
+  
+  if (!caseDetail) return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="text-red-600 text-lg">此個案未找到或已被刪除。</div>
+    </div>
+  );
 
   // 處理個案 ID
   const getCaseId = () => {

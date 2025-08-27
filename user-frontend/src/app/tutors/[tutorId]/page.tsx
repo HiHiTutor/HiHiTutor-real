@@ -1,16 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParams, useSearchParams, useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import React, { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import { toast } from 'react-hot-toast';
 import { getSubjectName } from '@/utils/translate';
-import { Tutor } from '@/types/tutor';
-import Dialog from '@/components/Dialog';
+import { useUser } from '@/hooks/useUser';
 import { 
   getTeachingModeDisplay, 
   getRegionDisplay, 
@@ -19,29 +17,18 @@ import {
   formatTeachingSubModes,
   formatRegions
 } from '@/utils/tutorProfileUtils';
+import Dialog from '@/components/Dialog';
 
 export default function TutorDetailPage() {
-  const searchParams = useSearchParams();
+  const params = useParams();
   const router = useRouter();
-  const id = searchParams.get('id') || useParams().tutorId;
-  const { tutorId } = useParams();
-  const [tutor, setTutor] = useState<Tutor | null>(null);
+  const { user, isLoading: userLoading } = useUser();
+  const tutorId = typeof params?.tutorId === 'string' ? params.tutorId : '';
+  const [tutor, setTutor] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
   const [showLoginMessage, setShowLoginMessage] = useState(false);
 
   useEffect(() => {
-    // 從 localStorage 獲取用戶資料
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      try {
-        const userData = JSON.parse(userStr);
-        setUser(userData);
-      } catch (error) {
-        console.error('解析用戶資料失敗:', error);
-      }
-    }
-
     const fetchTutorDetail = async () => {
       try {
         setLoading(true);
@@ -87,7 +74,8 @@ export default function TutorDetailPage() {
     tutor.examResults = tutor.examResults || [];
   }
 
-  if (loading) {
+  // 等待用戶資料載入完成
+  if (userLoading || loading) {
     return <div className="container mx-auto py-8 text-center max-sm:py-6 max-sm:px-4 max-[700px]:py-6 max-[700px]:px-6">載入中...</div>;
   }
 
@@ -233,7 +221,7 @@ export default function TutorDetailPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {tutor.publicCertificates.map((cert: string, index: number) => (
                     <div key={index} className="relative w-full h-48 border rounded-lg overflow-hidden">
-                      <Image
+                      <AvatarImage
                         src={cert}
                         alt={`公開證書 ${index + 1}`}
                         fill
@@ -332,7 +320,7 @@ export default function TutorDetailPage() {
 
         {/* 導師卡片結束後，插入靠左的 WhatsApp 按鈕 */}
         <div className="w-full flex justify-center md:justify-start mt-6">
-          {id && (
+          {tutorId && (
             <>
               <Button 
                 onClick={() => {
@@ -345,7 +333,7 @@ export default function TutorDetailPage() {
                     return;
                   }
                   // 已登入：直接跳轉到 WhatsApp
-                  const message = `Hello，我喺 HiHiTutor 見到 tutorID ${id}，想了解同預約上堂，請問方便嗎？`;
+                  const message = `Hello，我喺 HiHiTutor 見到 tutorID ${tutorId}，想了解同預約上堂，請問方便嗎？`;
                   const whatsappUrl = `https://api.whatsapp.com/send?phone=85295011159&text=${encodeURIComponent(message)}`;
                   window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
                 }}

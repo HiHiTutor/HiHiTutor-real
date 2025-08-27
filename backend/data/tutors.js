@@ -1,6 +1,7 @@
 const tutors = [
   {
     id: 1,
+    tutorId: "TU0001",
     name: "王小明",
     subject: "secondary-math",
     subjects: ["secondary-math"],
@@ -12,10 +13,12 @@ const tutors = [
     isTop: true,
     region: "central",
     regions: ["central"],
-    teachingModes: ["one-on-one", "small-group"]
+    teachingModes: ["one-on-one", "small-group"],
+    gender: "male"
   },
   {
     id: 2,
+    tutorId: "TU0002",
     name: "李小華",
     subject: "secondary-english",
     subjects: ["secondary-english"],
@@ -27,10 +30,12 @@ const tutors = [
     isTop: false,
     region: "causeway-bay",
     regions: ["causeway-bay"],
-    teachingModes: ["online"]
+    teachingModes: ["online"],
+    gender: "female"
   },
   {
     id: 3,
+    tutorId: "TU0003",
     name: "張小美",
     subject: "secondary-physics",
     subjects: ["secondary-physics"],
@@ -42,22 +47,25 @@ const tutors = [
     isTop: true,
     region: "mong-kok",
     regions: ["mong-kok"],
-    teachingModes: ["one-on-one", "online"]
+    teachingModes: ["one-on-one", "online"],
+    gender: "female"
   },
   {
     id: 4,
+    tutorId: "TU0004",
     name: "陳小強",
     subject: "secondary-chemistry",
     subjects: ["secondary-chemistry"],
     education: "國立台灣大學化學系",
     experience: "6年教學經驗",
     rating: 4.6,
-    avatarUrl: "https://randomuser.me/api/portraits/men/75.jpg",
+    avatarUrl: "https://randomuser.me/api/portraits/women/68.jpg",
     isVip: true,
     isTop: true,
     region: "sha-tin",
     regions: ["sha-tin"],
-    teachingModes: ["large-center"]
+    teachingModes: ["large-center"],
+    gender: "female"
   },
   {
     id: 5,

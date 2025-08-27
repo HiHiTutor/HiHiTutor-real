@@ -28,7 +28,7 @@ export function useUser() {
       }
 
       // 從 /api/me 獲取最新用戶資料
-      const meRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/auth/me`, {
+      const meRes = await fetch(`/api/auth/me`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -58,7 +58,7 @@ export function useUser() {
       // 嘗試獲取詳細資料（包括頭像）
       let profileData = {}
       try {
-        const profileRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/auth/profile`, {
+        const profileRes = await fetch(`/api/auth/profile`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -84,7 +84,7 @@ export function useUser() {
       // 如果係 tutor，額外 fetch tutor profile 來獲取 avatarUrl 和檢查審批狀態
       if (userData.userType === 'tutor') {
         try {
-          const tutorRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/tutors/profile`, {
+          const tutorRes = await fetch(`/api/tutors/profile`, {
             headers: {
               'Authorization': `Bearer ${token}`,
             },
