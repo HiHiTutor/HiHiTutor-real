@@ -30,12 +30,12 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
   const gender = tutor.tutorProfile?.gender || tutor.gender;
   
   // 使用 tutorId 作為導航 ID，如果沒有則使用 userId 或 id
-  const navigationId = tutor.tutorId;
+  const navigationId = tutor.tutorId || tutor.id;
 
   if (!navigationId) {
     return (
       <div className="bg-gray-100 border border-gray-200 p-4 rounded-xl shadow-sm opacity-50 pointer-events-none text-center max-sm:p-3">
-        <div className="mb-2 max-sm:text-sm">資料有誤，缺少 tutorId</div>
+        <div className="mb-2 max-sm:text-sm">資料有誤，缺少 tutorId 或 id</div>
         <div className="text-xs text-gray-400 max-sm:text-xs">請聯絡管理員修正</div>
       </div>
     );
