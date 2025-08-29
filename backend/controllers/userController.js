@@ -259,7 +259,7 @@ const uploadAvatar = async (req, res) => {
     const { id } = req.params; // 這個 id 現在是 userId
     const tokenUserId = req.user.userId; // 從 JWT token 中取得 userId
     const tokenId = req.user.id; // MongoDB 的 _id
-    const userRole = req.user.role;
+    const userRole = req.user.role || req.user.userType; // 兼容不同的角色欄位
 
     console.log('🔍 權限檢查詳細資訊:', {
       requestedUserId: id,

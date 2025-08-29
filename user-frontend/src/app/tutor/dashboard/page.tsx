@@ -334,7 +334,8 @@ export default function TutorDashboardPage() {
       if (!user) {
         throw new Error('找不到用戶資料');
       }
-      const userId = user.id;
+      // 使用 userId 而不是 id，因為後端 API 期望的是自定義的 userId
+      const userId = user.userId || user.id;
 
       const data = await tutorApi.uploadAvatar(userId, file);
       setFormData(prev => ({
