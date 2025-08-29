@@ -123,7 +123,7 @@ const Navbar = () => {
                   </Link>
                   {user.userType === 'tutor' ? (
                     <Link href="/tutor/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      導師介面
+                      導師中心
                     </Link>
                   ) : (
                     <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -206,10 +206,10 @@ const Navbar = () => {
             <Link href="/" onClick={() => setMenuOpen(false)}>主頁</Link>
             <Link href="/articles" onClick={() => setMenuOpen(false)}>教育專欄</Link>
             <Link href="/faq" className="hover:text-primary text-lg" onClick={() => setMenuOpen(false)}>配對流程</Link>
-            {/* 導師介面鏈接 */}
+            {/* 導師中心鏈接 */}
             {isLoggedIn && user && user.userType === 'tutor' && (
               <Link href="/tutor/dashboard" onClick={() => setMenuOpen(false)} className="hover:text-primary text-lg">
-                導師介面
+                導師中心
               </Link>
             )}
             {isLoggedIn ? (
