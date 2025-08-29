@@ -32,6 +32,7 @@ const User = require('../models/User'); // Added missing import for User model
 const bcrypt = require('bcryptjs'); // Added missing import for bcrypt
 const TutorApplication = require('../models/TutorApplication');
 const Case = require('../models/Case');
+const StudentCase = require('../models/StudentCase');
 
 // Notifications route
 router.get('/notifications', verifyToken, isAdmin, async (req, res) => {
@@ -60,13 +61,17 @@ router.get('/notifications', verifyToken, isAdmin, async (req, res) => {
     // 統計開放中的個案
     const openCases = await Case.countDocuments({ status: 'open' });
     
+    // 統計待審批的學生案例
+    const pendingStudentCases = await StudentCase.countDocuments({ isApproved: false });
+    
     const notifications = {
-      total: pendingTutorProfiles + pendingTutorApplications + pendingUserUpgrades + pendingOrganizationUsers + openCases,
+      total: pendingTutorProfiles + pendingTutorApplications + pendingUserUpgrades + pendingOrganizationUsers + openCases + pendingStudentCases,
       pendingTutorProfiles,
       pendingTutorApplications,
       pendingUserUpgrades,
       pendingOrganizationUsers,
       openCases,
+      pendingStudentCases,
       lastUpdated: new Date().toISOString()
     };
 

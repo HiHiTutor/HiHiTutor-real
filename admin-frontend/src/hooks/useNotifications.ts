@@ -7,6 +7,7 @@ export interface NotificationData {
   pendingTutorApplications: number;
   pendingUserUpgrades: number;
   openCases: number;
+  pendingStudentCases: number; // 新增：待審批學生案例數量
   tutorChanges: number; // 新增：導師修改通知數量
   lastUpdated: string;
 }
