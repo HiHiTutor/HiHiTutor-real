@@ -26,7 +26,10 @@ const {
   getSubjectStats,
   getPlatformStats,
   getSearchStats,
-  getMatchingStats
+  getMatchingStats,
+  getPendingStudentCases,
+  approveStudentCase,
+  rejectStudentCase
 } = require('../controllers/adminController');
 const User = require('../models/User'); // Added missing import for User model
 const bcrypt = require('bcryptjs'); // Added missing import for bcrypt
