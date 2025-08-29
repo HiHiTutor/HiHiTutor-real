@@ -641,6 +641,42 @@ const CreateUser: React.FC = () => {
                 {/* 科目 (多選) */}
                 {formData.tutorProfile.category && (
                   <>
+                    {/* 幼兒教育科目 - 始終顯示，如果之前有選擇的話 */}
+                    {Array.isArray(formData.tutorProfile.subjects) && formData.tutorProfile.subjects.some(subject => subject.startsWith('early-childhood-')) && (
+                      <Box sx={{ mb: 2 }}>
+                        <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
+                          🍼 幼兒教育科目
+                        </Typography>
+                        <TextField
+                          select
+                          label="幼兒科目"
+                          SelectProps={{ multiple: true }}
+                          value={Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter(subject => subject.startsWith('early-childhood-')) : []}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            const selectedEarlyChildhoodSubjects = Array.isArray(value) ? value : [value];
+                            const otherSubjects = Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter(subject => !subject.startsWith('early-childhood-')) : [];
+                            const allSubjects = [...selectedEarlyChildhoodSubjects, ...otherSubjects];
+                            setFormData({
+                              ...formData,
+                              tutorProfile: {
+                                ...formData.tutorProfile,
+                                subjects: allSubjects
+                              }
+                            });
+                          }}
+                          helperText="可多選幼兒科目"
+                          fullWidth
+                        >
+                          {CATEGORY_OPTIONS['early-childhood'].subjects.map((subject) => (
+                            <MenuItem key={subject.value} value={subject.value}>
+                              {subject.label}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                      </Box>
+                    )}
+
                     {formData.tutorProfile.category === 'primary-secondary' ? (
                       // 中小學教育：分組顯示科目
                       <Box>
@@ -661,8 +697,8 @@ const CreateUser: React.FC = () => {
                             onChange={(e) => {
                               const value = e.target.value;
                               const selectedPrimarySubjects = Array.isArray(value) ? value : [value];
-                              const existingSecondarySubjects = Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter(subject => subject.startsWith('secondary-')) : [];
-                              const allSubjects = [...selectedPrimarySubjects, ...existingSecondarySubjects];
+                              const otherSubjects = Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter(subject => !subject.startsWith('primary-')) : [];
+                              const allSubjects = [...selectedPrimarySubjects, ...otherSubjects];
                               setFormData({
                                 ...formData,
                                 tutorProfile: {
@@ -695,8 +731,8 @@ const CreateUser: React.FC = () => {
                             onChange={(e) => {
                               const value = e.target.value;
                               const selectedSecondarySubjects = Array.isArray(value) ? value : [value];
-                              const existingPrimarySubjects = Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter(subject => subject.startsWith('primary-')) : [];
-                              const allSubjects = [...existingPrimarySubjects, ...selectedSecondarySubjects];
+                              const otherSubjects = Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter(subject => !subject.startsWith('secondary-')) : [];
+                              const allSubjects = [...otherSubjects, ...selectedSecondarySubjects];
                               setFormData({
                                 ...formData,
                                 tutorProfile: {
@@ -708,10 +744,10 @@ const CreateUser: React.FC = () => {
                             helperText="可多選中學科目"
                             fullWidth
                           >
-                            {CATEGORY_OPTIONS['primary-secondary'].subCategories?.find(sub => sub.value === 'secondary')?.subjects && Array.isArray(CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'secondary')?.subjects) && CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'secondary')?.subjects?.map((subject) => (
+                            {CATEGORY_OPTIONS['primary-secondary'].subCategories?.find(sub => sub.value === 'primary')?.subjects && Array.isArray(CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'secondary')?.subjects) && CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'secondary')?.subjects?.map((subject) => (
                               <MenuItem key={subject.value} value={subject.value}>
                                 {subject.label}
-                              </MenuItem>
+                            </MenuItem>
                             ))}
                           </TextField>
                         </Box>
