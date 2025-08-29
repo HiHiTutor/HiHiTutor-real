@@ -1,0 +1,5 @@
+[33m50f6a01[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;31mhihitutor/main[m[33m)[m Fix find students cases card location display issue - Update backend data transformation and frontend region logic
+[33m7f39c17[m Fix remaining TypeScript type errors in tutor detail page
+[33me046d94[m Fix TypeScript type errors in tutor detail page - add explicit type annotations for map function parameters
+[33mf9e8b9b[m Fix user authentication sync issues - replace localStorage with useUser hook and fix API paths
+[33m59daf2c[m Fix MongoDB path collision error - remove conflicting tutorProfile.gender field from select queries
