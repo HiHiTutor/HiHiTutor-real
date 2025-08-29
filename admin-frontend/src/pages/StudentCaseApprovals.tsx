@@ -104,7 +104,7 @@ const StudentCaseApprovals: React.FC = () => {
         setCases(data.data.cases);
         setTotalCount(data.data.pagination.total);
       } else {
-        throw new Error(data.data?.message || '獲取待審批案例失敗');
+        throw new Error('獲取待審批案例失敗');
       }
     } catch (error: any) {
       console.error('Error fetching pending cases:', error);
