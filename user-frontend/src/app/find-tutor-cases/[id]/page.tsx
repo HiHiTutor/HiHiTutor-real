@@ -181,7 +181,7 @@ export default function FindTutorCaseDetailPage() {
         <div>
           <a
             href={`https://wa.me/85295011159?text=${encodeURIComponent(
-              `Hello，我喺 HiHiTutor 見到 caseID ${getCaseId()}，想申請呢單case，唔該晒!`
+              `Hello，我喺 HiHiTutor 見到 caseID ${getCaseId()}，想申請呢單case，唔該晒!\n\n案例鏈接：https://www.hihitutor.com/find-tutor-cases/${getCaseId()}`
             )}`}
             target="_blank"
             rel="noopener noreferrer"

@@ -182,7 +182,7 @@ export default function FAQPage() {
                         <br />
                         <div>方法3 – 直接聯絡配對專員</div>
                         <div>
-                          <a href="https://api.whatsapp.com/send?phone=85295011159&text=我想搵導師唔該!" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mx-1">WhatsApp</a>
+                          <a href="https://api.whatsapp.com/send?phone=85295011159&text=Hello，我想搵導師，請問可以幫我配對嗎？唔該晒！" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mx-1">WhatsApp</a>
                           與配對專員直接聯絡，核實課堂資料後，配對專員會為你建議合適導師，並協助接洽課堂安排。
                         </div>
                         <br />
@@ -224,7 +224,7 @@ export default function FAQPage() {
                       <>
                         <div>本平台會代收第一堂堂費作為配對及留位費用。家長/學生可透過「轉數快」繳交相關堂費，FPS ID: 117665562，帳戶名稱: HiHiTutor Limited。</div>
                         <br />
-                        <div>如需協助，請 <a href="https://wa.me/85295011159" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">聯絡我們</a>。</div>
+                        <div>如需協助，請 <a href="https://wa.me/85295011159?text=Hello，我有關於支付學費的問題，請問可以幫我嗎？唔該晒！" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">聯絡我們</a>。</div>
                       </>
                     ) : faq.question === '如果家長/學生認為導師不適合，我可以要求更換嗎？' ? (
                       <>

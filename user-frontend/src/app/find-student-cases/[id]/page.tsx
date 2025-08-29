@@ -187,7 +187,8 @@ export default function FindStudentCaseDetailPage() {
     }
 
     // 導師用戶：直接跳轉到 WhatsApp
-    const message = `Hello，我喺 HiHiTutor 見到 caseID ${getCaseId()}，想申請呢單case，唔該晒!`;
+    const caseUrl = `https://www.hihitutor.com/find-student-cases/${getCaseId()}`;
+    const message = `Hello，我喺 HiHiTutor 見到 caseID ${getCaseId()}，想申請呢單case，唔該晒!\n\n案例鏈接：${caseUrl}`;
     const whatsappUrl = `https://wa.me/85295011159?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };

@@ -73,7 +73,7 @@ export default function TutorCaseDetail() {
           <h1 className="text-3xl font-bold text-gray-900">{caseData.title || '未命名案例'}</h1>
           <a
             href={`https://wa.me/85295011159?text=${encodeURIComponent(
-              `Hello，我喺 HiHiTutor 見到 caseID ${caseData.id}，想申請呢單case，唔該晒!`
+              `Hello，我喺 HiHiTutor 見到 caseID ${caseData.id}，想申請呢單case，唔該晒!\n\n案例鏈接：https://www.hihitutor.com/tutor-cases/${caseData.id}`
             )}`}
             target="_blank"
             rel="noopener noreferrer"

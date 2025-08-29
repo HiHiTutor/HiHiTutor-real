@@ -332,7 +332,8 @@ export default function TutorDetailPage() {
                     return;
                   }
                   // 已登入：直接跳轉到 WhatsApp
-                  const message = `Hello，我喺 HiHiTutor 見到 tutorID ${tutorId}，想了解同預約上堂，請問方便嗎？`;
+                  const tutorUrl = `https://www.hihitutor.com/tutors/${tutorId}`;
+                  const message = `Hello，我喺 HiHiTutor 見到 tutorID ${tutorId}，想了解同預約上堂，請問方便嗎？\n\n導師詳情：${tutorUrl}`;
                   const whatsappUrl = `https://api.whatsapp.com/send?phone=85295011159&text=${encodeURIComponent(message)}`;
                   window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
                 }}
