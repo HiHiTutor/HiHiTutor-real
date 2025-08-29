@@ -1384,6 +1384,55 @@ const updatePromotionLevel = async (req, res) => {
   }
 };
 
+// 刪除案例
+const deleteCase = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { type } = req.query;
+
+    // 構建查詢條件，優先使用 id 字段，如果是有效的 ObjectId 才嘗試 _id
+    const buildQuery = (id) => {
+      const query = { id: id };
+      // 只有當 id 是有效的 ObjectId 格式時才添加到 _id 查詢中
+      if (/^[0-9a-fA-F]{24}$/.test(id)) {
+        query._id = id;
+      }
+      return query;
+    };
+
+    let deletedCase;
+    if (type === 'student') {
+      deletedCase = await StudentCase.findOneAndDelete(buildQuery(id));
+    } else if (type === 'tutor') {
+      deletedCase = await TutorCase.findOneAndDelete(buildQuery(id));
+    } else {
+      // 如果沒有指定類型，嘗試從兩個集合中刪除
+      deletedCase = await StudentCase.findOneAndDelete(buildQuery(id)) ||
+                   await TutorCase.findOneAndDelete(buildQuery(id));
+    }
+
+    if (!deletedCase) {
+      return res.status(404).json({
+        success: false,
+        message: '案例未找到'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: '案例已成功刪除',
+      data: deletedCase
+    });
+  } catch (error) {
+    console.error('Error deleting case:', error);
+    res.status(500).json({
+      success: false,
+      message: '刪除案例時發生錯誤',
+      error: error.message
+    });
+  }
+};
+
 // Statistics
 const getSubjectStats = async (req, res) => {
   try {
@@ -2247,6 +2296,7 @@ module.exports = {
   updateCase,
   updateCaseStatus,
   updatePromotionLevel,
+  deleteCase,
   approveStudentCase,
   rejectStudentCase,
   getPendingStudentCases,

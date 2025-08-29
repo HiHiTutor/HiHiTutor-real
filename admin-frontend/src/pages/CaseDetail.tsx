@@ -233,6 +233,8 @@ const CaseDetail: React.FC = () => {
   const [editData, setEditData] = useState<any>({});
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     const fetchCase = async () => {
@@ -400,6 +402,29 @@ const CaseDetail: React.FC = () => {
     setEditError(null);
   };
 
+  const handleDelete = async () => {
+    try {
+      setDeleteLoading(true);
+      const searchParams = new URLSearchParams(location.search);
+      const type = searchParams.get('type');
+      
+      const response = await casesAPI.deleteCase(id!, type || undefined);
+      
+      if (response.data.success) {
+        // 刪除成功，返回案例列表
+        navigate('/cases');
+      } else {
+        throw new Error(response.data.message || '刪除失敗');
+      }
+    } catch (error: any) {
+      console.error('Error deleting case:', error);
+      // 這裡可以添加錯誤提示
+    } finally {
+      setDeleteLoading(false);
+      setDeleteDialogOpen(false);
+    }
+  };
+
   // 檢查是否為線上教學
   const isOnlineMode = selectedCase?.mode === 'online' || selectedCase?.mode === '網上教學';
 
@@ -433,13 +458,22 @@ const CaseDetail: React.FC = () => {
         <Typography variant="h4">案例詳情</Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
           {!isEditing && (
-            <Button 
-              variant="contained" 
-              color="primary"
-              onClick={() => setIsEditing(true)}
-            >
-              編輯案例
-            </Button>
+            <>
+              <Button 
+                variant="contained" 
+                color="primary"
+                onClick={() => setIsEditing(true)}
+              >
+                編輯案例
+              </Button>
+              <Button 
+                variant="contained" 
+                color="error"
+                onClick={() => setDeleteDialogOpen(true)}
+              >
+                刪除案例
+              </Button>
+            </>
           )}
           <Button variant="outlined" onClick={() => navigate('/cases')}>
             返回案例列表
@@ -827,6 +861,32 @@ const CaseDetail: React.FC = () => {
           </Grid>
         )}
       </Paper>
+
+      {/* 刪除確認對話框 */}
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>確認刪除案例</DialogTitle>
+        <DialogContent>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            您確定要刪除這個案例嗎？此操作無法撤銷。
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            案例標題：{selectedCase?.title}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)} disabled={deleteLoading}>
+            取消
+          </Button>
+          <Button 
+            onClick={handleDelete} 
+            color="error" 
+            variant="contained"
+            disabled={deleteLoading}
+          >
+            {deleteLoading ? <CircularProgress size={20} /> : '確認刪除'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

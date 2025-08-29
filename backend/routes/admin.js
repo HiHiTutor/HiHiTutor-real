@@ -23,6 +23,7 @@ const {
   updateCase,
   updateCaseStatus,
   updatePromotionLevel,
+  deleteCase,
   getSubjectStats,
   getPlatformStats,
   getSearchStats,
@@ -337,6 +338,7 @@ router.get('/cases/:id', verifyToken, isAdmin, getCaseById);
 router.put('/cases/:id', verifyToken, isAdmin, updateCase);
 router.put('/cases/:id/status', verifyToken, isAdmin, updateCaseStatus);
 router.put('/cases/:id/promotion', verifyToken, isAdmin, updatePromotionLevel);
+router.delete('/cases/:id', verifyToken, isAdmin, deleteCase);
 
 // 學生案例審批路由
 router.get('/pending-student-cases', verifyToken, isAdmin, getPendingStudentCases);

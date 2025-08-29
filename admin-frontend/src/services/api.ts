@@ -238,6 +238,11 @@ export const casesAPI = {
     const params = type ? { type } : {};
     return api.put<SingleCaseResponse>(`/admin/cases/${id}`, data, { params });
   },
+
+  deleteCase: (id: string, type?: string) => {
+    const params = type ? { type } : {};
+    return api.delete(`/admin/cases/${id}`, { params });
+  },
 };
 
 // Statistics API
