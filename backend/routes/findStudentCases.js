@@ -180,11 +180,44 @@ const transformCaseData = (caseData) => {
   // Parse budget string into min/max object
   let budgetObj = { min: 0, max: 0 };
   if (caseData.budget) {
-    const budgetParts = caseData.budget.split('-').map(num => parseInt(num.trim()));
-    budgetObj = {
-      min: budgetParts[0] || 0,
-      max: budgetParts[1] || budgetParts[0] || 0
-    };
+    if (typeof caseData.budget === 'string' && caseData.budget.includes('-')) {
+      const budgetParts = caseData.budget.split('-').map(num => parseInt(num.trim()));
+      budgetObj = {
+        min: budgetParts[0] || 0,
+        max: budgetParts[1] || budgetParts[0] || 0
+      };
+    } else if (typeof caseData.budget === 'object' && caseData.budget.min !== undefined) {
+      budgetObj = caseData.budget;
+    } else if (typeof caseData.budget === 'number') {
+      budgetObj = { min: caseData.budget, max: caseData.budget };
+    } else if (typeof caseData.budget === 'string') {
+      const num = parseInt(caseData.budget);
+      if (!isNaN(num)) {
+        budgetObj = { min: num, max: num };
+      }
+    }
+  }
+
+  // 處理地區字段 - 支援多種格式
+  let regions = [];
+  let subRegions = [];
+  
+  // 處理 regions 字段
+  if (caseData.regions && Array.isArray(caseData.regions)) {
+    regions = caseData.regions;
+  } else if (caseData.region && Array.isArray(caseData.region)) {
+    regions = caseData.region;
+  } else if (caseData.region && typeof caseData.region === 'string') {
+    regions = [caseData.region];
+  }
+  
+  // 處理 subRegions 字段
+  if (caseData.subRegions && Array.isArray(caseData.subRegions)) {
+    subRegions = caseData.subRegions;
+  } else if (caseData.subRegion && Array.isArray(caseData.subRegion)) {
+    subRegions = caseData.subRegion;
+  } else if (caseData.subRegion && typeof caseData.subRegion === 'string') {
+    subRegions = [caseData.subRegion];
   }
 
   // Transform the data to match frontend expectations
@@ -194,8 +227,10 @@ const transformCaseData = (caseData) => {
     category: caseData.category || '',
     subCategory: caseData.subCategory || '',
     subjects: caseData.subjects || [caseData.subject].filter(Boolean),
-    region: Array.isArray(caseData.region) ? caseData.region[0] : (caseData.region || ''),
-    subRegion: Array.isArray(caseData.subRegions) ? caseData.subRegions[0] : '',
+    region: regions[0] || '',
+    regions: regions,
+    subRegion: subRegions[0] || '',
+    subRegions: subRegions,
     mode: caseData.mode || '',
     modes: caseData.modes || [caseData.mode].filter(Boolean),
     budget: budgetObj,
@@ -319,8 +354,21 @@ router.get('/', async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(parseInt(req.query.limit) || 20);
 
+    // 調試日誌：檢查原始數據
+    console.log('🔍 原始數據示例：', cases[0]);
+    console.log('🔍 檢查原始數據的地區字段：', cases.map(c => ({ 
+      id: c.id || c._id, 
+      regions: c.regions, 
+      subRegions: c.subRegions,
+      region: c.region 
+    })));
+
     // 轉換數據格式
     const transformedCases = cases.map(transformCaseData);
+
+    // 調試日誌：檢查轉換後的數據結構
+    console.log('🔍 轉換後的數據結構示例：', transformedCases[0]);
+    console.log('🔍 檢查 regions 字段：', transformedCases.map(c => ({ id: c.id, regions: c.regions, subRegions: c.subRegions })));
 
     console.log('✅ Query returned', transformedCases.length, 'results');
     res.json({
@@ -574,37 +622,64 @@ router.post('/seed', async (req, res) => {
     // 清除現有資料
     await StudentCase.deleteMany({});
 
-    // 創建示例案例
+    // 創建示例案例 - 使用正確的地區值格式
     const sampleCases = [
       {
+        id: 'test-student-1',
         title: '尋找數學補習老師',
         subject: '數學',
-        location: '香港島',
+        subjects: ['數學'],
         budget: '300-400',
-        mode: 'offline',
+        mode: 'in-person',
+        modes: ['in-person'],
         requirement: '需要一位有經驗的數學老師，可以教授中學數學',
         category: '中學',
-        subCategory: ['數學'],
-        region: ['香港島'],
+        subCategory: '數學',
+        regions: ['kowloon'],
+        subRegions: ['mong-kok'],
         priceRange: '300-400',
         featured: true,
         isApproved: true,
         status: 'open',
-        studentId: new mongoose.Types.ObjectId(), // 使用隨機 ID
+        studentId: new mongoose.Types.ObjectId(),
         createdAt: new Date(),
         updatedAt: new Date()
       },
       {
+        id: 'test-student-2',
         title: '尋找英文會話老師',
         subject: '英文',
-        location: '九龍',
+        subjects: ['英文'],
         budget: '400-500',
         mode: 'online',
+        modes: ['online'],
         requirement: '需要一位母語為英語的老師，專注於口語訓練',
         category: '中學',
-        subCategory: ['英文'],
-        region: ['九龍'],
+        subCategory: '英文',
+        regions: ['hong-kong-island'],
+        subRegions: ['causeway-bay'],
         priceRange: '400-500',
+        featured: true,
+        isApproved: true,
+        status: 'open',
+        studentId: new mongoose.Types.ObjectId(),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: 'test-student-3',
+        title: 'IB物理補習',
+        subject: '物理',
+        subjects: ['物理'],
+        budget: '500-600',
+        mode: 'online',
+        modes: ['online'],
+        requirement: '需要IB物理教學經驗',
+        category: '大學',
+        subCategory: 'IB',
+        regions: ['hong-kong-island'],
+        subRegions: ['central'],
+        priceRange: '500-600',
         featured: true,
         isApproved: true,
         status: 'open',
@@ -615,7 +690,12 @@ router.post('/seed', async (req, res) => {
     ];
 
     await StudentCase.insertMany(sampleCases);
-    res.json({ success: true, message: '成功創建示例案例' });
+    console.log('✅ 成功創建測試案例，數量：', sampleCases.length);
+    res.json({ 
+      success: true, 
+      message: '成功創建示例案例',
+      count: sampleCases.length
+    });
   } catch (err) {
     console.error('❌ Error creating sample cases:', err);
     res.status(500).json({ 

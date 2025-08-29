@@ -46,14 +46,40 @@ interface StudentCaseCardProps {
 
 function getRegionLabel(value: string) {
   if (!value) return '未指定';
+  
+  // 調試日誌：檢查地區值
+  console.log('🔍 getRegionLabel 輸入值：', value);
+  
+  // 地區值映射表 - 處理測試數據中的地區值
+  const regionValueMap: { [key: string]: string } = {
+    'kowloon': 'kowloon',
+    'hong-kong-island': 'hong-kong-island',
+    'new-territories': 'new-territories',
+    'islands': 'islands',
+    'all-hong-kong': 'all-hong-kong',
+    'unlimited': 'unlimited'
+  };
+  
+  // 如果輸入值在映射表中，使用映射後的值
+  const mappedValue = regionValueMap[value] || value;
+  
   // 先找大區
-  const mainRegion = REGION_OPTIONS.find(opt => opt.value === value);
-  if (mainRegion) return mainRegion.label;
+  const mainRegion = REGION_OPTIONS.find(opt => opt.value === mappedValue);
+  if (mainRegion) {
+    console.log('🔍 找到大區：', mainRegion.label);
+    return mainRegion.label;
+  }
+  
   // 再找細分地區
   for (const region of REGION_OPTIONS) {
-    const sub = region.regions.find(r => r.value === value);
-    if (sub) return sub.label;
+    const sub = region.regions.find(r => r.value === mappedValue);
+    if (sub) {
+      console.log('🔍 找到子地區：', sub.label);
+      return sub.label;
+    }
   }
+  
+  console.log('🔍 未找到地區標籤，返回原值：', value);
   return value;
 }
 
@@ -83,6 +109,16 @@ export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps
 
   // 3. 地點顯示
   let displayRegion = '';
+  
+  // 調試日誌：檢查地區數據
+  console.log('🔍 StudentCaseCard 地區數據：', {
+    id: caseData.id,
+    regions: caseData.regions,
+    subRegions: caseData.subRegions,
+    mode: caseData.mode,
+    modes: caseData.modes
+  });
+  
   if (displayMode.includes('網課')) {
     displayRegion = '網課';
   } else {
@@ -104,6 +140,8 @@ export default function StudentCaseCard({ case: caseData }: StudentCaseCardProps
       displayRegion = '未指定';
     }
   }
+  
+  console.log('🔍 最終顯示的地點：', displayRegion);
 
   // 4. 每堂預算（不換行）
   let displayBudget = '待議';
