@@ -29,6 +29,7 @@ import {
 } from '@mui/icons-material';
 import { useAppDispatch } from '../hooks/redux';
 import { setError } from '../store/slices/caseSlice';
+import api from '../services/api';
 
 interface StudentCase {
   id: string;
@@ -88,21 +89,11 @@ const StudentCaseApprovals: React.FC = () => {
   const fetchPendingCases = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/admin/pending-student-cases?page=${page + 1}&limit=${rowsPerPage}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('獲取待審批案例失敗');
-      }
-
-      const data: PendingStudentCasesResponse = await response.json();
+      const response = await api.get(`/admin/pending-student-cases?page=${page + 1}&limit=${rowsPerPage}`);
       
-      if (data.success) {
-        setCases(data.data.cases);
-        setTotalCount(data.data.pagination.total);
+      if (response.data.success) {
+        setCases(response.data.data.cases);
+        setTotalCount(response.data.data.pagination.total);
       } else {
         throw new Error('獲取待審批案例失敗');
       }
@@ -118,27 +109,15 @@ const StudentCaseApprovals: React.FC = () => {
   const handleApprove = async (caseId: string) => {
     try {
       setProcessing(true);
-      const response = await fetch(`/api/admin/student-cases/${caseId}/approve`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('審批失敗');
-      }
-
-      const data = await response.json();
+      const response = await api.put(`/admin/student-cases/${caseId}/approve`);
       
-      if (data.success) {
+      if (response.data.success) {
         setAlert({ type: 'success', message: '案例審批成功' });
         // 從列表中移除已審批的案例
         setCases(prev => prev.filter(c => c.id !== caseId && c._id !== caseId));
         setTotalCount(prev => prev - 1);
       } else {
-        throw new Error(data.message || '審批失敗');
+        throw new Error(response.data.message || '審批失敗');
       }
     } catch (error: any) {
       console.error('Error approving case:', error);
@@ -153,22 +132,11 @@ const StudentCaseApprovals: React.FC = () => {
 
     try {
       setProcessing(true);
-      const response = await fetch(`/api/admin/student-cases/${selectedCase.id || selectedCase._id}/reject`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ reason: rejectReason }),
+      const response = await api.put(`/admin/student-cases/${selectedCase.id || selectedCase._id}/reject`, {
+        reason: rejectReason
       });
-
-      if (!response.ok) {
-        throw new Error('拒絕失敗');
-      }
-
-      const data = await response.json();
       
-      if (data.success) {
+      if (response.data.success) {
         setAlert({ type: 'success', message: '案例已拒絕' });
         // 從列表中移除已拒絕的案例
         setCases(prev => prev.filter(c => c.id !== selectedCase.id && c._id !== selectedCase._id));
@@ -177,7 +145,7 @@ const StudentCaseApprovals: React.FC = () => {
         setRejectReason('');
         setSelectedCase(null);
       } else {
-        throw new Error(data.message || '拒絕失敗');
+        throw new Error(response.data.message || '拒絕失敗');
       }
     } catch (error: any) {
       console.error('Error rejecting case:', error);
