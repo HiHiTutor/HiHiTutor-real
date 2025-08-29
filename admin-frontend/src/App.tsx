@@ -6,6 +6,7 @@ import Users from './pages/Users';
 import UserDetail from './pages/UserDetail';
 import Cases from './pages/Cases';
 import CaseDetail from './pages/CaseDetail';
+import StudentCaseApprovals from './pages/StudentCaseApprovals';
 import Statistics from './pages/Statistics';
 import SearchStatistics from './pages/SearchStatistics';
 import Login from './pages/Login';
@@ -63,6 +64,7 @@ const App: React.FC = () => {
         <Route path="/cases" element={<ProtectedRoute element={<Layout><Cases /></Layout>} />} />
         <Route path="/cases/create" element={<ProtectedRoute element={<Layout><CreateCase /></Layout>} />} />
         <Route path="/cases/:id" element={<ProtectedRoute element={<Layout><CaseDetail /></Layout>} />} />
+        <Route path="/student-case-approvals" element={<ProtectedRoute element={<Layout><StudentCaseApprovals /></Layout>} />} />
         <Route path="/statistics" element={<ProtectedRoute element={<Layout><Statistics /></Layout>} />} />
         <Route path="/search-statistics" element={<ProtectedRoute element={<Layout><SearchStatistics /></Layout>} />} />
         <Route path="/tutor-applications" element={<ProtectedRoute element={<Layout><TutorApplications /></Layout>} />} />

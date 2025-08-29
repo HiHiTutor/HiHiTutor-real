@@ -40,6 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open }) => {
     { text: '儀表板', icon: <DashboardIcon />, path: '/dashboard' },
     { text: '用戶管理', icon: <PeopleIcon />, path: '/users' },
     { text: '案例管理', icon: <DescriptionIcon />, path: '/cases', badge: notifications?.openCases },
+    { text: '學生案例審批', icon: <DescriptionIcon />, path: '/student-case-approvals', badge: notifications?.pendingStudentCases },
     { text: '文章審批', icon: <ArticleIcon />, path: '/article-approvals' },
     { text: '廣告管理', icon: <CampaignIcon />, path: '/AdManager' },
     { text: '統計分析', icon: <BarChartIcon />, path: '/statistics' },

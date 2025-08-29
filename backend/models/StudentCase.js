@@ -146,7 +146,7 @@ const studentCaseSchema = new mongoose.Schema({
   },
   isApproved: {
     type: Boolean,
-    default: true
+    default: false
   },
   status: {
     type: String,

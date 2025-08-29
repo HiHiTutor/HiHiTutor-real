@@ -2092,6 +2092,141 @@ const getAllSubscriptions = async (req, res) => {
   }
 };
 
+// 審批學生案例
+const approveStudentCase = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // 構建查詢條件
+    const buildQuery = (id) => {
+      const query = { id: id };
+      if (/^[0-9a-fA-F]{24}$/.test(id)) {
+        query._id = id;
+      }
+      return query;
+    };
+
+    const updatedCase = await StudentCase.findOneAndUpdate(
+      buildQuery(id),
+      { 
+        $set: { 
+          isApproved: true, 
+          updatedAt: new Date() 
+        } 
+      },
+      { new: true }
+    ).lean();
+
+    if (!updatedCase) {
+      return res.status(404).json({
+        success: false,
+        message: '學生案例未找到'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: updatedCase,
+      message: '學生案例審批成功'
+    });
+  } catch (error) {
+    console.error('審批學生案例失敗:', error);
+    res.status(500).json({
+      success: false,
+      message: '審批失敗',
+      error: error.message
+    });
+  }
+};
+
+// 拒絕學生案例
+const rejectStudentCase = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+    
+    // 構建查詢條件
+    const buildQuery = (id) => {
+      const query = { id: id };
+      if (/^[0-9a-fA-F]{24}$/.test(id)) {
+        query._id = id;
+      }
+      return query;
+    };
+
+    const updatedCase = await StudentCase.findOneAndUpdate(
+      buildQuery(id),
+      { 
+        $set: { 
+          isApproved: false, 
+          status: 'closed',
+          rejectionReason: reason || '不符合平台要求',
+          updatedAt: new Date() 
+        } 
+      },
+      { new: true }
+    ).lean();
+
+    if (!updatedCase) {
+      return res.status(404).json({
+        success: false,
+        message: '學生案例未找到'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: updatedCase,
+      message: '學生案例已拒絕'
+    });
+  } catch (error) {
+    console.error('拒絕學生案例失敗:', error);
+    res.status(500).json({
+      success: false,
+      message: '拒絕失敗',
+      error: error.message
+    });
+  }
+};
+
+// 獲取待審批的學生案例
+const getPendingStudentCases = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    
+    const query = { isApproved: false };
+    const skip = (page - 1) * limit;
+    
+    const pendingCases = await StudentCase.find(query)
+      .populate('studentId', 'name email userId')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+    
+    const total = await StudentCase.countDocuments(query);
+    
+    res.json({
+      success: true,
+      data: {
+        cases: pendingCases,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          totalPages: Math.ceil(total / limit)
+        }
+      }
+    });
+  } catch (error) {
+    console.error('獲取待審批學生案例失敗:', error);
+    res.status(500).json({
+      success: false,
+      message: '獲取待審批案例失敗',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   // User Management
   createUser,
@@ -2112,6 +2247,9 @@ module.exports = {
   updateCase,
   updateCaseStatus,
   updatePromotionLevel,
+  approveStudentCase,
+  rejectStudentCase,
+  getPendingStudentCases,
   
   // Statistics
   getSubjectStats,

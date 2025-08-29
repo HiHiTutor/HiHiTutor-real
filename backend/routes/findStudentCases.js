@@ -251,7 +251,7 @@ router.get('/', async (req, res) => {
     console.log('🔍 查詢參數:', { featured, limit, search, category, subCategory, region, regions, modes, subjects });
     
     // 構建查詢條件
-    const query = {};
+    const query = { isApproved: true }; // 只顯示已審批的案例
     
     // 如果有搜索條件，添加到查詢中
     if (search) {
@@ -591,6 +591,7 @@ router.post('/', verifyToken, async (req, res) => {
       paymentType: paymentType || 'free',
       promotionLevel: promotionLevel !== undefined ? Math.max(0, Math.min(5, promotionLevel)) : 0,
       status: 'open',
+      isApproved: false, // 新創建的案例需要審批
       createdAt: new Date(),
       updatedAt: new Date()
     });

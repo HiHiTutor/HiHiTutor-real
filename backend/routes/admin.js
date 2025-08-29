@@ -330,6 +330,11 @@ router.put('/cases/:id', verifyToken, isAdmin, updateCase);
 router.put('/cases/:id/status', verifyToken, isAdmin, updateCaseStatus);
 router.put('/cases/:id/promotion', verifyToken, isAdmin, updatePromotionLevel);
 
+// 學生案例審批路由
+router.get('/pending-student-cases', verifyToken, isAdmin, getPendingStudentCases);
+router.put('/student-cases/:id/approve', verifyToken, isAdmin, approveStudentCase);
+router.put('/student-cases/:id/reject', verifyToken, isAdmin, rejectStudentCase);
+
 // Statistics routes
 router.get('/statistics/subjects', verifyToken, isAdmin, getSubjectStats);
 router.get('/statistics/platform', verifyToken, isAdmin, getPlatformStats);
