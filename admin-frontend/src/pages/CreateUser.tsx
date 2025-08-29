@@ -131,7 +131,9 @@ const CreateUser: React.FC = () => {
       teachingSubModes: [] as string[], // 教學子模式 (多選)
       sessionRate: '',
       region: '', // 地區 (單選)
-      subRegions: [] as string[] // 子地區 (多選)
+      subRegions: [] as string[], // 子地區 (多選)
+      introduction: '', // 自我介紹
+      courseFeatures: '' // 課程特色
     }
   });
   
@@ -436,15 +438,31 @@ const CreateUser: React.FC = () => {
           subRegions: value as string[]
         }
       });
-    } else if (name === 'sessionRate') {
-      setFormData({
-        ...formData,
-        tutorProfile: {
-          ...formData.tutorProfile,
-          sessionRate: value as string
-        }
-      });
-    } else {
+         } else if (name === 'sessionRate') {
+       setFormData({
+         ...formData,
+         tutorProfile: {
+           ...formData.tutorProfile,
+           sessionRate: value as string
+         }
+       });
+     } else if (name === 'introduction') {
+       setFormData({
+         ...formData,
+         tutorProfile: {
+           ...formData.tutorProfile,
+           introduction: value as string
+         }
+       });
+     } else if (name === 'courseFeatures') {
+       setFormData({
+         ...formData,
+         tutorProfile: {
+           ...formData.tutorProfile,
+           courseFeatures: value as string
+         }
+       });
+     } else {
       setFormData({
         ...formData,
         [name as string]: value as string
@@ -501,7 +519,9 @@ const CreateUser: React.FC = () => {
            teachingSubModes: Array.isArray(formData.tutorProfile.teachingSubModes) ? formData.tutorProfile.teachingSubModes : [],
            sessionRate: Number(formData.tutorProfile.sessionRate),
            region: formData.tutorProfile.region,
-           subRegions: Array.isArray(formData.tutorProfile.subRegions) ? formData.tutorProfile.subRegions : []
+           subRegions: Array.isArray(formData.tutorProfile.subRegions) ? formData.tutorProfile.subRegions : [],
+           introduction: formData.tutorProfile.introduction,
+           courseFeatures: formData.tutorProfile.courseFeatures
          };
        } else {
          delete submitData.tutorProfile;
@@ -964,15 +984,49 @@ const CreateUser: React.FC = () => {
                   </TextField>
                 )}
 
-                <TextField
-                  label="時薪 (sessionRate)"
-                  name="sessionRate"
-                  type="number"
-                  value={formData.tutorProfile.sessionRate}
-                  onChange={handleChange}
-                  required
-                  helperText="堂費不能少於 100 元"
-                />
+                                 <TextField
+                   label="時薪 (sessionRate)"
+                   name="sessionRate"
+                   type="number"
+                   value={formData.tutorProfile.sessionRate}
+                   onChange={handleChange}
+                   required
+                   helperText="堂費不能少於 100 元"
+                 />
+
+                 {/* 自我介紹 */}
+                 <Box sx={{ mt: 3, mb: 2 }}>
+                   <Typography variant="h6" color="primary" sx={{ mb: 1 }}>
+                     📝 個人介紹
+                   </Typography>
+                   <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+                     請填寫導師的自我介紹和課程特色
+                   </Typography>
+                 </Box>
+
+                 <TextField
+                   label="自我介紹"
+                   name="introduction"
+                   multiline
+                   rows={6}
+                   fullWidth
+                   value={formData.tutorProfile.introduction}
+                   onChange={handleChange}
+                   helperText="請詳細介紹導師的教學經驗、學歷背景、教學理念等"
+                   sx={{ mb: 2 }}
+                 />
+
+                 <TextField
+                   label="課程特色"
+                   name="courseFeatures"
+                   multiline
+                   rows={4}
+                   fullWidth
+                   value={formData.tutorProfile.courseFeatures}
+                   onChange={handleChange}
+                   helperText="請描述課程的獨特之處、教學方法、課程安排等"
+                   sx={{ mb: 2 }}
+                 />
 
                 {/* 地區 (僅面授或特定子模式顯示) */}
                 {shouldShowRegions() && (
