@@ -218,12 +218,30 @@ export default function TutorDashboardPage() {
        const availableTime = data.tutorProfile?.availableTime || data.availableTime || [];
        const qualifications = data.tutorProfile?.qualifications || data.qualifications || [];
        
-       // 處理地區數據 - 優先使用 tutorProfile.subRegions
+       // 處理地區數據 - 統一使用 tutorProfile.subRegions 作為權威數據源
        let teachingAreas: string[] = [];
+       
+       // 檢查數據一致性
+       console.log('🔍 檢查地區數據一致性:');
+       console.log('  - 根級別 teachingAreas:', data.teachingAreas);
+       console.log('  - tutorProfile.teachingAreas:', data.tutorProfile?.teachingAreas);
+       console.log('  - tutorProfile.subRegions:', data.tutorProfile?.subRegions);
+       
        if (data.tutorProfile?.subRegions && data.tutorProfile.subRegions.length > 0) {
-         // 如果有 subRegions，使用它們
+         // 優先使用 tutorProfile.subRegions（完整路徑格式）
          teachingAreas = data.tutorProfile.subRegions;
-         console.log('🔍 使用 tutorProfile.subRegions:', teachingAreas);
+         console.log('✅ 使用 tutorProfile.subRegions (權威數據源):', teachingAreas);
+         
+         // 檢查是否有數據不一致的情況
+         if (data.teachingAreas && data.teachingAreas.length > 0) {
+           console.log('⚠️ 發現數據不一致:');
+           console.log('  - 根級別 teachingAreas 數量:', data.teachingAreas.length);
+           console.log('  - tutorProfile.subRegions 數量:', data.tutorProfile.subRegions.length);
+           
+           if (data.teachingAreas.length !== data.tutorProfile.subRegions.length) {
+             console.warn('⚠️ 地區數量不匹配，建議同步數據');
+           }
+         }
        } else if (data.tutorProfile?.teachingAreas && data.tutorProfile.teachingAreas.length > 0) {
          // 如果沒有 subRegions 但有 teachingAreas，使用它們
          teachingAreas = data.tutorProfile.teachingAreas;
@@ -235,6 +253,14 @@ export default function TutorDashboardPage() {
        }
        
        const publicCertificates = data.tutorProfile?.publicCertificates || data.publicCertificates || [];
+       
+       // 同步地區數據，確保數據一致性
+       if (data.tutorProfile?.subRegions && data.tutorProfile.subRegions.length > 0) {
+         // 如果 tutorProfile.subRegions 存在，同步到根級別的 teachingAreas
+         // 這樣可以確保兩個數據源保持一致
+         console.log('🔄 同步地區數據到根級別 teachingAreas');
+         data.teachingAreas = data.tutorProfile.subRegions;
+       }
       
       // 構建新的formData，優先使用tutorProfile中的數據
       const newFormData = {
