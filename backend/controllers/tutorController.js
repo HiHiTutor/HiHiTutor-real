@@ -1101,6 +1101,30 @@ const updateTutorProfile = async (req, res) => {
     if (updateData.region !== undefined) updateObject['tutorProfile.region'] = updateData.region;
     if (updateData.subRegions !== undefined) updateObject['tutorProfile.subRegions'] = updateData.subRegions;
     
+    // 處理嵌套的 tutorProfile 數據
+    if (updateData.tutorProfile) {
+      if (updateData.tutorProfile.subRegions !== undefined) {
+        updateObject['tutorProfile.subRegions'] = updateData.tutorProfile.subRegions;
+      }
+      if (updateData.tutorProfile.subjects !== undefined) {
+        updateObject['tutorProfile.subjects'] = Array.isArray(updateData.tutorProfile.subjects) && updateData.tutorProfile.subjects.length > 0 
+          ? updateData.tutorProfile.subjects 
+          : ['primary-chinese']; // 默認值
+      }
+      if (updateData.tutorProfile.teachingAreas !== undefined) {
+        updateObject['tutorProfile.teachingAreas'] = updateData.tutorProfile.teachingAreas;
+      }
+      if (updateData.tutorProfile.teachingMethods !== undefined) {
+        updateObject['tutorProfile.teachingMethods'] = updateData.tutorProfile.teachingMethods;
+      }
+      if (updateData.tutorProfile.availableTime !== undefined) {
+        updateObject['tutorProfile.availableTime'] = updateData.tutorProfile.availableTime;
+      }
+      if (updateData.tutorProfile.hourlyRate !== undefined) {
+        updateObject['tutorProfile.sessionRate'] = updateData.tutorProfile.hourlyRate >= 100 ? updateData.tutorProfile.hourlyRate : 100;
+      }
+    }
+    
     // 確保 sessionRate 有值，避免驗證錯誤
     if (updateData.hourlyRate !== undefined) {
       updateObject['tutorProfile.sessionRate'] = updateData.hourlyRate >= 100 ? updateData.hourlyRate : 100; // 默認值
