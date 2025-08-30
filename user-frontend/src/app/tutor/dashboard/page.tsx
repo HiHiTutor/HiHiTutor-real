@@ -1111,9 +1111,47 @@ export default function TutorDashboardPage() {
                    <p className="text-sm text-gray-600">當前已選地區：</p>
                    <div className="flex flex-wrap gap-2">
                      {formData.teachingAreas.map((area) => {
-                       // 嘗試從完整路徑中提取地區名稱
-                       const areaName = area.split('-').pop() || area;
-                       const regionLabel = REGION_OPTIONS.flatMap(r => r.regions || []).find(sr => sr.value === areaName)?.label || areaName;
+                       // 創建地區名稱映射
+                       const areaNameMap: { [key: string]: string } = {
+                         'hong-kong-island-admiralty': '金鐘',
+                         'hong-kong-island-tin-hau': '天后',
+                         'hong-kong-island-taikoo': '太古',
+                         'hong-kong-island-north-point': '北角',
+                         'hong-kong-island-shau-kei-wan': '筲箕灣',
+                         'hong-kong-island-chai-wan': '柴灣',
+                         'kowloon-to-kwa-wan': '土瓜灣',
+                         'kowloon-lok-fu': '樂富',
+                         'new-territories-long-ping': '朗屏',
+                         'hong-kong-island-tai-hang': '大坑',
+                         'hong-kong-island-sai-wan-ho': '西灣河'
+                       };
+                       
+                       // 優先使用映射
+                       if (areaNameMap[area]) {
+                         return (
+                           <Badge key={area} variant="secondary">
+                             {areaNameMap[area]}
+                           </Badge>
+                         );
+                       }
+                       
+                       // 如果沒有映射，嘗試從路徑中提取並匹配
+                       const pathParts = area.split('-');
+                       let regionLabel = area;
+                       
+                       // 從後往前嘗試匹配
+                       for (let i = pathParts.length - 1; i >= 0; i--) {
+                         const partialPath = pathParts.slice(i).join('-');
+                         for (const region of REGION_OPTIONS) {
+                           const subRegion = region.regions?.find(sr => sr.value === partialPath);
+                           if (subRegion) {
+                             regionLabel = subRegion.label;
+                             break;
+                           }
+                         }
+                         if (regionLabel !== area) break;
+                       }
+                       
                        return (
                          <Badge key={area} variant="secondary">
                            {regionLabel}
