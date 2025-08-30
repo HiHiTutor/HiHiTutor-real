@@ -6,6 +6,11 @@ function RouteTraceContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  // Safety check for searchParams
+  if (!searchParams) {
+    return <div className="p-8">載入中...</div>;
+  }
+
   useEffect(() => {
     console.log('🧨 ROUTE TRACE ACTIVATED');
     console.log('📍 Current pathname:', pathname);

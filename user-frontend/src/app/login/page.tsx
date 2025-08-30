@@ -13,6 +13,11 @@ function LoginPageContent() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Safety check for searchParams
+  if (!searchParams) {
+    return <div className="p-8">載入中...</div>;
+  }
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -31,7 +36,7 @@ function LoginPageContent() {
       window.dispatchEvent(loginEvent);
       
       // 檢查是否有重定向參數
-      const redirectTo = searchParams.get('redirect');
+      const redirectTo = searchParams?.get('redirect');
       
       console.log('登入成功，重定向到:', redirectTo || '/');
       

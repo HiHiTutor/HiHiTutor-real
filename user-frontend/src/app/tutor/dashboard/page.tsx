@@ -534,7 +534,7 @@ export default function TutorDashboardPage() {
     }
   };
 
-  const handleSectionSave = async (section: string, data: Partial<TutorProfile>) => {
+  const handleSectionSave = async (section: string, data: any) => {
     try {
       // 驗證部分保存的數據是否包含聯絡資料
       const validation = validateFormSubmission(data);
@@ -1274,15 +1274,16 @@ export default function TutorDashboardPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleSectionSave('teachingAreas', {
-                          // 只保存到 tutorProfile.subRegions，使用完整路徑格式
-                          'tutorProfile.subRegions': getAllSelectedSubRegions().map(subRegion => {
-                            // 將簡短名稱轉換為完整路徑格式
-                            const region = REGION_OPTIONS.find(r => r.regions?.some(sr => sr.value === subRegion));
-                            if (region) {
-                              return `${region.value}-${subRegion}`;
-                            }
-                            return subRegion;
-                          })
+                          tutorProfile: {
+                            subRegions: getAllSelectedSubRegions().map(subRegion => {
+                              // 將簡短名稱轉換為完整路徑格式
+                              const region = REGION_OPTIONS.find(r => r.regions?.some(sr => sr.value === subRegion));
+                              if (region) {
+                                return `${region.value}-${subRegion}`;
+                              }
+                              return subRegion;
+                            })
+                          }
                         })}
                         disabled={savingSection === 'teachingAreas'}
                       >
@@ -1447,15 +1448,16 @@ export default function TutorDashboardPage() {
                 onClick={() => handleSectionSave('teaching', {
                   subjects: formData.subjects,
                   teachingMethods: formData.teachingMethods,
-                  // 只保存到 tutorProfile.subRegions，使用完整路徑格式
-                  'tutorProfile.subRegions': getAllSelectedSubRegions().map(subRegion => {
-                    // 將簡短名稱轉換為完整路徑格式
-                    const region = REGION_OPTIONS.find(r => r.regions?.some(sr => sr.value === subRegion));
-                    if (region) {
-                      return `${region.value}-${subRegion}`;
-                    }
-                    return subRegion;
-                  }),
+                  tutorProfile: {
+                    subRegions: getAllSelectedSubRegions().map(subRegion => {
+                      // 將簡短名稱轉換為完整路徑格式
+                      const region = REGION_OPTIONS.find(r => r.regions?.some(sr => sr.value === subRegion));
+                      if (region) {
+                        return `${region.value}-${subRegion}`;
+                      }
+                      return subRegion;
+                    })
+                  },
                   availableTime: formData.availableTime,
                   hourlyRate: formData.hourlyRate,
                 })}

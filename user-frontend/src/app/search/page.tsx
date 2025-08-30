@@ -21,6 +21,12 @@ export default function SearchPage() {
 
 function SearchPageContent() {
   const searchParams = useSearchParams();
+  
+  // Safety check for searchParams
+  if (!searchParams) {
+    return <div className="p-8">載入中...</div>;
+  }
+  
   const query = searchParams.get('q') || '';
   const [results, setResults] = useState<SearchResult>({ tutors: [], cases: [] });
   const [loading, setLoading] = useState(true);

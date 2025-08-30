@@ -36,6 +36,11 @@ function TutorsPageContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  // Safety check for searchParams
+  if (!searchParams) {
+    return <div className="p-8">載入中...</div>;
+  }
+
   const fetchTutors = async () => {
     try {
       setLoading(true);

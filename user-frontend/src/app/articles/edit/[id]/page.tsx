@@ -23,6 +23,11 @@ export default function EditArticlePage() {
   const [error, setError] = useState('')
   const [article, setArticle] = useState<Article | null>(null)
   
+  // Early return if no params or id
+  if (!params?.id) {
+    return <div className="p-8">文章ID無效</div>
+  }
+  
   const [formData, setFormData] = useState({
     title: '',
     summary: '',
@@ -33,10 +38,10 @@ export default function EditArticlePage() {
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE
 
   useEffect(() => {
-    if (params.id && user) {
+    if (params?.id && user) {
       loadArticle()
     }
-  }, [params.id, user])
+  }, [params?.id, user])
 
   const loadArticle = async () => {
     try {
@@ -48,7 +53,7 @@ export default function EditArticlePage() {
         return
       }
 
-      const response = await fetch(`${API_BASE}/api/articles/${params.id}`, {
+      const response = await fetch(`${API_BASE}/api/articles/${params?.id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

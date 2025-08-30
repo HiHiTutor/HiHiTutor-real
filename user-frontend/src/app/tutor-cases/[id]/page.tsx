@@ -27,6 +27,12 @@ interface TutorCase {
 
 export default function TutorCaseDetail() {
   const params = useParams();
+  
+  // Safety check for params
+  if (!params?.id) {
+    return <div className="p-8">個案ID無效</div>;
+  }
+  
   const id = params.id as string;
   const [caseData, setCaseData] = useState<TutorCase | null>(null);
   const [loading, setLoading] = useState(true);

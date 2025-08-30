@@ -54,6 +54,12 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  
+  // Safety check for searchParams
+  if (!searchParams) {
+    return <div className="p-8">載入中...</div>;
+  }
+  
   const [filters, setFilters] = useState<FilterState>({
     target: '',
     search: '', // 添加搜尋字段

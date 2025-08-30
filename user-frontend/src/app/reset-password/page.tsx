@@ -14,6 +14,12 @@ export default function ResetPasswordPage() {
 function ResetPasswordPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  
+  // Safety check for searchParams
+  if (!searchParams) {
+    return <div className="p-8">載入中...</div>;
+  }
+  
   const token = searchParams.get('token');
 
   const [password, setPassword] = useState('');

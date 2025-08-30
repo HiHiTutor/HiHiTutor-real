@@ -16,17 +16,21 @@ interface Article {
 }
 
 export default function ArticleDetail() {
-  const { id } = useParams()
+  const params = useParams()
+  const id = params?.id as string
   const [article, setArticle] = useState<Article | null>(null)
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE;
 
   useEffect(() => {
+    if (!id) return
+    
     fetch(`${baseUrl}/api/articles/${id}`)
       .then((res) => res.json())
       .then(setArticle)
       .catch((err) => console.error('文章載入失敗:', err))
-  }, [id])
+  }, [id, baseUrl])
 
+  if (!id) return <div className="p-8">文章ID無效</div>
   if (!article) return <div className="p-8">載入中...</div>
 
   return (

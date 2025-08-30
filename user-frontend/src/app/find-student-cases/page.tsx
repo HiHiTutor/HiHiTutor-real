@@ -60,6 +60,11 @@ function FindStudentCasesPageContent() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Safety check for searchParams
+  if (!searchParams) {
+    return <div className="p-8">載入中...</div>;
+  }
+
   // 首次載入時獲取所有資料
   useEffect(() => {
     const fetchAllCases = async () => {
@@ -68,12 +73,12 @@ function FindStudentCasesPageContent() {
         console.log("🔍 正在獲取補習個案資料...");
         
         // 從 URL 參數構建查詢條件
-        const search = searchParams.get('search');
-        const category = searchParams.get('category');
-        const subCategory = searchParams.get('subCategory');
-        const subjects = searchParams.getAll('subjects');
-        const regions = searchParams.getAll('regions');
-        const modes = searchParams.getAll('modes');
+        const search = searchParams?.get('search');
+        const category = searchParams?.get('category');
+        const subCategory = searchParams?.get('subCategory');
+        const subjects = searchParams?.getAll('subjects') || [];
+        const regions = searchParams?.getAll('regions') || [];
+        const modes = searchParams?.getAll('modes') || [];
         
         // 構建 API 參數
         const apiParams: any = {};
