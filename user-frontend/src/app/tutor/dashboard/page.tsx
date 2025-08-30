@@ -402,8 +402,7 @@ export default function TutorDashboardPage() {
       
       toast.success('資料更新成功，已即時生效');
       
-      // 強制刷新頁面以確保數據更新
-      window.location.reload();
+      // 不需要強制刷新頁面，數據已經更新
     } catch (error) {
       console.error('Error updating tutor profile:', error);
       toast.error(error instanceof Error ? error.message : '更新導師資料失敗');
@@ -557,8 +556,7 @@ export default function TutorDashboardPage() {
       
       toast.success('資料更新成功，已即時生效');
       
-      // 強制刷新頁面以確保數據更新
-      window.location.reload();
+      // 不需要強制刷新頁面，數據已經更新
     } catch (error) {
       console.error('更新失敗:', error);
       toast.error(error instanceof Error ? error.message : '更新失敗，請稍後再試');

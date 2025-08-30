@@ -50,9 +50,14 @@ export async function PUT(request: NextRequest) {
     const token = request.headers.get('authorization');
     const body = await request.json();
     
+    console.log('🔍 前端 API 路由 PUT - 接收到的數據:', JSON.stringify(body, null, 2));
+    
     if (!token) {
+      console.log('❌ 前端 API 路由 PUT - 沒有 token');
       return NextResponse.json({ error: '未授權' }, { status: 401 });
     }
+
+    console.log('🚀 前端 API 路由 PUT - 轉發請求到後端:', `${BACKEND_URL}/api/tutors/profile`);
 
     const response = await fetch(`${BACKEND_URL}/api/tutors/profile`, {
       method: 'PUT',
@@ -63,15 +68,20 @@ export async function PUT(request: NextRequest) {
       body: JSON.stringify(body),
     });
 
+    console.log('📥 前端 API 路由 PUT - 後端回應狀態:', response.status);
+
     const data = await response.json();
+    console.log('📥 前端 API 路由 PUT - 後端回應數據:', JSON.stringify(data, null, 2));
 
     if (!response.ok) {
+      console.log('❌ 前端 API 路由 PUT - 後端回應錯誤:', data);
       return NextResponse.json(data, { status: response.status });
     }
 
+    console.log('✅ 前端 API 路由 PUT - 成功更新資料');
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error updating tutor profile:', error);
+    console.error('❌ 前端 API 路由 PUT - 錯誤:', error);
     return NextResponse.json(
       { error: '更新導師資料失敗' },
       { status: 500 }
