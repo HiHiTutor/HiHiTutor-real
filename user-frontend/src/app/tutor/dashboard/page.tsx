@@ -213,12 +213,28 @@ export default function TutorDashboardPage() {
       console.log('🔍 Education field:', data.tutorProfile?.educationLevel || data.education);
       console.log('🔍 Profile status:', data.profileStatus);
       
-      // 確保科目數據正確設置
-      const subjects = data.tutorProfile?.subjects || data.subjects || [];
-      const availableTime = data.tutorProfile?.availableTime || data.availableTime || [];
-      const qualifications = data.tutorProfile?.qualifications || data.qualifications || [];
-      const teachingAreas = data.tutorProfile?.teachingAreas || data.teachingAreas || [];
-      const publicCertificates = data.tutorProfile?.publicCertificates || data.publicCertificates || [];
+             // 確保科目數據正確設置
+       const subjects = data.tutorProfile?.subjects || data.subjects || [];
+       const availableTime = data.tutorProfile?.availableTime || data.availableTime || [];
+       const qualifications = data.tutorProfile?.qualifications || data.qualifications || [];
+       
+       // 處理地區數據 - 優先使用 tutorProfile.subRegions
+       let teachingAreas: string[] = [];
+       if (data.tutorProfile?.subRegions && data.tutorProfile.subRegions.length > 0) {
+         // 如果有 subRegions，使用它們
+         teachingAreas = data.tutorProfile.subRegions;
+         console.log('🔍 使用 tutorProfile.subRegions:', teachingAreas);
+       } else if (data.tutorProfile?.teachingAreas && data.tutorProfile.teachingAreas.length > 0) {
+         // 如果沒有 subRegions 但有 teachingAreas，使用它們
+         teachingAreas = data.tutorProfile.teachingAreas;
+         console.log('🔍 使用 tutorProfile.teachingAreas:', teachingAreas);
+       } else if (data.teachingAreas && data.teachingAreas.length > 0) {
+         // 最後才使用根級別的 teachingAreas
+         teachingAreas = data.teachingAreas;
+         console.log('🔍 使用根級別 teachingAreas:', teachingAreas);
+       }
+       
+       const publicCertificates = data.tutorProfile?.publicCertificates || data.publicCertificates || [];
       
       // 構建新的formData，優先使用tutorProfile中的數據
       const newFormData = {
@@ -1236,46 +1252,74 @@ export default function TutorDashboardPage() {
                     強制刷新
                   </Button>
                   
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      console.log('🔍 檢查地區數據狀態');
-                      console.log('formData.teachingAreas:', formData.teachingAreas);
-                      console.log('selectedSubRegionsByRegion:', selectedSubRegionsByRegion);
-                      console.log('REGION_OPTIONS:', REGION_OPTIONS);
-                      
-                      // 顯示詳細的地區匹配信息
-                      if (formData.teachingAreas && formData.teachingAreas.length > 0) {
-                        const matchInfo = formData.teachingAreas.map(area => {
-                          let matchResult = '未匹配';
-                          let regionInfo = '';
-                          
-                          for (const region of REGION_OPTIONS) {
-                            const subRegion = region.regions?.find((sr: { value: string; label: string }) => 
-                              sr.value === area || sr.label === area
-                            );
-                            if (subRegion) {
-                              matchResult = '已匹配';
-                              regionInfo = `${region.label} - ${subRegion.label}`;
-                              break;
-                            }
-                          }
-                          
-                          return `${area}: ${matchResult} (${regionInfo})`;
-                        });
-                        
-                        console.log('地區匹配信息:', matchInfo);
-                        toast.success(`檢查完成，請查看控制台`);
-                                             } else {
+                                     <Button
+                     type="button"
+                     variant="outline"
+                     size="sm"
+                     onClick={() => {
+                       console.log('🔍 檢查地區數據狀態');
+                       console.log('formData.teachingAreas:', formData.teachingAreas);
+                       console.log('selectedSubRegionsByRegion:', selectedSubRegionsByRegion);
+                       console.log('REGION_OPTIONS:', REGION_OPTIONS);
+                       
+                       // 顯示詳細的地區匹配信息
+                       if (formData.teachingAreas && formData.teachingAreas.length > 0) {
+                         const matchInfo = formData.teachingAreas.map(area => {
+                           let matchResult = '未匹配';
+                           let regionInfo = '';
+                           
+                           for (const region of REGION_OPTIONS) {
+                             const subRegion = region.regions?.find((sr: { value: string; label: string }) => 
+                               sr.value === area || sr.label === area
+                             );
+                             if (subRegion) {
+                               matchResult = '已匹配';
+                               regionInfo = `${region.label} - ${subRegion.label}`;
+                               break;
+                             }
+                           }
+                           
+                           return `${area}: ${matchResult} (${regionInfo})`;
+                         });
+                         
+                         console.log('地區匹配信息:', matchInfo);
+                         toast.success(`檢查完成，請查看控制台`);
+                       } else {
                          toast('沒有地區數據可檢查', { icon: 'ℹ️' });
                        }
-                    }}
-                    className="ml-2"
-                  >
-                    檢查地區數據
-                  </Button>
+                     }}
+                     className="ml-2"
+                   >
+                     檢查地區數據
+                   </Button>
+                   
+                   <Button
+                     type="button"
+                     variant="outline"
+                     size="sm"
+                     onClick={async () => {
+                       try {
+                         const response = await tutorApi.getProfile();
+                         console.log('🔍 檢查 tutorProfile 數據');
+                         console.log('完整 API 回應:', response);
+                         
+                         if (response.tutorProfile) {
+                           console.log('tutorProfile:', response.tutorProfile);
+                           console.log('subRegions:', response.tutorProfile.subRegions);
+                           console.log('region:', response.tutorProfile.region);
+                           console.log('teachingMode:', response.tutorProfile.teachingMode);
+                         }
+                         
+                         toast.success('tutorProfile 數據已輸出到控制台');
+                       } catch (error) {
+                         console.error('檢查 tutorProfile 失敗:', error);
+                         toast.error('檢查失敗');
+                       }
+                     }}
+                     className="ml-2"
+                   >
+                     檢查 tutorProfile
+                   </Button>
                 </div>
               </div>
               
