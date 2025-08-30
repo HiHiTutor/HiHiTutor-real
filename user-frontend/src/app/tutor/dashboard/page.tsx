@@ -254,13 +254,17 @@ export default function TutorDashboardPage() {
        
        const publicCertificates = data.tutorProfile?.publicCertificates || data.publicCertificates || [];
        
-       // 同步地區數據，確保數據一致性
-       if (data.tutorProfile?.subRegions && data.tutorProfile.subRegions.length > 0) {
-         // 如果 tutorProfile.subRegions 存在，同步到根級別的 teachingAreas
-         // 這樣可以確保兩個數據源保持一致
-         console.log('🔄 同步地區數據到根級別 teachingAreas');
-         data.teachingAreas = data.tutorProfile.subRegions;
-       }
+               // 同步地區數據，確保數據一致性
+        if (data.tutorProfile?.subRegions && data.tutorProfile.subRegions.length > 0) {
+          // 如果 tutorProfile.subRegions 存在，同步到根級別的 teachingAreas
+          // 這樣可以確保兩個數據源保持一致
+          console.log('🔄 同步地區數據到根級別 teachingAreas');
+          data.teachingAreas = data.tutorProfile.subRegions;
+          
+          // 強制使用 subRegions 作為權威數據源
+          teachingAreas = data.tutorProfile.subRegions;
+          console.log('✅ 強制使用 subRegions 作為權威數據源:', teachingAreas);
+        }
       
       // 構建新的formData，優先使用tutorProfile中的數據
       const newFormData = {
