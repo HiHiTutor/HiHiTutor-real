@@ -1085,298 +1085,44 @@ export default function TutorDashboardPage() {
                   <br />3. 點擊「保存地區選擇」按鈕保存您的選擇
                 </p>
                 
-                                 {/* 載入已選地區按鈕 */}
+                                                  {/* 簡化的操作按鈕 */}
                  <div className="mt-3 pt-3 border-t border-blue-200">
-                   <Button
-                     type="button"
-                     variant="outline"
-                     size="sm"
-                     onClick={() => {
-                       console.log('🔍 手動載入地區數據');
-                       console.log('formData.teachingAreas:', formData.teachingAreas);
-                       console.log('selectedSubRegionsByRegion:', selectedSubRegionsByRegion);
-                       
-                       // 重新處理地區數據
-                       if (formData.teachingAreas && formData.teachingAreas.length > 0) {
-                         const subRegionsByRegion: {[key: string]: string[]} = {};
-                         
-                         formData.teachingAreas.forEach((area: string) => {
-                           console.log(`🔍 處理地區: ${area}`);
-                           
-                           // 嘗試通過 value 匹配
-                           let found = false;
-                           for (const region of REGION_OPTIONS) {
-                             const subRegion = region.regions?.find((sr: { value: string; label: string }) => sr.value === area);
-                             if (subRegion) {
-                               if (!subRegionsByRegion[region.value]) {
-                                 subRegionsByRegion[region.value] = [];
-                               }
-                               subRegionsByRegion[region.value].push(area);
-                               found = true;
-                               console.log(`✅ 通過 value 匹配: ${area} -> ${region.label}`);
-                               break;
-                             }
-                           }
-                           
-                           // 如果通過 value 沒有找到，嘗試通過 label 匹配
-                           if (!found) {
-                             for (const region of REGION_OPTIONS) {
-                               const subRegion = region.regions?.find((sr: { value: string; label: string }) => sr.label === area);
-                               if (subRegion) {
-                                 if (!subRegionsByRegion[region.value]) {
-                                   subRegionsByRegion[region.value] = [];
-                                 }
-                                 subRegionsByRegion[region.value].push(subRegion.value);
-                                 found = true;
-                                 console.log(`✅ 通過 label 匹配: ${area} -> ${region.label} -> ${subRegion.value}`);
-                                 break;
-                               }
-                             }
-                           }
-                           
-                           // 如果還是沒有找到，嘗試通過模糊匹配
-                           if (!found) {
-                             for (const region of REGION_OPTIONS) {
-                               const subRegion = region.regions?.find((sr: { value: string; label: string }) => 
-                                 sr.label.includes(area) || area.includes(sr.label) ||
-                                 sr.value.includes(area) || area.includes(sr.value)
-                               );
-                               if (subRegion) {
-                                 if (!subRegionsByRegion[region.value]) {
-                                   subRegionsByRegion[region.value] = [];
-                                 }
-                                 subRegionsByRegion[region.value].push(subRegion.value);
-                                 found = true;
-                                 console.log(`✅ 通過模糊匹配: ${area} -> ${region.label} -> ${subRegion.value}`);
-                                 break;
-                               }
-                             }
-                           }
-                           
-                           // 如果還是沒有找到，記錄警告
-                           if (!found) {
-                             console.warn(`⚠️ 無法匹配地區: ${area}`);
-                           }
-                         });
-                         
-                         console.log('🔍 重新設置的地區狀態:', subRegionsByRegion);
-                         setSelectedSubRegionsByRegion(subRegionsByRegion);
-                         toast.success('地區數據已重新載入');
-                       }
-                     }}
-                   >
-                     載入已選地區
-                   </Button>
-                   
-                   <Button
-                     type="button"
-                     variant="outline"
-                     size="sm"
-                     onClick={() => {
-                       // 自動載入地區數據
-                       if (formData.teachingAreas && formData.teachingAreas.length > 0) {
-                         const subRegionsByRegion: {[key: string]: string[]} = {};
-                         
-                         formData.teachingAreas.forEach((area: string) => {
-                           // 嘗試通過 value 匹配
-                           let found = false;
-                           for (const region of REGION_OPTIONS) {
-                             const subRegion = region.regions?.find((sr: { value: string; label: string }) => sr.value === area);
-                             if (subRegion) {
-                               if (!subRegionsByRegion[region.value]) {
-                                 subRegionsByRegion[region.value] = [];
-                               }
-                               subRegionsByRegion[region.value].push(area);
-                               found = true;
-                               break;
-                             }
-                           }
-                           
-                           // 如果通過 value 沒有找到，嘗試通過 label 匹配
-                           if (!found) {
-                             for (const region of REGION_OPTIONS) {
-                               const subRegion = region.regions?.find((sr: { value: string; label: string }) => sr.label === area);
-                               if (subRegion) {
-                                 if (!subRegionsByRegion[region.value]) {
-                                   subRegionsByRegion[region.value] = [];
-                                 }
-                                 subRegionsByRegion[region.value].push(subRegion.value);
-                                 found = true;
-                                 break;
-                               }
-                             }
-                           }
-                           
-                           // 如果還是沒有找到，嘗試通過模糊匹配
-                           if (!found) {
-                             for (const region of REGION_OPTIONS) {
-                               const subRegion = region.regions?.find((sr: { value: string; label: string }) => 
-                                 sr.label.includes(area) || area.includes(sr.label) ||
-                                 sr.value.includes(area) || area.includes(sr.value)
-                               );
-                               if (subRegion) {
-                                 if (!subRegionsByRegion[region.value]) {
-                                   subRegionsByRegion[region.value] = [];
-                                 }
-                                 subRegionsByRegion[region.value].push(subRegion.value);
-                                 found = true;
-                                 break;
-                               }
-                             }
-                           }
-                         });
-                         
-                         setSelectedSubRegionsByRegion(subRegionsByRegion);
-                         toast.success('地區數據已自動載入');
-                       }
-                     }}
-                     className="ml-2"
-                   >
-                     自動載入地區
-                   </Button>
-                  
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={async () => {
-                      try {
-                        await fetchTutorProfile();
-                        toast.success('導師資料已重新載入');
-                      } catch (error) {
-                        toast.error('載入失敗，請稍後再試');
-                      }
-                    }}
-                    className="ml-2"
-                  >
-                    強制刷新
-                  </Button>
-                  
-                                     <Button
-                     type="button"
-                     variant="outline"
-                     size="sm"
-                     onClick={() => {
-                       console.log('🔍 檢查地區數據狀態');
-                       console.log('formData.teachingAreas:', formData.teachingAreas);
-                       console.log('selectedSubRegionsByRegion:', selectedSubRegionsByRegion);
-                       console.log('REGION_OPTIONS:', REGION_OPTIONS);
-                       
-                       // 顯示詳細的地區匹配信息
-                       if (formData.teachingAreas && formData.teachingAreas.length > 0) {
-                         const matchInfo = formData.teachingAreas.map(area => {
-                           let matchResult = '未匹配';
-                           let regionInfo = '';
-                           
-                           for (const region of REGION_OPTIONS) {
-                             const subRegion = region.regions?.find((sr: { value: string; label: string }) => 
-                               sr.value === area || sr.label === area
-                             );
-                             if (subRegion) {
-                               matchResult = '已匹配';
-                               regionInfo = `${region.label} - ${subRegion.label}`;
-                               break;
-                             }
-                           }
-                           
-                           return `${area}: ${matchResult} (${regionInfo})`;
-                         });
-                         
-                         console.log('地區匹配信息:', matchInfo);
-                         toast.success(`檢查完成，請查看控制台`);
-                       } else {
-                         toast('沒有地區數據可檢查', { icon: 'ℹ️' });
-                       }
-                     }}
-                     className="ml-2"
-                   >
-                     檢查地區數據
-                   </Button>
-                   
                    <Button
                      type="button"
                      variant="outline"
                      size="sm"
                      onClick={async () => {
                        try {
-                         const response = await tutorApi.getProfile();
-                         console.log('🔍 檢查 tutorProfile 數據');
-                         console.log('完整 API 回應:', response);
-                         
-                         if (response.tutorProfile) {
-                           console.log('tutorProfile:', response.tutorProfile);
-                           console.log('subRegions:', response.tutorProfile.subRegions);
-                           console.log('region:', response.tutorProfile.region);
-                           console.log('teachingMode:', response.tutorProfile.teachingMode);
-                         }
-                         
-                         toast.success('tutorProfile 數據已輸出到控制台');
+                         await fetchTutorProfile();
+                         toast.success('導師資料已重新載入');
                        } catch (error) {
-                         console.error('檢查 tutorProfile 失敗:', error);
-                         toast.error('檢查失敗');
+                         toast.error('載入失敗，請稍後再試');
                        }
                      }}
-                     className="ml-2"
                    >
-                     檢查 tutorProfile
+                     重新載入資料
                    </Button>
-                </div>
+                 </div>
               </div>
               
-              {/* 顯示當前已選地區 */}
-              {formData.teachingAreas && formData.teachingAreas.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">當前已選地區：</p>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.teachingAreas.map((area) => {
-                      const regionLabel = REGION_OPTIONS.flatMap(r => r.regions || []).find(sr => sr.value === area)?.label || area;
-                      return (
-                        <Badge key={area} variant="secondary">
-                          {regionLabel}
-                        </Badge>
-                      );
-                    })}
-                  </div>
-                  
-                                     {/* 調試信息 */}
-                   <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                     <p className="text-sm text-gray-600">
-                       <strong>調試信息：</strong>
-                       <br />原始數據: {JSON.stringify(formData.teachingAreas)}
-                       <br />地區狀態: {JSON.stringify(selectedSubRegionsByRegion)}
-                     </p>
-                     
-                     {/* 顯示原始數據按鈕 */}
-                     <Button
-                       type="button"
-                       variant="outline"
-                       size="sm"
-                       onClick={() => {
-                         if (formData.teachingAreas && formData.teachingAreas.length > 0) {
-                           const areaDetails = formData.teachingAreas.map(area => {
-                             // 嘗試找到對應的地區信息
-                             for (const region of REGION_OPTIONS) {
-                               const subRegion = region.regions?.find((sr: { value: string; label: string }) => 
-                                 sr.value === area || sr.label === area
-                               );
-                               if (subRegion) {
-                                 return `${area} -> ${region.label} - ${subRegion.label}`;
-                               }
-                             }
-                             return `${area} -> 未匹配`;
-                           });
-                           
-                           console.log('🔍 地區詳細信息:', areaDetails);
-                           toast.success('地區詳細信息已輸出到控制台');
-                         }
-                       }}
-                       className="mt-2"
-                     >
-                       顯示原始數據詳情
-                     </Button>
+                             {/* 顯示當前已選地區 */}
+               {formData.teachingAreas && formData.teachingAreas.length > 0 && (
+                 <div className="space-y-2">
+                   <p className="text-sm text-gray-600">當前已選地區：</p>
+                   <div className="flex flex-wrap gap-2">
+                     {formData.teachingAreas.map((area) => {
+                       // 嘗試從完整路徑中提取地區名稱
+                       const areaName = area.split('-').pop() || area;
+                       const regionLabel = REGION_OPTIONS.flatMap(r => r.regions || []).find(sr => sr.value === areaName)?.label || areaName;
+                       return (
+                         <Badge key={area} variant="secondary">
+                           {regionLabel}
+                         </Badge>
+                       );
+                     })}
                    </div>
-                </div>
-              )}
+                 </div>
+               )}
               
               <div className="space-y-4">
                 {/* 地區選擇 */}
