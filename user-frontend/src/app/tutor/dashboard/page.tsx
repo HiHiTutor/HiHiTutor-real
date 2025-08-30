@@ -1163,9 +1163,9 @@ export default function TutorDashboardPage() {
                         
                         console.log('地區匹配信息:', matchInfo);
                         toast.success(`檢查完成，請查看控制台`);
-                      } else {
-                        toast.info('沒有地區數據可檢查');
-                      }
+                                             } else {
+                         toast('沒有地區數據可檢查', { icon: 'ℹ️' });
+                       }
                     }}
                     className="ml-2"
                   >
