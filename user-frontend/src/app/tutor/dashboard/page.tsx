@@ -254,24 +254,56 @@ export default function TutorDashboardPage() {
       setNewAvailableTimes(availableTime);
       setPublicCertificates(publicCertificates);
       
-      // 設置地區選擇狀態
-      if (teachingAreas.length > 0) {
-        // 根據已選地區設置狀態
-        const subRegionsByRegion: {[key: string]: string[]} = {};
-        teachingAreas.forEach((area: string) => {
-          // 找到該地區屬於哪個主要地區
-          for (const region of REGION_OPTIONS) {
-            const subRegion = region.regions?.find((sr: { value: string; label: string }) => sr.value === area);
-            if (subRegion) {
-              if (!subRegionsByRegion[region.value]) {
-                subRegionsByRegion[region.value] = [];
-              }
-              subRegionsByRegion[region.value].push(area);
-            }
+        // 設置地區選擇狀態
+  if (teachingAreas.length > 0) {
+    console.log('🔍 處理已選地區:', teachingAreas);
+    
+    // 根據已選地區設置狀態
+    const subRegionsByRegion: {[key: string]: string[]} = {};
+    
+    teachingAreas.forEach((area: string) => {
+      console.log(`🔍 處理地區: ${area}`);
+      
+      // 嘗試通過 value 匹配
+      let found = false;
+      for (const region of REGION_OPTIONS) {
+        const subRegion = region.regions?.find((sr: { value: string; label: string }) => sr.value === area);
+        if (subRegion) {
+          if (!subRegionsByRegion[region.value]) {
+            subRegionsByRegion[region.value] = [];
           }
-        });
-        setSelectedSubRegionsByRegion(subRegionsByRegion);
+          subRegionsByRegion[region.value].push(area);
+          found = true;
+          console.log(`✅ 通過 value 匹配: ${area} -> ${region.label}`);
+          break;
+        }
       }
+      
+      // 如果通過 value 沒有找到，嘗試通過 label 匹配
+      if (!found) {
+        for (const region of REGION_OPTIONS) {
+          const subRegion = region.regions?.find((sr: { value: string; label: string }) => sr.label === area);
+          if (subRegion) {
+            if (!subRegionsByRegion[region.value]) {
+              subRegionsByRegion[region.value] = [];
+            }
+            subRegionsByRegion[region.value].push(subRegion.value);
+            found = true;
+            console.log(`✅ 通過 label 匹配: ${area} -> ${region.label} -> ${subRegion.value}`);
+            break;
+          }
+        }
+      }
+      
+      // 如果還是沒有找到，記錄警告
+      if (!found) {
+        console.warn(`⚠️ 無法匹配地區: ${area}`);
+      }
+    });
+    
+    console.log('🔍 設置的地區狀態:', subRegionsByRegion);
+    setSelectedSubRegionsByRegion(subRegionsByRegion);
+  }
     } catch (error) {
       console.error('❌ 獲取資料失敗:', error);
       toast.error(error instanceof Error ? error.message : '獲取資料失敗，請稍後再試');
@@ -1004,6 +1036,144 @@ export default function TutorDashboardPage() {
             <div className="space-y-4">
               <Label>上堂地點</Label>
               
+              {/* 說明文字 */}
+              <p className="text-sm text-gray-600">
+                請選擇您願意前往授課的地區。您可以選擇多個地區，選擇完成後請點擊「保存地區選擇」按鈕。
+              </p>
+              
+              {/* 操作提示 */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p className="text-sm text-blue-800">
+                  <strong>操作步驟：</strong>
+                  <br />1. 先選擇主要地區（如：香港島、九龍、新界）
+                  <br />2. 再選擇具體的子地區（如：中環、灣仔、銅鑼灣）
+                  <br />3. 點擊「保存地區選擇」按鈕保存您的選擇
+                </p>
+                
+                {/* 載入已選地區按鈕 */}
+                <div className="mt-3 pt-3 border-t border-blue-200">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      console.log('🔍 手動載入地區數據');
+                      console.log('formData.teachingAreas:', formData.teachingAreas);
+                      console.log('selectedSubRegionsByRegion:', selectedSubRegionsByRegion);
+                      
+                      // 重新處理地區數據
+                      if (formData.teachingAreas && formData.teachingAreas.length > 0) {
+                        const subRegionsByRegion: {[key: string]: string[]} = {};
+                        
+                        formData.teachingAreas.forEach((area: string) => {
+                          console.log(`🔍 處理地區: ${area}`);
+                          
+                          // 嘗試通過 value 匹配
+                          let found = false;
+                          for (const region of REGION_OPTIONS) {
+                            const subRegion = region.regions?.find((sr: { value: string; label: string }) => sr.value === area);
+                            if (subRegion) {
+                              if (!subRegionsByRegion[region.value]) {
+                                subRegionsByRegion[region.value] = [];
+                              }
+                              subRegionsByRegion[region.value].push(area);
+                              found = true;
+                              console.log(`✅ 通過 value 匹配: ${area} -> ${region.label}`);
+                              break;
+                            }
+                          }
+                          
+                          // 如果通過 value 沒有找到，嘗試通過 label 匹配
+                          if (!found) {
+                            for (const region of REGION_OPTIONS) {
+                              const subRegion = region.regions?.find((sr: { value: string; label: string }) => sr.label === area);
+                              if (subRegion) {
+                                if (!subRegionsByRegion[region.value]) {
+                                  subRegionsByRegion[region.value] = [];
+                                }
+                                subRegionsByRegion[region.value].push(subRegion.value);
+                                found = true;
+                                console.log(`✅ 通過 label 匹配: ${area} -> ${region.label} -> ${subRegion.value}`);
+                                break;
+                              }
+                            }
+                          }
+                          
+                          // 如果還是沒有找到，記錄警告
+                          if (!found) {
+                            console.warn(`⚠️ 無法匹配地區: ${area}`);
+                          }
+                        });
+                        
+                        console.log('🔍 重新設置的地區狀態:', subRegionsByRegion);
+                        setSelectedSubRegionsByRegion(subRegionsByRegion);
+                        toast.success('地區數據已重新載入');
+                      }
+                    }}
+                  >
+                    載入已選地區
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      try {
+                        await fetchTutorProfile();
+                        toast.success('導師資料已重新載入');
+                      } catch (error) {
+                        toast.error('載入失敗，請稍後再試');
+                      }
+                    }}
+                    className="ml-2"
+                  >
+                    強制刷新
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      console.log('🔍 檢查地區數據狀態');
+                      console.log('formData.teachingAreas:', formData.teachingAreas);
+                      console.log('selectedSubRegionsByRegion:', selectedSubRegionsByRegion);
+                      console.log('REGION_OPTIONS:', REGION_OPTIONS);
+                      
+                      // 顯示詳細的地區匹配信息
+                      if (formData.teachingAreas && formData.teachingAreas.length > 0) {
+                        const matchInfo = formData.teachingAreas.map(area => {
+                          let matchResult = '未匹配';
+                          let regionInfo = '';
+                          
+                          for (const region of REGION_OPTIONS) {
+                            const subRegion = region.regions?.find((sr: { value: string; label: string }) => 
+                              sr.value === area || sr.label === area
+                            );
+                            if (subRegion) {
+                              matchResult = '已匹配';
+                              regionInfo = `${region.label} - ${subRegion.label}`;
+                              break;
+                            }
+                          }
+                          
+                          return `${area}: ${matchResult} (${regionInfo})`;
+                        });
+                        
+                        console.log('地區匹配信息:', matchInfo);
+                        toast.success(`檢查完成，請查看控制台`);
+                      } else {
+                        toast.info('沒有地區數據可檢查');
+                      }
+                    }}
+                    className="ml-2"
+                  >
+                    檢查地區數據
+                  </Button>
+                </div>
+              </div>
+              
               {/* 顯示當前已選地區 */}
               {formData.teachingAreas && formData.teachingAreas.length > 0 && (
                 <div className="space-y-2">
@@ -1018,6 +1188,15 @@ export default function TutorDashboardPage() {
                       );
                     })}
                   </div>
+                  
+                  {/* 調試信息 */}
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                    <p className="text-sm text-gray-600">
+                      <strong>調試信息：</strong>
+                      <br />原始數據: {JSON.stringify(formData.teachingAreas)}
+                      <br />地區狀態: {JSON.stringify(selectedSubRegionsByRegion)}
+                    </p>
+                  </div>
                 </div>
               )}
               
@@ -1030,19 +1209,27 @@ export default function TutorDashboardPage() {
                       <SelectValue placeholder="選擇主要地區" />
                     </SelectTrigger>
                     <SelectContent>
-                      {REGION_OPTIONS.map((region) => (
+                      {REGION_OPTIONS.filter(region => region.value !== 'unlimited').map((region) => (
                         <SelectItem key={region.value} value={region.value}>
                           {region.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                  
+                  {/* 顯示所有可選地區的提示 */}
+                  <div className="text-sm text-gray-500">
+                    可選地區包括：香港島、九龍、新界、離島等
+                  </div>
                 </div>
 
                 {/* 子地區選擇 */}
                 {selectedRegion && (
                   <div className="space-y-2">
                     <Label>選擇子地區</Label>
+                    <p className="text-sm text-gray-500">
+                      選擇 {REGION_OPTIONS.find(r => r.value === selectedRegion)?.label} 下的具體地區
+                    </p>
                     <div className="grid grid-cols-2 gap-2">
                       {REGION_OPTIONS.find(r => r.value === selectedRegion)?.regions?.map((subRegion: { value: string; label: string }) => (
                         <div key={subRegion.value} className="flex items-center space-x-2">
@@ -1061,16 +1248,64 @@ export default function TutorDashboardPage() {
                 )}
 
                 {/* 已選地區顯示 */}
-                {getAllSelectedSubRegions().length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {getAllSelectedSubRegions().map((subRegion) => {
-                      const regionLabel = REGION_OPTIONS.flatMap(r => r.regions || []).find(sr => sr.value === subRegion)?.label || subRegion;
-                      return (
-                        <Badge key={subRegion} variant="secondary">
-                          {regionLabel}
-                        </Badge>
-                      );
-                    })}
+                {getAllSelectedSubRegions().length > 0 ? (
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-600">已選擇的地區：</p>
+                    <div className="flex flex-wrap gap-2">
+                      {getAllSelectedSubRegions().map((subRegion) => {
+                        const regionLabel = REGION_OPTIONS.flatMap(r => r.regions || []).find(sr => sr.value === subRegion)?.label || subRegion;
+                        return (
+                          <Badge key={subRegion} variant="secondary">
+                            {regionLabel}
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                    
+                    {/* 地區選擇總結 */}
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                      <p className="text-sm text-green-800">
+                        <strong>選擇總結：</strong>
+                        <br />已選擇 {getAllSelectedSubRegions().length} 個地區
+                        <br />包括：{Object.keys(selectedSubRegionsByRegion).map(regionKey => {
+                          const region = REGION_OPTIONS.find(r => r.value === regionKey);
+                          return region ? region.label : regionKey;
+                        }).join('、')}
+                      </p>
+                    </div>
+                    
+                    {/* 按鈕組 */}
+                    <div className="flex gap-2">
+                      {/* 保存地區選擇按鈕 */}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSectionSave('teachingAreas', {
+                          teachingAreas: getAllSelectedSubRegions()
+                        })}
+                        disabled={savingSection === 'teachingAreas'}
+                      >
+                        {savingSection === 'teachingAreas' ? '保存中...' : '保存地區選擇'}
+                      </Button>
+                      
+                      {/* 重置地區選擇按鈕 */}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedRegion('');
+                          setSelectedSubRegionsByRegion({});
+                        }}
+                      >
+                        重新選擇
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-500">
+                    請先選擇地區，然後點擊保存按鈕
                   </div>
                 )}
               </div>
