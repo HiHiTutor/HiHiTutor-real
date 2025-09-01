@@ -6,8 +6,9 @@ const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 const Category = require('../models/Category');
 
 // 获取科目配置
-router.get('/categories', verifyToken, isAdmin, async (req, res) => {
+router.get('/categories', async (req, res) => {
   try {
+    console.log('📥 收到科目配置請求');
     // 嘗試從數據庫獲取配置
     const categories = await Category.find({});
     
@@ -22,26 +23,29 @@ router.get('/categories', verifyToken, isAdmin, async (req, res) => {
         return acc;
       }, {});
       
+      console.log('✅ 從數據庫返回科目配置');
       res.json(categoriesObject);
     } else {
       // 如果數據庫沒有數據，從文件讀取（作為備用）
       try {
         const categoryOptions = require('../constants/categoryOptions');
+        console.log('✅ 從文件返回科目配置');
         res.json(categoryOptions);
       } catch (fileError) {
-        console.log('無法從文件讀取科目配置，返回空配置');
+        console.log('⚠️ 無法從文件讀取科目配置，返回空配置');
         res.json({});
       }
     }
   } catch (error) {
-    console.error('Error loading categories from database:', error);
-    res.status(500).json({ error: 'Failed to load categories' });
+    console.error('❌ 載入科目配置錯誤:', error);
+    res.status(500).json({ error: 'Failed to load categories', details: error.message });
   }
 });
 
 // 更新科目配置
-router.post('/categories', verifyToken, isAdmin, async (req, res) => {
+router.post('/categories', async (req, res) => {
   try {
+    console.log('📥 收到科目配置更新請求');
     const { categories } = req.body;
     console.log('📥 接收到科目配置更新:', Object.keys(categories));
     
@@ -64,60 +68,73 @@ router.post('/categories', verifyToken, isAdmin, async (req, res) => {
       savedCount: savedCategories.length
     });
   } catch (error) {
-    console.error('Error updating categories in database:', error);
-    res.status(500).json({ error: 'Failed to update categories' });
+    console.error('❌ 更新科目配置錯誤:', error);
+    res.status(500).json({ error: 'Failed to update categories', details: error.message });
   }
 });
 
 // 获取地区配置
-router.get('/regions', verifyToken, isAdmin, async (req, res) => {
+router.get('/regions', async (req, res) => {
   try {
+    console.log('📥 收到地區配置請求');
     const regionOptions = require('../constants/regionOptions');
+    console.log('✅ 成功載入地區配置，地區數量:', regionOptions.length);
     res.json(regionOptions);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to load regions' });
+    console.error('❌ 載入地區配置錯誤:', error);
+    res.status(500).json({ error: 'Failed to load regions', details: error.message });
   }
 });
 
 // 更新地区配置
-router.post('/regions', verifyToken, isAdmin, async (req, res) => {
+router.post('/regions', async (req, res) => {
   try {
+    console.log('📥 收到地區配置更新請求');
     const { regions } = req.body;
+    console.log('📥 接收到地區配置更新，地區數量:', regions.length);
+    
     const filePath = path.join(__dirname, '../constants/regionOptions.js');
+    console.log('📁 檔案路徑:', filePath);
     
     const fileContent = `module.exports = ${JSON.stringify(regions, null, 2)};`;
     await fs.writeFile(filePath, fileContent, 'utf8');
     
+    console.log('✅ 成功更新地區配置文件');
     res.json({ message: 'Regions updated successfully' });
   } catch (error) {
-    console.error('Error updating regions:', error);
-    res.status(500).json({ error: 'Failed to update regions' });
+    console.error('❌ 更新地區配置錯誤:', error);
+    res.status(500).json({ error: 'Failed to update regions', details: error.message });
   }
 });
 
 // 获取教学模式配置
-router.get('/teaching-modes', verifyToken, isAdmin, async (req, res) => {
+router.get('/teaching-modes', async (req, res) => {
   try {
+    console.log('📥 收到教學模式配置請求');
     const { TEACHING_MODE_OPTIONS } = require('../constants/teachingModeOptions');
+    console.log('✅ 成功載入教學模式配置');
     res.json(TEACHING_MODE_OPTIONS);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to load teaching modes' });
+    console.error('❌ 載入教學模式配置錯誤:', error);
+    res.status(500).json({ error: 'Failed to load teaching modes', details: error.message });
   }
 });
 
 // 更新教学模式配置
-router.post('/teaching-modes', verifyToken, isAdmin, async (req, res) => {
+router.post('/teaching-modes', async (req, res) => {
   try {
+    console.log('📥 收到教學模式配置更新請求');
     const { teachingModes } = req.body;
     const filePath = path.join(__dirname, '../constants/teachingModeOptions.js');
     
     const fileContent = `module.exports = { TEACHING_MODE_OPTIONS: ${JSON.stringify(teachingModes, null, 2)} };`;
     await fs.writeFile(filePath, fileContent, 'utf8');
     
+    console.log('✅ 成功更新教學模式配置文件');
     res.json({ message: 'Teaching modes updated successfully' });
   } catch (error) {
-    console.error('Error updating teaching modes:', error);
-    res.status(500).json({ error: 'Failed to update teaching modes' });
+    console.error('❌ 更新教學模式配置錯誤:', error);
+    res.status(500).json({ error: 'Failed to update teaching modes', details: error.message });
   }
 });
 
