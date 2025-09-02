@@ -83,15 +83,26 @@ router.get('/regions', verifyToken, isAdmin, async (req, res) => {
 router.post('/regions', verifyToken, isAdmin, async (req, res) => {
   try {
     const { regions } = req.body;
+    console.log('📥 接收到地區配置更新:', regions?.length, '個地區');
+    
     const filePath = path.join(__dirname, '../constants/regionOptions.js');
+    console.log('📁 文件路徑:', filePath);
     
     const fileContent = `module.exports = ${JSON.stringify(regions, null, 2)};`;
+    console.log('📝 準備寫入文件內容長度:', fileContent.length);
+    
     await fs.writeFile(filePath, fileContent, 'utf8');
+    console.log('✅ 成功保存地區配置到文件');
     
     res.json({ message: 'Regions updated successfully' });
   } catch (error) {
-    console.error('Error updating regions:', error);
-    res.status(500).json({ error: 'Failed to update regions' });
+    console.error('❌ 更新地區配置時發生錯誤:', error);
+    console.error('錯誤詳情:', error.message);
+    console.error('錯誤堆棧:', error.stack);
+    res.status(500).json({ 
+      error: 'Failed to update regions',
+      details: error.message 
+    });
   }
 });
 

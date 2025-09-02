@@ -71,12 +71,18 @@ const RegionManager: React.FC = () => {
   const saveRegions = async () => {
     try {
       setSaving(true);
-      await api.post('/admin/config/regions', { regions });
+      console.log('📤 準備發送地區數據:', regions);
+      console.log('📊 地區數量:', regions.length);
+      
+      const response = await api.post('/admin/config/regions', { regions });
+      console.log('✅ 保存成功響應:', response.data);
+      
       setSuccess('Regions saved successfully');
       setTimeout(() => setSuccess(null), 3000);
-    } catch (err) {
-      setError('Failed to save regions');
-      console.error('Error saving regions:', err);
+    } catch (err: any) {
+      console.error('❌ 保存地區時發生錯誤:', err);
+      console.error('錯誤響應:', err.response?.data);
+      setError(`Failed to save regions: ${err.response?.data?.error || err.message}`);
     } finally {
       setSaving(false);
     }
