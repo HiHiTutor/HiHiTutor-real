@@ -4,6 +4,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 const Category = require('../models/Category');
+const Region = require('../models/Region');
 
 // 获取科目配置
 router.get('/categories', verifyToken, isAdmin, async (req, res) => {
@@ -72,9 +73,32 @@ router.post('/categories', verifyToken, isAdmin, async (req, res) => {
 // 获取地区配置
 router.get('/regions', verifyToken, isAdmin, async (req, res) => {
   try {
-    const regionOptions = require('../constants/regionOptions');
-    res.json(regionOptions);
+    // 嘗試從數據庫獲取配置
+    const regions = await Region.find({ isActive: true }).sort({ sortOrder: 1 });
+    
+    if (regions.length > 0) {
+      // 如果數據庫有數據，轉換為原來的格式
+      const regionOptions = regions.map(region => ({
+        value: region.value,
+        label: region.label,
+        regions: region.regions || []
+      }));
+      
+      console.log('✅ 從數據庫載入地區配置:', regionOptions.length, '個地區');
+      res.json(regionOptions);
+    } else {
+      // 如果數據庫沒有數據，從文件讀取（作為備用）
+      try {
+        const regionOptions = require('../constants/regionOptions');
+        console.log('📁 從文件載入地區配置:', regionOptions.length, '個地區');
+        res.json(regionOptions);
+      } catch (fileError) {
+        console.log('無法從文件讀取地區配置，返回空配置');
+        res.json([]);
+      }
+    }
   } catch (error) {
+    console.error('❌ 載入地區配置時發生錯誤:', error);
     res.status(500).json({ error: 'Failed to load regions' });
   }
 });
@@ -85,16 +109,26 @@ router.post('/regions', verifyToken, isAdmin, async (req, res) => {
     const { regions } = req.body;
     console.log('📥 接收到地區配置更新:', regions?.length, '個地區');
     
-    const filePath = path.join(__dirname, '../constants/regionOptions.js');
-    console.log('📁 文件路徑:', filePath);
+    // 清空現有配置
+    await Region.deleteMany({});
+    console.log('🗑️ 清空現有地區配置');
     
-    const fileContent = `module.exports = ${JSON.stringify(regions, null, 2)};`;
-    console.log('📝 準備寫入文件內容長度:', fileContent.length);
+    // 將新的配置保存到數據庫
+    const regionDocuments = regions.map((region, index) => ({
+      value: region.value,
+      label: region.label,
+      regions: region.regions || [],
+      sortOrder: index,
+      isActive: true
+    }));
     
-    await fs.writeFile(filePath, fileContent, 'utf8');
-    console.log('✅ 成功保存地區配置到文件');
+    const savedRegions = await Region.insertMany(regionDocuments);
+    console.log('✅ 成功保存地區配置到數據庫:', savedRegions.length, '個地區');
     
-    res.json({ message: 'Regions updated successfully' });
+    res.json({ 
+      message: 'Regions updated successfully',
+      savedCount: savedRegions.length
+    });
   } catch (error) {
     console.error('❌ 更新地區配置時發生錯誤:', error);
     console.error('錯誤詳情:', error.message);
