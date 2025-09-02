@@ -30,8 +30,7 @@ module.exports = [
       { value: 'sai-wan-ho', label: '西灣河' },
       { value: 'shau-kei-wan', label: '筲箕灣' },
       { value: 'chai-wan', label: '柴灣' },
-      { value: 'heng-fa-chuen', label: '杏花邨' },
-      { value: 'southern-district', label: '南區' }
+      { value: 'heng-fa-chuen', label: '杏花邨' }
     ]
   },
   {

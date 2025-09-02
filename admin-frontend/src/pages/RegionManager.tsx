@@ -28,9 +28,15 @@ import {
 } from '@mui/icons-material';
 import api from '../services/api';
 
+interface SubRegion {
+  value: string;
+  label: string;
+}
+
 interface Region {
   value: string;
   label: string;
+  regions?: SubRegion[];
 }
 
 const RegionManager: React.FC = () => {
@@ -41,6 +47,9 @@ const RegionManager: React.FC = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [editingRegion, setEditingRegion] = useState<Region | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [subRegionDialogOpen, setSubRegionDialogOpen] = useState(false);
+  const [editingSubRegion, setEditingSubRegion] = useState<SubRegion | null>(null);
+  const [selectedRegionIndex, setSelectedRegionIndex] = useState<number>(-1);
 
   useEffect(() => {
     loadRegions();
@@ -110,6 +119,62 @@ const RegionManager: React.FC = () => {
   const handleDialogCancel = () => {
     setDialogOpen(false);
     setEditingRegion(null);
+  };
+
+  // 子地區管理功能
+  const handleAddSubRegion = (regionIndex: number) => {
+    setSelectedRegionIndex(regionIndex);
+    setEditingSubRegion({ value: '', label: '' });
+    setSubRegionDialogOpen(true);
+  };
+
+  const handleEditSubRegion = (regionIndex: number, subRegionIndex: number) => {
+    setSelectedRegionIndex(regionIndex);
+    const subRegion = regions[regionIndex].regions?.[subRegionIndex];
+    if (subRegion) {
+      setEditingSubRegion({ ...subRegion });
+      setSubRegionDialogOpen(true);
+    }
+  };
+
+  const handleDeleteSubRegion = (regionIndex: number, subRegionIndex: number) => {
+    const newRegions = [...regions];
+    if (newRegions[regionIndex].regions) {
+      newRegions[regionIndex].regions = newRegions[regionIndex].regions!.filter((_, i) => i !== subRegionIndex);
+      setRegions(newRegions);
+    }
+  };
+
+  const handleSubRegionDialogSave = () => {
+    if (!editingSubRegion || selectedRegionIndex === -1) return;
+
+    const newRegions = [...regions];
+    if (!newRegions[selectedRegionIndex].regions) {
+      newRegions[selectedRegionIndex].regions = [];
+    }
+
+    const subRegionIndex = newRegions[selectedRegionIndex].regions!.findIndex(
+      (sr: SubRegion) => sr.value === editingSubRegion.value
+    );
+
+    if (subRegionIndex >= 0) {
+      // 更新現有子地區
+      newRegions[selectedRegionIndex].regions![subRegionIndex] = editingSubRegion;
+    } else {
+      // 添加新子地區
+      newRegions[selectedRegionIndex].regions!.push(editingSubRegion);
+    }
+
+    setRegions(newRegions);
+    setSubRegionDialogOpen(false);
+    setEditingSubRegion(null);
+    setSelectedRegionIndex(-1);
+  };
+
+  const handleSubRegionDialogCancel = () => {
+    setSubRegionDialogOpen(false);
+    setEditingSubRegion(null);
+    setSelectedRegionIndex(-1);
   };
 
   if (loading) {
@@ -185,15 +250,46 @@ const RegionManager: React.FC = () => {
                     </IconButton>
                   </Box>
                 </Box>
-                {/* 子地區 chips 顯示 */}
-                <Box mt={2} display="flex" flexWrap="wrap">
-                  {(region as any).regions && (region as any).regions.length > 0 ? (
-                    (region as any).regions.map((sub: any) => (
-                      <Chip key={sub.value} label={sub.label} size="small" sx={{ mr: 1, mb: 1 }} />
-                    ))
-                  ) : (
-                    <Typography variant="body2" color="textSecondary">無子地區</Typography>
-                  )}
+                {/* 子地區管理 */}
+                <Box mt={2}>
+                  <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                    <Typography variant="subtitle2" color="textSecondary">
+                      子地區
+                    </Typography>
+                    <Button
+                      size="small"
+                      startIcon={<AddIcon />}
+                      onClick={() => handleAddSubRegion(index)}
+                      variant="outlined"
+                    >
+                      新增子地區
+                    </Button>
+                  </Box>
+                  
+                  <Box display="flex" flexWrap="wrap">
+                    {region.regions && region.regions.length > 0 ? (
+                      region.regions.map((subRegion, subIndex) => (
+                        <Box key={subRegion.value} display="flex" alignItems="center" sx={{ mr: 1, mb: 1 }}>
+                          <Chip 
+                            label={subRegion.label} 
+                            size="small" 
+                            sx={{ mr: 0.5 }}
+                            onDelete={() => handleDeleteSubRegion(index, subIndex)}
+                            deleteIcon={<DeleteIcon />}
+                          />
+                          <IconButton
+                            size="small"
+                            onClick={() => handleEditSubRegion(index, subIndex)}
+                            sx={{ ml: 0.5 }}
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      ))
+                    ) : (
+                      <Typography variant="body2" color="textSecondary">無子地區</Typography>
+                    )}
+                  </Box>
                 </Box>
               </CardContent>
             </Card>
@@ -227,6 +323,39 @@ const RegionManager: React.FC = () => {
             取消
           </Button>
           <Button onClick={handleDialogSave} variant="contained" startIcon={<SaveIcon />}>
+            儲存
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* 子地區編輯對話框 */}
+      <Dialog open={subRegionDialogOpen} onClose={handleSubRegionDialogCancel} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          {editingSubRegion?.value ? '編輯子地區' : '新增子地區'}
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            label="子地區值 (Value)"
+            value={editingSubRegion?.value || ''}
+            onChange={(e) => setEditingSubRegion(prev => prev ? { ...prev, value: e.target.value } : null)}
+            margin="normal"
+            placeholder="例如: southern-district"
+          />
+          <TextField
+            fullWidth
+            label="子地區名稱 (Label)"
+            value={editingSubRegion?.label || ''}
+            onChange={(e) => setEditingSubRegion(prev => prev ? { ...prev, label: e.target.value } : null)}
+            margin="normal"
+            placeholder="例如: 南區"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleSubRegionDialogCancel} startIcon={<CancelIcon />}>
+            取消
+          </Button>
+          <Button onClick={handleSubRegionDialogSave} variant="contained" startIcon={<SaveIcon />}>
             儲存
           </Button>
         </DialogActions>
