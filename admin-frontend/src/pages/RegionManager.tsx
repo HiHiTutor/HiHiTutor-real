@@ -17,14 +17,17 @@ import {
   DialogActions,
   Alert,
   Chip,
-  Grid
+  Grid,
+  Paper
 } from '@mui/material';
 import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
   Save as SaveIcon,
-  Cancel as CancelIcon
+  Cancel as CancelIcon,
+  KeyboardArrowUp as UpIcon,
+  KeyboardArrowDown as DownIcon
 } from '@mui/icons-material';
 import api from '../services/api';
 
@@ -37,6 +40,7 @@ interface Region {
   value: string;
   label: string;
   regions?: SubRegion[];
+  sortOrder?: number;
 }
 
 const RegionManager: React.FC = () => {
@@ -59,7 +63,16 @@ const RegionManager: React.FC = () => {
     try {
       setLoading(true);
       const response = await api.get('/admin/config/regions');
-      setRegions(response.data);
+      // 確保有 sortOrder，如果沒有則按索引設置
+      const regionsWithOrder = response.data.map((region: Region, index: number) => ({
+        ...region,
+        sortOrder: region.sortOrder !== undefined ? region.sortOrder : index
+      }));
+      // 按 sortOrder 排序
+      const sortedRegions = regionsWithOrder.sort((a: Region, b: Region) => 
+        (a.sortOrder || 0) - (b.sortOrder || 0)
+      );
+      setRegions(sortedRegions);
     } catch (err) {
       setError('Failed to load regions');
       console.error('Error loading regions:', err);
@@ -71,10 +84,16 @@ const RegionManager: React.FC = () => {
   const saveRegions = async () => {
     try {
       setSaving(true);
-      console.log('📤 準備發送地區數據:', regions);
-      console.log('📊 地區數量:', regions.length);
+      // 為每個地區設置 sortOrder
+      const regionsWithOrder = regions.map((region, index) => ({
+        ...region,
+        sortOrder: index
+      }));
       
-      const response = await api.post('/admin/config/regions', { regions });
+      console.log('📤 準備發送地區數據:', regionsWithOrder);
+      console.log('📊 地區數量:', regionsWithOrder.length);
+      
+      const response = await api.post('/admin/config/regions', { regions: regionsWithOrder });
       console.log('✅ 保存成功響應:', response.data);
       
       setSuccess('Regions saved successfully');
@@ -88,8 +107,23 @@ const RegionManager: React.FC = () => {
     }
   };
 
+  // 地區排序功能
+  const moveRegionUp = (index: number) => {
+    if (index === 0) return;
+    const newRegions = [...regions];
+    [newRegions[index], newRegions[index - 1]] = [newRegions[index - 1], newRegions[index]];
+    setRegions(newRegions);
+  };
+
+  const moveRegionDown = (index: number) => {
+    if (index === regions.length - 1) return;
+    const newRegions = [...regions];
+    [newRegions[index], newRegions[index + 1]] = [newRegions[index + 1], newRegions[index]];
+    setRegions(newRegions);
+  };
+
   const handleAddRegion = () => {
-    setEditingRegion({ value: '', label: '' });
+    setEditingRegion({ value: '', label: '', sortOrder: regions.length });
     setDialogOpen(true);
   };
 
@@ -111,11 +145,11 @@ const RegionManager: React.FC = () => {
     if (regionIndex >= 0) {
       // Update existing region
       const newRegions = [...regions];
-      newRegions[regionIndex] = editingRegion;
+      newRegions[regionIndex] = { ...editingRegion, sortOrder: regionIndex };
       setRegions(newRegions);
     } else {
       // Add new region
-      setRegions([...regions, editingRegion]);
+      setRegions([...regions, { ...editingRegion, sortOrder: regions.length }]);
     }
 
     setDialogOpen(false);
@@ -228,11 +262,51 @@ const RegionManager: React.FC = () => {
         </Alert>
       )}
 
-      <Grid container spacing={3}>
+      {/* 排序說明 */}
+      <Paper sx={{ p: 2, mb: 3, backgroundColor: '#f5f5f5' }}>
+        <Typography variant="body2" color="textSecondary">
+          💡 提示：使用上下箭頭按鈕調整地區順序，前台會按照此順序顯示。調整完成後請點擊「儲存變更」。
+        </Typography>
+      </Paper>
+
+      {/* 地區列表 - 改為垂直排列以便排序 */}
+      <Box>
         {regions.map((region, index) => (
-          <Grid item xs={12} sm={6} md={4} key={region.value}>
-            <Card>
-              <CardContent>
+          <Paper 
+            key={region.value} 
+            sx={{ 
+              mb: 2, 
+              p: 2,
+              border: '1px solid #e0e0e0',
+              '&:hover': { borderColor: '#1976d2' }
+            }}
+          >
+            <Box display="flex" alignItems="center" justifyContent="space-between">
+              {/* 排序控制 */}
+              <Box display="flex" alignItems="center" sx={{ minWidth: 120 }}>
+                <IconButton
+                  size="small"
+                  onClick={() => moveRegionUp(index)}
+                  disabled={index === 0}
+                  sx={{ mr: 1 }}
+                >
+                  <UpIcon />
+                </IconButton>
+                <IconButton
+                  size="small"
+                  onClick={() => moveRegionDown(index)}
+                  disabled={index === regions.length - 1}
+                  sx={{ mr: 1 }}
+                >
+                  <DownIcon />
+                </IconButton>
+                <Typography variant="body2" color="textSecondary" sx={{ minWidth: 30 }}>
+                  #{index + 1}
+                </Typography>
+              </Box>
+
+              {/* 地區信息 */}
+              <Box flex={1} ml={2}>
                 <Box display="flex" justifyContent="space-between" alignItems="center">
                   <Box>
                     <Typography variant="h6">{region.label}</Typography>
@@ -256,6 +330,7 @@ const RegionManager: React.FC = () => {
                     </IconButton>
                   </Box>
                 </Box>
+
                 {/* 子地區管理 */}
                 <Box mt={2}>
                   <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
@@ -297,11 +372,11 @@ const RegionManager: React.FC = () => {
                     )}
                   </Box>
                 </Box>
-              </CardContent>
-            </Card>
-          </Grid>
+              </Box>
+            </Box>
+          </Paper>
         ))}
-      </Grid>
+      </Box>
 
       {/* Dialog for editing */}
       <Dialog open={dialogOpen} onClose={handleDialogCancel} maxWidth="sm" fullWidth>
