@@ -9,6 +9,10 @@ const subRegionSchema = new mongoose.Schema({
   label: {
     type: String,
     required: true
+  },
+  sortOrder: {
+    type: Number,
+    default: 0
   }
 });
 

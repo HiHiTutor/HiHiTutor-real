@@ -34,6 +34,7 @@ import api from '../services/api';
 interface SubRegion {
   value: string;
   label: string;
+  sortOrder?: number; // 添加子地區排序字段
 }
 
 interface Region {
@@ -66,12 +67,25 @@ const RegionManager: React.FC = () => {
       // 確保有 sortOrder，如果沒有則按索引設置
       const regionsWithOrder = response.data.map((region: Region, index: number) => ({
         ...region,
-        sortOrder: region.sortOrder !== undefined ? region.sortOrder : index
+        sortOrder: region.sortOrder !== undefined ? region.sortOrder : index,
+        // 為子地區也設置 sortOrder
+        regions: region.regions?.map((subRegion: SubRegion, subIndex: number) => ({
+          ...subRegion,
+          sortOrder: subRegion.sortOrder !== undefined ? subRegion.sortOrder : subIndex
+        }))
       }));
       // 按 sortOrder 排序
       const sortedRegions = regionsWithOrder.sort((a: Region, b: Region) => 
         (a.sortOrder || 0) - (b.sortOrder || 0)
       );
+      // 對每個地區的子地區也進行排序
+      sortedRegions.forEach((region: Region) => {
+        if (region.regions) {
+          region.regions.sort((a: SubRegion, b: SubRegion) => 
+            (a.sortOrder || 0) - (b.sortOrder || 0)
+          );
+        }
+      });
       setRegions(sortedRegions);
     } catch (err) {
       setError('Failed to load regions');
@@ -87,7 +101,12 @@ const RegionManager: React.FC = () => {
       // 為每個地區設置 sortOrder
       const regionsWithOrder = regions.map((region, index) => ({
         ...region,
-        sortOrder: index
+        sortOrder: index,
+        // 為子地區也設置 sortOrder
+        regions: region.regions?.map((subRegion, subIndex) => ({
+          ...subRegion,
+          sortOrder: subIndex
+        }))
       }));
       
       console.log('📤 準備發送地區數據:', regionsWithOrder);
@@ -120,6 +139,28 @@ const RegionManager: React.FC = () => {
     const newRegions = [...regions];
     [newRegions[index], newRegions[index + 1]] = [newRegions[index + 1], newRegions[index]];
     setRegions(newRegions);
+  };
+
+  // 子地區排序功能
+  const moveSubRegionUp = (regionIndex: number, subRegionIndex: number) => {
+    if (subRegionIndex === 0) return;
+    const newRegions = [...regions];
+    const subRegions = newRegions[regionIndex].regions;
+    if (subRegions) {
+      [subRegions[subRegionIndex], subRegions[subRegionIndex - 1]] = 
+        [subRegions[subRegionIndex - 1], subRegions[subRegionIndex]];
+      setRegions(newRegions);
+    }
+  };
+
+  const moveSubRegionDown = (regionIndex: number, subRegionIndex: number) => {
+    const newRegions = [...regions];
+    const subRegions = newRegions[regionIndex].regions;
+    if (subRegions && subRegionIndex < subRegions.length - 1) {
+      [subRegions[subRegionIndex], subRegions[subRegionIndex + 1]] = 
+        [subRegions[subRegionIndex + 1], subRegions[subRegionIndex]];
+      setRegions(newRegions);
+    }
   };
 
   const handleAddRegion = () => {
@@ -161,10 +202,15 @@ const RegionManager: React.FC = () => {
     setEditingRegion(null);
   };
 
-  // 子地區管理功能
+  // 更新子地區管理功能
   const handleAddSubRegion = (regionIndex: number) => {
     setSelectedRegionIndex(regionIndex);
-    setEditingSubRegion({ value: '', label: '' });
+    const currentSubRegions = regions[regionIndex].regions || [];
+    setEditingSubRegion({ 
+      value: '', 
+      label: '', 
+      sortOrder: currentSubRegions.length 
+    });
     setSubRegionDialogOpen(true);
   };
 
@@ -347,25 +393,71 @@ const RegionManager: React.FC = () => {
                     </Button>
                   </Box>
                   
-                  <Box display="flex" flexWrap="wrap">
+                  <Box>
                     {region.regions && region.regions.length > 0 ? (
                       region.regions.map((subRegion, subIndex) => (
-                        <Box key={subRegion.value} display="flex" alignItems="center" sx={{ mr: 1, mb: 1 }}>
-                          <Chip 
-                            label={subRegion.label} 
-                            size="small" 
-                            sx={{ mr: 0.5 }}
-                            onDelete={() => handleDeleteSubRegion(index, subIndex)}
-                            deleteIcon={<DeleteIcon />}
-                          />
-                          <IconButton
-                            size="small"
-                            onClick={() => handleEditSubRegion(index, subIndex)}
-                            sx={{ ml: 0.5 }}
-                          >
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                        </Box>
+                        <Paper 
+                          key={subRegion.value} 
+                          sx={{ 
+                            mb: 1, 
+                            p: 1.5,
+                            border: '1px solid #e0e0e0',
+                            '&:hover': { borderColor: '#1976d2' }
+                          }}
+                        >
+                          <Box display="flex" alignItems="center" justifyContent="space-between">
+                            {/* 子地區排序控制 */}
+                            <Box display="flex" alignItems="center" sx={{ minWidth: 100 }}>
+                              <IconButton
+                                size="small"
+                                onClick={() => moveSubRegionUp(index, subIndex)}
+                                disabled={subIndex === 0}
+                                sx={{ mr: 0.5 }}
+                              >
+                                <UpIcon fontSize="small" />
+                              </IconButton>
+                              <IconButton
+                                size="small"
+                                onClick={() => moveSubRegionDown(index, subIndex)}
+                                disabled={subIndex === (region.regions?.length || 0) - 1}
+                                sx={{ mr: 0.5 }}
+                              >
+                                <DownIcon fontSize="small" />
+                              </IconButton>
+                              <Typography variant="body2" color="textSecondary" sx={{ minWidth: 25, fontSize: '0.75rem' }}>
+                                #{subIndex + 1}
+                              </Typography>
+                            </Box>
+
+                            {/* 子地區信息 */}
+                            <Box flex={1} ml={1}>
+                              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                                {subRegion.label}
+                              </Typography>
+                              <Typography variant="caption" color="textSecondary">
+                                {subRegion.value}
+                              </Typography>
+                            </Box>
+
+                            {/* 子地區操作按鈕 */}
+                            <Box>
+                              <IconButton
+                                size="small"
+                                onClick={() => handleEditSubRegion(index, subIndex)}
+                                sx={{ mr: 0.5 }}
+                              >
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                              <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => handleDeleteSubRegion(index, subIndex)}
+                              >
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            </Box>
+                          </Box>
+                        </Paper>
                       ))
                     ) : (
                       <Typography variant="body2" color="textSecondary">無子地區</Typography>
