@@ -90,7 +90,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     const fetchRegionOptions = async () => {
       try {
         setLoadingRegions(true);
-        const response = await fetch('/api/regions');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/regions`);
         if (!response.ok) {
           throw new Error('Failed to fetch regions');
         }
