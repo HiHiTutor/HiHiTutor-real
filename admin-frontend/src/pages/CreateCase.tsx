@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import { casesAPI } from '../services/api';
 import api from '../services/api';
+import regionService, { Region } from '../services/regionService';
 
 // 課程分類選項 - 與 CreateUser 保持一致
 const CATEGORY_OPTIONS = {
@@ -252,9 +253,14 @@ const CreateCase: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // 地區資料狀態
+  const [regionOptions, setRegionOptions] = useState<Region[]>([]);
+  const [loadingRegions, setLoadingRegions] = useState(false);
 
   useEffect(() => {
     loadDataSources();
+    loadRegions();
   }, []);
 
   const loadDataSources = async () => {
@@ -327,6 +333,22 @@ const CreateCase: React.FC = () => {
       setError('載入數據源失敗，請稍後重試');
     } finally {
       setDataLoading(false);
+    }
+  };
+
+  // 載入地區選項
+  const loadRegions = async () => {
+    try {
+      setLoadingRegions(true);
+      const regions = await regionService.getRegions();
+      console.log('✅ 載入地區選項:', regions);
+      setRegionOptions(regions);
+    } catch (error) {
+      console.error('❌ 載入地區選項失敗:', error);
+      // 如果API失敗，使用靜態資料作為備用
+      setRegionOptions(REGION_OPTIONS);
+    } finally {
+      setLoadingRegions(false);
     }
   };
 
@@ -685,7 +707,7 @@ const CreateCase: React.FC = () => {
                   }}
                 >
                   <MenuItem value="">請選擇主地區</MenuItem>
-                  {REGION_OPTIONS.map((regionOption) => (
+                  {regionOptions.map((regionOption) => (
                     <MenuItem key={regionOption.value} value={regionOption.value}>
                       {regionOption.label}
                     </MenuItem>
@@ -709,7 +731,7 @@ const CreateCase: React.FC = () => {
                        });
                      }}
                    >
-                     {REGION_OPTIONS.map((regionOption) => 
+                     {regionOptions.map((regionOption) => 
                        regionOption.regions && regionOption.regions.map((subRegion) => (
                          <MenuItem key={subRegion.value} value={subRegion.value}>
                            {regionOption.label} - {subRegion.label}
