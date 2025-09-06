@@ -20,7 +20,6 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { tutorApi } from '@/services/api';
 import CATEGORY_OPTIONS from '@/constants/categoryOptions';
-import REGION_OPTIONS from '@/constants/regionOptions';
 import TEACHING_MODE_OPTIONS from '@/constants/teachingModeOptions';
 import { useUser } from '@/hooks/useUser';
 import ContactInfoWarning from '@/components/ContactInfoWarning';
@@ -30,6 +29,12 @@ import ValidatedInput from '@/components/ValidatedInput';
 interface Option {
   value: string;
   label: string;
+}
+
+interface RegionOption {
+  value: string;
+  label: string;
+  regions: { value: string; label: string }[];
 }
 
 // 時間段選項
@@ -96,10 +101,10 @@ const generateDayOptions = (year: number, month: number) => {
 };
 
 // 準備地區選項數據
-const prepareRegionOptions = (): Option[] => {
+const prepareRegionOptions = (regionOptions: RegionOption[]): Option[] => {
   return [
     { value: 'all-hong-kong', label: '全港' },
-    ...REGION_OPTIONS.filter(region => region.value !== 'unlimited').map(region => ({
+    ...regionOptions.filter(region => region.value !== 'unlimited').map(region => ({
       value: region.value,
       label: region.label
     }))
@@ -107,9 +112,9 @@ const prepareRegionOptions = (): Option[] => {
 };
 
 // 準備子地區選項數據
-const prepareSubRegionOptions = (regionValue: string): Option[] => {
+const prepareSubRegionOptions = (regionValue: string, regionOptions: RegionOption[]): Option[] => {
   if (regionValue === 'all-hong-kong') return [];
-  const region = REGION_OPTIONS.find(r => r.value === regionValue);
+  const region = regionOptions.find(r => r.value === regionValue);
   return region ? region.regions.map(area => ({
     value: area.value,
     label: area.label
@@ -165,12 +170,137 @@ export default function TutorDashboardPage() {
   const [newAvailableTimes, setNewAvailableTimes] = useState<string[]>([]);
   const [showIdCard, setShowIdCard] = useState(false);
   const [publicCertificates, setPublicCertificates] = useState<string[]>([]);
+  const [regionOptions, setRegionOptions] = useState<RegionOption[]>([]);
+  const [loadingRegions, setLoadingRegions] = useState(true);
 
   const { user } = useUser();
 
   useEffect(() => {
     fetchTutorProfile();
+    fetchRegionOptions();
   }, []);
+
+  // 載入地區選項
+  const fetchRegionOptions = async () => {
+    try {
+      setLoadingRegions(true);
+      const response = await fetch('/api/regions');
+      if (!response.ok) {
+        throw new Error('Failed to fetch regions');
+      }
+      const regions = await response.json();
+      console.log('✅ 載入地區選項:', regions);
+      setRegionOptions(regions);
+    } catch (error) {
+      console.error('❌ 載入地區選項失敗:', error);
+      // 如果API失敗，使用靜態資料作為備用
+      const fallbackRegions = [
+        {
+          value: 'unlimited',
+          label: '不限',
+          regions: []
+        },
+        {
+          value: 'all-hong-kong',
+          label: '全香港',
+          regions: []
+        },
+        {
+          value: 'hong-kong-island',
+          label: '香港島',
+          regions: [
+            { value: 'central', label: '中環' },
+            { value: 'sheung-wan', label: '上環' },
+            { value: 'sai-wan', label: '西環' },
+            { value: 'sai-ying-pun', label: '西營盤' },
+            { value: 'shek-tong-tsui', label: '石塘咀' },
+            { value: 'wan-chai', label: '灣仔' },
+            { value: 'causeway-bay', label: '銅鑼灣' },
+            { value: 'admiralty', label: '金鐘' },
+            { value: 'happy-valley', label: '跑馬地' },
+            { value: 'tin-hau', label: '天后' },
+            { value: 'tai-hang', label: '大坑' },
+            { value: 'north-point', label: '北角' },
+            { value: 'quarry-bay', label: '鰂魚涌' },
+            { value: 'taikoo', label: '太古' },
+            { value: 'sai-wan-ho', label: '西灣河' },
+            { value: 'shau-kei-wan', label: '筲箕灣' },
+            { value: 'chai-wan', label: '柴灣' },
+            { value: 'heng-fa-chuen', label: '杏花邨' }
+          ]
+        },
+        {
+          value: 'kowloon',
+          label: '九龍',
+          regions: [
+            { value: 'tsim-sha-tsui', label: '尖沙咀' },
+            { value: 'jordan', label: '佐敦' },
+            { value: 'yau-ma-tei', label: '油麻地' },
+            { value: 'mong-kok', label: '旺角' },
+            { value: 'prince-edward', label: '太子' },
+            { value: 'sham-shui-po', label: '深水埗' },
+            { value: 'cheung-sha-wan', label: '長沙灣' },
+            { value: 'hung-hom', label: '紅磡' },
+            { value: 'to-kwa-wan', label: '土瓜灣' },
+            { value: 'ho-man-tin', label: '何文田' },
+            { value: 'kowloon-tong', label: '九龍塘' },
+            { value: 'san-po-kong', label: '新蒲崗' },
+            { value: 'diamond-hill', label: '鑽石山' },
+            { value: 'lok-fu', label: '樂富' },
+            { value: 'tsz-wan-shan', label: '慈雲山' },
+            { value: 'ngau-tau-kok', label: '牛頭角' },
+            { value: 'lam-tin', label: '藍田' },
+            { value: 'kwun-tong', label: '觀塘' },
+            { value: 'yau-tong', label: '油塘' }
+          ]
+        },
+        {
+          value: 'new-territories',
+          label: '新界',
+          regions: [
+            { value: 'sha-tin', label: '沙田' },
+            { value: 'ma-on-shan', label: '馬鞍山' },
+            { value: 'tai-wai', label: '大圍' },
+            { value: 'fo-tan', label: '火炭' },
+            { value: 'tai-po', label: '大埔' },
+            { value: 'tai-wo', label: '太和' },
+            { value: 'fan-ling', label: '粉嶺' },
+            { value: 'sheung-shui', label: '上水' },
+            { value: 'tseung-kwan-o', label: '將軍澳' },
+            { value: 'hang-hau', label: '坑口' },
+            { value: 'po-lam', label: '寶琳' },
+            { value: 'lohas-park', label: '康城' },
+            { value: 'tuen-mun', label: '屯門' },
+            { value: 'siu-hong', label: '兆康' },
+            { value: 'yuen-long', label: '元朗' },
+            { value: 'long-ping', label: '朗屏' },
+            { value: 'tin-shui-wai', label: '天水圍' },
+            { value: 'tsuen-wan', label: '荃灣' },
+            { value: 'kwai-fong', label: '葵芳' },
+            { value: 'kwai-chung', label: '葵涌' },
+            { value: 'tsing-yi', label: '青衣' }
+          ]
+        },
+        {
+          value: 'islands',
+          label: '離島',
+          regions: [
+            { value: 'tung-chung', label: '東涌' },
+            { value: 'mui-wo', label: '梅窩' },
+            { value: 'tai-o', label: '大澳' },
+            { value: 'ping-chau', label: '坪洲' },
+            { value: 'cheung-chau', label: '長洲' },
+            { value: 'lamma-island', label: '南丫島' },
+            { value: 'discovery-bay', label: '愉景灣' },
+            { value: 'pui-o', label: '貝澳' }
+          ]
+        }
+      ];
+      setRegionOptions(fallbackRegions);
+    } finally {
+      setLoadingRegions(false);
+    }
+  };
 
     // 移除定期檢查審批狀態的功能 - 用戶要求移除自動檢查
 
@@ -312,7 +442,7 @@ export default function TutorDashboardPage() {
       
       // 嘗試通過 value 匹配
       let found = false;
-      for (const region of REGION_OPTIONS) {
+      for (const region of regionOptions) {
         const subRegion = region.regions?.find((sr: { value: string; label: string }) => sr.value === area);
         if (subRegion) {
           if (!subRegionsByRegion[region.value]) {
@@ -327,7 +457,7 @@ export default function TutorDashboardPage() {
       
       // 如果通過 value 沒有找到，嘗試通過 label 匹配
       if (!found) {
-        for (const region of REGION_OPTIONS) {
+        for (const region of regionOptions) {
           const subRegion = region.regions?.find((sr: { value: string; label: string }) => sr.label === area);
           if (subRegion) {
             if (!subRegionsByRegion[region.value]) {
@@ -343,7 +473,7 @@ export default function TutorDashboardPage() {
       
       // 如果還是沒有找到，嘗試通過模糊匹配
       if (!found) {
-        for (const region of REGION_OPTIONS) {
+        for (const region of regionOptions) {
           const subRegion = region.regions?.find((sr: { value: string; label: string }) => 
             sr.label.includes(area) || area.includes(sr.label) ||
             sr.value.includes(area) || area.includes(sr.value)
@@ -1170,7 +1300,7 @@ export default function TutorDashboardPage() {
                        // 從後往前嘗試匹配
                        for (let i = pathParts.length - 1; i >= 0; i--) {
                          const partialPath = pathParts.slice(i).join('-');
-                         for (const region of REGION_OPTIONS) {
+                         for (const region of regionOptions) {
                            const subRegion = region.regions?.find(sr => sr.value === partialPath);
                            if (subRegion) {
                              regionLabel = subRegion.label;
@@ -1194,12 +1324,12 @@ export default function TutorDashboardPage() {
                 {/* 地區選擇 */}
                 <div className="space-y-2">
                   <Label>選擇地區</Label>
-                  <Select value={selectedRegion} onValueChange={handleRegionChange}>
+                  <Select value={selectedRegion} onValueChange={handleRegionChange} disabled={loadingRegions}>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="選擇主要地區" />
+                      <SelectValue placeholder={loadingRegions ? "載入中..." : "選擇主要地區"} />
                     </SelectTrigger>
                     <SelectContent>
-                      {REGION_OPTIONS.filter(region => region.value !== 'unlimited').map((region) => (
+                      {regionOptions.filter(region => region.value !== 'unlimited').map((region) => (
                         <SelectItem key={region.value} value={region.value}>
                           {region.label}
                         </SelectItem>
@@ -1218,10 +1348,10 @@ export default function TutorDashboardPage() {
                   <div className="space-y-2">
                     <Label>選擇子地區</Label>
                     <p className="text-sm text-gray-500">
-                      選擇 {REGION_OPTIONS.find(r => r.value === selectedRegion)?.label} 下的具體地區
+                      選擇 {regionOptions.find(r => r.value === selectedRegion)?.label} 下的具體地區
                     </p>
                     <div className="grid grid-cols-2 gap-2">
-                      {REGION_OPTIONS.find(r => r.value === selectedRegion)?.regions?.map((subRegion: { value: string; label: string }) => (
+                      {regionOptions.find(r => r.value === selectedRegion)?.regions?.map((subRegion: { value: string; label: string }) => (
                         <div key={subRegion.value} className="flex items-center space-x-2">
                           <Checkbox
                             id={subRegion.value}
@@ -1243,7 +1373,7 @@ export default function TutorDashboardPage() {
                     <p className="text-sm text-gray-600">已選擇的地區：</p>
                     <div className="flex flex-wrap gap-2">
                       {getAllSelectedSubRegions().map((subRegion) => {
-                        const regionLabel = REGION_OPTIONS.flatMap(r => r.regions || []).find(sr => sr.value === subRegion)?.label || subRegion;
+                        const regionLabel = regionOptions.flatMap(r => r.regions || []).find(sr => sr.value === subRegion)?.label || subRegion;
                         return (
                           <Badge key={subRegion} variant="secondary">
                             {regionLabel}
@@ -1258,7 +1388,7 @@ export default function TutorDashboardPage() {
                         <strong>選擇總結：</strong>
                         <br />已選擇 {getAllSelectedSubRegions().length} 個地區
                         <br />包括：{Object.keys(selectedSubRegionsByRegion).map(regionKey => {
-                          const region = REGION_OPTIONS.find(r => r.value === regionKey);
+                          const region = regionOptions.find(r => r.value === regionKey);
                           return region ? region.label : regionKey;
                         }).join('、')}
                       </p>
@@ -1275,7 +1405,7 @@ export default function TutorDashboardPage() {
                           tutorProfile: {
                             subRegions: getAllSelectedSubRegions().map(subRegion => {
                               // 將簡短名稱轉換為完整路徑格式
-                              const region = REGION_OPTIONS.find(r => r.regions?.some(sr => sr.value === subRegion));
+                              const region = regionOptions.find(r => r.regions?.some(sr => sr.value === subRegion));
                               if (region) {
                                 return `${region.value}-${subRegion}`;
                               }
@@ -1449,7 +1579,7 @@ export default function TutorDashboardPage() {
                   tutorProfile: {
                     subRegions: getAllSelectedSubRegions().map(subRegion => {
                       // 將簡短名稱轉換為完整路徑格式
-                      const region = REGION_OPTIONS.find(r => r.regions?.some(sr => sr.value === subRegion));
+                      const region = regionOptions.find(r => r.regions?.some(sr => sr.value === subRegion));
                       if (region) {
                         return `${region.value}-${subRegion}`;
                       }
