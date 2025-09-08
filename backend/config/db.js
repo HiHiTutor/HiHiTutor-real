@@ -18,7 +18,25 @@ const connectDB = async () => {
     // 檢查是否正在連接
     if (mongoose.connection.readyState === 2) {
       console.log('⏳ Already connecting to MongoDB, please wait...');
-      return;
+      // 在 Vercel 環境中，等待連接完成
+      return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error('Connection timeout'));
+        }, 10000);
+        
+        const checkConnection = () => {
+          if (mongoose.connection.readyState === 1) {
+            clearTimeout(timeout);
+            resolve();
+          } else if (mongoose.connection.readyState === 0) {
+            clearTimeout(timeout);
+            reject(new Error('Connection failed'));
+          } else {
+            setTimeout(checkConnection, 100);
+          }
+        };
+        checkConnection();
+      });
     }
     
     // 檢查環境變數
@@ -138,6 +156,47 @@ const connectDB = async () => {
   }
 };
 
+// 確保數據庫連接的函數 - 用於 Vercel serverless 環境
+const ensureConnection = async () => {
+  try {
+    // 如果已經連接，直接返回
+    if (mongoose.connection.readyState === 1) {
+      return true;
+    }
+    
+    // 如果正在連接，等待完成
+    if (mongoose.connection.readyState === 2) {
+      console.log('⏳ Waiting for existing connection to complete...');
+      return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error('Connection timeout'));
+        }, 15000);
+        
+        const checkConnection = () => {
+          if (mongoose.connection.readyState === 1) {
+            clearTimeout(timeout);
+            resolve(true);
+          } else if (mongoose.connection.readyState === 0) {
+            clearTimeout(timeout);
+            reject(new Error('Connection failed'));
+          } else {
+            setTimeout(checkConnection, 100);
+          }
+        };
+        checkConnection();
+      });
+    }
+    
+    // 如果未連接，嘗試連接
+    console.log('🔄 No active connection, attempting to connect...');
+    await connectDB();
+    return true;
+  } catch (error) {
+    console.error('❌ Failed to ensure database connection:', error);
+    throw error;
+  }
+};
+
 // 連線狀態檢查函數
 const getConnectionStatus = () => {
   const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
@@ -152,4 +211,4 @@ const getConnectionStatus = () => {
   };
 };
 
-module.exports = { connectDB, getConnectionStatus }; 
+module.exports = { connectDB, getConnectionStatus, ensureConnection }; 

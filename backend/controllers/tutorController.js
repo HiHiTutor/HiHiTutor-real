@@ -1010,44 +1010,19 @@ const updateTutorProfile = async (req, res) => {
     
     console.log('🔍 更新導師 profile:', userId, updateData);
 
-    // 檢查 MongoDB 連接狀態，如果未連接則嘗試重連
-    if (mongoose.connection.readyState !== 1) {
-      console.log('⚠️ MongoDB 未連接，當前狀態:', mongoose.connection.readyState);
-      
-      // 如果正在連接中，等待連接完成
-      if (mongoose.connection.readyState === 2) {
-        console.log('⏳ MongoDB 正在連接中，等待連接完成...');
-        
-        // 等待連接完成，最多等待 30 秒
-        let waitTime = 0;
-        const maxWaitTime = 30000; // 30 秒
-        const checkInterval = 1000; // 每秒檢查一次
-        
-        while (mongoose.connection.readyState !== 1 && waitTime < maxWaitTime) {
-          await new Promise(resolve => setTimeout(resolve, checkInterval));
-          waitTime += checkInterval;
-          console.log(`⏳ 等待連接完成... (${waitTime}/${maxWaitTime}ms)`);
-        }
-        
-        if (mongoose.connection.readyState !== 1) {
-          console.log('❌ 等待連接超時');
-          return res.status(503).json({ 
-            success: false,
-            message: 'Database connection timeout', 
-            error: 'MongoDB connection timeout',
-            mongoState: mongoose.connection.readyState
-          });
-        }
-        
-        console.log('✅ MongoDB 連接完成');
-      } else {
-        return res.status(503).json({ 
-          success: false,
-          message: 'Database not ready', 
-          error: 'MongoDB connection is not established',
-          mongoState: mongoose.connection.readyState
-        });
-      }
+    // 確保 MongoDB 連接
+    const { ensureConnection } = require('../config/db');
+    try {
+      await ensureConnection();
+      console.log('✅ Database connection ensured');
+    } catch (dbError) {
+      console.error('❌ Failed to ensure database connection:', dbError);
+      return res.status(503).json({ 
+        success: false,
+        message: 'Database not ready', 
+        error: 'MongoDB connection failed',
+        details: dbError.message
+      });
     }
 
     // 檢查導師是否存在

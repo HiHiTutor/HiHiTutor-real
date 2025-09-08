@@ -31,6 +31,7 @@ if (!process.env.MONGODB_URI) {
 }
 
 const { connectDB, getConnectionStatus } = require('./config/db');
+const { ensureDatabaseConnection } = require('./middleware/dbMiddleware');
 
 // Import routes
 const tutorCasesRouter = require('./routes/tutorCases');
@@ -223,8 +224,8 @@ if (!mongoose.connection.listeners('disconnected').length) {
   });
 }
 
-// Mount routes
-app.use('/api/auth', authRoutes);
+// Mount routes with database connection middleware
+app.use('/api/auth', ensureDatabaseConnection, authRoutes);
 console.log("✅ authRoutes loaded and mounted");
 app.use('/api/admin/auth', adminAuthRoutes);
 app.use('/api/admin', adminRoutes);
@@ -232,7 +233,7 @@ app.use('/api/admin', adminRoutes);
 // app.use('/api/admin-management', require('./routes/admin'));
 app.use('/api/admin/notifications', require('./routes/adminNotifications'));
 app.use('/api/categories', categoriesRouter);
-app.use('/api/tutors', tutorsRouter);
+app.use('/api/tutors', ensureDatabaseConnection, tutorsRouter);
 app.use('/api/cases', casesRouter);
 app.use('/api/find-tutor-cases', findTutorCases);
 app.use('/api/find-student-cases', findStudentCases);
