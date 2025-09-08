@@ -255,8 +255,8 @@ const userSchema = new mongoose.Schema({
       default: null
     },
     educationCert: {
-      type: String,
-      default: null
+      type: [String],
+      default: []
     }
   },
   // 添加導師資料修改記錄
