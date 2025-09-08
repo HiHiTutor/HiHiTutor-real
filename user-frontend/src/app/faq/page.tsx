@@ -202,7 +202,7 @@ export default function FAQPage() {
                         <div>第二步：</div>
                         <div>
                           到 
-                          <a href="https://www.hihitutor.com/profile" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mx-1">帳戶設定</a>
+                          <a href="https://www.hihitutor.com/tutor/dashboard" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mx-1">導師儀表板</a>
                           填寫導師資料並上載相關學歷證明，經配對專員審核後，帳戶會升級成導師帳戶。
                         </div>
                         <br />
