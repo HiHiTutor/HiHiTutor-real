@@ -169,14 +169,14 @@ export default function FAQPage() {
                         <div>方法1 – 自助搜尋導師</div>
                         <div>
                           前往
-                          <a href="https://www.hihitutor.com/tutors" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mx-1">導師列表</a>
+                          <a href="/tutors" className="text-blue-600 underline mx-1">導師列表</a>
                           自行篩選合適導師, 並按 "立即預約上堂"，配對專員會盡快為你協調課堂安排。
                         </div>
                         <br />
                         <div>方法2 – 招募導師</div>
                         <div>
                           前往
-                          <a href="https://www.hihitutor.com/post/student-case" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mx-1">發帖尋導師</a>
+                          <a href="/post/student-case" className="text-blue-600 underline mx-1">發帖尋導師</a>
                           並填寫課堂要求，配對專員核實後，會協助刊登於本平台的「補習個案」。配對專員將與有興趣申請個案的導師接洽課堂安排。
                         </div>
                         <br />
@@ -202,7 +202,7 @@ export default function FAQPage() {
                         <div>第二步：</div>
                         <div>
                           到 
-                          <a href="https://www.hihitutor.com/tutor/dashboard" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mx-1">導師儀表板</a>
+                          <a href="/tutor/dashboard" className="text-blue-600 underline mx-1">導師儀表板</a>
                           填寫導師資料並上載相關學歷證明，經配對專員審核後，帳戶會升級成導師帳戶。
                         </div>
                         <br />
@@ -210,7 +210,7 @@ export default function FAQPage() {
                         <div>自助搜尋導師</div>
                         <div>
                           前往
-                          <a href="https://www.hihitutor.com/find-student-cases" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline mx-1">補習個案</a>
+                          <a href="/find-student-cases" className="text-blue-600 underline mx-1">補習個案</a>
                           找導心儀補習個案, 並按 "📱 申請此個案"，配對專員會盡快為你協調課堂安排。
                         </div>
                         <br />
