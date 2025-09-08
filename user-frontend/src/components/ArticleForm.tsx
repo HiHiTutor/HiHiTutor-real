@@ -59,7 +59,7 @@ export default function ArticleForm() {
           </svg>
           <span class="font-medium">✅ 文章投稿成功！</span>
         </div>
-        <p class="mt-2 text-sm">管理員將在24小時內審核您的文章。審核通過後，文章將在專欄中顯示。</p>
+        <p class="mt-2 text-sm">管理員將盡快審核您的文章。審核通過後，文章將在專欄中顯示。</p>
       `
       
       // 插入到表單前面

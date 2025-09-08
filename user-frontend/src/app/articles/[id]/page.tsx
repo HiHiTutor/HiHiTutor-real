@@ -26,7 +26,20 @@ export default function ArticleDetail() {
     
     fetch(`${baseUrl}/api/articles/${id}`)
       .then((res) => res.json())
-      .then(setArticle)
+      .then((data) => {
+        // 處理文章數據，確保時間格式正確
+        const processedArticle = {
+          ...data,
+          date: data.createdAt ? new Date(data.createdAt).toLocaleDateString('zh-HK', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }) : '未知時間'
+        }
+        setArticle(processedArticle)
+      })
       .catch((err) => console.error('文章載入失敗:', err))
   }, [id, baseUrl])
 
@@ -37,7 +50,7 @@ export default function ArticleDetail() {
     <div className="p-6 max-w-3xl mx-auto bg-white rounded-lg shadow">
       <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
       <div className="text-sm text-gray-500 mb-2">
-        ✍️ 作者：{article.author}　🕒 發佈時間：{article.date || '未知'}
+        ✍️ 作者：<a href={`/tutors/${article.authorId}`} className="text-blue-600 hover:underline">{article.authorId}</a>　🕒 發佈時間：{article.date || '未知'}
       </div>
       <div className="mb-4">
         {article.tags?.map((tag, idx) => (
