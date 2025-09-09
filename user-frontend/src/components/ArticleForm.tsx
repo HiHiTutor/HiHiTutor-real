@@ -9,6 +9,54 @@ export default function ArticleForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [coverImage, setCoverImage] = useState<string>('')
+  const [uploading, setUploading] = useState(false)
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string>('')
+
+  // 處理圖片上傳
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // 檢查文件類型
+    if (!file.type.startsWith('image/')) {
+      setError('請選擇圖片文件')
+      return
+    }
+
+    // 檢查文件大小 (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('圖片大小不能超過 5MB')
+      return
+    }
+
+    setUploading(true)
+    setError('')
+
+    try {
+      const formData = new FormData()
+      formData.append('coverImage', file)
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/article-upload/cover-image`, {
+        method: 'POST',
+        body: formData,
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        setUploadedImageUrl(result.url)
+        setCoverImage(result.url)
+        console.log('✅ 圖片上傳成功:', result.url)
+      } else {
+        setError(result.message || '圖片上傳失敗')
+      }
+    } catch (err) {
+      console.error('❌ 圖片上傳失敗:', err)
+      setError('圖片上傳失敗，請重試')
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -21,7 +69,7 @@ export default function ArticleForm() {
       summary: formData.get('summary'),
       content: formData.get('content'),
       tags: formData.get('tags')?.toString().split(',').map(t => t.trim()),
-      coverImage: coverImage || 'https://source.unsplash.com/400x200/?education',
+      coverImage: uploadedImageUrl || coverImage || 'https://source.unsplash.com/400x200/?education',
       authorId: user?.id,
     }
 
@@ -146,32 +194,57 @@ export default function ArticleForm() {
 
       <div>
         <label htmlFor="coverImage" className="block text-sm font-medium text-gray-700">
-          封面圖片 URL（可選）
+          封面圖片（可選）
         </label>
-        <input
-          type="url"
-          id="coverImage"
-          name="coverImage"
-          placeholder="https://example.com/image.jpg"
-          value={coverImage}
-          onChange={(e) => setCoverImage(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        />
+        
+        {/* 圖片上傳按鈕 */}
+        <div className="mt-1">
+          <input
+            type="file"
+            id="coverImage"
+            name="coverImage"
+            accept="image/*"
+            onChange={handleImageUpload}
+            disabled={uploading}
+            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
+          />
+          {uploading && (
+            <p className="mt-2 text-sm text-blue-600">📤 上傳中...</p>
+          )}
+        </div>
+        
         <p className="mt-1 text-sm text-gray-500">
-          如果沒有提供圖片，系統將自動使用預設圖片
+          支援 JPG、PNG、GIF 格式，最大 5MB
         </p>
-        {coverImage && (
+        
+        {/* 圖片預覽 */}
+        {(uploadedImageUrl || coverImage) && (
           <div className="mt-2">
-            <img 
-              src={coverImage} 
-              alt="預覽" 
+            <img
+              src={uploadedImageUrl || coverImage}
+              alt="預覽"
               className="w-32 h-20 object-cover rounded border"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-              }}
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
             />
+            <p className="mt-1 text-xs text-green-600">✅ 圖片已上傳</p>
           </div>
         )}
+        
+        {/* 備用 URL 輸入 */}
+        <div className="mt-4">
+          <label htmlFor="coverImageUrl" className="block text-sm font-medium text-gray-600">
+            或輸入圖片 URL：
+          </label>
+          <input
+            type="url"
+            id="coverImageUrl"
+            name="coverImageUrl"
+            placeholder="https://example.com/image.jpg"
+            value={coverImage}
+            onChange={(e) => setCoverImage(e.target.value)}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          />
+        </div>
       </div>
 
       <div className="flex justify-end">

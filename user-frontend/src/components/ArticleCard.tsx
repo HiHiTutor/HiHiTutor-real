@@ -38,14 +38,16 @@ export const ArticleCard = ({
           精選
         </span>
       )}
-      <img
-        src={imgSrc}
-        alt={title}
-        className="w-full h-40 object-cover rounded-t-xl"
-        onError={(e) => {
-          e.currentTarget.src = 'https://source.unsplash.com/400x200/?classroom'
-        }}
-      />
+      <Link href={`/articles/${id}`}>
+        <img
+          src={imgSrc}
+          alt={title}
+          className="w-full h-40 object-cover rounded-t-xl hover:opacity-90 transition-opacity cursor-pointer"
+          onError={(e) => {
+            e.currentTarget.src = 'https://source.unsplash.com/400x200/?classroom'
+          }}
+        />
+      </Link>
       <div className="p-4 flex flex-col justify-between h-full">
         <div>
           <Link href={`/articles/${id}`}>
