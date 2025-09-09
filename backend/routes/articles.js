@@ -29,7 +29,7 @@ router.get('/', async (req, res) => {
       status: 'approved',
       isEdit: { $ne: true } // 排除編輯中的文章
     })
-      .populate('authorId', 'name')
+      .populate('authorId', 'name tutorId')
       .sort({ createdAt: -1 });
     
     // 合併用戶自己的文章和已審核的文章
@@ -47,7 +47,7 @@ router.get('/all', async (req, res) => {
   try {
     // TODO: 驗證管理員權限
     const articles = await Article.find()
-      .populate('authorId', 'name')
+      .populate('authorId', 'name tutorId')
       .sort({ createdAt: -1 });
     
     res.json(articles);
@@ -73,7 +73,7 @@ router.get('/my-articles', async (req, res) => {
     }
     
     const articles = await Article.find({ authorId })
-      .populate('authorId', 'name')
+      .populate('authorId', 'name tutorId')
       .sort({ createdAt: -1 });
     
     res.json(articles);
@@ -87,7 +87,7 @@ router.get('/my-articles', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const article = await Article.findById(req.params.id)
-      .populate('authorId', 'name');
+      .populate('authorId', 'name tutorId');
     if (article) return res.json(article);
     res.status(404).json({ message: '找不到文章' });
   } catch (err) {
