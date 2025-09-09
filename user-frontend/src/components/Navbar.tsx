@@ -253,12 +253,36 @@ const Navbar = () => {
             <Link href="/" onClick={() => setMenuOpen(false)}>主頁</Link>
             <Link href="/articles" onClick={() => setMenuOpen(false)}>教育專欄</Link>
             <Link href="/faq" className="hover:text-primary text-lg" onClick={() => setMenuOpen(false)}>配對流程</Link>
-            {/* 導師中心鏈接 */}
-            {isLoggedIn && user && user.userType === 'tutor' && (
-              <Link href="/tutor/dashboard" onClick={() => setMenuOpen(false)} className="hover:text-primary text-lg">
-                導師中心
-              </Link>
+            {/* 用戶相關選項 */}
+            {isLoggedIn && user && (
+              <>
+                <Link href="/profile" onClick={() => setMenuOpen(false)} className="hover:text-primary text-lg">
+                  個人資料
+                </Link>
+                {user.userType === 'tutor' ? (
+                  <Link href="/tutor/dashboard" onClick={() => setMenuOpen(false)} className="hover:text-primary text-lg">
+                    導師中心
+                  </Link>
+                ) : (
+                  <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="hover:text-primary text-lg">
+                    儀表板
+                  </Link>
+                )}
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('token');
+                    window.dispatchEvent(new Event('logout'));
+                    setMenuOpen(false);
+                    router.push('/');
+                  }}
+                  className="text-red-600 hover:text-red-800 text-lg"
+                >
+                  登出
+                </button>
+              </>
             )}
+            
+            {/* 發帖尋導師按鈕 */}
             {isLoggedIn ? (
               <Link href="/post/student-case" className="hover:text-white bg-yellow-500 px-4 py-2 rounded font-semibold transition-colors text-lg" onClick={() => setMenuOpen(false)}>發帖尋導師</Link>
             ) : (
