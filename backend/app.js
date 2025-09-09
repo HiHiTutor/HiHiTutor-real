@@ -103,7 +103,7 @@ morgan.token('request-body', (req) => {
 
 app.use(morgan(':method :url :status :response-time ms - :request-body'));
 
-// CORS configuration - Fixed for credentials
+// CORS configuration - Simplified and fixed
 const allowedOrigins = [
   'https://hi-hi-tutor-real.vercel.app',
   'https://hi-hi-tutor-real-admin-frontend.vercel.app',
@@ -111,74 +111,31 @@ const allowedOrigins = [
   'http://localhost:3001'
 ];
 
-app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.log('❌ CORS blocked origin:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept', 'X-Requested-With'],
-  exposedHeaders: ['Content-Length', 'X-Requested-With'],
-  credentials: true,
-  preflightContinue: false,
-  optionsSuccessStatus: 204,
-  maxAge: 86400 // 24 hours
-}));
-
-// Additional CORS headers for all responses
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
-  } else {
-    res.header('Access-Control-Allow-Origin', '*');
-  }
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept, X-Requested-With');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Max-Age', '86400');
-  next();
-});
-
-// Handle OPTIONS preflight requests for all routes
-app.options('*', (req, res) => {
-  const origin = req.headers.origin;
-  console.log('🔥 OPTIONS preflight request from origin:', origin);
-  
-  if (allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
-  } else {
-    res.header('Access-Control-Allow-Origin', '*');
-  }
-  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept, X-Requested-With');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Max-Age', '86400');
-  console.log('✅ OPTIONS preflight allowed for origin:', origin);
-  res.sendStatus(204);
-});
-
-// 額外的 CORS 中間件，確保所有響應都有正確的頭部
+// Single CORS middleware
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   console.log('🔥 CORS middleware for origin:', origin);
   
+  // Set CORS headers
   if (allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
+  } else if (!origin) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    res.header('Access-Control-Allow-Origin', '*');
   } else {
     res.header('Access-Control-Allow-Origin', '*');
   }
-  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
+  
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept, X-Requested-With');
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Max-Age', '86400');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    console.log('✅ OPTIONS preflight allowed for origin:', origin);
+    return res.sendStatus(204);
+  }
   
   next();
 });

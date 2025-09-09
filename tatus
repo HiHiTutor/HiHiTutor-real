@@ -8,3 +8,94 @@
 [33md5f75e9[m Fix region name display - add proper mapping for backend region format
 [33mbe1853c[m Clean up teaching areas interface - remove debug info and simplify buttons
 [33mce92be2[m Fix teaching areas display by properly reading from tutorProfile.subRegions
+[33mcommit 3c399efd9dfc212cb48f67f314ccdc85080e4083[m
+Author: HiHiTutor <hihitutor.edu@gmail.com>
+Date:   Wed Sep 10 00:33:25 2025 +0800
+
+    Add comprehensive CORS fix with Vercel config
+
+[1mdiff --git a/backend/app.js b/backend/app.js[m
+[1mindex 4b4d653..a1e125e 100644[m
+[1m--- a/backend/app.js[m
+[1m+++ b/backend/app.js[m
+[36m@@ -131,7 +131,7 @@[m [mapp.options('*', (req, res) => {[m
+   console.log('🔥 OPTIONS preflight request from origin:', origin);[m
+   [m
+   // Allow all origins for now (since we're using origin: true in cors config)[m
+[31m-  res.header('Access-Control-Allow-Origin', origin);[m
+[32m+[m[32m  res.header('Access-Control-Allow-Origin', origin || '*');[m
+   res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');[m
+   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept, X-Requested-With');[m
+   res.header('Access-Control-Allow-Credentials', 'true');[m
+[36m@@ -140,6 +140,20 @@[m [mapp.options('*', (req, res) => {[m
+   res.sendStatus(204);[m
+ });[m
+ [m
+[32m+[m[32m// 額外的 CORS 中間件，確保所有響應都有正確的頭部[m
+[32m+[m[32mapp.use((req, res, next) => {[m
+[32m+[m[32m  const origin = req.headers.origin;[m
+[32m+[m[32m  console.log('🔥 CORS middleware for origin:', origin);[m
+[32m+[m[41m  [m
+[32m+[m[32m  res.header('Access-Control-Allow-Origin', origin || '*');[m
+[32m+[m[32m  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');[m
+[32m+[m[32m  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept, X-Requested-With');[m
+[32m+[m[32m  res.header('Access-Control-Allow-Credentials', 'true');[m
+[32m+[m[32m  res.header('Access-Control-Max-Age', '86400');[m
+[32m+[m[41m  [m
+[32m+[m[32m  next();[m
+[32m+[m[32m});[m
+[32m+[m
+ // Body parsing middleware - BEFORE routes[m
+ app.use(express.json({ limit: '10mb' }));[m
+ app.use((req, res, next) => {[m
+[1mdiff --git a/backend/vercel.json b/backend/vercel.json[m
+[1mindex ec29e20..f2c4b2d 100644[m
+[1m--- a/backend/vercel.json[m
+[1m+++ b/backend/vercel.json[m
+[36m@@ -1,15 +1,34 @@[m
+ {[m
+[31m-  "version": 2,[m
+[31m-  "builds": [[m
+[31m-    {[m
+[31m-      "src": "app.js",[m
+[31m-      "use": "@vercel/node"[m
+[32m+[m[32m  "functions": {[m
+[32m+[m[32m    "app.js": {[m
+[32m+[m[32m      "maxDuration": 30[m
+     }[m
+[31m-  ],[m
+[31m-  "routes": [[m
+[32m+[m[32m  },[m
+[32m+[m[32m  "headers": [[m
+     {[m
+[31m-      "src": "/(.*)",[m
+[31m-      "dest": "app.js"[m
+[32m+[m[32m      "source": "/api/(.*)",[m
+[32m+[m[32m      "headers": [[m
+[32m+[m[32m        {[m
+[32m+[m[32m          "key": "Access-Control-Allow-Origin",[m
+[32m+[m[32m          "value": "*"[m
+[32m+[m[32m        },[m
+[32m+[m[32m        {[m
+[32m+[m[32m          "key": "Access-Control-Allow-Methods",[m
+[32m+[m[32m          "value": "GET, POST, PUT, DELETE, OPTIONS, PATCH"[m
+[32m+[m[32m        },[m
+[32m+[m[32m        {[m
+[32m+[m[32m          "key": "Access-Control-Allow-Headers",[m
+[32m+[m[32m          "value": "Content-Type, Authorization, Origin, Accept, X-Requested-With"[m
+[32m+[m[32m        },[m
+[32m+[m[32m        {[m
+[32m+[m[32m          "key": "Access-Control-Allow-Credentials",[m
+[32m+[m[32m          "value": "true"[m
+[32m+[m[32m        },[m
+[32m+[m[32m        {[m
+[32m+[m[32m          "key": "Access-Control-Max-Age",[m
+[32m+[m[32m          "value": "86400"[m
+[32m+[m[32m        }[m
+[32m+[m[32m      ][m
+     }[m
+   ][m
+[31m-} [m
+\ No newline at end of file[m
+[32m+[m[32m}[m
+\ No newline at end of file[m
