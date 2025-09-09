@@ -10,6 +10,7 @@ interface Article {
   summary: string
   content: string
   author: string
+  authorId?: string
   date?: string
   tags?: string[]
   coverImage?: string
@@ -50,7 +51,7 @@ export default function ArticleDetail() {
     <div className="p-6 max-w-3xl mx-auto bg-white rounded-lg shadow">
       <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
       <div className="text-sm text-gray-500 mb-2">
-        ✍️ 作者：<a href={`/tutors/${article.authorId}`} className="text-blue-600 hover:underline">{article.authorId}</a>　🕒 發佈時間：{article.date || '未知'}
+        ✍️ 作者：<a href={`/tutors/${article.authorId}`} className="text-blue-600 hover:underline">{article.author}</a>　🕒 發佈時間：{article.date || '未知'}
       </div>
       <div className="mb-4">
         {article.tags?.map((tag, idx) => (
