@@ -43,6 +43,7 @@ interface Article {
   createdAt: string;
   views: number;
   featured: boolean;
+  coverImage?: string;
 }
 
 const ArticleApprovals: React.FC = () => {
@@ -263,6 +264,7 @@ const ArticleApprovals: React.FC = () => {
                 <TableCell>標題</TableCell>
                 <TableCell>作者</TableCell>
                 <TableCell>標籤</TableCell>
+                <TableCell>封面圖片</TableCell>
                 <TableCell>狀態</TableCell>
                 <TableCell>投稿時間</TableCell>
                 <TableCell>操作</TableCell>
@@ -283,6 +285,36 @@ const ArticleApprovals: React.FC = () => {
                         <Chip key={index} label={tag} size="small" variant="outlined" />
                       ))}
                     </Box>
+                  </TableCell>
+                  <TableCell>
+                    {article.coverImage ? (
+                      <img
+                        src={article.coverImage}
+                        alt="封面圖片"
+                        style={{
+                          width: 50,
+                          height: 50,
+                          objectFit: 'cover',
+                          borderRadius: '4px',
+                          border: '1px solid #e0e0e0'
+                        }}
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling.style.display = 'block';
+                        }}
+                      />
+                    ) : (
+                      <Typography variant="body2" color="textSecondary">
+                        無圖片
+                      </Typography>
+                    )}
+                    <Typography 
+                      variant="caption" 
+                      color="error" 
+                      sx={{ display: 'none' }}
+                    >
+                      載入失敗
+                    </Typography>
                   </TableCell>
                   <TableCell>
                     {getStatusChip(article.status)}
@@ -362,6 +394,46 @@ const ArticleApprovals: React.FC = () => {
               投稿時間：{selectedArticle?.createdAt ? new Date(selectedArticle.createdAt).toLocaleString('zh-HK') : ''}
             </Typography>
           </Box>
+          
+          {/* 封面圖片 */}
+          {selectedArticle?.coverImage && (
+            <Box mb={3}>
+              <Typography variant="h6" gutterBottom>封面圖片</Typography>
+              <Box 
+                sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  border: '1px solid #e0e0e0',
+                  borderRadius: 1,
+                  p: 2,
+                  backgroundColor: '#f5f5f5'
+                }}
+              >
+                <img
+                  src={selectedArticle.coverImage}
+                  alt="封面圖片"
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: '300px',
+                    objectFit: 'contain',
+                    borderRadius: '4px'
+                  }}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling.style.display = 'block';
+                  }}
+                />
+                <Typography 
+                  variant="body2" 
+                  color="textSecondary" 
+                  sx={{ display: 'none' }}
+                >
+                  圖片載入失敗
+                </Typography>
+              </Box>
+            </Box>
+          )}
           
           <Box mb={2}>
             <Typography variant="h6" gutterBottom>摘要</Typography>
