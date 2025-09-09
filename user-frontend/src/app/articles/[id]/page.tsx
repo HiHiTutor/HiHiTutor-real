@@ -31,6 +31,7 @@ export default function ArticleDetail() {
         // 處理文章數據，確保時間格式正確
         const processedArticle = {
           ...data,
+          author: data.authorId?.tutorId || data.author || '未知導師',
           date: data.createdAt ? new Date(data.createdAt).toLocaleDateString('zh-HK', {
             year: 'numeric',
             month: 'long',
