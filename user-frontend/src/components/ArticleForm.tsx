@@ -8,6 +8,7 @@ export default function ArticleForm() {
   const { user } = useUser()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [coverImage, setCoverImage] = useState<string>('')
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -20,6 +21,7 @@ export default function ArticleForm() {
       summary: formData.get('summary'),
       content: formData.get('content'),
       tags: formData.get('tags')?.toString().split(',').map(t => t.trim()),
+      coverImage: coverImage || 'https://source.unsplash.com/400x200/?education',
       authorId: user?.id,
     }
 
@@ -140,6 +142,36 @@ export default function ArticleForm() {
           placeholder="英文, 寫作, 考試技巧"
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         />
+      </div>
+
+      <div>
+        <label htmlFor="coverImage" className="block text-sm font-medium text-gray-700">
+          封面圖片 URL（可選）
+        </label>
+        <input
+          type="url"
+          id="coverImage"
+          name="coverImage"
+          placeholder="https://example.com/image.jpg"
+          value={coverImage}
+          onChange={(e) => setCoverImage(e.target.value)}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
+        <p className="mt-1 text-sm text-gray-500">
+          如果沒有提供圖片，系統將自動使用預設圖片
+        </p>
+        {coverImage && (
+          <div className="mt-2">
+            <img 
+              src={coverImage} 
+              alt="預覽" 
+              className="w-32 h-20 object-cover rounded border"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          </div>
+        )}
       </div>
 
       <div className="flex justify-end">

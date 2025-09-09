@@ -37,15 +37,35 @@ export default function ArticlesPage() {
         const res = await fetch(`${baseUrl}/api/articles`)
         const data = await res.json()
         
-        const articles = data.map((a: any) => ({
-          ...a,
-          author: a.authorId?.tutorId || a.author || '未知導師',
-          authorId: a.authorId?.tutorId || a.authorId,
-          date: a.date || a.createdAt || '2024-01-01',
-          views: a.views || 0,
-          featured: a.featured || false,
-          coverImage: a.coverImage || 'https://source.unsplash.com/400x200/?education'
-        }))
+        const articles = data.map((a: any) => {
+          // 格式化日期
+          let formattedDate = '2024-01-01';
+          if (a.createdAt) {
+            const date = new Date(a.createdAt);
+            formattedDate = date.toLocaleDateString('zh-HK', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            });
+          } else if (a.date) {
+            const date = new Date(a.date);
+            formattedDate = date.toLocaleDateString('zh-HK', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            });
+          }
+
+          return {
+            ...a,
+            author: a.authorId?.tutorId || a.author || '未知導師',
+            authorId: a.authorId?.tutorId || a.authorId,
+            date: formattedDate,
+            views: a.views || 0,
+            featured: a.featured || false,
+            coverImage: a.coverImage || 'https://source.unsplash.com/400x200/?education'
+          };
+        })
         setArticles(articles)
         
         // 嘗試載入用戶自己的文章

@@ -72,7 +72,8 @@ export const ArticleCard = ({
             })}
           </div>
           <p className="text-sm text-gray-500 mt-2">
-            🕒 發佈：{date}　👁️ {views.toLocaleString()}
+            🕒 發佈：{date}
+            {views > 0 && `　👁️ ${views.toLocaleString()}`}
           </p>
         </div>
         <Link
