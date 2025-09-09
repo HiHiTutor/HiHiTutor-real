@@ -39,7 +39,7 @@ export default function ArticlesPage() {
         
         const articles = data.map((a: any) => ({
           ...a,
-          author: a.author || (a.authorId ? '你' : '未知作者'),
+          author: a.authorId?.tutorId || a.author || '未知導師',
           date: a.date || a.createdAt || '2024-01-01',
           views: a.views || 0,
           featured: a.featured || false,
@@ -80,7 +80,7 @@ export default function ArticlesPage() {
               
               const myArticles = myData.map((a: any) => ({
                 ...a,
-                author: a.author || '你',
+                author: a.authorId?.tutorId || a.author || '你',
                 date: a.date || a.createdAt || '2024-01-01',
                 views: a.views || 0,
                 featured: a.featured || false,
