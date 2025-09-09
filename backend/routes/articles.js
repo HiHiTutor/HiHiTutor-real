@@ -88,11 +88,46 @@ router.get('/:id', async (req, res) => {
   try {
     const article = await Article.findById(req.params.id)
       .populate('authorId', 'name tutorId');
-    if (article) return res.json(article);
+    
+    if (article) {
+      // 增加瀏覽次數
+      article.views += 1;
+      await article.save();
+      
+      console.log(`📊 文章 ${req.params.id} 瀏覽次數增加至 ${article.views}`);
+      return res.json(article);
+    }
+    
     res.status(404).json({ message: '找不到文章' });
   } catch (err) {
     console.error('載入文章失敗:', err);
     res.status(500).json({ message: '載入文章失敗' });
+  }
+});
+
+// 增加文章瀏覽次數
+router.post('/:id/view', async (req, res) => {
+  try {
+    const article = await Article.findById(req.params.id);
+    
+    if (!article) {
+      return res.status(404).json({ message: '找不到文章' });
+    }
+    
+    // 增加瀏覽次數
+    article.views += 1;
+    await article.save();
+    
+    console.log(`📊 文章 ${req.params.id} 瀏覽次數增加至 ${article.views}`);
+    
+    res.json({ 
+      success: true, 
+      views: article.views,
+      message: '瀏覽次數已更新' 
+    });
+  } catch (err) {
+    console.error('增加瀏覽次數失敗:', err);
+    res.status(500).json({ message: '增加瀏覽次數失敗' });
   }
 });
 

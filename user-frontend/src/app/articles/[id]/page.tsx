@@ -25,6 +25,7 @@ export default function ArticleDetail() {
   useEffect(() => {
     if (!id) return
     
+    // 載入文章數據
     fetch(`${baseUrl}/api/articles/${id}`)
       .then((res) => res.json())
       .then((data) => {
@@ -43,6 +44,21 @@ export default function ArticleDetail() {
         setArticle(processedArticle)
       })
       .catch((err) => console.error('文章載入失敗:', err))
+    
+    // 增加瀏覽次數（不等待結果，避免影響載入速度）
+    fetch(`${baseUrl}/api/articles/${id}/view`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          console.log(`📊 文章瀏覽次數已更新: ${data.views}`)
+        }
+      })
+      .catch((err) => console.error('更新瀏覽次數失敗:', err))
   }, [id, baseUrl])
 
   if (!id) return <div className="p-8">文章ID無效</div>
