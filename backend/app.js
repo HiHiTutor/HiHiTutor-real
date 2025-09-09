@@ -103,9 +103,26 @@ morgan.token('request-body', (req) => {
 
 app.use(morgan(':method :url :status :response-time ms - :request-body'));
 
-// CORS configuration - Simplified for immediate fix
+// CORS configuration - Fixed for credentials
+const allowedOrigins = [
+  'https://hi-hi-tutor-real.vercel.app',
+  'https://hi-hi-tutor-real-admin-frontend.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:3001'
+];
+
 app.use(cors({
-  origin: true, // Allow all origins temporarily
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('❌ CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept', 'X-Requested-With'],
   exposedHeaders: ['Content-Length', 'X-Requested-With'],
@@ -117,7 +134,12 @@ app.use(cors({
 
 // Additional CORS headers for all responses
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else {
+    res.header('Access-Control-Allow-Origin', '*');
+  }
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept, X-Requested-With');
   res.header('Access-Control-Allow-Credentials', 'true');
@@ -130,8 +152,11 @@ app.options('*', (req, res) => {
   const origin = req.headers.origin;
   console.log('🔥 OPTIONS preflight request from origin:', origin);
   
-  // Allow all origins for now (since we're using origin: true in cors config)
-  res.header('Access-Control-Allow-Origin', origin || '*');
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else {
+    res.header('Access-Control-Allow-Origin', '*');
+  }
   res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept, X-Requested-With');
   res.header('Access-Control-Allow-Credentials', 'true');
@@ -145,7 +170,11 @@ app.use((req, res, next) => {
   const origin = req.headers.origin;
   console.log('🔥 CORS middleware for origin:', origin);
   
-  res.header('Access-Control-Allow-Origin', origin || '*');
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else {
+    res.header('Access-Control-Allow-Origin', '*');
+  }
   res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept, X-Requested-With');
   res.header('Access-Control-Allow-Credentials', 'true');
