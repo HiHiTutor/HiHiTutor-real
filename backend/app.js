@@ -131,13 +131,27 @@ app.options('*', (req, res) => {
   console.log('🔥 OPTIONS preflight request from origin:', origin);
   
   // Allow all origins for now (since we're using origin: true in cors config)
-  res.header('Access-Control-Allow-Origin', origin);
+  res.header('Access-Control-Allow-Origin', origin || '*');
   res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept, X-Requested-With');
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Max-Age', '86400');
   console.log('✅ OPTIONS preflight allowed for origin:', origin);
   res.sendStatus(204);
+});
+
+// 額外的 CORS 中間件，確保所有響應都有正確的頭部
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  console.log('🔥 CORS middleware for origin:', origin);
+  
+  res.header('Access-Control-Allow-Origin', origin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept, X-Requested-With');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Max-Age', '86400');
+  
+  next();
 });
 
 // Body parsing middleware - BEFORE routes
