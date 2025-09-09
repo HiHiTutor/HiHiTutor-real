@@ -3,8 +3,21 @@ const router = express.Router();
 const { upload, deleteFile, getFileUrl } = require('../services/s3Service');
 const Article = require('../models/Article');
 
+// 處理 OPTIONS 請求
+router.options('*', (req, res) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Origin, Accept, X-Requested-With');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.status(200).end();
+});
+
 // 上傳文章封面圖片
 router.post('/cover-image', upload.single('coverImage'), async (req, res) => {
+  // 設置 CORS 頭部
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
   try {
     if (!req.file) {
       return res.status(400).json({ 
@@ -76,6 +89,10 @@ router.post('/cover-image', upload.single('coverImage'), async (req, res) => {
 
 // 刪除文章封面圖片
 router.delete('/cover-image/:articleId', async (req, res) => {
+  // 設置 CORS 頭部
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
   try {
     const { articleId } = req.params;
     
@@ -113,6 +130,10 @@ router.delete('/cover-image/:articleId', async (req, res) => {
 
 // 獲取文章圖片URL
 router.get('/cover-image/:articleId', async (req, res) => {
+  // 設置 CORS 頭部
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
   try {
     const { articleId } = req.params;
     
