@@ -7,6 +7,7 @@ interface ArticleCardProps {
   id: string
   title: string
   author: string
+  authorId?: string
   summary: string
   image?: string
   tags?: string[]
@@ -19,6 +20,7 @@ export const ArticleCard = ({
   id,
   title,
   author,
+  authorId,
   summary,
   image,
   tags = [],
@@ -49,7 +51,15 @@ export const ArticleCard = ({
           <Link href={`/articles/${id}`}>
             <h3 className={`text-lg font-bold ${color.text} hover:underline`}>{title}</h3>
           </Link>
-          <p className="text-sm text-gray-500 mt-1">✍️ {author}</p>
+          <p className="text-sm text-gray-500 mt-1">
+            ✍️ {authorId ? (
+              <Link href={`/tutors/${authorId}`} className="text-blue-600 hover:underline">
+                {author}
+              </Link>
+            ) : (
+              author
+            )}
+          </p>
           <p className="text-gray-700 mt-2 line-clamp-3">{summary}</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {tags.map((tag, idx) => {
