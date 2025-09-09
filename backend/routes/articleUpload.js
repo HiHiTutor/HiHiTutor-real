@@ -17,10 +17,17 @@ router.post('/cover-image', upload.single('coverImage'), async (req, res) => {
     
     if (!articleId) {
       // 如果沒有文章ID，返回臨時URL
+      let imageUrl = req.file.location;
+      if (req.file.path && !req.file.location) {
+        // 本地文件存儲
+        imageUrl = `/uploads/${req.file.path}`;
+      }
+      
       return res.json({
         success: true,
-        url: req.file.location,
-        key: req.file.key,
+        url: imageUrl,
+        key: req.file.key || req.file.path,
+        file: req.file,
         message: '圖片上傳成功，請先保存文章'
       });
     }
@@ -41,13 +48,20 @@ router.post('/cover-image', upload.single('coverImage'), async (req, res) => {
     }
 
     // 更新文章封面圖片
-    article.coverImage = req.file.location;
+    let imageUrl = req.file.location;
+    if (req.file.path && !req.file.location) {
+      // 本地文件存儲
+      imageUrl = `/uploads/${req.file.path}`;
+    }
+    
+    article.coverImage = imageUrl;
     await article.save();
 
     res.json({
       success: true,
-      url: req.file.location,
-      key: req.file.key,
+      url: imageUrl,
+      key: req.file.key || req.file.path,
+      file: req.file,
       message: '封面圖片上傳成功'
     });
 

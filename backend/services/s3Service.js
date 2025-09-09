@@ -3,16 +3,23 @@ const multer = require('multer');
 const multerS3 = require('multer-s3');
 const path = require('path');
 
+// 檢查 S3 環境變數
+const hasS3Config = process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY && process.env.AWS_S3_BUCKET;
+
+if (!hasS3Config) {
+  console.warn('⚠️ S3 環境變數未配置，將使用本地文件存儲');
+}
+
 // 配置 AWS S3
-const s3 = new AWS.S3({
+const s3 = hasS3Config ? new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   region: process.env.AWS_REGION || 'us-east-1'
-});
+}) : null;
 
-// 配置 multer 用於 S3 上傳
+// 配置 multer 用於文件上傳
 const upload = multer({
-  storage: multerS3({
+  storage: hasS3Config ? multerS3({
     s3: s3,
     bucket: process.env.AWS_S3_BUCKET || 'hihitutor-articles',
     acl: 'public-read',
@@ -31,6 +38,19 @@ const upload = multer({
         originalName: file.originalname,
         articleId: req.body.articleId || req.params.articleId || 'temp'
       });
+    }
+  }) : multer.diskStorage({
+    destination: function (req, file, cb) {
+      const articleId = req.body.articleId || req.params.articleId || 'temp';
+      const uploadPath = path.join(__dirname, '..', 'public', 'uploads', 'articles', articleId);
+      require('fs').mkdirSync(uploadPath, { recursive: true });
+      cb(null, uploadPath);
+    },
+    filename: function (req, file, cb) {
+      const timestamp = Date.now();
+      const extension = path.extname(file.originalname);
+      const filename = `${timestamp}${extension}`;
+      cb(null, filename);
     }
   }),
   limits: {
@@ -63,7 +83,7 @@ const deleteFile = async (fileKey) => {
   }
 };
 
-// 獲取 S3 文件 URL
+// 獲取文件 URL
 const getFileUrl = (fileKey) => {
   if (!fileKey) return null;
   
@@ -72,10 +92,15 @@ const getFileUrl = (fileKey) => {
     return fileKey;
   }
   
-  // 構建 S3 URL
-  const bucket = process.env.AWS_S3_BUCKET || 'hihitutor-articles';
-  const region = process.env.AWS_REGION || 'us-east-1';
-  return `https://${bucket}.s3.${region}.amazonaws.com/${fileKey}`;
+  // 如果有 S3 配置，構建 S3 URL
+  if (hasS3Config) {
+    const bucket = process.env.AWS_S3_BUCKET || 'hihitutor-articles';
+    const region = process.env.AWS_REGION || 'us-east-1';
+    return `https://${bucket}.s3.${region}.amazonaws.com/${fileKey}`;
+  }
+  
+  // 否則構建本地文件 URL
+  return `/uploads/${fileKey}`;
 };
 
 module.exports = {

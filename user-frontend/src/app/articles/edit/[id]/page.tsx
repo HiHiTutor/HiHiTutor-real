@@ -59,9 +59,16 @@ export default function EditArticlePage() {
       const result = await response.json()
 
       if (result.success) {
-        setUploadedImageUrl(result.url)
-        setCoverImage(result.url)
-        console.log('✅ 圖片上傳成功:', result.url)
+        // 處理圖片 URL
+        let imageUrl = result.url;
+        if (result.file && result.file.path && !result.url.startsWith('http')) {
+          // 本地文件，構建完整 URL
+          imageUrl = `${API_BASE}${result.url}`;
+        }
+        
+        setUploadedImageUrl(imageUrl)
+        setCoverImage(imageUrl)
+        console.log('✅ 圖片上傳成功:', imageUrl)
       } else {
         setError(result.message || '圖片上傳失敗')
       }
