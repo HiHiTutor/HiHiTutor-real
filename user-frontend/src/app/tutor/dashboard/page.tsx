@@ -1440,29 +1440,81 @@ export default function TutorDashboardPage() {
               </div>
             </div>
 
-            {/* 網上課程選項 */}
+            {/* 教學方式選項 */}
             <div className="space-y-4">
-              <Label>網上課程</Label>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="online-teaching"
-                  checked={formData.teachingMethods.includes('online')}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      setFormData(prev => ({
-                        ...prev,
-                        teachingMethods: [...prev.teachingMethods, 'online']
-                      }));
-                    } else {
-                      setFormData(prev => ({
-                        ...prev,
-                        teachingMethods: prev.teachingMethods.filter(m => m !== 'online')
-                      }));
-                    }
-                  }}
-                />
-                <Label htmlFor="online-teaching">提供網上課程</Label>
+              <Label>教學方式</Label>
+              <div className="space-y-3">
+                {/* 面授教學 */}
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="in-person-teaching"
+                    checked={formData.teachingMethods.includes('in-person')}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({
+                          ...prev,
+                          teachingMethods: [...prev.teachingMethods, 'in-person']
+                        }));
+                      } else {
+                        setFormData(prev => ({
+                          ...prev,
+                          teachingMethods: prev.teachingMethods.filter(m => m !== 'in-person')
+                        }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor="in-person-teaching">面授教學</Label>
+                </div>
+                
+                {/* 網上課程 */}
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="online-teaching"
+                    checked={formData.teachingMethods.includes('online')}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({
+                          ...prev,
+                          teachingMethods: [...prev.teachingMethods, 'online']
+                        }));
+                      } else {
+                        setFormData(prev => ({
+                          ...prev,
+                          teachingMethods: prev.teachingMethods.filter(m => m !== 'online')
+                        }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor="online-teaching">網上課程</Label>
+                </div>
+                
+                {/* 混合模式 */}
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="both-teaching"
+                    checked={formData.teachingMethods.includes('both')}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFormData(prev => ({
+                          ...prev,
+                          teachingMethods: [...prev.teachingMethods, 'both']
+                        }));
+                      } else {
+                        setFormData(prev => ({
+                          ...prev,
+                          teachingMethods: prev.teachingMethods.filter(m => m !== 'both')
+                        }));
+                      }
+                    }}
+                  />
+                  <Label htmlFor="both-teaching">混合模式（面授+網上）</Label>
+                </div>
               </div>
+              
+              {/* 說明文字 */}
+              <p className="text-sm text-gray-500">
+                請選擇您提供的教學方式。您可以選擇多種方式，選擇完成後請點擊「保存教學資料」按鈕。
+              </p>
             </div>
 
 

@@ -1,0 +1,10 @@
+[33me92b342[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m 修復地區API載入問題 - 使用正確的後端API URL
+[33m41fdadc[m 修復地區資料同步問題 - 完成所有前端組件動態載入地區資料
+[33m707a74e[m 修復地區資料同步問題 - 前端導師儀表板和後台創建用戶頁面現在從API載入最新地區資料
+[33m8201ae7[m Remove find-tutor-cases page completely - Delete frontend find-tutor-cases page directory and files - Remove find-tutor-cases navigation links from Navbar - Clean up find-tutor-cases page references - Page /find-tutor-cases is now completely removed
+[33m11927ab[m Remove contact page completely - Delete frontend contact page directory and files - Delete backend contact routes, controller, and model - Clean up contact-related imports and references - Contact page /contact is now completely removed
+[33md9c9d4a[m Add sub-region sorting functionality - Add sortOrder field to SubRegion interface and backend model - Implement sub-region up/down movement functions - Update save/load logic to handle sub-region sorting - Enhance UI with sub-region sorting controls and visual feedback
+[33me79e6f6[m Add region sorting functionality to RegionManager - Add up/down arrow buttons for manual region ordering - Implement sortOrder field support - Update UI to vertical layout for better sorting - Add sorting instructions and visual feedback
+[33mf36ce1a[m Merge remote changes
+[33m016e712[m Add tatus file
+[33mc0508cc[m Implement unified region management system
