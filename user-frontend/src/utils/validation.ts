@@ -107,7 +107,9 @@ export const validateFormSubmission = (formData: Record<string, any>) => {
   const excludeFields = [
     'avatar', 'documents', 'idCard', 'educationCert', 
     'publicCertificates', 'certificateLogs', 'profileStatus',
-    'remarks', 'createdAt', 'updatedAt', '_id', '__v'
+    'remarks', 'createdAt', 'updatedAt', '_id', '__v',
+    'teachingMethods', 'subjects', 'teachingAreas', 'availableTime',
+    'qualifications', 'hourlyRate', 'experience', 'gender', 'birthDate'
   ];
   
   // 檢查所有文本字段
