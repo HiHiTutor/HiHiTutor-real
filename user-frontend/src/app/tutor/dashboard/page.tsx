@@ -510,8 +510,24 @@ export default function TutorDashboardPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // 準備完整的表單數據
+    const completeFormData = {
+      ...formData,
+      tutorProfile: {
+        subRegions: getAllSelectedSubRegions().map(subRegion => {
+          // 將簡短名稱轉換為完整路徑格式
+          const region = regionOptions.find(r => r.regions?.some(sr => sr.value === subRegion));
+          if (region) {
+            return `${region.value}-${subRegion}`;
+          }
+          return subRegion;
+        })
+      },
+      publicCertificates: publicCertificates,
+    };
+    
     // 驗證表單是否包含聯絡資料
-    const validation = validateFormSubmission(formData);
+    const validation = validateFormSubmission(completeFormData);
     if (!validation.isValid) {
       toast.error(validation.message);
       console.log('表單驗證失敗:', validation.violations);
@@ -525,12 +541,12 @@ export default function TutorDashboardPage() {
         throw new Error('未登入');
       }
 
-      await tutorApi.updateProfile(formData);
+      await tutorApi.updateProfile(completeFormData);
       
       // 觸發用戶數據更新事件
       window.dispatchEvent(new Event('userUpdate'));
       
-      toast.success('資料更新成功，已即時生效');
+      toast.success('所有資料更新成功，已即時生效');
       
       // 不需要強制刷新頁面，數據已經更新
     } catch (error) {
@@ -903,24 +919,8 @@ export default function TutorDashboardPage() {
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* 個人資料 */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader>
             <CardTitle>個人資料</CardTitle>
-            <Button
-              type="button"
-              onClick={() => handleSectionSave('personal', {
-                name: formData.name,
-                gender: formData.gender,
-                birthDate: formData.birthDate,
-                education: formData.education,
-                experience: formData.experience,
-                examResults: formData.examResults,
-                qualifications: formData.qualifications,
-                avatar: formData.avatar,
-              })}
-              disabled={savingSection === 'personal'}
-            >
-              {savingSection === 'personal' ? '保存中...' : '保存'}
-            </Button>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* 個人照片 */}
@@ -1123,18 +1123,8 @@ export default function TutorDashboardPage() {
 
         {/* 個人介紹 */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader>
             <CardTitle>個人介紹</CardTitle>
-            <Button
-              type="button"
-              onClick={() => handleSectionSave('introduction', {
-                introduction: formData.introduction,
-                courseFeatures: formData.courseFeatures,
-              })}
-              disabled={savingSection === 'introduction'}
-            >
-              {savingSection === 'introduction' ? '保存中...' : '保存'}
-            </Button>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* 個人簡介 */}
@@ -1231,7 +1221,7 @@ export default function TutorDashboardPage() {
               
               {/* 說明文字 */}
               <p className="text-sm text-gray-600">
-                請選擇您願意前往授課的地區。您可以選擇多個地區，選擇完成後請點擊「保存地區選擇」按鈕。
+                請選擇您願意前往授課的地區。您可以選擇多個地區，選擇完成後請點擊頁面底部的「保存所有資料」按鈕。
               </p>
               
               {/* 操作提示 */}
@@ -1240,7 +1230,7 @@ export default function TutorDashboardPage() {
                   <strong>操作步驟：</strong>
                   <br />1. 先選擇主要地區（如：香港島、九龍、新界）
                   <br />2. 再選擇具體的子地區（如：中環、灣仔、銅鑼灣）
-                  <br />3. 點擊「保存地區選擇」按鈕保存您的選擇
+                  <br />3. 點擊頁面底部的「保存所有資料」按鈕保存您的選擇
                 </p>
                 
                                                   {/* 簡化的操作按鈕 */}
@@ -1394,31 +1384,8 @@ export default function TutorDashboardPage() {
                       </p>
                     </div>
                     
-                    {/* 按鈕組 */}
+                    {/* 重置地區選擇按鈕 */}
                     <div className="flex gap-2">
-                      {/* 保存地區選擇按鈕 */}
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleSectionSave('teachingAreas', {
-                          tutorProfile: {
-                            subRegions: getAllSelectedSubRegions().map(subRegion => {
-                              // 將簡短名稱轉換為完整路徑格式
-                              const region = regionOptions.find(r => r.regions?.some(sr => sr.value === subRegion));
-                              if (region) {
-                                return `${region.value}-${subRegion}`;
-                              }
-                              return subRegion;
-                            })
-                          }
-                        })}
-                        disabled={savingSection === 'teachingAreas'}
-                      >
-                        {savingSection === 'teachingAreas' ? '保存中...' : '保存地區選擇'}
-                      </Button>
-                      
-                      {/* 重置地區選擇按鈕 */}
                       <Button
                         type="button"
                         variant="outline"
@@ -1434,7 +1401,7 @@ export default function TutorDashboardPage() {
                   </div>
                 ) : (
                   <div className="text-sm text-gray-500">
-                    請先選擇地區，然後點擊保存按鈕
+                    請先選擇地區，然後點擊頁面底部的「保存所有資料」按鈕
                   </div>
                 )}
               </div>
@@ -1513,7 +1480,7 @@ export default function TutorDashboardPage() {
               
               {/* 說明文字 */}
               <p className="text-sm text-gray-500">
-                請選擇您提供的教學方式。您可以選擇多種方式，選擇完成後請點擊「保存教學資料」按鈕。
+                請選擇您提供的教學方式。您可以選擇多種方式，選擇完成後請點擊頁面底部的「保存所有資料」按鈕。
               </p>
             </div>
 
@@ -1595,16 +1562,6 @@ export default function TutorDashboardPage() {
                     </Badge>
                   ))}
                 </div>
-                {newAvailableTimes.length > 0 && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleTimeSave}
-                  >
-                    保存時間設置
-                  </Button>
-                )}
               </div>
             </div>
 
@@ -1621,31 +1578,6 @@ export default function TutorDashboardPage() {
               />
             </div>
 
-            {/* 保存按鈕 */}
-            <div className="flex justify-end pt-4">
-              <Button
-                type="button"
-                onClick={() => handleSectionSave('teaching', {
-                  subjects: formData.subjects,
-                  teachingMethods: formData.teachingMethods,
-                  tutorProfile: {
-                    subRegions: getAllSelectedSubRegions().map(subRegion => {
-                      // 將簡短名稱轉換為完整路徑格式
-                      const region = regionOptions.find(r => r.regions?.some(sr => sr.value === subRegion));
-                      if (region) {
-                        return `${region.value}-${subRegion}`;
-                      }
-                      return subRegion;
-                    })
-                  },
-                  availableTime: formData.availableTime,
-                  hourlyRate: formData.hourlyRate,
-                })}
-                disabled={savingSection === 'teaching'}
-              >
-                {savingSection === 'teaching' ? '保存中...' : '保存教學資料'}
-              </Button>
-            </div>
           </CardContent>
         </Card>
 
@@ -1653,18 +1585,8 @@ export default function TutorDashboardPage() {
 
         {/* 文件上傳 */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader>
             <CardTitle>文件上傳</CardTitle>
-            <Button
-              type="button"
-              onClick={() => handleSectionSave('documents', {
-                documents: formData.documents,
-                publicCertificates: publicCertificates,
-              })}
-              disabled={savingSection === 'documents'}
-            >
-              {savingSection === 'documents' ? '保存中...' : '保存'}
-            </Button>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* 身份證 */}
@@ -1888,6 +1810,18 @@ export default function TutorDashboardPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* 統一保存按鈕 */}
+        <div className="flex justify-center pt-8">
+          <Button
+            type="submit"
+            size="lg"
+            disabled={saving}
+            className="px-12 py-3 text-lg"
+          >
+            {saving ? '保存中...' : '保存所有資料'}
+          </Button>
+        </div>
       </form>
 
       {/* 科目編輯對話框 */}
