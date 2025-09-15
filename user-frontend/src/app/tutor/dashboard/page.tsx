@@ -1598,7 +1598,6 @@ export default function TutorDashboardPage() {
                 accept="image/*,.pdf"
                 onChange={(e) => handleDocumentUpload(e, 'idCard')}
                 disabled={uploading}
-                required
               />
               {formData.documents.idCard && (
                 <div className="space-y-2">
@@ -1638,7 +1637,6 @@ export default function TutorDashboardPage() {
                 accept="image/*,.pdf"
                 onChange={(e) => handleDocumentUpload(e, 'educationCert')}
                 disabled={uploading}
-                required
               />
               {formData.documents.educationCert && (
                 <div className="space-y-4">
