@@ -122,9 +122,14 @@ const Navbar = () => {
                     帳號設定
                   </Link>
                   {user.userType === 'tutor' && (
-                    <Link href="/tutor/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      導師中心
-                    </Link>
+                    <>
+                      <Link href="/tutor/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        導師資料設定
+                      </Link>
+                      <Link href={`/tutors/${user.tutorId || user.userId || user.id}`} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        導師頁面
+                      </Link>
+                    </>
                   )}
                   <button
                     onClick={() => {
