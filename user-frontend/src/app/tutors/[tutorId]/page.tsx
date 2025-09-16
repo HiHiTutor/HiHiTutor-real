@@ -138,14 +138,14 @@ export default function TutorDetailPage() {
                 
                 {tutor.hourlyRate ? (
                   <div className="flex items-start">
-                    <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">每堂收費：</span>
+                    <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">每小時堂費：</span>
                     <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
                       ${tutor.hourlyRate}
                     </span>
                   </div>
                 ) : (
                   <div className="flex items-start">
-                    <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">每堂收費：</span>
+                    <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">每小時堂費：</span>
                     <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
                       暫未設定
                     </span>
