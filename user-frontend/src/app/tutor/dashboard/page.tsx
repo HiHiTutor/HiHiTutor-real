@@ -186,9 +186,23 @@ export default function TutorDashboardPage() {
   // 當 regionOptions 載入完成後，處理已選地區
   useEffect(() => {
     if (regionOptions.length > 0 && formData.teachingAreas.length > 0) {
+      console.log('🔄 觸發地區處理:', { regionOptions: regionOptions.length, teachingAreas: formData.teachingAreas.length });
       processTeachingAreas(formData.teachingAreas);
     }
   }, [regionOptions, formData.teachingAreas]);
+
+  // 添加一個強制重新處理地區的函數
+  const forceReloadRegions = async () => {
+    try {
+      console.log('🔄 強制重新載入地區數據');
+      await fetchRegionOptions();
+      await fetchTutorProfile();
+      toast.success('地區數據已重新載入');
+    } catch (error) {
+      console.error('❌ 強制重新載入失敗:', error);
+      toast.error('重新載入失敗，請稍後再試');
+    }
+  };
 
   // 處理地區狀態設置的函數
   const processTeachingAreas = (teachingAreas: string[]) => {
@@ -583,10 +597,20 @@ export default function TutorDashboardPage() {
       
       toast.success('所有資料更新成功，已即時生效');
       
-      // 自動刷新頁面以確保所有數據同步
+      // 強制刷新頁面以確保所有數據同步
       setTimeout(() => {
+        // 清除所有可能的緩存
+        if ('caches' in window) {
+          caches.keys().then(names => {
+            names.forEach(name => {
+              caches.delete(name);
+            });
+          });
+        }
+        
+        // 強制刷新頁面
         window.location.reload();
-      }, 1500);
+      }, 1000);
     } catch (error) {
       console.error('Error updating tutor profile:', error);
       toast.error(error instanceof Error ? error.message : '更新導師資料失敗');
@@ -1250,10 +1274,21 @@ export default function TutorDashboardPage() {
             <div className="space-y-4">
               <Label>上堂地點</Label>
               
-              {/* 說明文字 */}
-              <p className="text-sm text-gray-600">
-                請選擇您願意前往授課的地區。您可以選擇多個地區，選擇完成後請點擊頁面底部的「保存所有資料」按鈕。
-              </p>
+              {/* 說明文字和刷新按鈕 */}
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-gray-600">
+                  請選擇您願意前往授課的地區。您可以選擇多個地區，選擇完成後請點擊頁面底部的「保存所有資料」按鈕。
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={forceReloadRegions}
+                  className="ml-4"
+                >
+                  🔄 重新載入地區
+                </Button>
+              </div>
               
               
               <div className="space-y-4">
