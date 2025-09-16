@@ -1211,7 +1211,7 @@ export default function TutorDashboardPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-2">
                     <Button
                       type="button"
                       size="sm"
@@ -1228,6 +1228,9 @@ export default function TutorDashboardPage() {
                     >
                       取消
                     </Button>
+                    <span className="text-sm text-gray-500 ml-2">
+                      修改完成後請點擊頁面底部的「保存所有資料」按鈕。
+                    </span>
                   </div>
                 </div>
               )}
