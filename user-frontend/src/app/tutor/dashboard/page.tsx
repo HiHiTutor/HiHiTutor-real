@@ -266,7 +266,15 @@ export default function TutorDashboardPage() {
   const fetchRegionOptions = async () => {
     try {
       setLoadingRegions(true);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/regions`);
+      // 添加時間戳來破壞緩存
+      const timestamp = Date.now();
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/regions?t=${timestamp}`, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch regions');
       }

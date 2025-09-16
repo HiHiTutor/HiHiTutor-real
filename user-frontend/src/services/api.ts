@@ -169,10 +169,15 @@ export const tutorApi = {
       throw new Error('未登入');
     }
 
-    const response = await fetch('/api/tutors/profile', {
+    // 添加時間戳來破壞緩存
+    const timestamp = Date.now();
+    const response = await fetch(`/api/tutors/profile?t=${timestamp}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
       },
     });
 
@@ -191,11 +196,16 @@ export const tutorApi = {
       throw new Error('未登入');
     }
 
-    const response = await fetch('/api/tutors/profile', {
+    // 添加時間戳來破壞緩存
+    const timestamp = Date.now();
+    const response = await fetch(`/api/tutors/profile?t=${timestamp}`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
       },
       body: JSON.stringify(data),
     });
