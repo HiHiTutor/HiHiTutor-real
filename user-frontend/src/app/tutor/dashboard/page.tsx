@@ -607,13 +607,14 @@ export default function TutorDashboardPage() {
       // 觸發用戶數據更新事件
       window.dispatchEvent(new Event('userUpdate'));
       
-      toast.success('所有資料更新成功，已即時生效');
+      toast.success('所有資料更新成功，正在跳轉到重新登入頁面...');
       
       // 延遲跳轉到重新登入頁面
       setTimeout(() => {
+        console.log('準備跳轉到重新登入頁面...');
         // 跳轉到重新登入頁面
-        window.location.href = '/relogin-required';
-      }, 1500);
+        window.location.replace('/relogin-required');
+      }, 2000);
     } catch (error) {
       console.error('Error updating tutor profile:', error);
       toast.error(error instanceof Error ? error.message : '更新導師資料失敗');
