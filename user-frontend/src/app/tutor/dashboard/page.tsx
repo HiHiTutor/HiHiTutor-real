@@ -609,20 +609,11 @@ export default function TutorDashboardPage() {
       
       toast.success('所有資料更新成功，已即時生效');
       
-      // 強制刷新頁面以確保所有數據同步
+      // 延遲跳轉到重新登入頁面
       setTimeout(() => {
-        // 清除所有可能的緩存
-        if ('caches' in window) {
-          caches.keys().then(names => {
-            names.forEach(name => {
-              caches.delete(name);
-            });
-          });
-        }
-        
-        // 強制刷新頁面
-        window.location.reload();
-      }, 1000);
+        // 跳轉到重新登入頁面
+        window.location.href = '/relogin-required';
+      }, 1500);
     } catch (error) {
       console.error('Error updating tutor profile:', error);
       toast.error(error instanceof Error ? error.message : '更新導師資料失敗');
