@@ -1045,13 +1045,13 @@ export default function TutorDashboardPage() {
               </div>
             </div>
 
-            {/* 學歷 */}
+            {/* 學歷、相關科目公開試成績 */}
             <div className="space-y-2">
               <ValidatedInput
-                label="學歷"
+                label="學歷、相關科目公開試成績"
                 value={formData.education}
                 onChange={(value) => setFormData({ ...formData, education: value })}
-                placeholder="請填寫你的學歷..."
+                placeholder="請填寫你的學歷及相關科目公開試成績..."
                 type="textarea"
                 required
                 maxLength={500}
@@ -1071,18 +1071,6 @@ export default function TutorDashboardPage() {
               />
             </div>
 
-            {/* 相關科目公開試成績 */}
-            <div className="space-y-2">
-              <ValidatedInput
-                label="相關科目公開試成績"
-                value={formData.examResults}
-                onChange={(value) => setFormData({ ...formData, examResults: value })}
-                placeholder="請填寫你的公開試成績..."
-                type="textarea"
-                required
-                maxLength={300}
-              />
-            </div>
 
             {/* 專業資格 */}
             <div className="space-y-2">
