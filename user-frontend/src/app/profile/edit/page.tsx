@@ -384,11 +384,6 @@ export default function EditProfilePage() {
                   required
                   placeholder="請輸入姓名（不包含數字）"
                 />
-                {user?.userType === 'tutor' && (
-                  <p className="mt-1 text-sm text-yellow-600">
-                    ⚠️ 導師姓名更新需要後台審批，審批通過後才會生效
-                  </p>
-                )}
               </div>
 
               <div>
