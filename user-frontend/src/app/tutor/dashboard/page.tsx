@@ -446,11 +446,13 @@ export default function TutorDashboardPage() {
         console.log('✅ 設置出生日期:', { year, month, day });
         console.log('🔍 當前狀態:', { birthYear, birthMonth, birthDay });
         
-        setBirthYear(year);
-        setBirthMonth(month);
-        setBirthDay(day);
-        
-        console.log('🔍 狀態已更新');
+        // 使用 setTimeout 確保狀態更新
+        setTimeout(() => {
+          setBirthYear(year);
+          setBirthMonth(month);
+          setBirthDay(day);
+          console.log('🔍 狀態已更新:', { year, month, day });
+        }, 0);
       } else {
         console.warn('⚠️ 無效的出生日期，無法設置:', formData.birthDate);
         setBirthYear(undefined);
@@ -464,6 +466,11 @@ export default function TutorDashboardPage() {
       setBirthDay(undefined);
     }
   }, [formData.birthDate]);
+
+  // 監控出生日期狀態變化
+  useEffect(() => {
+    console.log('🔍 出生日期狀態變化:', { birthYear, birthMonth, birthDay });
+  }, [birthYear, birthMonth, birthDay]);
 
   const fetchTutorProfile = async () => {
     try {
