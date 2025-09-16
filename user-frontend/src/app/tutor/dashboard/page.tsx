@@ -1218,198 +1218,30 @@ export default function TutorDashboardPage() {
                 請選擇您願意前往授課的地區。您可以選擇多個地區，選擇完成後請點擊頁面底部的「保存所有資料」按鈕。
               </p>
               
-              {/* 操作提示 */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <p className="text-sm text-blue-800">
-                  <strong>操作步驟：</strong>
-                  <br />1. 先選擇主要地區（如：香港島、九龍、新界）
-                  <br />2. 再選擇具體的子地區（如：中環、灣仔、銅鑼灣）
-                  <br />3. 點擊頁面底部的「保存所有資料」按鈕保存您的選擇
-                </p>
-                
-                                                  {/* 簡化的操作按鈕 */}
-                 <div className="mt-3 pt-3 border-t border-blue-200">
-                   <Button
-                     type="button"
-                     variant="outline"
-                     size="sm"
-                     onClick={async () => {
-                       try {
-                         await fetchTutorProfile();
-                         toast.success('導師資料已重新載入');
-                       } catch (error) {
-                         toast.error('載入失敗，請稍後再試');
-                       }
-                     }}
-                   >
-                     重新載入資料
-                   </Button>
-                 </div>
-              </div>
-              
-                             {/* 顯示當前已選地區 */}
-               {formData.teachingAreas && formData.teachingAreas.length > 0 && (
-                 <div className="space-y-2">
-                   <p className="text-sm text-gray-600">當前已選地區：</p>
-                   <div className="flex flex-wrap gap-2">
-                     {formData.teachingAreas.map((area) => {
-                       // 創建地區名稱映射
-                       const areaNameMap: { [key: string]: string } = {
-                         'hong-kong-island-admiralty': '金鐘',
-                         'hong-kong-island-tin-hau': '天后',
-                         'hong-kong-island-taikoo': '太古',
-                         'hong-kong-island-north-point': '北角',
-                         'hong-kong-island-shau-kei-wan': '筲箕灣',
-                         'hong-kong-island-chai-wan': '柴灣',
-                         'kowloon-to-kwa-wan': '土瓜灣',
-                         'kowloon-lok-fu': '樂富',
-                         'new-territories-long-ping': '朗屏',
-                         'hong-kong-island-tai-hang': '大坑',
-                         'hong-kong-island-sai-wan-ho': '西灣河'
-                       };
-                       
-                       // 優先使用映射
-                       if (areaNameMap[area]) {
-                         return (
-                           <Badge key={area} variant="secondary">
-                             {areaNameMap[area]}
-                           </Badge>
-                         );
-                       }
-                       
-                       // 如果沒有映射，嘗試從路徑中提取並匹配
-                       const pathParts = area.split('-');
-                       let regionLabel = area;
-                       
-                       // 從後往前嘗試匹配
-                       for (let i = pathParts.length - 1; i >= 0; i--) {
-                         const partialPath = pathParts.slice(i).join('-');
-                         for (const region of regionOptions) {
-                           const subRegion = region.regions?.find(sr => sr.value === partialPath);
-                           if (subRegion) {
-                             regionLabel = subRegion.label;
-                             break;
-                           }
-                         }
-                         if (regionLabel !== area) break;
-                       }
-                       
-                       return (
-                         <Badge key={area} variant="secondary">
-                           {regionLabel}
-                         </Badge>
-                       );
-                     })}
-                   </div>
-                 </div>
-               )}
               
               <div className="space-y-4">
-                {/* 全港選項 */}
-                <div className="space-y-2">
-                  <Label>全港選項</Label>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="all-hong-kong"
-                      checked={getAllSelectedSubRegions().length === 0 && formData.teachingAreas.includes('all-hong-kong')}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setFormData(prev => ({
-                            ...prev,
-                            teachingAreas: ['all-hong-kong']
-                          }));
-                          setSelectedSubRegionsByRegion({});
-                        } else {
-                          setFormData(prev => ({
-                            ...prev,
-                            teachingAreas: prev.teachingAreas.filter(area => area !== 'all-hong-kong')
-                          }));
-                        }
-                      }}
-                    />
-                    <Label htmlFor="all-hong-kong" className="text-sm">
-                      全港
-                    </Label>
-                  </div>
-                </div>
-
                 {/* 所有地區直接顯示 */}
-                <div className="space-y-4">
-                  <Label>選擇具體地區</Label>
-                  <p className="text-sm text-gray-500">
-                    請直接勾選您願意前往授課的地區
-                  </p>
-                  
-                  {regionOptions.filter(region => region.value !== 'unlimited' && region.value !== 'all-hong-kong').map((region) => (
-                    <div key={region.value} className="space-y-3">
-                      <div className="font-medium text-gray-700 border-b pb-1">
-                        選擇 {region.label} 下的具體地區
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        {region.regions?.map((subRegion: { value: string; label: string }) => (
-                          <div key={subRegion.value} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={subRegion.value}
-                              checked={getAllSelectedSubRegions().includes(subRegion.value)}
-                              onCheckedChange={() => handleSubRegionToggle(subRegion.value)}
-                            />
-                            <Label htmlFor={subRegion.value} className="text-sm">
-                              {subRegion.label}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
+                {regionOptions.filter(region => region.value !== 'unlimited' && region.value !== 'all-hong-kong').map((region) => (
+                  <div key={region.value} className="space-y-3">
+                    <div className="font-medium text-gray-700 border-b pb-1">
+                      {region.label}
                     </div>
-                  ))}
-                </div>
-
-                {/* 已選地區顯示 */}
-                {getAllSelectedSubRegions().length > 0 ? (
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-600">已選擇的地區：</p>
-                    <div className="flex flex-wrap gap-2">
-                      {getAllSelectedSubRegions().map((subRegion) => {
-                        const regionLabel = regionOptions.flatMap(r => r.regions || []).find(sr => sr.value === subRegion)?.label || subRegion;
-                        return (
-                          <Badge key={subRegion} variant="secondary">
-                            {regionLabel}
-                          </Badge>
-                        );
-                      })}
-                    </div>
-                    
-                    {/* 地區選擇總結 */}
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                      <p className="text-sm text-green-800">
-                        <strong>選擇總結：</strong>
-                        <br />已選擇 {getAllSelectedSubRegions().length} 個地區
-                        <br />包括：{Object.keys(selectedSubRegionsByRegion).map(regionKey => {
-                          const region = regionOptions.find(r => r.value === regionKey);
-                          return region ? region.label : regionKey;
-                        }).join('、')}
-                      </p>
-                    </div>
-                    
-                    {/* 重置地區選擇按鈕 */}
-                    <div className="flex gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedRegion('');
-                          setSelectedSubRegionsByRegion({});
-                        }}
-                      >
-                        重新選擇
-                      </Button>
+                    <div className="grid grid-cols-2 gap-2">
+                      {region.regions?.map((subRegion: { value: string; label: string }) => (
+                        <div key={subRegion.value} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={subRegion.value}
+                            checked={getAllSelectedSubRegions().includes(subRegion.value)}
+                            onCheckedChange={() => handleSubRegionToggle(subRegion.value)}
+                          />
+                          <Label htmlFor={subRegion.value} className="text-sm">
+                            {subRegion.label}
+                          </Label>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                ) : (
-                  <div className="text-sm text-gray-500">
-                    請勾選您願意前往授課的地區，然後點擊頁面底部的「保存所有資料」按鈕
-                  </div>
-                )}
+                ))}
               </div>
             </div>
 
