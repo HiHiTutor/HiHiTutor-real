@@ -216,30 +216,6 @@ export default function TutorDashboardPage() {
     }
   }, [regionOptions, formData.teachingAreas]);
 
-  // 添加一個強制重新處理地區的函數
-  const forceReloadRegions = async () => {
-    try {
-      console.log('🔄 強制重新載入地區數據');
-      setLoading(true);
-      setLoadingRegions(true);
-      
-      // 清除現有狀態
-      setSelectedSubRegionsByRegion({});
-      setFormData(prev => ({ ...prev, teachingAreas: [] }));
-      
-      // 重新載入數據
-      await fetchRegionOptions();
-      await fetchTutorProfile();
-      
-      toast.success('地區數據已重新載入');
-    } catch (error) {
-      console.error('❌ 強制重新載入失敗:', error);
-      toast.error('重新載入失敗，請稍後再試');
-    } finally {
-      setLoading(false);
-      setLoadingRegions(false);
-    }
-  };
 
   // 處理地區狀態設置的函數
   const processTeachingAreas = (teachingAreas: string[]) => {
@@ -1250,21 +1226,10 @@ export default function TutorDashboardPage() {
             <div className="space-y-4">
               <Label>上堂地點</Label>
               
-              {/* 說明文字和刷新按鈕 */}
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-600">
-                  請選擇您願意前往授課的地區。您可以選擇多個地區，選擇完成後請點擊頁面底部的「保存所有資料」按鈕。
-                </p>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={forceReloadRegions}
-                  className="ml-4"
-                >
-                  🔄 重新載入地區
-                </Button>
-              </div>
+              {/* 說明文字 */}
+              <p className="text-sm text-gray-600">
+                請選擇您願意前往授課的地區。您可以選擇多個地區，選擇完成後請點擊頁面底部的「保存所有資料」按鈕。
+              </p>
               
               
               <div className="space-y-4">
