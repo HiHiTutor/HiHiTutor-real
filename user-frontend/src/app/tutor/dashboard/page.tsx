@@ -732,16 +732,31 @@ export default function TutorDashboardPage() {
   };
 
   const handleBirthDateChange = (type: 'year' | 'month' | 'day', value: number) => {
-    if (type === 'year') setBirthYear(value);
-    if (type === 'month') setBirthMonth(value);
-    if (type === 'day') setBirthDay(value);
+    let newYear = birthYear;
+    let newMonth = birthMonth;
+    let newDay = birthDay;
+
+    if (type === 'year') {
+      newYear = value;
+      setBirthYear(value);
+    }
+    if (type === 'month') {
+      newMonth = value;
+      setBirthMonth(value);
+    }
+    if (type === 'day') {
+      newDay = value;
+      setBirthDay(value);
+    }
 
     if (type === 'year' || type === 'month') {
       setBirthDay(undefined);
+      newDay = undefined;
     }
 
-    if (birthYear && birthMonth && birthDay) {
-      const newDate = new Date(birthYear, birthMonth - 1, birthDay);
+    // 使用新的值來創建日期
+    if (newYear && newMonth && newDay) {
+      const newDate = new Date(newYear, newMonth - 1, newDay);
       setFormData((prev: TutorProfile) => ({ ...prev, birthDate: newDate }));
     }
   };
