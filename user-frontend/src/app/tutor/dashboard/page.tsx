@@ -466,6 +466,8 @@ export default function TutorDashboardPage() {
 
       const response = await tutorApi.getProfile();
       console.log('🔍 Raw API response:', response);
+      console.log('🔍 Response type:', typeof response);
+      console.log('🔍 Response keys:', Object.keys(response));
       
       // 處理API回應格式
       let data;
