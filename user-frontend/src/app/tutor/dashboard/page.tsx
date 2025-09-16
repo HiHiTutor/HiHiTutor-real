@@ -173,15 +173,40 @@ export default function TutorDashboardPage() {
   const [regionOptions, setRegionOptions] = useState<RegionOption[]>([]);
   const [loadingRegions, setLoadingRegions] = useState(true);
 
-  const { user } = useUser();
+  const { user, isLoading, error } = useUser();
+
+  // 檢查用戶登入狀態和類型
+  useEffect(() => {
+    if (isLoading) return; // 等資料載入完成先做判斷
+
+    if (!user) {
+      // 未登入 ➝ 跳轉至登入頁，並保存目標頁面
+      router.replace('/login?redirect=/tutor/dashboard');
+    } else if (user.userType !== 'tutor') {
+      // 已登入但不是導師 ➝ 跳去首頁並提示
+      alert('只有導師可以訪問導師儀表板');
+      router.replace('/');
+    }
+  }, [user, isLoading, router]);
+
+  // 處理錯誤狀態
+  useEffect(() => {
+    if (error && (error.includes('登入已過期') || error.includes('Not authenticated'))) {
+      router.replace('/login?redirect=/tutor/dashboard');
+    }
+  }, [error, router]);
 
   useEffect(() => {
     const loadData = async () => {
       await fetchRegionOptions();
       await fetchTutorProfile();
     };
-    loadData();
-  }, []);
+    
+    // 只有在用戶是導師時才載入數據
+    if (user && user.userType === 'tutor') {
+      loadData();
+    }
+  }, [user]);
 
   // 當 regionOptions 載入完成後，處理已選地區
   useEffect(() => {
@@ -918,8 +943,14 @@ export default function TutorDashboardPage() {
     }
   };
 
-  if (loading) {
+  // 顯示載入狀態
+  if (isLoading || loading) {
     return <div className="container mx-auto py-8 text-center">載入中...</div>;
+  }
+
+  // 如果用戶不是導師，不顯示頁面內容
+  if (!user || user.userType !== 'tutor') {
+    return null;
   }
 
   return (
