@@ -423,25 +423,34 @@ export default function TutorDashboardPage() {
 
   useEffect(() => {
     console.log('🔍 處理出生日期 useEffect:', formData.birthDate);
+    console.log('🔍 formData.birthDate 類型:', typeof formData.birthDate);
+    console.log('🔍 formData.birthDate 是否為 Date:', formData.birthDate instanceof Date);
+    
     if (formData.birthDate) {
       let date: Date;
       
       if (formData.birthDate instanceof Date) {
         date = formData.birthDate;
+        console.log('🔍 使用 Date 對象:', date);
       } else {
         date = new Date(formData.birthDate);
+        console.log('🔍 轉換為 Date 對象:', date);
       }
       
       // 檢查日期是否有效
       if (!isNaN(date.getTime())) {
-        console.log('✅ 設置出生日期:', {
-          year: date.getFullYear(),
-          month: date.getMonth() + 1,
-          day: date.getDate()
-        });
-        setBirthYear(date.getFullYear());
-        setBirthMonth(date.getMonth() + 1);
-        setBirthDay(date.getDate());
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        
+        console.log('✅ 設置出生日期:', { year, month, day });
+        console.log('🔍 當前狀態:', { birthYear, birthMonth, birthDay });
+        
+        setBirthYear(year);
+        setBirthMonth(month);
+        setBirthDay(day);
+        
+        console.log('🔍 狀態已更新');
       } else {
         console.warn('⚠️ 無效的出生日期，無法設置:', formData.birthDate);
         setBirthYear(undefined);
@@ -602,11 +611,16 @@ export default function TutorDashboardPage() {
       };
       
       console.log('🔍 New form data:', newFormData);
+      console.log('🔍 New form data birthDate:', newFormData.birthDate);
+      console.log('🔍 New form data birthDate type:', typeof newFormData.birthDate);
+      console.log('🔍 New form data birthDate instanceof Date:', newFormData.birthDate instanceof Date);
       
       setFormData(newFormData);
       setNewSubjects(subjects);
       setNewAvailableTimes(availableTime);
       setPublicCertificates(publicCertificates);
+      
+      console.log('🔍 FormData 已設置，等待 useEffect 觸發');
     } catch (error) {
       console.error('❌ 獲取資料失敗:', error);
       toast.error(error instanceof Error ? error.message : '獲取資料失敗，請稍後再試');
