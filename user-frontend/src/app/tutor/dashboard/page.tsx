@@ -195,12 +195,24 @@ export default function TutorDashboardPage() {
   const forceReloadRegions = async () => {
     try {
       console.log('🔄 強制重新載入地區數據');
+      setLoading(true);
+      setLoadingRegions(true);
+      
+      // 清除現有狀態
+      setSelectedSubRegionsByRegion({});
+      setFormData(prev => ({ ...prev, teachingAreas: [] }));
+      
+      // 重新載入數據
       await fetchRegionOptions();
       await fetchTutorProfile();
+      
       toast.success('地區數據已重新載入');
     } catch (error) {
       console.error('❌ 強制重新載入失敗:', error);
       toast.error('重新載入失敗，請稍後再試');
+    } finally {
+      setLoading(false);
+      setLoadingRegions(false);
     }
   };
 
