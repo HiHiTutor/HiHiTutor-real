@@ -343,7 +343,7 @@ export default function EditProfilePage() {
         <div className="bg-white rounded-lg shadow overflow-hidden">
           {/* 頁面標題 */}
           <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
-            <h1 className="text-xl font-semibold text-gray-800">編輯個人資料</h1>
+            <h1 className="text-xl font-semibold text-gray-800">帳號設定</h1>
           </div>
 
           {/* 編輯表單 */}

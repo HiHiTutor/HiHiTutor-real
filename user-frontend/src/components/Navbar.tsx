@@ -119,7 +119,7 @@ const Navbar = () => {
               {dropdownOpen && (
                 <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
                   <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                    個人資料
+                    帳號設定
                   </Link>
                   {user.userType === 'tutor' && (
                     <Link href="/tutor/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
