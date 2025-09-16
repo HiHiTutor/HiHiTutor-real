@@ -574,6 +574,11 @@ export default function TutorDashboardPage() {
       window.dispatchEvent(new Event('userUpdate'));
       
       toast.success('所有資料更新成功，已即時生效');
+      
+      // 自動刷新頁面以確保所有數據同步
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     } catch (error) {
       console.error('Error updating tutor profile:', error);
       toast.error(error instanceof Error ? error.message : '更新導師資料失敗');
