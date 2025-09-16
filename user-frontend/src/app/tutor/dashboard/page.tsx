@@ -758,24 +758,29 @@ export default function TutorDashboardPage() {
   };
 
   const handleSubRegionToggle = (subRegion: string) => {
-    if (!selectedRegion) return;
+    // 找到這個子地區所屬的主要地區
+    const parentRegion = regionOptions.find(region => 
+      region.regions?.some(sr => sr.value === subRegion)
+    );
+    
+    if (!parentRegion) return;
     
     setSelectedSubRegionsByRegion(prev => {
-      const currentSubRegions = prev[selectedRegion] || [];
+      const currentSubRegions = prev[parentRegion.value] || [];
       const newSubRegions = currentSubRegions.includes(subRegion)
         ? currentSubRegions.filter((r: string) => r !== subRegion)
         : [...currentSubRegions, subRegion];
       
       return {
         ...prev,
-        [selectedRegion]: newSubRegions
+        [parentRegion.value]: newSubRegions
       };
     });
   };
 
   // 獲取當前選中的子地區
   const getCurrentSubRegions = () => {
-    return selectedSubRegionsByRegion[selectedRegion] || [];
+    return Object.values(selectedSubRegionsByRegion).flat();
   };
 
   // 獲取所有選中的子地區
@@ -1300,51 +1305,63 @@ export default function TutorDashboardPage() {
                )}
               
               <div className="space-y-4">
-                {/* 地區選擇 */}
+                {/* 全港選項 */}
                 <div className="space-y-2">
-                  <Label>選擇地區</Label>
-                  <Select value={selectedRegion} onValueChange={handleRegionChange} disabled={loadingRegions}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder={loadingRegions ? "載入中..." : "選擇主要地區"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {regionOptions.filter(region => region.value !== 'unlimited').map((region) => (
-                        <SelectItem key={region.value} value={region.value}>
-                          {region.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  
-                  {/* 顯示所有可選地區的提示 */}
-                  <div className="text-sm text-gray-500">
-                    可選地區包括：香港島、九龍、新界、離島等
+                  <Label>全港選項</Label>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="all-hong-kong"
+                      checked={getAllSelectedSubRegions().length === 0 && formData.teachingAreas.includes('all-hong-kong')}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setFormData(prev => ({
+                            ...prev,
+                            teachingAreas: ['all-hong-kong']
+                          }));
+                          setSelectedSubRegionsByRegion({});
+                        } else {
+                          setFormData(prev => ({
+                            ...prev,
+                            teachingAreas: prev.teachingAreas.filter(area => area !== 'all-hong-kong')
+                          }));
+                        }
+                      }}
+                    />
+                    <Label htmlFor="all-hong-kong" className="text-sm">
+                      全港
+                    </Label>
                   </div>
                 </div>
 
-                {/* 子地區選擇 */}
-                {selectedRegion && (
-                  <div className="space-y-2">
-                    <Label>選擇子地區</Label>
-                    <p className="text-sm text-gray-500">
-                      選擇 {regionOptions.find(r => r.value === selectedRegion)?.label} 下的具體地區
-                    </p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {regionOptions.find(r => r.value === selectedRegion)?.regions?.map((subRegion: { value: string; label: string }) => (
-                        <div key={subRegion.value} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={subRegion.value}
-                            checked={getCurrentSubRegions().includes(subRegion.value)}
-                            onCheckedChange={() => handleSubRegionToggle(subRegion.value)}
-                          />
-                          <Label htmlFor={subRegion.value} className="text-sm">
-                            {subRegion.label}
-                          </Label>
-                        </div>
-                      ))}
+                {/* 所有地區直接顯示 */}
+                <div className="space-y-4">
+                  <Label>選擇具體地區</Label>
+                  <p className="text-sm text-gray-500">
+                    請直接勾選您願意前往授課的地區
+                  </p>
+                  
+                  {regionOptions.filter(region => region.value !== 'unlimited' && region.value !== 'all-hong-kong').map((region) => (
+                    <div key={region.value} className="space-y-3">
+                      <div className="font-medium text-gray-700 border-b pb-1">
+                        選擇 {region.label} 下的具體地區
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {region.regions?.map((subRegion: { value: string; label: string }) => (
+                          <div key={subRegion.value} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={subRegion.value}
+                              checked={getAllSelectedSubRegions().includes(subRegion.value)}
+                              onCheckedChange={() => handleSubRegionToggle(subRegion.value)}
+                            />
+                            <Label htmlFor={subRegion.value} className="text-sm">
+                              {subRegion.label}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  ))}
+                </div>
 
                 {/* 已選地區顯示 */}
                 {getAllSelectedSubRegions().length > 0 ? (
@@ -1390,7 +1407,7 @@ export default function TutorDashboardPage() {
                   </div>
                 ) : (
                   <div className="text-sm text-gray-500">
-                    請先選擇地區，然後點擊頁面底部的「保存所有資料」按鈕
+                    請勾選您願意前往授課的地區，然後點擊頁面底部的「保存所有資料」按鈕
                   </div>
                 )}
               </div>
