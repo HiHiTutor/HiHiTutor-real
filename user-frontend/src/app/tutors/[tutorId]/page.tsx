@@ -122,14 +122,14 @@ export default function TutorDetailPage() {
               <div className="space-y-3 max-sm:space-y-2 max-[700px]:space-y-2">
                 {tutor.teachingMethods && tutor.teachingMethods.length > 0 ? (
                   <div className="flex items-start">
-                    <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">教學方式：</span>
+                    <span className="font-medium text-sm w-24 flex-shrink-0 max-sm:w-20 max-[700px]:w-20">教學方式：</span>
                     <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
                       {formatTeachingSubModes(tutor.teachingMethods)}
                     </span>
                   </div>
                 ) : (
                   <div className="flex items-start">
-                    <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">教學方式：</span>
+                    <span className="font-medium text-sm w-24 flex-shrink-0 max-sm:w-20 max-[700px]:w-20">教學方式：</span>
                     <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
                       暫未設定
                     </span>
@@ -138,14 +138,14 @@ export default function TutorDetailPage() {
                 
                 {tutor.hourlyRate ? (
                   <div className="flex items-start">
-                    <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">每小時堂費：</span>
+                    <span className="font-medium text-sm w-24 flex-shrink-0 max-sm:w-20 max-[700px]:w-20">每小時堂費：</span>
                     <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
                       ${tutor.hourlyRate}
                     </span>
                   </div>
                 ) : (
                   <div className="flex items-start">
-                    <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">每小時堂費：</span>
+                    <span className="font-medium text-sm w-24 flex-shrink-0 max-sm:w-20 max-[700px]:w-20">每小時堂費：</span>
                     <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
                       暫未設定
                     </span>
@@ -154,7 +154,7 @@ export default function TutorDetailPage() {
                 
                 {/* 教授地區 - 簡化條件判斷 */}
                 <div className="flex items-start">
-                  <span className="font-medium text-sm w-20 flex-shrink-0 max-sm:w-16 max-[700px]:w-16">教授地區：</span>
+                  <span className="font-medium text-sm w-24 flex-shrink-0 max-sm:w-20 max-[700px]:w-20">教授地區：</span>
                   <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
                     {tutor.teachingAreas && tutor.teachingAreas.length > 0 ? (
                       formatRegions(tutor.teachingAreas)
