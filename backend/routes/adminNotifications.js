@@ -40,6 +40,7 @@ router.get('/tutor-changes', verifyToken, isAdmin, async (req, res) => {
       
       return {
         tutorId: validTutorId,
+        userId: tutor.userId || tutor._id.toString(), // 添加 userId 用於用戶詳情頁面連結
         name: tutor.name || '未知姓名',
         email: tutor.email || '未知郵箱',
         changes: (tutor.profileChangeLog || []).map(change => ({
@@ -96,6 +97,7 @@ router.get('/tutor-changes/:tutorId', verifyToken, isAdmin, async (req, res) => 
     
     const formattedChanges = {
       tutorId: tutor.tutorId || tutor.userId || `unknown_${tutor._id}`,
+      userId: tutor.userId || tutor._id.toString(), // 添加 userId 用於用戶詳情頁面連結
       name: tutor.name || '未知姓名',
       email: tutor.email || '未知郵箱',
       changes: (tutor.profileChangeLog || []).map(change => ({

@@ -47,6 +47,7 @@ import api from '../services/api';
 
 interface TutorChange {
   tutorId: string;
+  userId: string; // 添加 userId 用於用戶詳情頁面連結
   name: string;
   email: string;
   changes: Array<{
@@ -186,9 +187,9 @@ const TutorChangeMonitor: React.FC = () => {
     setDetailDialogOpen(true);
   };
 
-  const handleViewUserDetail = (tutorId: string) => {
-    // 在新標籤頁中打開用戶詳情頁面
-    window.open(`/users/${tutorId}`, '_blank');
+  const handleViewUserDetail = (userId: string) => {
+    // 在新標籤頁中打開用戶詳情頁面，使用 userId 而不是 tutorId
+    window.open(`/users/${userId}`, '_blank');
   };
 
   const closeDetailDialog = () => {
@@ -324,7 +325,7 @@ const TutorChangeMonitor: React.FC = () => {
                       <Tooltip title="查看用戶詳情">
                         <IconButton 
                           size="small" 
-                          onClick={() => handleViewUserDetail(tutor.tutorId)}
+                          onClick={() => handleViewUserDetail(tutor.userId)}
                           color="secondary"
                         >
                           <PersonIcon />
