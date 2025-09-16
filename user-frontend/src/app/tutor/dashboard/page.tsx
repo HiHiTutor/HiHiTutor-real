@@ -485,6 +485,8 @@ export default function TutorDashboardPage() {
       console.log('🔍 Processed tutor profile data:', data);
       console.log('🔍 Education field:', data.tutorProfile?.educationLevel || data.education);
       console.log('🔍 Profile status:', data.profileStatus);
+      console.log('🔍 Birth date in data:', data.birthDate);
+      console.log('🔍 Birth date in tutorProfile:', data.tutorProfile?.birthDate);
       
              // 確保科目數據正確設置
        const subjects = data.tutorProfile?.subjects || data.subjects || [];
@@ -541,26 +543,33 @@ export default function TutorDashboardPage() {
       
       // 處理出生日期，確保正確的格式
       let processedBirthDate: Date | undefined = undefined;
-      if (data.birthDate) {
-        if (data.birthDate instanceof Date) {
-          processedBirthDate = data.birthDate;
-        } else if (typeof data.birthDate === 'string') {
-          processedBirthDate = new Date(data.birthDate);
-        } else if (typeof data.birthDate === 'number') {
-          processedBirthDate = new Date(data.birthDate);
+      
+      // 嘗試從多個位置獲取出生日期
+      const birthDateValue = data.birthDate || data.tutorProfile?.birthDate;
+      
+      if (birthDateValue) {
+        if (birthDateValue instanceof Date) {
+          processedBirthDate = birthDateValue;
+        } else if (typeof birthDateValue === 'string') {
+          processedBirthDate = new Date(birthDateValue);
+        } else if (typeof birthDateValue === 'number') {
+          processedBirthDate = new Date(birthDateValue);
         }
         
         // 檢查日期是否有效
         if (processedBirthDate && isNaN(processedBirthDate.getTime())) {
-          console.warn('⚠️ 無效的出生日期:', data.birthDate);
+          console.warn('⚠️ 無效的出生日期:', birthDateValue);
           processedBirthDate = undefined;
         }
       }
       
       console.log('🔍 處理出生日期:', { 
-        original: data.birthDate, 
+        dataBirthDate: data.birthDate,
+        tutorProfileBirthDate: data.tutorProfile?.birthDate,
+        birthDateValue: birthDateValue,
         processed: processedBirthDate,
-        type: typeof data.birthDate 
+        dataBirthDateType: typeof data.birthDate,
+        tutorProfileBirthDateType: typeof data.tutorProfile?.birthDate
       });
 
       // 構建新的formData，優先使用tutorProfile中的數據
