@@ -1455,27 +1455,6 @@ export default function TutorDashboardPage() {
                   <Label htmlFor="online-teaching">網上課程</Label>
                 </div>
                 
-                {/* 混合模式 */}
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="both-teaching"
-                    checked={formData.teachingMethods.includes('both')}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setFormData(prev => ({
-                          ...prev,
-                          teachingMethods: [...prev.teachingMethods, 'both']
-                        }));
-                      } else {
-                        setFormData(prev => ({
-                          ...prev,
-                          teachingMethods: prev.teachingMethods.filter(m => m !== 'both')
-                        }));
-                      }
-                    }}
-                  />
-                  <Label htmlFor="both-teaching">混合模式（面授+網上）</Label>
-                </div>
               </div>
               
               {/* 說明文字 */}
