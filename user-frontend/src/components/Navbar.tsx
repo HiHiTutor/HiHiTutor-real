@@ -121,13 +121,9 @@ const Navbar = () => {
                   <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     個人資料
                   </Link>
-                  {user.userType === 'tutor' ? (
+                  {user.userType === 'tutor' && (
                     <Link href="/tutor/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       導師中心
-                    </Link>
-                  ) : (
-                    <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      儀表板
                     </Link>
                   )}
                   <button
@@ -193,13 +189,9 @@ const Navbar = () => {
                     <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={() => setDropdownOpen(false)}>
                       個人資料
                     </Link>
-                    {user.userType === 'tutor' ? (
+                    {user.userType === 'tutor' && (
                       <Link href="/tutor/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={() => setDropdownOpen(false)}>
                         導師中心
-                      </Link>
-                    ) : (
-                      <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={() => setDropdownOpen(false)}>
-                        儀表板
                       </Link>
                     )}
                     <button
