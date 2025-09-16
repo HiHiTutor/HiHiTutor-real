@@ -812,6 +812,7 @@ export default function TutorDashboardPage() {
   };
 
   const handleBirthDateChange = (type: 'year' | 'month' | 'day', value: number) => {
+    console.log('🔍 handleBirthDateChange 被調用:', { type, value, currentState: { birthYear, birthMonth, birthDay } });
     let newYear = birthYear;
     let newMonth = birthMonth;
     let newDay = birthDay;
