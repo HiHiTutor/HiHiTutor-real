@@ -191,6 +191,7 @@ export default function TutorDashboardPage() {
       const regions = await response.json();
       console.log('✅ 載入地區選項:', regions);
       setRegionOptions(regions);
+      setLoadingRegions(false);
     } catch (error) {
       console.error('❌ 載入地區選項失敗:', error);
       // 如果API失敗，使用靜態資料作為備用
