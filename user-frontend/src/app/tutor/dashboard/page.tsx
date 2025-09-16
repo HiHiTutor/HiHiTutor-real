@@ -423,11 +423,37 @@ export default function TutorDashboardPage() {
     // 移除定期檢查審批狀態的功能 - 用戶要求移除自動檢查
 
   useEffect(() => {
+    console.log('🔍 處理出生日期 useEffect:', formData.birthDate);
     if (formData.birthDate) {
-      const date = new Date(formData.birthDate);
-      setBirthYear(date.getFullYear());
-      setBirthMonth(date.getMonth() + 1);
-      setBirthDay(date.getDate());
+      let date: Date;
+      
+      if (formData.birthDate instanceof Date) {
+        date = formData.birthDate;
+      } else {
+        date = new Date(formData.birthDate);
+      }
+      
+      // 檢查日期是否有效
+      if (!isNaN(date.getTime())) {
+        console.log('✅ 設置出生日期:', {
+          year: date.getFullYear(),
+          month: date.getMonth() + 1,
+          day: date.getDate()
+        });
+        setBirthYear(date.getFullYear());
+        setBirthMonth(date.getMonth() + 1);
+        setBirthDay(date.getDate());
+      } else {
+        console.warn('⚠️ 無效的出生日期，無法設置:', formData.birthDate);
+        setBirthYear(undefined);
+        setBirthMonth(undefined);
+        setBirthDay(undefined);
+      }
+    } else {
+      console.log('🔍 沒有出生日期數據');
+      setBirthYear(undefined);
+      setBirthMonth(undefined);
+      setBirthDay(undefined);
     }
   }, [formData.birthDate]);
 
@@ -514,12 +540,36 @@ export default function TutorDashboardPage() {
           console.log('✅ 強制使用 subRegions 作為權威數據源:', teachingAreas);
         }
       
+      // 處理出生日期，確保正確的格式
+      let processedBirthDate: Date | undefined = undefined;
+      if (data.birthDate) {
+        if (data.birthDate instanceof Date) {
+          processedBirthDate = data.birthDate;
+        } else if (typeof data.birthDate === 'string') {
+          processedBirthDate = new Date(data.birthDate);
+        } else if (typeof data.birthDate === 'number') {
+          processedBirthDate = new Date(data.birthDate);
+        }
+        
+        // 檢查日期是否有效
+        if (processedBirthDate && isNaN(processedBirthDate.getTime())) {
+          console.warn('⚠️ 無效的出生日期:', data.birthDate);
+          processedBirthDate = undefined;
+        }
+      }
+      
+      console.log('🔍 處理出生日期:', { 
+        original: data.birthDate, 
+        processed: processedBirthDate,
+        type: typeof data.birthDate 
+      });
+
       // 構建新的formData，優先使用tutorProfile中的數據
       const newFormData = {
         tutorId: data.tutorId || data.userId || '',
         name: data.name || '',
         gender: data.gender || 'male',
-        birthDate: data.birthDate,
+        birthDate: processedBirthDate,
         subjects: subjects,
         teachingAreas: teachingAreas,
         teachingMethods: data.teachingMethods || [],
