@@ -556,12 +556,24 @@ export default function TutorDashboardPage() {
 
       await tutorApi.updateProfile(completeFormData);
       
+      // 更新本地 formData 以反映最新的選擇
+      const updatedTeachingAreas = getAllSelectedSubRegions().map(subRegion => {
+        const region = regionOptions.find(r => r.regions?.some(sr => sr.value === subRegion));
+        if (region) {
+          return `${region.value}-${subRegion}`;
+        }
+        return subRegion;
+      });
+      
+      setFormData(prev => ({
+        ...prev,
+        teachingAreas: updatedTeachingAreas
+      }));
+      
       // 觸發用戶數據更新事件
       window.dispatchEvent(new Event('userUpdate'));
       
       toast.success('所有資料更新成功，已即時生效');
-      
-      // 不需要強制刷新頁面，數據已經更新
     } catch (error) {
       console.error('Error updating tutor profile:', error);
       toast.error(error instanceof Error ? error.message : '更新導師資料失敗');
