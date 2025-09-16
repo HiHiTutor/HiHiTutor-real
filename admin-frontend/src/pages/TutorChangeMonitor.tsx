@@ -38,7 +38,8 @@ import {
   ExpandMore as ExpandMoreIcon,
   Notifications as NotificationsIcon,
   Warning as WarningIcon,
-  CheckCircle as CheckCircleIcon
+  CheckCircle as CheckCircleIcon,
+  Person as PersonIcon
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { zhTW } from 'date-fns/locale';
@@ -185,6 +186,11 @@ const TutorChangeMonitor: React.FC = () => {
     setDetailDialogOpen(true);
   };
 
+  const handleViewUserDetail = (tutorId: string) => {
+    // 在新標籤頁中打開用戶詳情頁面
+    window.open(`/users/${tutorId}`, '_blank');
+  };
+
   const closeDetailDialog = () => {
     setDetailDialogOpen(false);
     setSelectedTutor(null);
@@ -286,6 +292,7 @@ const TutorChangeMonitor: React.FC = () => {
                   <TableCell>電子郵件</TableCell>
                   <TableCell>最近修改</TableCell>
                   <TableCell>修改次數</TableCell>
+                  <TableCell>用戶詳情</TableCell>
                   <TableCell>操作</TableCell>
                 </TableRow>
               </TableHead>
@@ -312,6 +319,17 @@ const TutorChangeMonitor: React.FC = () => {
                         color="primary" 
                         size="small" 
                       />
+                    </TableCell>
+                    <TableCell>
+                      <Tooltip title="查看用戶詳情">
+                        <IconButton 
+                          size="small" 
+                          onClick={() => handleViewUserDetail(tutor.tutorId)}
+                          color="secondary"
+                        >
+                          <PersonIcon />
+                        </IconButton>
+                      </Tooltip>
                     </TableCell>
                     <TableCell>
                       <Tooltip title="查看詳細修改記錄">
