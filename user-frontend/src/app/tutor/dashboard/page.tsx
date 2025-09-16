@@ -152,6 +152,7 @@ export default function TutorDashboardPage() {
   const [birthYear, setBirthYear] = useState<number | undefined>(undefined);
   const [birthMonth, setBirthMonth] = useState<number | undefined>(undefined);
   const [birthDay, setBirthDay] = useState<number | undefined>(undefined);
+  const [isEditingBirthDate, setIsEditingBirthDate] = useState(false);
 
   // 添加部分保存的狀態
   const [savingSection, setSavingSection] = useState<string | null>(null);
@@ -811,6 +812,42 @@ export default function TutorDashboardPage() {
     }
   };
 
+  // 格式化出生日期顯示
+  const formatBirthDateDisplay = () => {
+    if (birthYear && birthMonth && birthDay) {
+      return `${birthYear}年${birthMonth}月${birthDay}日`;
+    }
+    return '未設定';
+  };
+
+  // 開始編輯出生日期
+  const startEditingBirthDate = () => {
+    setIsEditingBirthDate(true);
+  };
+
+  // 取消編輯出生日期
+  const cancelEditingBirthDate = () => {
+    setIsEditingBirthDate(false);
+    // 重置為原始值
+    if (formData.birthDate) {
+      const date = formData.birthDate instanceof Date ? formData.birthDate : new Date(formData.birthDate);
+      if (!isNaN(date.getTime())) {
+        setBirthYear(date.getFullYear());
+        setBirthMonth(date.getMonth() + 1);
+        setBirthDay(date.getDate());
+      }
+    }
+  };
+
+  // 保存出生日期
+  const saveBirthDate = () => {
+    if (birthYear && birthMonth && birthDay) {
+      const newDate = new Date(birthYear, birthMonth - 1, birthDay);
+      setFormData((prev: TutorProfile) => ({ ...prev, birthDate: newDate }));
+      setIsEditingBirthDate(false);
+    }
+  };
+
   const handleBirthDateChange = (type: 'year' | 'month' | 'day', value: number) => {
     console.log('🔍 handleBirthDateChange 被調用:', { type, value, currentState: { birthYear, birthMonth, birthDay } });
     let newYear = birthYear;
@@ -1107,57 +1144,93 @@ export default function TutorDashboardPage() {
             {/* 出生日期 */}
             <div className="space-y-2">
               <Label>出生日期</Label>
-              <div className="grid grid-cols-3 gap-4">
-                <Select
-                  value={birthYear?.toString() || ''}
-                  onValueChange={(value) => handleBirthDateChange('year', parseInt(value))}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="年份" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {generateYearOptions().map((year) => (
-                      <SelectItem key={year} value={year.toString()}>
-                        {year}年
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              {!isEditingBirthDate ? (
+                // 顯示模式
+                <div className="flex items-center justify-between p-3 border rounded-md bg-gray-50">
+                  <span className="text-gray-700">{formatBirthDateDisplay()}</span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={startEditingBirthDate}
+                  >
+                    修改
+                  </Button>
+                </div>
+              ) : (
+                // 編輯模式
+                <div className="space-y-3">
+                  <div className="grid grid-cols-3 gap-4">
+                    <Select
+                      value={birthYear?.toString() || ''}
+                      onValueChange={(value) => handleBirthDateChange('year', parseInt(value))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="年份" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {generateYearOptions().map((year) => (
+                          <SelectItem key={year} value={year.toString()}>
+                            {year}年
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
-                <Select
-                  value={birthMonth?.toString() || ''}
-                  onValueChange={(value) => handleBirthDateChange('month', parseInt(value))}
-                  disabled={!birthYear}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="月份" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {MONTHS.map((month) => (
-                      <SelectItem key={month} value={month.toString()}>
-                        {month}月
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                    <Select
+                      value={birthMonth?.toString() || ''}
+                      onValueChange={(value) => handleBirthDateChange('month', parseInt(value))}
+                      disabled={!birthYear}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="月份" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {MONTHS.map((month) => (
+                          <SelectItem key={month} value={month.toString()}>
+                            {month}月
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
-                <Select
-                  value={birthDay?.toString() || ''}
-                  onValueChange={(value) => handleBirthDateChange('day', parseInt(value))}
-                  disabled={!birthYear || !birthMonth}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="日期" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {birthYear && birthMonth && generateDayOptions(birthYear, birthMonth).map((day) => (
-                      <SelectItem key={day} value={day.toString()}>
-                        {day}日
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                    <Select
+                      value={birthDay?.toString() || ''}
+                      onValueChange={(value) => handleBirthDateChange('day', parseInt(value))}
+                      disabled={!birthYear || !birthMonth}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="日期" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {birthYear && birthMonth && generateDayOptions(birthYear, birthMonth).map((day) => (
+                          <SelectItem key={day} value={day.toString()}>
+                            {day}日
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={saveBirthDate}
+                      disabled={!birthYear || !birthMonth || !birthDay}
+                    >
+                      保存
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={cancelEditingBirthDate}
+                    >
+                      取消
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 學歷、相關科目公開試成績 */}
