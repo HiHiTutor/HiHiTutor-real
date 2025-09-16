@@ -176,9 +176,91 @@ export default function TutorDashboardPage() {
   const { user } = useUser();
 
   useEffect(() => {
-    fetchTutorProfile();
-    fetchRegionOptions();
+    const loadData = async () => {
+      await fetchRegionOptions();
+      await fetchTutorProfile();
+    };
+    loadData();
   }, []);
+
+  // 當 regionOptions 載入完成後，處理已選地區
+  useEffect(() => {
+    if (regionOptions.length > 0 && formData.teachingAreas.length > 0) {
+      processTeachingAreas(formData.teachingAreas);
+    }
+  }, [regionOptions, formData.teachingAreas]);
+
+  // 處理地區狀態設置的函數
+  const processTeachingAreas = (teachingAreas: string[]) => {
+    if (teachingAreas.length === 0 || regionOptions.length === 0) return;
+    
+    console.log('🔍 處理已選地區:', teachingAreas);
+    
+    // 根據已選地區設置狀態
+    const subRegionsByRegion: {[key: string]: string[]} = {};
+    
+    teachingAreas.forEach((area: string) => {
+      console.log(`🔍 處理地區: ${area}`);
+      
+      // 嘗試通過 value 匹配
+      let found = false;
+      for (const region of regionOptions) {
+        const subRegion = region.regions?.find((sr: { value: string; label: string }) => sr.value === area);
+        if (subRegion) {
+          if (!subRegionsByRegion[region.value]) {
+            subRegionsByRegion[region.value] = [];
+          }
+          subRegionsByRegion[region.value].push(area);
+          found = true;
+          console.log(`✅ 通過 value 匹配: ${area} -> ${region.label}`);
+          break;
+        }
+      }
+      
+      // 如果通過 value 沒有找到，嘗試通過 label 匹配
+      if (!found) {
+        for (const region of regionOptions) {
+          const subRegion = region.regions?.find((sr: { value: string; label: string }) => sr.label === area);
+          if (subRegion) {
+            if (!subRegionsByRegion[region.value]) {
+              subRegionsByRegion[region.value] = [];
+            }
+            subRegionsByRegion[region.value].push(subRegion.value);
+            found = true;
+            console.log(`✅ 通過 label 匹配: ${area} -> ${region.label} -> ${subRegion.value}`);
+            break;
+          }
+        }
+      }
+      
+      // 如果還是沒有找到，嘗試通過模糊匹配
+      if (!found) {
+        for (const region of regionOptions) {
+          const subRegion = region.regions?.find((sr: { value: string; label: string }) => 
+            sr.label.includes(area) || area.includes(sr.label) ||
+            sr.value.includes(area) || area.includes(sr.value)
+          );
+          if (subRegion) {
+            if (!subRegionsByRegion[region.value]) {
+              subRegionsByRegion[region.value] = [];
+            }
+            subRegionsByRegion[region.value].push(subRegion.value);
+            found = true;
+            console.log(`✅ 通過模糊匹配: ${area} -> ${region.label} -> ${subRegion.value}`);
+            break;
+          }
+        }
+      }
+      
+      // 如果還是沒有找到，記錄警告
+      if (!found) {
+        console.warn(`⚠️ 無法匹配地區: ${area}`);
+      }
+    });
+    
+    console.log('🔍 設置的地區狀態:', subRegionsByRegion);
+    setSelectedSubRegionsByRegion(subRegionsByRegion);
+  };
 
   // 載入地區選項
   const fetchRegionOptions = async () => {
@@ -430,76 +512,6 @@ export default function TutorDashboardPage() {
       setNewSubjects(subjects);
       setNewAvailableTimes(availableTime);
       setPublicCertificates(publicCertificates);
-      
-        // 設置地區選擇狀態
-  if (teachingAreas.length > 0) {
-    console.log('🔍 處理已選地區:', teachingAreas);
-    
-    // 根據已選地區設置狀態
-    const subRegionsByRegion: {[key: string]: string[]} = {};
-    
-    teachingAreas.forEach((area: string) => {
-      console.log(`🔍 處理地區: ${area}`);
-      
-      // 嘗試通過 value 匹配
-      let found = false;
-      for (const region of regionOptions) {
-        const subRegion = region.regions?.find((sr: { value: string; label: string }) => sr.value === area);
-        if (subRegion) {
-          if (!subRegionsByRegion[region.value]) {
-            subRegionsByRegion[region.value] = [];
-          }
-          subRegionsByRegion[region.value].push(area);
-          found = true;
-          console.log(`✅ 通過 value 匹配: ${area} -> ${region.label}`);
-          break;
-        }
-      }
-      
-      // 如果通過 value 沒有找到，嘗試通過 label 匹配
-      if (!found) {
-        for (const region of regionOptions) {
-          const subRegion = region.regions?.find((sr: { value: string; label: string }) => sr.label === area);
-          if (subRegion) {
-            if (!subRegionsByRegion[region.value]) {
-              subRegionsByRegion[region.value] = [];
-            }
-            subRegionsByRegion[region.value].push(subRegion.value);
-            found = true;
-            console.log(`✅ 通過 label 匹配: ${area} -> ${region.label} -> ${subRegion.value}`);
-            break;
-          }
-        }
-      }
-      
-      // 如果還是沒有找到，嘗試通過模糊匹配
-      if (!found) {
-        for (const region of regionOptions) {
-          const subRegion = region.regions?.find((sr: { value: string; label: string }) => 
-            sr.label.includes(area) || area.includes(sr.label) ||
-            sr.value.includes(area) || area.includes(sr.value)
-          );
-          if (subRegion) {
-            if (!subRegionsByRegion[region.value]) {
-              subRegionsByRegion[region.value] = [];
-            }
-            subRegionsByRegion[region.value].push(subRegion.value);
-            found = true;
-            console.log(`✅ 通過模糊匹配: ${area} -> ${region.label} -> ${subRegion.value}`);
-            break;
-          }
-        }
-      }
-      
-      // 如果還是沒有找到，記錄警告
-      if (!found) {
-        console.warn(`⚠️ 無法匹配地區: ${area}`);
-      }
-    });
-    
-    console.log('🔍 設置的地區狀態:', subRegionsByRegion);
-    setSelectedSubRegionsByRegion(subRegionsByRegion);
-  }
     } catch (error) {
       console.error('❌ 獲取資料失敗:', error);
       toast.error(error instanceof Error ? error.message : '獲取資料失敗，請稍後再試');
