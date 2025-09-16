@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 interface User {
   id: string
   userId?: string  // 添加 userId 字段
+  tutorId?: string  // 添加 tutorId 字段
   name: string
   email?: string
   phone?: string
