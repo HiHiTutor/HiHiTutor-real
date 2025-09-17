@@ -642,6 +642,7 @@ export default function TutorDashboardPage() {
     // 準備完整的表單數據
     const completeFormData = {
       ...formData,
+      birthDate: formData.birthDate, // 確保出生日期被包含
       tutorProfile: {
         subRegions: getAllSelectedSubRegions().map(subRegion => {
           // 將簡短名稱轉換為完整路徑格式
