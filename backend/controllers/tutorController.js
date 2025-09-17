@@ -719,7 +719,7 @@ const getTutors = async (req, res) => {
 
     // 執行查詢
     const tutorResults = await User.find(query)
-      .select('userId tutorId name avatar subjects teachingAreas teachingMethods experience rating introduction')
+      .select('userId tutorId name avatar subjects teachingAreas teachingMethods experience rating introduction tutorProfile')
       .sort(sort)
       .skip((page - 1) * limit)
       .limit(parseInt(limit));
