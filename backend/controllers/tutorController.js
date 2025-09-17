@@ -168,7 +168,7 @@ const getAllTutors = async (req, res) => {
           isActive: true,
           status: 'active',
           isVip: true 
-        }).select('name avatar tutorProfile rating isVip isTop createdAt tutorId subjects');
+        }).select('name avatar tutorProfile rating isVip isTop createdAt tutorId subjects teachingAreas teachingMethods');
         
         const topTutors = await User.find({ 
           userType: 'tutor',
@@ -176,7 +176,7 @@ const getAllTutors = async (req, res) => {
           status: 'active',
           isTop: true,
           isVip: false  // 排除 VIP，避免重複
-        }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects');
+        }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects teachingAreas teachingMethods');
         
         const normalTutors = await User.find({ 
           userType: 'tutor',
@@ -184,7 +184,7 @@ const getAllTutors = async (req, res) => {
           status: 'active',
           isVip: false,
           isTop: false
-        }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects');
+        }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects teachingAreas teachingMethods');
       
       console.log(`📊 找到導師數量:`);
       console.log(`- VIP 導師: ${vipTutors.length} 個`);
@@ -317,7 +317,7 @@ const getAllTutors = async (req, res) => {
         name: tutor.name,
         subjects: tutor.tutorProfile?.subjects || [],
         education: tutor.tutorProfile?.educationLevel || '',
-        experience: `${tutor.tutorProfile?.teachingExperienceYears || 0}年教學經驗`,
+        experience: tutor.tutorProfile?.teachingExperienceYears || 0, // 改為數字格式，與詳情頁面一致
         rating: tutor.rating || 0,
         avatar: tutor.avatar || tutor.tutorProfile?.avatarUrl || '',
         isVip: tutor.isVip || false,
@@ -326,9 +326,10 @@ const getAllTutors = async (req, res) => {
         date: tutor.createdAt,
         teachingModes: tutor.tutorProfile?.teachingMethods || [],
         regions: tutor.tutorProfile?.teachingAreas || [],
-        // 添加性別信息
+        birthDate: tutor.tutorProfile?.birthDate, // 添加出生日期
         tutorProfile: {
-          gender: tutor.tutorProfile?.gender || 'male'
+          gender: tutor.tutorProfile?.gender || 'male',
+          birthDate: tutor.tutorProfile?.birthDate // 添加出生日期到 tutorProfile
         }
       }));
       
@@ -401,7 +402,7 @@ const getAllTutors = async (req, res) => {
              // 執行查詢
        const limitNum = parseInt(limit) || 10000;
        const dbTutors = await User.find(query)
-         .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects')
+         .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects teachingAreas teachingMethods')
          .limit(limitNum);
       
       // 按優先級排序：VIP > 置頂 > 評分 > 註冊時間
