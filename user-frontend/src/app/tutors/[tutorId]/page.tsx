@@ -36,14 +36,21 @@ export default function TutorDetailPage() {
         setLoading(true);
         console.log('🔍 開始獲取導師詳情:', tutorId);
         
-        // 同時調用兩個API
-        const [detailResponse, profileResponse] = await Promise.all([
-          fetch(`/api/tutors/${tutorId}`),
-          fetch(`/api/tutors/profile`)
-        ]);
+        // 先調用導師詳情API
+        const detailResponse = await fetch(`/api/tutors/${tutorId}`);
+        
+        // 如果用戶已登入，才調用導師資料API
+        let profileResponse = null;
+        if (user) {
+          try {
+            profileResponse = await fetch(`/api/tutors/profile`);
+          } catch (error) {
+            console.log('⚠️ 導師資料API調用失敗:', error);
+          }
+        }
         
         console.log('📊 詳情API響應狀態:', detailResponse.status);
-        console.log('📊 資料API響應狀態:', profileResponse.status);
+        console.log('📊 資料API響應狀態:', profileResponse?.status || '未調用');
         
         if (!detailResponse.ok) {
           const errorText = await detailResponse.text();
@@ -67,7 +74,7 @@ export default function TutorDetailPage() {
         }
         
         // 處理資料API響應
-        if (profileResponse.ok) {
+        if (profileResponse && profileResponse.ok) {
           const profileResult = await profileResponse.json();
           console.log('📥 資料API響應數據:', profileResult);
           if (profileResult.success && profileResult.data) {
@@ -75,6 +82,8 @@ export default function TutorDetailPage() {
             console.log('🔍 導師資料birthDate:', profileResult.data.birthDate);
             setTutorProfile(profileResult.data);
           }
+        } else if (profileResponse) {
+          console.log('⚠️ 導師資料API響應失敗:', profileResponse.status);
         }
       } catch (error) {
         console.error('❌ 獲取導師詳情錯誤:', error);
