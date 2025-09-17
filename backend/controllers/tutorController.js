@@ -168,7 +168,7 @@ const getAllTutors = async (req, res) => {
           isActive: true,
           status: 'active',
           isVip: true 
-        }).select('name avatar tutorProfile rating isVip isTop createdAt tutorId subjects teachingAreas teachingMethods');
+        }).select('name avatar tutorProfile rating isVip isTop createdAt tutorId subjects teachingAreas teachingMethods').lean();
         
         const topTutors = await User.find({ 
           userType: 'tutor',
@@ -176,7 +176,7 @@ const getAllTutors = async (req, res) => {
           status: 'active',
           isTop: true,
           isVip: false  // 排除 VIP，避免重複
-        }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects teachingAreas teachingMethods');
+        }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects teachingAreas teachingMethods').lean();
         
         const normalTutors = await User.find({ 
           userType: 'tutor',
@@ -184,7 +184,7 @@ const getAllTutors = async (req, res) => {
           status: 'active',
           isVip: false,
           isTop: false
-        }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects teachingAreas teachingMethods');
+        }).select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects teachingAreas teachingMethods').lean();
       
       console.log(`📊 找到導師數量:`);
       console.log(`- VIP 導師: ${vipTutors.length} 個`);
@@ -403,6 +403,7 @@ const getAllTutors = async (req, res) => {
        const limitNum = parseInt(limit) || 10000;
        const dbTutors = await User.find(query)
          .select('name email avatar tutorProfile rating isVip isTop createdAt tutorId subjects teachingAreas teachingMethods')
+         .lean() // 添加 lean() 以獲取純 JavaScript 對象
          .limit(limitNum);
       
       // 按優先級排序：VIP > 置頂 > 評分 > 註冊時間
@@ -420,6 +421,13 @@ const getAllTutors = async (req, res) => {
       });
       
       console.log(`✅ 從資料庫找到 ${sortedTutors.length} 位導師`);
+      
+      // 調試：檢查第一個導師的完整數據
+      if (sortedTutors.length > 0) {
+        console.log('🔍 第一個導師的完整數據:', JSON.stringify(sortedTutors[0], null, 2));
+        console.log('🔍 第一個導師的 tutorProfile:', sortedTutors[0].tutorProfile);
+        console.log('🔍 第一個導師的 birthDate:', sortedTutors[0].tutorProfile?.birthDate);
+      }
       
       // 格式化資料庫結果
       tutors = sortedTutors.map(tutor => ({
