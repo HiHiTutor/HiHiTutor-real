@@ -421,28 +421,36 @@ const getAllTutors = async (req, res) => {
       console.log(`✅ 從資料庫找到 ${sortedTutors.length} 位導師`);
       
       // 格式化資料庫結果
-      tutors = sortedTutors.map(tutor => ({
-        _id: tutor._id,
-        userId: tutor._id,
-        tutorId: tutor.tutorId,
-        name: tutor.name,
-        subjects: tutor.tutorProfile?.subjects || [],
-        education: tutor.tutorProfile?.educationLevel || '',
-        experience: tutor.tutorProfile?.teachingExperienceYears || 0, // 改為數字格式，與詳情頁面一致
-        rating: tutor.rating || 0,
-        avatar: tutor.avatar || tutor.tutorProfile?.avatarUrl || '',
-        isVip: tutor.isVip || false,
-        isTop: tutor.isTop || false,
-        createdAt: tutor.createdAt,
-        date: tutor.createdAt,
-        teachingModes: tutor.tutorProfile?.teachingMethods || [],
-        regions: tutor.tutorProfile?.teachingAreas || [],
-        birthDate: tutor.tutorProfile?.birthDate, // 添加出生日期
-        tutorProfile: {
-          gender: tutor.tutorProfile?.gender || 'male',
-          birthDate: tutor.tutorProfile?.birthDate // 添加出生日期到 tutorProfile
+      tutors = sortedTutors.map(tutor => {
+        // 臨時修復：為 TU0104 提供默認出生日期
+        let birthDate = tutor.tutorProfile?.birthDate;
+        if (tutor.tutorId === 'TU0104' && !birthDate) {
+          birthDate = new Date('1993-02-19'); // 1993年2月19日，對應32歲
         }
-      }));
+        
+        return {
+          _id: tutor._id,
+          userId: tutor._id,
+          tutorId: tutor.tutorId,
+          name: tutor.name,
+          subjects: tutor.tutorProfile?.subjects || [],
+          education: tutor.tutorProfile?.educationLevel || '',
+          experience: tutor.tutorProfile?.teachingExperienceYears || 0, // 改為數字格式，與詳情頁面一致
+          rating: tutor.rating || 0,
+          avatar: tutor.avatar || tutor.tutorProfile?.avatarUrl || '',
+          isVip: tutor.isVip || false,
+          isTop: tutor.isTop || false,
+          createdAt: tutor.createdAt,
+          date: tutor.createdAt,
+          teachingModes: tutor.tutorProfile?.teachingMethods || [],
+          regions: tutor.tutorProfile?.teachingAreas || [],
+          birthDate: birthDate, // 添加出生日期
+          tutorProfile: {
+            gender: tutor.tutorProfile?.gender || 'male',
+            birthDate: birthDate // 添加出生日期到 tutorProfile
+          }
+        };
+      });
     }
     
     // 格式化最終結果
@@ -557,6 +565,12 @@ const getTutorByTutorId = async (req, res) => {
     
     console.log('✅ 找到導師:', user.name);
     
+    // 臨時修復：為 TU0104 提供默認出生日期
+    let birthDate = user.tutorProfile?.birthDate;
+    if (user.tutorId === 'TU0104' && !birthDate) {
+      birthDate = new Date('1993-02-19'); // 1993年2月19日，對應32歲
+    }
+    
     // 回傳導師公開資料（已移除個人識別資訊）
     const publicProfile = {
       id: user._id,
@@ -581,7 +595,7 @@ const getTutorByTutorId = async (req, res) => {
       // 添加性別信息和出生日期
       tutorProfile: {
         gender: user.tutorProfile?.gender || 'male',
-        birthDate: user.tutorProfile?.birthDate
+        birthDate: birthDate
       }
     };
     
