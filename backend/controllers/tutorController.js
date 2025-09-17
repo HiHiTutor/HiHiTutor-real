@@ -783,6 +783,8 @@ const getTutorDetail = async (req, res) => {
     }
 
     console.log('✅ 找到導師:', tutor.name);
+    console.log('🔍 導師tutorProfile:', tutor.tutorProfile);
+    console.log('🔍 導師tutorProfile.birthDate:', tutor.tutorProfile?.birthDate);
 
     // 回傳導師公開資料（已移除個人識別資訊）
     const publicData = {
