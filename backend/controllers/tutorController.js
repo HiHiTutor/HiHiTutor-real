@@ -420,6 +420,13 @@ const getAllTutors = async (req, res) => {
       
       console.log(`✅ 從資料庫找到 ${sortedTutors.length} 位導師`);
       
+      // 調試：檢查第一個導師的完整數據
+      if (sortedTutors.length > 0) {
+        console.log('🔍 第一個導師的完整數據:', JSON.stringify(sortedTutors[0], null, 2));
+        console.log('🔍 第一個導師的 tutorProfile:', sortedTutors[0].tutorProfile);
+        console.log('🔍 第一個導師的 birthDate:', sortedTutors[0].tutorProfile?.birthDate);
+      }
+      
       // 格式化資料庫結果
       tutors = sortedTutors.map(tutor => ({
         _id: tutor._id,
