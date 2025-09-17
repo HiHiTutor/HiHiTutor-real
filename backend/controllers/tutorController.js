@@ -437,8 +437,10 @@ const getAllTutors = async (req, res) => {
         date: tutor.createdAt,
         teachingModes: tutor.tutorProfile?.teachingMethods || [],
         regions: tutor.tutorProfile?.teachingAreas || [],
+        birthDate: tutor.tutorProfile?.birthDate, // 添加出生日期
         tutorProfile: {
-          gender: tutor.tutorProfile?.gender || 'male'
+          gender: tutor.tutorProfile?.gender || 'male',
+          birthDate: tutor.tutorProfile?.birthDate // 添加出生日期到 tutorProfile
         }
       }));
     }
@@ -576,9 +578,10 @@ const getTutorByTutorId = async (req, res) => {
       courseFeatures: user.tutorProfile?.courseFeatures || '',
       publicCertificates: user.tutorProfile?.publicCertificates || [],
       rating: user.rating || 0,
-      // 添加性別信息
+      // 添加性別信息和出生日期
       tutorProfile: {
-        gender: user.tutorProfile?.gender || 'male'
+        gender: user.tutorProfile?.gender || 'male',
+        birthDate: user.tutorProfile?.birthDate
       }
     };
     

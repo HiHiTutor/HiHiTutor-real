@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Rating from './Rating';
 import { getSubjectName } from '@/utils/translate';
 import { Tutor } from '@/types/tutor';
+import { calculateAge, formatAge } from '@/utils/ageUtils';
 
 interface TutorCardProps {
   tutor: Tutor;
@@ -28,6 +29,10 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
   
   // 獲取性別信息 - 處理兩種數據結構
   const gender = tutor.tutorProfile?.gender || tutor.gender;
+  
+  // 計算年齡 - 從多個位置獲取出生日期
+  const birthDate = tutor.tutorProfile?.birthDate || tutor.birthDate;
+  const age = calculateAge(birthDate);
   
   // 使用 tutorId 作為導航 ID，如果沒有則使用 userId 或 id
   const navigationId = tutor.tutorId || tutor.id;
@@ -89,8 +94,11 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
           )}
         </div>
         
-        <div className="text-sm text-yellow-700 max-sm:text-xs max-sm:text-center max-[700px]:text-sm max-[700px]:text-center">
-          <span>教學年資: {displayExperience}</span>
+        <div className="text-sm text-yellow-700 max-sm:text-xs max-sm:text-center max-[700px]:text-sm max-[700px]:text-center space-y-1">
+          <div className="flex justify-between items-center">
+            <span>年齡: {formatAge(age)}</span>
+            <span>教學年資: {displayExperience}</span>
+          </div>
         </div>
       </div>
     </Link>

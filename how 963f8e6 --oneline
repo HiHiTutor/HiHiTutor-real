@@ -1,0 +1,10 @@
+[33m33468b1[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Fix Vercel config and CORS
+[33m789d142[m Fix Vercel config - add proper builds and routes for Node.js app
+[33mc207a17[m Fix CORS credentials issue - use specific origins instead of wildcard
+[33mdd73630[m Fix Vercel config - remove invalid functions section
+[33m3c399ef[m Add comprehensive CORS fix with Vercel config
+[33mbcdb5a3[m Fix CORS issue for article upload API
+[33ma399286[m Fix image upload: add local file storage fallback when S3 not configured
+[33md033c78[m Fix TypeScript null check error in image error handling
+[33m3bf8b69[m Add cover image display to admin article approvals page
+[33mf740e26[m Complete article improvements: image click navigation, S3 upload, edit page image upload
