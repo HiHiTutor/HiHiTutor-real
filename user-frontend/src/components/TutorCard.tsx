@@ -25,17 +25,26 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
   const displayExperience = typeof rawExperience === 'number' ? `${rawExperience}年` : rawExperience || '0年';
   const displayEducation = tutor.education || tutor.tutorProfile?.education || '未指定';
   
-  // 頭像處理邏輯 - 優先使用用戶上傳的頭像，否則使用預設頭像
+  // 頭像處理邏輯 - 優先使用用戶上傳的頭像，否則使用性別對應的預設人形圖標
   const userAvatar = tutor.avatarUrl || tutor.avatar;
-  const defaultAvatar = '/avatars/default.png';
-  const displayAvatar = userAvatar || defaultAvatar;
+  const getDefaultAvatar = () => {
+    if (gender === 'male') {
+      return '/avatars/male-default.svg'; // 藍色男性人形圖標
+    } else if (gender === 'female') {
+      return '/avatars/female-default.svg'; // 粉紅色女性人形圖標
+    } else {
+      return '/avatars/default.png'; // 未知性別使用原預設圖標
+    }
+  };
+  const displayAvatar = userAvatar || getDefaultAvatar();
   const avatarOffsetX = tutor.avatarOffsetX || 50; // 預設置中
   
   // 頭像加載錯誤處理
-  const handleAvatarError = (e: React.SyntheticEvent<HTMLDivElement, Event>) => {
-    const target = e.currentTarget as HTMLDivElement;
-    if (target.style.backgroundImage !== `url(${defaultAvatar})`) {
-      target.style.backgroundImage = `url(${defaultAvatar})`;
+  const handleAvatarError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const target = e.currentTarget as HTMLImageElement;
+    const fallbackAvatar = getDefaultAvatar();
+    if (target.src !== fallbackAvatar) {
+      target.src = fallbackAvatar;
     }
   };
   
