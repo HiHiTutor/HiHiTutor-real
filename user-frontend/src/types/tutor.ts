@@ -25,6 +25,7 @@ export interface Tutor {
   region?: string;
   teachingModes?: string[];
   gender?: 'male' | 'female'; // 添加根級別性別字段
+  birthDate?: Date | string; // 添加出生日期字段
   
   // 新增：用戶升級做導師時填寫的欄位
   tutorProfile?: {
@@ -33,6 +34,7 @@ export interface Tutor {
     experience?: string;
     rating?: number;
     gender?: 'male' | 'female'; // 性別
+    birthDate?: Date | string; // 出生日期
     // 新增欄位
     teachingMode?: string; // 補習形式，如：上門／網上／面授
     teachingSubModes?: string[]; // 教學方式細項，如：Zoom／Google Meet
