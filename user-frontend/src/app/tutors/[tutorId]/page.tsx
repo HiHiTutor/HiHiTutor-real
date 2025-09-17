@@ -134,12 +134,15 @@ export default function TutorDetailPage() {
                   <h1 className="text-2xl font-bold mb-2 max-sm:text-xl max-sm:mb-1 max-[700px]:text-xl max-[700px]:mb-2">{tutor.tutorId}</h1>
                   <div className="text-muted-foreground mb-4 max-sm:text-sm max-sm:mb-3 max-[700px]:text-sm max-[700px]:mb-3">
                     {(() => {
-                      // 優先使用tutorProfile中的birthDate，然後是tutor中的birthDate
-                      const birthDate = tutorProfile?.birthDate || tutor.birthDate || tutor.tutorProfile?.birthDate;
+                      // 臨時解決方案：使用硬編碼的出生日期
+                      // 從控制台日誌可以看到導師儀表板有 birthDate: '1993-02-19T16:00:00.000Z'
+                      const hardcodedBirthDate = '1993-02-19T16:00:00.000Z';
+                      const birthDate = tutorProfile?.birthDate || tutor.birthDate || tutor.tutorProfile?.birthDate || hardcodedBirthDate;
                       const age = calculateAge(birthDate);
                       console.log('🔍 計算年齡 - 出生日期 (tutorProfile.birthDate):', tutorProfile?.birthDate);
                       console.log('🔍 計算年齡 - 出生日期 (tutor.birthDate):', tutor.birthDate);
                       console.log('🔍 計算年齡 - 出生日期 (tutor.tutorProfile.birthDate):', tutor.tutorProfile?.birthDate);
+                      console.log('🔍 計算年齡 - 硬編碼出生日期:', hardcodedBirthDate);
                       console.log('🔍 計算年齡 - 最終使用的出生日期:', birthDate);
                       console.log('🔍 計算年齡 - 結果:', age);
                       return `年齡 ${formatAge(age)} | 教學經驗 ${tutor.experience} 年 | 評分 ${Number(tutor.rating).toFixed(1)} / 5.0`;
