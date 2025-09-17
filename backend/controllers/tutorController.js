@@ -428,7 +428,7 @@ const getAllTutors = async (req, res) => {
         name: tutor.name,
         subjects: tutor.tutorProfile?.subjects || [],
         education: tutor.tutorProfile?.educationLevel || '',
-        experience: `${tutor.tutorProfile?.teachingExperienceYears || 0}年教學經驗`,
+        experience: tutor.tutorProfile?.teachingExperienceYears || 0, // 改為數字格式，與詳情頁面一致
         rating: tutor.rating || 0,
         avatar: tutor.avatar || tutor.tutorProfile?.avatarUrl || '',
         isVip: tutor.isVip || false,

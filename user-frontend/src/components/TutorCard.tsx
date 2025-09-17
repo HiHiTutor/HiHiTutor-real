@@ -22,7 +22,7 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
   const hasMoreSubjects = subjects.length > 2;
 
   const rawExperience = tutor.tutorProfile?.experience || tutor.experience;
-  const displayExperience = typeof rawExperience === 'number' ? `${rawExperience}年` : rawExperience || '未指定';
+  const displayExperience = typeof rawExperience === 'number' ? `${rawExperience}年` : rawExperience || '0年';
   const displayEducation = tutor.education || tutor.tutorProfile?.education || '未指定';
   const displayAvatar = tutor.avatarUrl || tutor.avatar || 'https://hi-hi-tutor-real-backend2.vercel.app/avatars/default.png';
   const avatarOffsetX = tutor.avatarOffsetX || 50; // 預設置中
