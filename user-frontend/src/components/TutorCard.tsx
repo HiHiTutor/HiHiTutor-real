@@ -24,8 +24,20 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
   const rawExperience = tutor.tutorProfile?.experience || tutor.experience;
   const displayExperience = typeof rawExperience === 'number' ? `${rawExperience}年` : rawExperience || '0年';
   const displayEducation = tutor.education || tutor.tutorProfile?.education || '未指定';
-  const displayAvatar = tutor.avatarUrl || tutor.avatar || 'https://hi-hi-tutor-real-backend2.vercel.app/avatars/default.png';
+  
+  // 頭像處理邏輯 - 優先使用用戶上傳的頭像，否則使用預設頭像
+  const userAvatar = tutor.avatarUrl || tutor.avatar;
+  const defaultAvatar = '/avatars/default.png';
+  const displayAvatar = userAvatar || defaultAvatar;
   const avatarOffsetX = tutor.avatarOffsetX || 50; // 預設置中
+  
+  // 頭像加載錯誤處理
+  const handleAvatarError = (e: React.SyntheticEvent<HTMLDivElement, Event>) => {
+    const target = e.currentTarget as HTMLDivElement;
+    if (target.style.backgroundImage !== `url(${defaultAvatar})`) {
+      target.style.backgroundImage = `url(${defaultAvatar})`;
+    }
+  };
   
   // 獲取性別信息 - 處理兩種數據結構
   const gender = tutor.tutorProfile?.gender || tutor.gender;
@@ -51,18 +63,29 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
       <div className="bg-white border border-yellow-200 p-4 rounded-2xl shadow-md hover:shadow-lg hover:border-yellow-300 transition-all duration-200 cursor-pointer max-sm:p-3 max-[700px]:p-4 bg-gradient-to-br from-white to-yellow-50">
         <div className="relative mx-auto mb-4 max-sm:mb-3 max-[700px]:mb-3">
           <div
-            className={`w-[100px] h-[100px] rounded-full overflow-hidden bg-center bg-cover mx-auto max-sm:w-[80px] max-sm:h-[80px] max-[700px]:w-[90px] max-[700px]:h-[90px] border-4 ${
+            className={`w-[100px] h-[100px] rounded-full overflow-hidden mx-auto max-sm:w-[80px] max-sm:h-[80px] max-[700px]:w-[90px] max-[700px]:h-[90px] border-4 ${
               gender === 'male' 
                 ? 'border-blue-400' 
                 : gender === 'female' 
                 ? 'border-pink-400' 
                 : 'border-yellow-100'
             }`}
-            style={{
-              backgroundImage: `url(${displayAvatar})`,
-              backgroundPositionX: `${avatarOffsetX}%`,
-            }}
-          />
+          >
+            <img
+              src={displayAvatar}
+              alt={`${displayName} 頭像`}
+              className="w-full h-full object-cover"
+              style={{
+                objectPosition: `${avatarOffsetX}% center`,
+              }}
+              onError={(e) => {
+                const target = e.currentTarget as HTMLImageElement;
+                if (target.src !== defaultAvatar) {
+                  target.src = defaultAvatar;
+                }
+              }}
+            />
+          </div>
           {/* 調試信息 - 開發環境顯示 */}
           {process.env.NODE_ENV === 'development' && (
             <div className="absolute top-0 left-0 bg-black bg-opacity-75 text-white text-xs p-1 rounded">
