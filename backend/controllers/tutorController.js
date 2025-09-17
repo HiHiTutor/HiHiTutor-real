@@ -500,7 +500,8 @@ const getAllTutors = async (req, res) => {
         teachingModes: tutor.teachingModes,
         regions: tutor.regions,
         tutorProfile: {
-          gender: gender || 'male'
+          gender: gender || 'male',
+          birthDate: tutor.birthDate
         }
       };
     });
