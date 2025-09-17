@@ -89,8 +89,9 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
               }}
               onError={(e) => {
                 const target = e.currentTarget as HTMLImageElement;
-                if (target.src !== defaultAvatar) {
-                  target.src = defaultAvatar;
+                const fallbackAvatar = getDefaultAvatar();
+                if (target.src !== fallbackAvatar) {
+                  target.src = fallbackAvatar;
                 }
               }}
             />
