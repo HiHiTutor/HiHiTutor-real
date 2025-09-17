@@ -26,6 +26,7 @@ export default function TutorDetailPage() {
   const { user, isLoading: userLoading } = useUser();
   const tutorId = typeof params?.tutorId === 'string' ? params.tutorId : '';
   const [tutor, setTutor] = useState<any>(null);
+  const [tutorProfile, setTutorProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showLoginMessage, setShowLoginMessage] = useState(false);
 
@@ -35,28 +36,45 @@ export default function TutorDetailPage() {
         setLoading(true);
         console.log('🔍 開始獲取導師詳情:', tutorId);
         
-        const response = await fetch(`/api/tutors/${tutorId}`);
-        console.log('📊 API 響應狀態:', response.status);
+        // 同時調用兩個API
+        const [detailResponse, profileResponse] = await Promise.all([
+          fetch(`/api/tutors/${tutorId}`),
+          fetch(`/api/tutors/profile`)
+        ]);
         
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('❌ API 錯誤:', errorText);
+        console.log('📊 詳情API響應狀態:', detailResponse.status);
+        console.log('📊 資料API響應狀態:', profileResponse.status);
+        
+        if (!detailResponse.ok) {
+          const errorText = await detailResponse.text();
+          console.error('❌ 詳情API錯誤:', errorText);
           throw new Error('獲取導師詳情失敗');
         }
         
-        const result = await response.json();
-        console.log('📥 API 響應數據:', result);
+        const detailResult = await detailResponse.json();
+        console.log('📥 詳情API響應數據:', detailResult);
         
-        if (result.success && result.data) {
-          console.log('✅ 設置導師數據:', result.data);
-          console.log('🔍 導師出生日期字段:', result.data.birthDate);
-          console.log('🔍 導師所有字段:', Object.keys(result.data));
-          console.log('🔍 導師tutorProfile:', result.data.tutorProfile);
-          console.log('🔍 導師tutorProfile.birthDate:', result.data.tutorProfile?.birthDate);
-          setTutor(result.data);
+        if (detailResult.success && detailResult.data) {
+          console.log('✅ 設置導師數據:', detailResult.data);
+          console.log('🔍 導師出生日期字段:', detailResult.data.birthDate);
+          console.log('🔍 導師所有字段:', Object.keys(detailResult.data));
+          console.log('🔍 導師tutorProfile:', detailResult.data.tutorProfile);
+          console.log('🔍 導師tutorProfile.birthDate:', detailResult.data.tutorProfile?.birthDate);
+          setTutor(detailResult.data);
         } else {
-          console.error('❌ API 響應格式錯誤:', result);
-          throw new Error(result.message || '獲取導師詳情失敗');
+          console.error('❌ 詳情API響應格式錯誤:', detailResult);
+          throw new Error(detailResult.message || '獲取導師詳情失敗');
+        }
+        
+        // 處理資料API響應
+        if (profileResponse.ok) {
+          const profileResult = await profileResponse.json();
+          console.log('📥 資料API響應數據:', profileResult);
+          if (profileResult.success && profileResult.data) {
+            console.log('✅ 設置導師資料:', profileResult.data);
+            console.log('🔍 導師資料birthDate:', profileResult.data.birthDate);
+            setTutorProfile(profileResult.data);
+          }
         }
       } catch (error) {
         console.error('❌ 獲取導師詳情錯誤:', error);
@@ -107,9 +125,10 @@ export default function TutorDetailPage() {
                   <h1 className="text-2xl font-bold mb-2 max-sm:text-xl max-sm:mb-1 max-[700px]:text-xl max-[700px]:mb-2">{tutor.tutorId}</h1>
                   <div className="text-muted-foreground mb-4 max-sm:text-sm max-sm:mb-3 max-[700px]:text-sm max-[700px]:mb-3">
                     {(() => {
-                      // 嘗試從多個位置獲取出生日期
-                      const birthDate = tutor.birthDate || tutor.tutorProfile?.birthDate;
+                      // 優先使用tutorProfile中的birthDate，然後是tutor中的birthDate
+                      const birthDate = tutorProfile?.birthDate || tutor.birthDate || tutor.tutorProfile?.birthDate;
                       const age = calculateAge(birthDate);
+                      console.log('🔍 計算年齡 - 出生日期 (tutorProfile.birthDate):', tutorProfile?.birthDate);
                       console.log('🔍 計算年齡 - 出生日期 (tutor.birthDate):', tutor.birthDate);
                       console.log('🔍 計算年齡 - 出生日期 (tutor.tutorProfile.birthDate):', tutor.tutorProfile?.birthDate);
                       console.log('🔍 計算年齡 - 最終使用的出生日期:', birthDate);
