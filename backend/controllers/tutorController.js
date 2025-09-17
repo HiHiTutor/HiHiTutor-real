@@ -804,14 +804,13 @@ const getTutorDetail = async (req, res) => {
       courseFeatures: tutor.tutorProfile?.courseFeatures || '',
       // 暫時回傳空的公開證書陣列，後續可以根據實際需求修改
       publicCertificates: [],
-      // 添加出生日期字段
-      birthDate: tutor.tutorProfile?.birthDate,
       rating: tutor.rating || 0,
       createdAt: tutor.createdAt,
       updatedAt: tutor.updatedAt,
       // 新增：用戶升級做導師時填寫的欄位
       tutorProfile: {
         gender: tutor.tutorProfile?.gender || 'male', // 添加性別信息
+        birthDate: tutor.tutorProfile?.birthDate, // 添加出生日期
         teachingMode: tutor.tutorProfile?.teachingMethods?.[0] || '', // 使用第一個教學方法作為主要形式
         teachingSubModes: tutor.tutorProfile?.teachingMethods || [], // 使用 teachingMethods 作為教學方式
         sessionRate: tutor.tutorProfile?.sessionRate || 0,

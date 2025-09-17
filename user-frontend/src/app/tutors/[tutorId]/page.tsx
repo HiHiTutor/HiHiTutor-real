@@ -49,6 +49,10 @@ export default function TutorDetailPage() {
         
         if (result.success && result.data) {
           console.log('✅ 設置導師數據:', result.data);
+          console.log('🔍 導師出生日期字段:', result.data.birthDate);
+          console.log('🔍 導師所有字段:', Object.keys(result.data));
+          console.log('🔍 導師tutorProfile:', result.data.tutorProfile);
+          console.log('🔍 導師tutorProfile.birthDate:', result.data.tutorProfile?.birthDate);
           setTutor(result.data);
         } else {
           console.error('❌ API 響應格式錯誤:', result);
@@ -102,7 +106,16 @@ export default function TutorDetailPage() {
                 <div className="flex-1 max-sm:w-full max-[700px]:w-full">
                   <h1 className="text-2xl font-bold mb-2 max-sm:text-xl max-sm:mb-1 max-[700px]:text-xl max-[700px]:mb-2">{tutor.tutorId}</h1>
                   <div className="text-muted-foreground mb-4 max-sm:text-sm max-sm:mb-3 max-[700px]:text-sm max-[700px]:mb-3">
-                    年齡 {formatAge(calculateAge(tutor.birthDate))} | 教學經驗 {tutor.experience} 年 | 評分 {Number(tutor.rating).toFixed(1)} / 5.0
+                    {(() => {
+                      // 嘗試從多個位置獲取出生日期
+                      const birthDate = tutor.birthDate || tutor.tutorProfile?.birthDate;
+                      const age = calculateAge(birthDate);
+                      console.log('🔍 計算年齡 - 出生日期 (tutor.birthDate):', tutor.birthDate);
+                      console.log('🔍 計算年齡 - 出生日期 (tutor.tutorProfile.birthDate):', tutor.tutorProfile?.birthDate);
+                      console.log('🔍 計算年齡 - 最終使用的出生日期:', birthDate);
+                      console.log('🔍 計算年齡 - 結果:', age);
+                      return `年齡 ${formatAge(age)} | 教學經驗 ${tutor.experience} 年 | 評分 ${Number(tutor.rating).toFixed(1)} / 5.0`;
+                    })()}
                   </div>
                   <div className="flex flex-wrap gap-2 max-sm:gap-1 max-sm:justify-center max-[700px]:gap-2 max-[700px]:justify-center">
                     {(tutor.subjects || []).map((subject: string) => (
