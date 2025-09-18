@@ -21,7 +21,28 @@ import {
   Tabs,
   Tab,
   ListSubheader,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
 } from '@mui/material';
+import {
+  Upload as UploadIcon,
+  Delete as DeleteIcon,
+  Download as DownloadIcon,
+  Folder as FolderIcon,
+  InsertDriveFile as FileIcon,
+  Image as ImageIcon,
+  PictureAsPdf as PdfIcon,
+  Description as DocIcon,
+} from '@mui/icons-material';
 import { usePermissions } from '../hooks/usePermissions';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { usersAPI } from '../services/api';
@@ -190,6 +211,14 @@ interface EditFormData {
   availableTime: string[];
 }
 
+interface FileItem {
+  filename: string;
+  url: string;
+  size: number;
+  uploadDate: string;
+  type: string;
+}
+
 const UserDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -264,6 +293,14 @@ const UserDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  
+  // 文件管理相關狀態
+  const [userFiles, setUserFiles] = useState<FileItem[]>([]);
+  const [filesLoading, setFilesLoading] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+  const [fileDescription, setFileDescription] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   // 地區選擇相關狀態
   const [selectedRegion, setSelectedRegion] = useState<string>('');
@@ -443,6 +480,9 @@ const UserDetail: React.FC = () => {
     fetchUserData();
     fetchTeachingModes();
     loadRegions();
+    if (id) {
+      fetchUserFiles(id);
+    }
   }, [id]);
 
   // 獲取可用的教學子模式
@@ -724,6 +764,109 @@ const UserDetail: React.FC = () => {
     } catch (error) {
       console.error('Error rejecting organization:', error);
     }
+  };
+
+  // 文件管理相關函數
+  const fetchUserFiles = async (userId: string) => {
+    try {
+      setFilesLoading(true);
+      const response = await api.get(`/admin/file-management/users/${userId}/files`);
+      if (response.data.success) {
+        setUserFiles(response.data.data.files || []);
+      }
+    } catch (error: any) {
+      console.error('Error fetching user files:', error);
+      setError(error.message || '獲取用戶文件失敗');
+    } finally {
+      setFilesLoading(false);
+    }
+  };
+
+  const handleFileUpload = async () => {
+    if (!id || !selectedFiles || selectedFiles.length === 0) {
+      setError('請選擇要上傳的文件');
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      
+      for (let i = 0; i < selectedFiles.length; i++) {
+        formData.append('files', selectedFiles[i]);
+      }
+      
+      if (fileDescription) {
+        formData.append('description', fileDescription);
+      }
+
+      const response = await api.post(
+        `/admin/file-management/users/${id}/files`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      if (response.data.success) {
+        setSuccess('文件上傳成功');
+        setUploadDialogOpen(false);
+        setSelectedFiles(null);
+        setFileDescription('');
+        fetchUserFiles(id);
+      }
+    } catch (error: any) {
+      console.error('Error uploading files:', error);
+      setError(error.message || '上傳文件失敗');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileDelete = async (filename: string) => {
+    if (!id) return;
+
+    if (!window.confirm('確定要刪除這個文件嗎？')) return;
+
+    try {
+      const response = await api.delete(
+        `/admin/file-management/users/${id}/files/${filename}`
+      );
+
+      if (response.data.success) {
+        setSuccess('文件刪除成功');
+        fetchUserFiles(id);
+      }
+    } catch (error: any) {
+      console.error('Error deleting file:', error);
+      setError(error.message || '刪除文件失敗');
+    }
+  };
+
+  const handleFileDownload = (file: FileItem) => {
+    const link = document.createElement('a');
+    link.href = file.url;
+    link.download = file.filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const getFileIcon = (type: string) => {
+    if (type.startsWith('image/')) return <ImageIcon />;
+    if (type === '.pdf') return <PdfIcon />;
+    if (['.doc', '.docx'].includes(type)) return <DocIcon />;
+    return <FileIcon />;
   };
 
   // Loading state
@@ -1621,6 +1764,90 @@ const UserDetail: React.FC = () => {
             </Grid>
           </Paper>
         </Grid>
+
+        {/* 文件管理區塊 */}
+        <Grid item xs={12}>
+          <Paper sx={{ p: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h6">
+                文件管理
+              </Typography>
+              <Button
+                variant="contained"
+                startIcon={<UploadIcon />}
+                onClick={() => setUploadDialogOpen(true)}
+              >
+                上傳文件
+              </Button>
+            </Box>
+            <Divider sx={{ my: 2 }} />
+
+            {filesLoading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                <CircularProgress />
+              </Box>
+            ) : userFiles.length > 0 ? (
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>文件名</TableCell>
+                      <TableCell>類型</TableCell>
+                      <TableCell>大小</TableCell>
+                      <TableCell>上傳時間</TableCell>
+                      <TableCell>操作</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {userFiles.map((file, index) => (
+                      <TableRow key={index}>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            {getFileIcon(file.type)}
+                            <Typography variant="body2" sx={{ ml: 1 }}>
+                              {file.filename}
+                            </Typography>
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          <Chip label={file.type} size="small" />
+                        </TableCell>
+                        <TableCell>{formatFileSize(file.size)}</TableCell>
+                        <TableCell>
+                          {new Date(file.uploadDate).toLocaleString('zh-TW')}
+                        </TableCell>
+                        <TableCell>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleFileDownload(file)}
+                            title="下載"
+                          >
+                            <DownloadIcon />
+                          </IconButton>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleFileDelete(file.filename)}
+                            title="刪除"
+                            color="error"
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <Box sx={{ textAlign: 'center', p: 3 }}>
+                <FolderIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+                <Typography variant="h6" color="text.secondary">
+                  該用戶暫無文件
+                </Typography>
+              </Box>
+            )}
+          </Paper>
+        </Grid>
       </Grid>
 
       {/* Edit Dialog */}
@@ -2410,6 +2637,45 @@ const UserDetail: React.FC = () => {
             disabled={loading}
           >
             {loading ? '刪除中...' : '確認刪除'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* 文件上傳對話框 */}
+      <Dialog open={uploadDialogOpen} onClose={() => setUploadDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>上傳文件</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" sx={{ mb: 2 }}>
+            為 {selectedUser?.name} 上傳文件
+          </Typography>
+          
+          <input
+            type="file"
+            multiple
+            onChange={(e) => setSelectedFiles(e.target.files)}
+            style={{ marginBottom: '16px' }}
+          />
+          
+          <TextField
+            fullWidth
+            label="文件描述（可選）"
+            multiline
+            rows={3}
+            value={fileDescription}
+            onChange={(e) => setFileDescription(e.target.value)}
+            variant="outlined"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setUploadDialogOpen(false)}>
+            取消
+          </Button>
+          <Button 
+            onClick={handleFileUpload} 
+            variant="contained"
+            disabled={uploading || !selectedFiles}
+          >
+            {uploading ? <CircularProgress size={20} /> : '上傳'}
           </Button>
         </DialogActions>
       </Dialog>
