@@ -983,7 +983,7 @@ const createCase = async (req, res) => {
         requirement: requirement || description || '',
         requirements: requirements || description || '', // 新增：支持requirements字段
         detailedAddress: detailedAddress || '',
-        startDate: startDate ? new Date(startDate) : undefined,
+        startDate: startDate ? new Date(startDate) : null,
         status: 'open',
         isApproved: isApproved !== undefined ? isApproved : true,
         featured: featured !== undefined ? featured : false,

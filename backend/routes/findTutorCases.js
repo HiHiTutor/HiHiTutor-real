@@ -396,7 +396,7 @@ router.post('/', verifyToken, async (req, res) => {
       duration,
       durationUnit,
       weeklyLessons,
-      startDate: startDate ? new Date(startDate) : undefined,
+      startDate: startDate ? new Date(startDate) : null,
       detailedAddress: detailedAddress || '',
       status: 'open',
       featured: false,
@@ -404,6 +404,12 @@ router.post('/', verifyToken, async (req, res) => {
     });
 
     console.log('[📦 準備創建的案例]', JSON.stringify(newCase, null, 2));
+    console.log('[🔍 關鍵欄位檢查]', {
+      detailedAddress: newCase.detailedAddress,
+      startDate: newCase.startDate,
+      description: newCase.description,
+      requirements: newCase.requirements
+    });
 
     // 保存到資料庫
     const savedCase = await newCase.save();
