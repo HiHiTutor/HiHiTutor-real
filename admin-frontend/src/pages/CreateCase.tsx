@@ -232,6 +232,11 @@ const CreateCase: React.FC = () => {
     duration: 60,                 // 時長（分鐘）
     durationUnit: 'minutes',      // 時長單位
     weeklyLessons: 1,             // 每週堂數
+    // 時長字段 - 與前台格式一致
+    lessonDuration: {
+      hours: 1,
+      minutes: 0
+    },
     requirement: '',              // 要求
     requirements: '',             // 要求（複數）
     region: [] as string[],       // 地區
@@ -424,8 +429,12 @@ const CreateCase: React.FC = () => {
     setError(null);
 
     try {
+      // 將時長轉換為分鐘
+      const totalMinutes = (formData.lessonDuration.hours * 60) + formData.lessonDuration.minutes;
+      
       const submitData = {
         ...formData,
+        duration: totalMinutes, // 使用轉換後的總分鐘數
         subRegions: formData.subRegions || []
       };
       
@@ -478,15 +487,6 @@ const CreateCase: React.FC = () => {
               required
             />
             
-            <TextField
-              label="描述"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              multiline
-              rows={4}
-              required
-            />
 
             <TextField
               label="類型"
@@ -796,15 +796,58 @@ const CreateCase: React.FC = () => {
               fullWidth
             />
 
-            <TextField
-              label="時長（分鐘）"
-              name="duration"
-              type="number"
-              value={formData.duration}
-              onChange={handleChange}
-              helperText="輸入課程時長（分鐘）"
-              fullWidth
-            />
+            {/* 每堂時長 - 與前台格式一致 */}
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <Typography variant="body1" sx={{ minWidth: '100px' }}>
+                每堂時長
+              </Typography>
+              <TextField
+                type="number"
+                placeholder="小時"
+                value={formData.lessonDuration.hours}
+                onChange={(e) => {
+                  const hours = parseInt(e.target.value) || 0;
+                  setFormData(prev => ({
+                    ...prev,
+                    lessonDuration: {
+                      ...prev.lessonDuration,
+                      hours: hours,
+                      // 當小時為0時，分鐘只能選擇30或45
+                      minutes: hours === 0 && ![30, 45].includes(prev.lessonDuration.minutes) 
+                        ? 30 
+                        : prev.lessonDuration.minutes
+                    }
+                  }));
+                }}
+                inputProps={{ min: 0, max: 12 }}
+                sx={{ width: '120px' }}
+              />
+              <TextField
+                select
+                value={formData.lessonDuration.minutes}
+                onChange={(e) => {
+                  const minutes = parseInt(e.target.value) || 0;
+                  setFormData(prev => ({
+                    ...prev,
+                    lessonDuration: {
+                      ...prev.lessonDuration,
+                      minutes: minutes
+                    }
+                  }));
+                }}
+                sx={{ width: '120px' }}
+              >
+                {(() => {
+                  const hours = formData.lessonDuration.hours;
+                  const minuteOptions = hours === 0 ? [30, 45] : [0, 15, 30, 45];
+                  return minuteOptions.map(minute => (
+                    <MenuItem key={minute} value={minute}>
+                      {minute} 分鐘
+                    </MenuItem>
+                  ));
+                })()}
+              </TextField>
+            </Box>
 
             <TextField
               label="每週堂數"
@@ -816,27 +859,6 @@ const CreateCase: React.FC = () => {
               fullWidth
             />
 
-            <TextField
-              label="要求"
-              name="requirement"
-              value={formData.requirement}
-              onChange={handleChange}
-              multiline
-              rows={2}
-              helperText="輸入課程要求"
-              fullWidth
-            />
-
-            <TextField
-              label="要求（複數）"
-              name="requirements"
-              value={formData.requirements}
-              onChange={handleChange}
-              multiline
-              rows={2}
-              helperText="輸入課程要求（複數）"
-              fullWidth
-            />
 
             <TextField
               label="價格範圍"
