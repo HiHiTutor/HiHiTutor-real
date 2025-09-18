@@ -461,11 +461,11 @@ const UserDetail: React.FC = () => {
 
   // 獲取所有可選科目（從多個分類中）
   const getAllAvailableSubjects = () => {
-    const allSubjects = [];
+    const allSubjects: Array<{ value: string; label: string }> = [];
     
     if (editForm.tutorProfile.categories && editForm.tutorProfile.categories.length > 0) {
       editForm.tutorProfile.categories.forEach(categoryKey => {
-        const category = CATEGORY_OPTIONS[categoryKey];
+        const category = CATEGORY_OPTIONS[categoryKey as keyof typeof CATEGORY_OPTIONS];
         if (category) {
           if ('subCategories' in category && category.subCategories) {
             // 中小學教育：包含所有子分類的科目
@@ -474,7 +474,7 @@ const UserDetail: React.FC = () => {
                 allSubjects.push(...subCategory.subjects);
               }
             });
-          } else if (category.subjects) {
+          } else if ('subjects' in category && category.subjects) {
             // 其他分類：直接包含科目
             allSubjects.push(...category.subjects);
           }
@@ -2016,7 +2016,7 @@ const UserDetail: React.FC = () => {
                       {editForm.tutorProfile.categories.map((categoryKey) => (
                         <Chip
                           key={categoryKey}
-                          label={CATEGORY_OPTIONS[categoryKey]?.label || categoryKey}
+                          label={CATEGORY_OPTIONS[categoryKey as keyof typeof CATEGORY_OPTIONS]?.label || categoryKey}
                           color="primary"
                           size="small"
                         />
