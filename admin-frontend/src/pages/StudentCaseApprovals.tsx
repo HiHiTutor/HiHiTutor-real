@@ -233,7 +233,6 @@ const StudentCaseApprovals: React.FC = () => {
                 <TableCell>每堂時長</TableCell>
                 <TableCell>每週堂數</TableCell>
                 <TableCell>教學模式</TableCell>
-                <TableCell>備註</TableCell>
                 <TableCell>詳細地址</TableCell>
                 <TableCell>開始上堂日子</TableCell>
                 <TableCell>詳細描述</TableCell>
@@ -333,11 +332,6 @@ const StudentCaseApprovals: React.FC = () => {
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2" sx={{ maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {caseItem.requirements || caseItem.requirement || '無備註'}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
                     <Typography variant="body2" sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {caseItem.detailedAddress || '無詳細地址'}
                     </Typography>
@@ -349,7 +343,7 @@ const StudentCaseApprovals: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     <Typography variant="body2" sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {caseItem.description || '無詳細描述'}
+                      {caseItem.requirements || caseItem.requirement || '無詳細描述'}
                     </Typography>
                   </TableCell>
                   <TableCell>

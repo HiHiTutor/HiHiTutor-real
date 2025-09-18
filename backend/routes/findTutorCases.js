@@ -311,7 +311,8 @@ router.post('/', verifyToken, async (req, res) => {
       weeklyLessons,
       startDate,
       requirement,
-      requirements
+      requirements,
+      detailedAddress
     } = req.body;
 
     console.log('🔍 解析的欄位:');
@@ -396,7 +397,7 @@ router.post('/', verifyToken, async (req, res) => {
       durationUnit,
       weeklyLessons,
       startDate: startDate ? new Date(startDate) : undefined,
-      detailedAddress: req.body.detailedAddress || '',
+      detailedAddress: detailedAddress || '',
       status: 'open',
       featured: false,
       isApproved: true
