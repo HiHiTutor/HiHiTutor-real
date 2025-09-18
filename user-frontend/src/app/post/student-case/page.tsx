@@ -48,7 +48,6 @@ const formSchema = z.object({
   regions: z.array(z.string()).optional(),
   subRegions: z.array(z.string()).optional(),
   detailedAddress: z.string().optional(),
-  requirements: z.string().optional(),
   price: z.coerce.number({
     invalid_type_error: '請輸入此欄位',
     required_error: '請輸入此欄位'
@@ -265,8 +264,8 @@ export default function PostStudentCase() {
         // 添加其他必要欄位
         budget: (data.price || 0).toString(),
         mode: (data.modes || []).includes('in-person') ? 'in-person' : 'online',
-        requirement: data.requirements || '',
-        requirements: data.requirements || '',
+        requirement: '',
+        requirements: '',
         region: data.regions || [],
         priceRange: `${data.price || 0}-${data.price || 0}`,
         featured: false,
@@ -794,17 +793,6 @@ export default function PostStudentCase() {
               />
               {errors.description && (
                 <p className="text-sm text-red-500">{errors.description.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label>備註 e.g. 屋苑</Label>
-              <Textarea
-                placeholder="請輸入備註，例如：屋苑、特殊要求等（選填）"
-                {...register('requirements')}
-              />
-              {errors.requirements && (
-                <p className="text-sm text-red-500">{errors.requirements.message}</p>
               )}
             </div>
 
