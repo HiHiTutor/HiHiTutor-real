@@ -207,7 +207,7 @@ const Cases: React.FC = () => {
               <TableCell>詳細地址</TableCell>
               <TableCell>開始上堂日子</TableCell>
               <TableCell>詳細描述</TableCell>
-              <TableCell>用戶ID</TableCell>
+              <TableCell>申請者</TableCell>
               <TableCell>狀態</TableCell>
               <TableCell>建立時間</TableCell>
               <TableCell>操作</TableCell>
@@ -231,53 +231,128 @@ const Cases: React.FC = () => {
                 </TableCell>
                 <TableCell>{caseItem.title}</TableCell>
                 <TableCell>
-                  {caseItem.type === 'student'
-                    ? (caseItem.userID
-                        ? (
-                            <Button
-                              variant="text"
-                              size="small"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigate(`/users/${caseItem.userID}`);
-                              }}
-                              sx={{ textTransform: 'none', p: 0, minWidth: 'auto' }}
-                            >
-                              {caseItem.userID}
-                            </Button>
-                          )
-                        : (caseItem.studentId?.userId
-                            ? (
-                                <Button
-                                  variant="text"
-                                  size="small"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    navigate(`/users/${caseItem.studentId!.userId}`);
-                                  }}
-                                  sx={{ textTransform: 'none', p: 0, minWidth: 'auto' }}
-                                >
-                                  {caseItem.studentId.userId}
-                                </Button>
-                              )
-                            : '不適用'))
-                    : (caseItem.userID
-                        ? (
-                            <Button
-                              variant="text"
-                              size="small"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigate(`/users/${caseItem.userID}`);
-                              }}
-                              sx={{ textTransform: 'none', p: 0, minWidth: 'auto' }}
-                            >
-                              {caseItem.userID}
-                            </Button>
-                          )
-                        : '不適用')}
+                  <Chip 
+                    label={caseItem.category} 
+                    size="small" 
+                    color="primary" 
+                    variant="outlined"
+                  />
                 </TableCell>
-                <TableCell>{getCategoryLabel(caseItem.category)}</TableCell>
+                <TableCell>
+                  <Typography variant="body2">
+                    {caseItem.subCategory || '無子分類'}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {caseItem.subjects?.map((subject, index) => (
+                      <Chip 
+                        key={index} 
+                        label={subject} 
+                        size="small" 
+                        variant="outlined"
+                      />
+                    ))}
+                  </Box>
+                </TableCell>
+                <TableCell>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {caseItem.regions?.map((region, index) => (
+                      <Chip 
+                        key={index} 
+                        label={region} 
+                        size="small" 
+                        variant="outlined"
+                      />
+                    ))}
+                  </Box>
+                </TableCell>
+                <TableCell>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {caseItem.subRegions?.map((subRegion, index) => (
+                      <Chip 
+                        key={index} 
+                        label={subRegion} 
+                        size="small" 
+                        variant="outlined"
+                        color="secondary"
+                      />
+                    )) || <Typography variant="body2" color="text.secondary">無分區</Typography>}
+                  </Box>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2">
+                    {caseItem.budget ? `$${caseItem.budget}/堂` : '待議'}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2">
+                    {caseItem.duration ? 
+                      (caseItem.duration >= 60 ? 
+                        `${Math.floor(caseItem.duration / 60)}小時${caseItem.duration % 60 ? `${caseItem.duration % 60}分鐘` : ''}` :
+                        `${caseItem.duration}分鐘`
+                      ) : '未指定'
+                    }
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2">
+                    {caseItem.weeklyLessons ? `${caseItem.weeklyLessons}堂` : '未指定'}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {caseItem.modes?.map((mode, index) => (
+                      <Chip 
+                        key={index} 
+                        label={mode === 'in-person' ? '面授' : mode === 'online' ? '網課' : mode === 'both' ? '皆可' : mode} 
+                        size="small" 
+                        variant="outlined"
+                      />
+                    )) || <Chip label={caseItem.mode === 'in-person' ? '面授' : caseItem.mode === 'online' ? '網課' : caseItem.mode === 'both' ? '皆可' : caseItem.mode} size="small" variant="outlined" />}
+                  </Box>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" sx={{ maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {caseItem.requirements || caseItem.requirement || '無備註'}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {caseItem.detailedAddress || '無詳細地址'}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2">
+                    {caseItem.startDate ? new Date(caseItem.startDate).toLocaleDateString('zh-TW') : '未指定'}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {caseItem.description || '無詳細描述'}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  {caseItem.studentId ? (
+                    <Button
+                      variant="text"
+                      color="primary"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (caseItem.studentId?.email) {
+                          window.open(`mailto:${caseItem.studentId.email}`, '_blank');
+                        }
+                      }}
+                      sx={{ textTransform: 'none', p: 0, minWidth: 'auto' }}
+                    >
+                      {caseItem.studentId.name || caseItem.studentId.userId || '未知'}
+                    </Button>
+                  ) : (
+                    <Typography variant="body2" color="text.secondary">
+                      未指定
+                    </Typography>
+                  )}
+                </TableCell>
                 <TableCell>
                   <Chip
                     label={getStatusLabel(caseItem.status)}

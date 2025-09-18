@@ -2330,6 +2330,7 @@ const getPendingStudentCases = async (req, res) => {
     const skip = (page - 1) * limit;
     
     const pendingCases = await StudentCase.find(query)
+      .select('id title description category subCategory subjects regions subRegions budget mode modes requirement requirements detailedAddress startDate duration weeklyLessons studentId createdAt updatedAt')
       .populate('studentId', 'name email userId')
       .sort({ createdAt: -1 })
       .skip(skip)

@@ -354,9 +354,18 @@ const StudentCaseApprovals: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     {caseItem.studentId ? (
-                      <Typography variant="body2">
+                      <Button
+                        variant="text"
+                        color="primary"
+                        onClick={() => {
+                          if (caseItem.studentId?.email) {
+                            window.open(`mailto:${caseItem.studentId.email}`, '_blank');
+                          }
+                        }}
+                        sx={{ textTransform: 'none', p: 0, minWidth: 'auto' }}
+                      >
                         {caseItem.studentId.name || caseItem.studentId.userId || '未知'}
-                      </Typography>
+                      </Button>
                     ) : (
                       <Typography variant="body2" color="text.secondary">
                         未指定
