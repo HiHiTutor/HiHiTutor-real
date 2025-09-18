@@ -14,6 +14,10 @@ const studentCaseSchema = new mongoose.Schema({
     type: String,
     required: false
   },
+  description: {
+    type: String,
+    required: false
+  },
   subject: {
     type: String,
     required: false
@@ -68,6 +72,14 @@ const studentCaseSchema = new mongoose.Schema({
   },
   subRegions: {
     type: [String],
+    required: false
+  },
+  detailedAddress: {
+    type: String,
+    required: false
+  },
+  startDate: {
+    type: Date,
     required: false
   },
   priceRange: {
