@@ -35,7 +35,7 @@ export const SUBJECT_MAP: { [key: string]: string } = {
   'secondary-bafs': '企會財',
   'secondary-ict': '資訊與通訊科技',
   'secondary-integrated-science': '綜合科學',
-  'secondary-dse': 'DSE總溫習',
+  'secondary-dse': '其他 DSE 專科補習',
   'secondary-all': '全科補習',
 
   // 興趣班 - 修正代碼以匹配後端
