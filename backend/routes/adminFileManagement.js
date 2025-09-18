@@ -3,6 +3,7 @@ const router = express.Router();
 const path = require('path');
 const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 const User = require('../models/User');
+const { upload, uploadToS3 } = require('../uploadMiddleware');
 
 // 獲取用戶文件列表
 router.get('/users/:userId/files', verifyToken, isAdmin, async (req, res) => {
@@ -82,11 +83,11 @@ router.get('/users/:userId/files', verifyToken, isAdmin, async (req, res) => {
   }
 });
 
-// 上傳文件到指定用戶 - 直接更新數據庫
-router.post('/users/:userId/files', verifyToken, isAdmin, async (req, res) => {
+// 上傳文件到指定用戶 - 使用 S3 上傳
+router.post('/users/:userId/files', verifyToken, isAdmin, upload.single('file'), async (req, res) => {
   try {
     const { userId } = req.params;
-    const { fileUrls, description } = req.body; // 接收文件 URL 數組
+    const { description } = req.body;
     
     // 檢查用戶是否存在 - 使用 userId 字段而不是 _id
     const user = await User.findOne({ userId: userId });
@@ -97,50 +98,60 @@ router.post('/users/:userId/files', verifyToken, isAdmin, async (req, res) => {
       });
     }
 
-    if (!fileUrls || !Array.isArray(fileUrls) || fileUrls.length === 0) {
+    if (!req.file) {
       return res.status(400).json({
         success: false,
-        message: '沒有提供文件 URL'
+        message: '沒有上傳文件'
       });
     }
 
-    // 將文件 URL 添加到用戶的 documents.educationCert 中
-    if (!user.documents) {
-      user.documents = { idCard: '', educationCert: [] };
-    }
-    if (!user.documents.educationCert) {
-      user.documents.educationCert = [];
-    }
+    // 設置用戶 ID 到請求中，供 uploadToS3 使用
+    req.userId = userId;
 
-    // 添加新文件到 educationCert 數組
-    const newFiles = fileUrls.filter(url => !user.documents.educationCert.includes(url));
-    user.documents.educationCert.push(...newFiles);
-
-    // 保存用戶記錄
-    await user.save();
-
-    const uploadedFiles = newFiles.map(url => {
-      const filename = url.split('/').pop();
-      return {
-        filename: filename,
-        url: url,
-        size: 0, // 無法獲取實際大小
-        uploadDate: new Date(),
-        type: path.extname(filename).toLowerCase(),
-        description: description || '',
-        source: 'educationCert'
-      };
-    });
-
-    res.json({
-      success: true,
-      message: `成功添加 ${uploadedFiles.length} 個文件`,
-      data: {
-        userId,
-        userName: user.name,
-        uploadedFiles
+    // 上傳到 S3
+    const uploadResult = await uploadToS3(req, res);
+    
+    if (uploadResult && uploadResult.success) {
+      // 將文件 URL 添加到用戶的 documents.educationCert 中
+      if (!user.documents) {
+        user.documents = { idCard: '', educationCert: [] };
       }
-    });
+      if (!user.documents.educationCert) {
+        user.documents.educationCert = [];
+      }
+
+      // 檢查文件是否已存在
+      if (!user.documents.educationCert.includes(uploadResult.url)) {
+        user.documents.educationCert.push(uploadResult.url);
+        await user.save();
+
+        const filename = uploadResult.url.split('/').pop();
+        const uploadedFile = {
+          filename: filename,
+          url: uploadResult.url,
+          size: req.file.size,
+          uploadDate: new Date(),
+          type: path.extname(filename).toLowerCase(),
+          description: description || '',
+          source: 'educationCert'
+        };
+
+        res.json({
+          success: true,
+          message: '文件上傳成功',
+          data: {
+            userId,
+            userName: user.name,
+            uploadedFile
+          }
+        });
+      } else {
+        res.json({
+          success: false,
+          message: '文件已存在'
+        });
+      }
+    }
   } catch (error) {
     console.error('上傳文件失敗:', error);
     res.status(500).json({

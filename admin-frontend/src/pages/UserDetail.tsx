@@ -792,45 +792,44 @@ const UserDetail: React.FC = () => {
       return;
     }
 
-    // 檢查是否有文件 URL 輸入
-    const fileUrlInput = document.getElementById('fileUrlInput') as HTMLInputElement;
-    if (!fileUrlInput || !fileUrlInput.value.trim()) {
-      setError('請輸入文件 URL');
+    if (!selectedFiles || selectedFiles.length === 0) {
+      setError('請選擇要上傳的文件');
       return;
     }
 
     try {
       setUploading(true);
       
-      // 將 URL 字符串分割成數組
-      const fileUrls = fileUrlInput.value
-        .split('\n')
-        .map(url => url.trim())
-        .filter(url => url.length > 0);
+      // 上傳每個文件
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('description', fileDescription);
 
-      if (fileUrls.length === 0) {
-        setError('請輸入有效的文件 URL');
-        return;
-      }
+        const response = await api.post(
+          `/admin/file-management/users/${id}/files`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
 
-      const response = await api.post(
-        `/admin/file-management/users/${id}/files`,
-        {
-          fileUrls: fileUrls,
-          description: fileDescription
+        if (!response.data.success) {
+          throw new Error(response.data.message || '上傳失敗');
         }
-      );
-
-      if (response.data.success) {
-        setSuccess(`成功添加 ${fileUrls.length} 個文件`);
-        setUploadDialogOpen(false);
-        setFileDescription('');
-        fileUrlInput.value = '';
-        fetchUserFiles(id);
       }
+
+      setSuccess(`成功上傳 ${selectedFiles.length} 個文件`);
+      setUploadDialogOpen(false);
+      setSelectedFiles(null);
+      setFileDescription('');
+      fetchUserFiles(id);
     } catch (error: any) {
       console.error('Error uploading files:', error);
-      setError(error.message || '添加文件失敗');
+      setError(error.message || '上傳文件失敗');
     } finally {
       setUploading(false);
     }
@@ -2714,23 +2713,19 @@ const UserDetail: React.FC = () => {
       </Dialog>
 
       {/* 文件上傳對話框 */}
-      <Dialog open={uploadDialogOpen} onClose={() => setUploadDialogOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle>添加文件</DialogTitle>
+      <Dialog open={uploadDialogOpen} onClose={() => setUploadDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>上傳文件</DialogTitle>
         <DialogContent>
           <Typography variant="body2" sx={{ mb: 2 }}>
-            為 {selectedUser?.name} 添加文件（請輸入 S3 文件 URL）
+            為 {selectedUser?.name} 上傳文件到 S3
           </Typography>
           
-          <TextField
-            id="fileUrlInput"
-            fullWidth
-            label="文件 URL（每行一個）"
-            multiline
-            rows={6}
-            placeholder="https://hihitutor-uploads.s3.ap-southeast-2.amazonaws.com/uploads/user-docs/1001000/example.jpg&#10;https://hihitutor-uploads.s3.ap-southeast-2.amazonaws.com/uploads/user-docs/1001000/example2.png"
-            variant="outlined"
-            sx={{ mb: 2 }}
-            helperText="請輸入完整的 S3 文件 URL，每行一個。文件會添加到用戶的教育證書中。"
+          <input
+            type="file"
+            multiple
+            accept="image/*,application/pdf,.doc,.docx,.txt"
+            onChange={(e) => setSelectedFiles(e.target.files)}
+            style={{ marginBottom: '16px', width: '100%' }}
           />
           
           <TextField
@@ -2741,6 +2736,7 @@ const UserDetail: React.FC = () => {
             value={fileDescription}
             onChange={(e) => setFileDescription(e.target.value)}
             variant="outlined"
+            helperText="支持圖片、PDF、Word 文檔等格式，文件會自動上傳到 S3 並添加到用戶的教育證書中。"
           />
         </DialogContent>
         <DialogActions>
@@ -2750,9 +2746,9 @@ const UserDetail: React.FC = () => {
           <Button 
             onClick={handleFileUpload} 
             variant="contained"
-            disabled={uploading}
+            disabled={uploading || !selectedFiles}
           >
-            {uploading ? <CircularProgress size={20} /> : '添加文件'}
+            {uploading ? <CircularProgress size={20} /> : '上傳文件'}
           </Button>
         </DialogActions>
       </Dialog>
