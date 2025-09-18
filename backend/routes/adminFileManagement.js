@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { verifyAdminToken } = require('../middleware/authMiddleware');
+const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 const User = require('../models/User');
 
 // 配置 multer 用於文件上傳
@@ -48,7 +48,7 @@ const upload = multer({
 });
 
 // 獲取用戶文件列表
-router.get('/users/:userId/files', verifyAdminToken, async (req, res) => {
+router.get('/users/:userId/files', verifyToken, isAdmin, async (req, res) => {
   try {
     const { userId } = req.params;
     
@@ -99,7 +99,7 @@ router.get('/users/:userId/files', verifyAdminToken, async (req, res) => {
 });
 
 // 上傳文件到指定用戶
-router.post('/users/:userId/files', verifyAdminToken, upload.array('files', 10), async (req, res) => {
+router.post('/users/:userId/files', verifyToken, isAdmin, upload.array('files', 10), async (req, res) => {
   try {
     const { userId } = req.params;
     const { description } = req.body;
@@ -171,7 +171,7 @@ router.post('/users/:userId/files', verifyAdminToken, upload.array('files', 10),
 });
 
 // 刪除用戶文件
-router.delete('/users/:userId/files/:filename', verifyAdminToken, async (req, res) => {
+router.delete('/users/:userId/files/:filename', verifyToken, isAdmin, async (req, res) => {
   try {
     const { userId, filename } = req.params;
     
@@ -226,7 +226,7 @@ router.delete('/users/:userId/files/:filename', verifyAdminToken, async (req, re
 });
 
 // 批量刪除用戶文件
-router.delete('/users/:userId/files', verifyAdminToken, async (req, res) => {
+router.delete('/users/:userId/files', verifyToken, isAdmin, async (req, res) => {
   try {
     const { userId } = req.params;
     const { filenames } = req.body;
