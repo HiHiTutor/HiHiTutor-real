@@ -26,6 +26,7 @@ import ModeManager from './pages/ModeManager';
 import TutorChangeMonitor from './pages/TutorChangeMonitor';
 import TutorChangeNotification from './components/TutorChangeNotification';
 import NotificationTest from './components/NotificationTest';
+import FileManagement from './pages/FileManagement';
 import { useNotifications } from './hooks/useNotifications';
 
 // 管理員前端應用主組件
@@ -78,6 +79,7 @@ const App: React.FC = () => {
         <Route path="/mode-manager" element={<ProtectedRoute element={<Layout><ModeManager /></Layout>} />} />
         <Route path="/tutor-change-monitor" element={<ProtectedRoute element={<Layout><TutorChangeMonitor /></Layout>} />} />
         <Route path="/notification-test" element={<ProtectedRoute element={<Layout><NotificationTest /></Layout>} />} />
+        <Route path="/file-management" element={<ProtectedRoute element={<Layout><FileManagement /></Layout>} />} />
         
         {/* 404 頁面 - 處理未找到的路由 */}
         <Route path="*" element={<NotFound />} />

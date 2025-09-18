@@ -63,6 +63,7 @@ const superAdminRoutes = require('./routes/superAdmin');
 const fixIndexRoutes = require('./routes/fixIndex');
 const teachingModesRouter = require('./routes/teachingModes');
 const organizationTutorsRouter = require('./routes/organizationTutors');
+const adminFileManagementRouter = require('./routes/adminFileManagement');
 
 const app = express();
 
@@ -256,6 +257,7 @@ app.use('/api/search', searchRoutes);
 app.use('/api/debug', require('./routes/debug'));
 app.use('/api/sms', smsRoutes);
 app.use('/api/ads', adRoutes);
+app.use('/api/admin/file-management', adminFileManagementRouter);
 app.use('/api/admin/config', adminConfigRoutes);
 app.use('/api/super-admin', superAdminRoutes);
 app.use('/api/fix', fixIndexRoutes);
