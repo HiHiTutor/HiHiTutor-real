@@ -260,6 +260,7 @@ export default function PostStudentCase() {
         durationUnit: 'minutes',
         weeklyLessons: data.weeklyLessons || 1,
         startDate: data.startDate || new Date(),
+        detailedAddress: data.detailedAddress || '',
         status: 'open',
         // 添加其他必要欄位
         budget: (data.price || 0).toString(),
