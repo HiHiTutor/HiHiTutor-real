@@ -218,6 +218,7 @@ interface FileItem {
   size: number;
   uploadDate: string;
   type: string;
+  sources?: string[];
 }
 
 const UserDetail: React.FC = () => {
@@ -850,9 +851,20 @@ const UserDetail: React.FC = () => {
     const link = document.createElement('a');
     link.href = file.url;
     link.download = file.filename;
+    link.target = '_blank'; // 在新標籤頁中打開
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  // 自動下載所有文件
+  const handleDownloadAllFiles = () => {
+    userFiles.forEach((file, index) => {
+      // 延遲下載，避免瀏覽器阻止多個下載
+      setTimeout(() => {
+        handleFileDownload(file);
+      }, index * 500); // 每個文件間隔 500ms
+    });
   };
 
   const formatFileSize = (bytes: number) => {
@@ -1771,15 +1783,28 @@ const UserDetail: React.FC = () => {
           <Paper sx={{ p: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
               <Typography variant="h6">
-                文件管理
+                文件管理 ({userFiles.length} 個文件)
               </Typography>
-              <Button
-                variant="contained"
-                startIcon={<UploadIcon />}
-                onClick={() => setUploadDialogOpen(true)}
-              >
-                上傳文件
-              </Button>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                {userFiles.length > 0 && (
+                  <Button
+                    variant="outlined"
+                    startIcon={<DownloadIcon />}
+                    onClick={handleDownloadAllFiles}
+                    size="small"
+                  >
+                    下載所有文件
+                  </Button>
+                )}
+                <Button
+                  variant="contained"
+                  startIcon={<UploadIcon />}
+                  onClick={() => setUploadDialogOpen(true)}
+                  size="small"
+                >
+                  上傳文件
+                </Button>
+              </Box>
             </Box>
             <Divider sx={{ my: 2 }} />
 
@@ -1794,6 +1819,7 @@ const UserDetail: React.FC = () => {
                     <TableRow>
                       <TableCell>文件名</TableCell>
                       <TableCell>類型</TableCell>
+                      <TableCell>來源</TableCell>
                       <TableCell>大小</TableCell>
                       <TableCell>上傳時間</TableCell>
                       <TableCell>操作</TableCell>
@@ -1812,6 +1838,19 @@ const UserDetail: React.FC = () => {
                         </TableCell>
                         <TableCell>
                           <Chip label={file.type} size="small" />
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                            {file.sources?.map((source, idx) => (
+                              <Chip
+                                key={idx}
+                                label={source === 'publicCertificates' ? '公開證書' : '教育證書'}
+                                size="small"
+                                color={source === 'publicCertificates' ? 'primary' : 'secondary'}
+                                variant="outlined"
+                              />
+                            ))}
+                          </Box>
                         </TableCell>
                         <TableCell>{formatFileSize(file.size)}</TableCell>
                         <TableCell>

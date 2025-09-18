@@ -62,19 +62,25 @@ router.get('/users/:userId/files', verifyToken, isAdmin, async (req, res) => {
     }
 
     let files = [];
+    const fileMap = new Map(); // 使用 Map 來避免重複文件
     
     // 從用戶的 tutorProfile.publicCertificates 獲取文件
     if (user.tutorProfile && user.tutorProfile.publicCertificates) {
       user.tutorProfile.publicCertificates.forEach((url, index) => {
         const filename = url.split('/').pop(); // 從 URL 中提取文件名
-        files.push({
-          filename: filename,
-          url: url,
-          size: 0, // S3 文件大小需要額外 API 調用獲取
-          uploadDate: new Date(), // 使用當前時間作為默認值
-          type: path.extname(filename).toLowerCase(),
-          source: 'publicCertificates'
-        });
+        if (!fileMap.has(filename)) {
+          fileMap.set(filename, {
+            filename: filename,
+            url: url,
+            size: 0, // S3 文件大小需要額外 API 調用獲取
+            uploadDate: new Date(), // 使用當前時間作為默認值
+            type: path.extname(filename).toLowerCase(),
+            sources: ['publicCertificates']
+          });
+        } else {
+          // 如果文件已存在，添加來源
+          fileMap.get(filename).sources.push('publicCertificates');
+        }
       });
     }
     
@@ -82,16 +88,24 @@ router.get('/users/:userId/files', verifyToken, isAdmin, async (req, res) => {
     if (user.documents && user.documents.educationCert) {
       user.documents.educationCert.forEach((url, index) => {
         const filename = url.split('/').pop(); // 從 URL 中提取文件名
-        files.push({
-          filename: filename,
-          url: url,
-          size: 0, // S3 文件大小需要額外 API 調用獲取
-          uploadDate: new Date(), // 使用當前時間作為默認值
-          type: path.extname(filename).toLowerCase(),
-          source: 'educationCert'
-        });
+        if (!fileMap.has(filename)) {
+          fileMap.set(filename, {
+            filename: filename,
+            url: url,
+            size: 0, // S3 文件大小需要額外 API 調用獲取
+            uploadDate: new Date(), // 使用當前時間作為默認值
+            type: path.extname(filename).toLowerCase(),
+            sources: ['educationCert']
+          });
+        } else {
+          // 如果文件已存在，添加來源
+          fileMap.get(filename).sources.push('educationCert');
+        }
       });
     }
+    
+    // 將 Map 轉換為數組
+    files = Array.from(fileMap.values());
 
     res.json({
       success: true,
