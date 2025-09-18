@@ -61,22 +61,35 @@ router.get('/users/:userId/files', verifyToken, isAdmin, async (req, res) => {
       });
     }
 
-    // 獲取用戶文件目錄
-    const userFilesPath = path.join(__dirname, '..', 'public', 'uploads', 'users', userId);
-    
     let files = [];
-    if (fs.existsSync(userFilesPath)) {
-      const fileList = fs.readdirSync(userFilesPath);
-      files = fileList.map(filename => {
-        const filePath = path.join(userFilesPath, filename);
-        const stats = fs.statSync(filePath);
-        return {
-          filename,
-          url: `/uploads/users/${userId}/${filename}`,
-          size: stats.size,
-          uploadDate: stats.birthtime,
-          type: path.extname(filename).toLowerCase()
-        };
+    
+    // 從用戶的 tutorProfile.publicCertificates 獲取文件
+    if (user.tutorProfile && user.tutorProfile.publicCertificates) {
+      user.tutorProfile.publicCertificates.forEach((url, index) => {
+        const filename = url.split('/').pop(); // 從 URL 中提取文件名
+        files.push({
+          filename: filename,
+          url: url,
+          size: 0, // S3 文件大小需要額外 API 調用獲取
+          uploadDate: new Date(), // 使用當前時間作為默認值
+          type: path.extname(filename).toLowerCase(),
+          source: 'publicCertificates'
+        });
+      });
+    }
+    
+    // 從用戶的 documents.educationCert 獲取文件
+    if (user.documents && user.documents.educationCert) {
+      user.documents.educationCert.forEach((url, index) => {
+        const filename = url.split('/').pop(); // 從 URL 中提取文件名
+        files.push({
+          filename: filename,
+          url: url,
+          size: 0, // S3 文件大小需要額外 API 調用獲取
+          uploadDate: new Date(), // 使用當前時間作為默認值
+          type: path.extname(filename).toLowerCase(),
+          source: 'educationCert'
+        });
       });
     }
 
@@ -184,25 +197,44 @@ router.delete('/users/:userId/files/:filename', verifyToken, isAdmin, async (req
       });
     }
 
-    // 構建文件路徑
-    const filePath = path.join(__dirname, '..', 'public', 'uploads', 'users', userId, filename);
-    
-    // 檢查文件是否存在
-    if (!fs.existsSync(filePath)) {
+    let fileFound = false;
+    let updated = false;
+
+    // 從 tutorProfile.publicCertificates 中移除文件
+    if (user.tutorProfile && user.tutorProfile.publicCertificates) {
+      const originalLength = user.tutorProfile.publicCertificates.length;
+      user.tutorProfile.publicCertificates = user.tutorProfile.publicCertificates.filter(url => {
+        const urlFilename = url.split('/').pop();
+        return urlFilename !== filename;
+      });
+      if (user.tutorProfile.publicCertificates.length < originalLength) {
+        fileFound = true;
+        updated = true;
+      }
+    }
+
+    // 從 documents.educationCert 中移除文件
+    if (user.documents && user.documents.educationCert) {
+      const originalLength = user.documents.educationCert.length;
+      user.documents.educationCert = user.documents.educationCert.filter(url => {
+        const urlFilename = url.split('/').pop();
+        return urlFilename !== filename;
+      });
+      if (user.documents.educationCert.length < originalLength) {
+        fileFound = true;
+        updated = true;
+      }
+    }
+
+    if (!fileFound) {
       return res.status(404).json({
         success: false,
         message: '文件不存在'
       });
     }
 
-    // 刪除文件
-    fs.unlinkSync(filePath);
-    
-    // 從用戶記錄中移除文件引用（如果是機構用戶）
-    if (user.userType === 'organization' && user.organizationProfile && user.organizationProfile.documents) {
-      user.organizationProfile.documents = user.organizationProfile.documents.filter(
-        doc => doc.filename !== filename
-      );
+    // 保存更新後的用戶記錄
+    if (updated) {
       await user.save();
     }
 
@@ -249,21 +281,40 @@ router.delete('/users/:userId/files', verifyToken, isAdmin, async (req, res) => 
 
     const deletedFiles = [];
     const failedFiles = [];
+    let updated = false;
 
     for (const filename of filenames) {
       try {
-        const filePath = path.join(__dirname, '..', 'public', 'uploads', 'users', userId, filename);
-        
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-          deletedFiles.push(filename);
-          
-          // 從用戶記錄中移除文件引用
-          if (user.userType === 'organization' && user.organizationProfile && user.organizationProfile.documents) {
-            user.organizationProfile.documents = user.organizationProfile.documents.filter(
-              doc => doc.filename !== filename
-            );
+        let fileFound = false;
+
+        // 從 tutorProfile.publicCertificates 中移除文件
+        if (user.tutorProfile && user.tutorProfile.publicCertificates) {
+          const originalLength = user.tutorProfile.publicCertificates.length;
+          user.tutorProfile.publicCertificates = user.tutorProfile.publicCertificates.filter(url => {
+            const urlFilename = url.split('/').pop();
+            return urlFilename !== filename;
+          });
+          if (user.tutorProfile.publicCertificates.length < originalLength) {
+            fileFound = true;
+            updated = true;
           }
+        }
+
+        // 從 documents.educationCert 中移除文件
+        if (user.documents && user.documents.educationCert) {
+          const originalLength = user.documents.educationCert.length;
+          user.documents.educationCert = user.documents.educationCert.filter(url => {
+            const urlFilename = url.split('/').pop();
+            return urlFilename !== filename;
+          });
+          if (user.documents.educationCert.length < originalLength) {
+            fileFound = true;
+            updated = true;
+          }
+        }
+
+        if (fileFound) {
+          deletedFiles.push(filename);
         } else {
           failedFiles.push({ filename, reason: '文件不存在' });
         }
@@ -272,8 +323,8 @@ router.delete('/users/:userId/files', verifyToken, isAdmin, async (req, res) => 
       }
     }
 
-    // 保存用戶記錄更新
-    if (user.userType === 'organization') {
+    // 保存更新後的用戶記錄
+    if (updated) {
       await user.save();
     }
 
