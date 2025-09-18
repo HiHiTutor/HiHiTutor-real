@@ -96,7 +96,7 @@ export default function FindStudentCaseDetailPage() {
     return [...regionNames, ...subRegionNames].join('、');
   };
 
-  // 處理預算
+  // 處理預算 - 改為每堂堂費
   const getBudget = () => {
     console.log('💰 處理預算，原始資料:', caseDetail.budget);
     
@@ -108,13 +108,13 @@ export default function FindStudentCaseDetailPage() {
     // 如果是字符串格式
     if (typeof caseDetail.budget === 'string') {
       console.log('📝 預算是字符串:', caseDetail.budget);
-      return caseDetail.budget === '' ? '待議' : `${caseDetail.budget}/小時`;
+      return caseDetail.budget === '' ? '待議' : `$${caseDetail.budget}/堂`;
     }
     
     // 如果是數字格式
     if (typeof caseDetail.budget === 'number') {
       console.log('🔢 預算是數字:', caseDetail.budget);
-      return `${caseDetail.budget}/小時`;
+      return `$${caseDetail.budget}/堂`;
     }
     
     // 如果是對象格式 { min, max }
@@ -123,8 +123,8 @@ export default function FindStudentCaseDetailPage() {
       console.log('📦 預算是對象:', { min, max });
       
       if (!min && !max) return '待議';
-      if (min === max) return `${min}/小時`;
-      return `${min} - ${max}/小時`;
+      if (min === max) return `$${min}/堂`;
+      return `$${min} - $${max}/堂`;
     }
     
     console.log('❓ 未知預算格式:', caseDetail.budget);
@@ -158,6 +158,33 @@ export default function FindStudentCaseDetailPage() {
     }
     
     console.log('❌ 沒有模式資料');
+    return '未指定';
+  };
+
+  // 處理每堂時長
+  const getDuration = () => {
+    if (caseDetail.duration) {
+      const duration = caseDetail.duration;
+      if (duration >= 60) {
+        const hours = Math.floor(duration / 60);
+        const minutes = duration % 60;
+        if (minutes === 0) {
+          return `${hours}小時`;
+        } else {
+          return `${hours}小時${minutes}分鐘`;
+        }
+      } else {
+        return `${duration}分鐘`;
+      }
+    }
+    return '未指定';
+  };
+
+  // 處理每週堂數
+  const getWeeklyLessons = () => {
+    if (caseDetail.weeklyLessons) {
+      return `${caseDetail.weeklyLessons}堂`;
+    }
     return '未指定';
   };
 
@@ -221,13 +248,23 @@ export default function FindStudentCaseDetailPage() {
             </div>
             
             <div className="bg-blue-50 rounded-lg p-4">
-              <h3 className="font-semibold text-blue-800 mb-2">💰 收費</h3>
+              <h3 className="font-semibold text-blue-800 mb-2">💰 每堂堂費</h3>
               <p className="text-gray-700">{getBudget()}</p>
             </div>
             
             <div className="bg-blue-50 rounded-lg p-4">
               <h3 className="font-semibold text-blue-800 mb-2">🎯 模式</h3>
               <p className="text-gray-700">{getMode()}</p>
+            </div>
+            
+            <div className="bg-blue-50 rounded-lg p-4">
+              <h3 className="font-semibold text-blue-800 mb-2">⏰ 每堂時長</h3>
+              <p className="text-gray-700">{getDuration()}</p>
+            </div>
+            
+            <div className="bg-blue-50 rounded-lg p-4">
+              <h3 className="font-semibold text-blue-800 mb-2">📅 每週堂數</h3>
+              <p className="text-gray-700">{getWeeklyLessons()}</p>
             </div>
           </div>
           

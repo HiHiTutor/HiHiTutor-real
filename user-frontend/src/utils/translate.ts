@@ -117,7 +117,15 @@ export const SUBREGION_MAP: Record<string, string> = {
   'cheung-chau': '長洲',
   'lamma-island': '南丫島',
   'discovery-bay': '愉景灣',
-  'pui-o': '貝澳'
+  'pui-o': '貝澳',
+  
+  // 添加缺失的地區映射
+  'southern-district': '南區',
+  'central-western': '中西區',
+  'yau-tsim-mong': '油尖旺區',
+  'kowloon-city': '九龍城區',
+  'kwai-tsing': '葵青區',
+  'north': '北區'
 };
 
 // 教學模式映射
