@@ -45,7 +45,7 @@ import {
 } from '@mui/icons-material';
 import { usePermissions } from '../hooks/usePermissions';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
-import { usersAPI } from '../services/api';
+import { usersAPI, api } from '../services/api';
 import { setSelectedUser } from '../store/slices/userSlice';
 import { User } from '../types';
 import regionService, { Region } from '../services/regionService';
