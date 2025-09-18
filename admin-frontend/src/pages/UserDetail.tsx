@@ -172,6 +172,7 @@ interface EditFormData {
     courseFeatures?: string;
     avatarUrl?: string;
     // 新增課程相關字段
+    categories?: string[];
     category?: string;
     subCategory?: string;
     teachingMode?: string;
@@ -243,6 +244,7 @@ const UserDetail: React.FC = () => {
       courseFeatures: '',
       avatarUrl: '',
       // 新增課程相關字段
+      categories: [],
       category: '',
       subCategory: '',
       teachingMode: '',
@@ -457,6 +459,35 @@ const UserDetail: React.FC = () => {
     return [];
   };
 
+  // 獲取所有可選科目（從多個分類中）
+  const getAllAvailableSubjects = () => {
+    const allSubjects = [];
+    
+    if (editForm.tutorProfile.categories && editForm.tutorProfile.categories.length > 0) {
+      editForm.tutorProfile.categories.forEach(categoryKey => {
+        const category = CATEGORY_OPTIONS[categoryKey];
+        if (category) {
+          if ('subCategories' in category && category.subCategories) {
+            // 中小學教育：包含所有子分類的科目
+            category.subCategories.forEach(subCategory => {
+              if (subCategory.subjects) {
+                allSubjects.push(...subCategory.subjects);
+              }
+            });
+          } else if (category.subjects) {
+            // 其他分類：直接包含科目
+            allSubjects.push(...category.subjects);
+          }
+        }
+      });
+    }
+    
+    // 去重並排序
+    return allSubjects.filter((subject, index, self) => 
+      index === self.findIndex(s => s.value === subject.value)
+    ).sort((a, b) => a.label.localeCompare(b.label));
+  };
+
   // 獲取可用的科目
   const getAvailableSubjects = () => {
     if (!editForm.tutorProfile.category) return [];
@@ -595,6 +626,16 @@ const UserDetail: React.FC = () => {
       setEditForm(prev => ({
         ...prev,
         [name]: value as 'active' | 'pending' | 'blocked'
+      }));
+    } else if (name === 'categories') {
+      setEditForm(prev => ({
+        ...prev,
+        tutorProfile: {
+          ...prev.tutorProfile,
+          categories: Array.isArray(value) ? value : [value],
+          // 保留已選科目，讓用戶可以跨分類選擇
+          subjects: prev.tutorProfile.subjects
+        }
       }));
     } else if (name === 'category') {
       setEditForm(prev => ({
@@ -1945,24 +1986,44 @@ const UserDetail: React.FC = () => {
                   📚 課程設置
                 </Typography>
                 <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-                  請按順序選擇：課程分類 → 子科目(可選) → 可教授科目
+                  請選擇：課程分類(可多選) → 可教授科目
                 </Typography>
                 
-                {/* 課程分類 */}
+                {/* 課程分類 - 多選 */}
                 <TextField
                   select
-                  label="課程分類"
-                  name="category"
-                  value={editForm.tutorProfile.category || ''}
+                  label="課程分類 (可多選)"
+                  name="categories"
+                  SelectProps={{ multiple: true }}
+                  value={editForm.tutorProfile.categories || []}
                   onChange={handleInputChange}
                   fullWidth
                   sx={{ mb: 2 }}
-                  helperText="選擇您要教授的課程類型"
+                  helperText="可選擇多個課程分類，例如：幼兒教育 + 中小學教育"
                 >
                   {Object.entries(CATEGORY_OPTIONS).map(([key, category]) => (
                     <MenuItem key={key} value={key}>{category.label}</MenuItem>
                   ))}
                 </TextField>
+                
+                {/* 顯示已選分類 */}
+                {editForm.tutorProfile.categories && editForm.tutorProfile.categories.length > 0 && (
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+                      已選擇的分類：
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                      {editForm.tutorProfile.categories.map((categoryKey) => (
+                        <Chip
+                          key={categoryKey}
+                          label={CATEGORY_OPTIONS[categoryKey]?.label || categoryKey}
+                          color="primary"
+                          size="small"
+                        />
+                      ))}
+                    </Box>
+                  </Box>
+                )}
 
                 {/* 子科目 (僅中小學教育顯示，可選) */}
                 {editForm.tutorProfile.category === 'primary-secondary' && (
@@ -1985,7 +2046,7 @@ const UserDetail: React.FC = () => {
                 )}
 
                 {/* 科目選擇提示 */}
-                {editForm.tutorProfile.category && (
+                {editForm.tutorProfile.categories && editForm.tutorProfile.categories.length > 0 && (
                   <Box sx={{ 
                     p: 1.5, 
                     backgroundColor: '#e3f2fd', 
@@ -1994,116 +2055,38 @@ const UserDetail: React.FC = () => {
                     mb: 2
                   }}>
                     <Typography variant="body2" color="primary">
-                      💡 提示：您現在可以選擇可教授的科目了
-                      {editForm.tutorProfile.category === 'primary-secondary' && 
-                        (editForm.tutorProfile.subCategory ? 
-                          `（${editForm.tutorProfile.subCategory === 'primary' ? '小學' : '中學'}階段）` : 
-                          '（可跨階段選擇）'
-                        )
-                      }
+                      💡 提示：您現在可以從已選擇的分類中選擇可教授的科目了
                     </Typography>
                   </Box>
                 )}
 
                 {/* 科目 (多選) */}
-                {editForm.tutorProfile.category && (
+                {editForm.tutorProfile.categories && editForm.tutorProfile.categories.length > 0 && (
                   <>
-                    {editForm.tutorProfile.category === 'primary-secondary' ? (
-                      // 中小學教育：分組顯示科目
-                      <Box>
-                        <Typography variant="subtitle1" color="primary" sx={{ mb: 1, fontWeight: 'bold' }}>
-                          可教授科目 (多選)
-                        </Typography>
-                        
-                        {/* 小學教育科目 */}
-                        <Box sx={{ mb: 2 }}>
-                          <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
-                            🏫 小學教育科目
-                          </Typography>
-                          <TextField
-                            select
-                            label="小學科目"
-                            SelectProps={{ multiple: true }}
-                            value={editForm.tutorProfile.subjects.filter(subject => subject.startsWith('primary-'))}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              const selectedPrimarySubjects = Array.isArray(value) ? value : [value];
-                              const existingSecondarySubjects = editForm.tutorProfile.subjects.filter(subject => subject.startsWith('secondary-'));
-                              const allSubjects = [...selectedPrimarySubjects, ...existingSecondarySubjects];
-                              setEditForm(prev => ({
-                                ...prev,
-                                tutorProfile: { ...prev.tutorProfile, subjects: allSubjects }
-                              }));
-                            }}
-                            helperText="可多選小學科目"
-                            fullWidth
-                          >
-                            {CATEGORY_OPTIONS['primary-secondary'].subCategories?.find(sub => sub.value === 'primary')?.subjects?.map((subject) => (
-                              <MenuItem key={subject.value} value={subject.value}>
-                                {subject.label}
-                              </MenuItem>
-                            ))}
-                          </TextField>
-                        </Box>
-
-                        {/* 中學教育科目 */}
-                        <Box sx={{ mb: 2 }}>
-                          <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
-                            🎓 中學教育科目
-                          </Typography>
-                          <TextField
-                            select
-                            label="中學科目"
-                            SelectProps={{ multiple: true }}
-                            value={editForm.tutorProfile.subjects.filter(subject => subject.startsWith('secondary-'))}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              const selectedSecondarySubjects = Array.isArray(value) ? value : [value];
-                              const existingPrimarySubjects = editForm.tutorProfile.subjects.filter(subject => subject.startsWith('primary-'));
-                              const allSubjects = [...existingPrimarySubjects, ...selectedSecondarySubjects];
-                              setEditForm(prev => ({
-                                ...prev,
-                                tutorProfile: { ...prev.tutorProfile, subjects: allSubjects }
-                              }));
-                            }}
-                            helperText="可多選中學科目"
-                            fullWidth
-                          >
-                            {CATEGORY_OPTIONS['primary-secondary'].subCategories?.find(sub => sub.value === 'secondary')?.subjects?.map((subject) => (
-                              <MenuItem key={subject.value} value={subject.value}>
-                                {subject.label}
-                              </MenuItem>
-                            ))}
-                          </TextField>
-                        </Box>
-                      </Box>
-                    ) : (
-                      // 其他課程分類：正常顯示
-                      <TextField
-                        select
-                        label="可教授科目 (多選)"
-                        SelectProps={{ multiple: true }}
-                        value={editForm.tutorProfile.subjects || []}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setEditForm(prev => ({
-                            ...prev,
-                            tutorProfile: {
-                              ...prev.tutorProfile,
-                              subjects: Array.isArray(value) ? value : [value]
-                            }
-                          }));
-                        }}
-                        fullWidth
-                        helperText="可多選，按住 Ctrl/Command 鍵選多個"
-                      >
-                        {getAvailableSubjects().map((subject) => (
-                          <MenuItem key={subject.value} value={subject.value}>
-                            {subject.label}
-                          </MenuItem>
-                        ))}
-                      </TextField>
-                    )}
+                    <TextField
+                      select
+                      label="可教授科目 (多選)"
+                      SelectProps={{ multiple: true }}
+                      value={editForm.tutorProfile.subjects || []}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setEditForm(prev => ({
+                          ...prev,
+                          tutorProfile: {
+                            ...prev.tutorProfile,
+                            subjects: Array.isArray(value) ? value : [value]
+                          }
+                        }));
+                      }}
+                      fullWidth
+                      helperText="從已選擇的分類中選擇可教授的科目"
+                    >
+                      {getAllAvailableSubjects().map((subject) => (
+                        <MenuItem key={subject.value} value={subject.value}>
+                          {subject.label}
+                        </MenuItem>
+                      ))}
+                    </TextField>
                   </>
                 )}
 

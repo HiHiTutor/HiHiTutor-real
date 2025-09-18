@@ -201,6 +201,12 @@ const userSchema = new mongoose.Schema({
       type: [String],
       default: []
     },
+    // 支持多個課程分類
+    categories: {
+      type: [String],
+      default: []
+    },
+    // 保留單一分類字段以向後兼容
     category: {
       type: String
     },

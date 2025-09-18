@@ -36,6 +36,7 @@ const validateUserUpdate = (data) => {
       applicationStatus: Joi.string().valid('pending', 'approved', 'rejected', 'notApplied').optional().allow(''),
       educationLevel: Joi.string().optional().allow(''),
       // 課程相關字段 - 確保所有字段都被允許
+      categories: Joi.array().items(Joi.string()).optional().default([]),
       category: Joi.string().optional().allow(''),
       subCategory: Joi.string().optional().allow(''),
       teachingMode: Joi.string().optional().allow(''),
