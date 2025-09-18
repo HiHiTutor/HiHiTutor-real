@@ -861,6 +861,17 @@ const CreateCase: React.FC = () => {
 
 
             <TextField
+              label="要求（複數）"
+              name="requirements"
+              value={formData.requirements}
+              onChange={handleChange}
+              multiline
+              rows={3}
+              helperText="此內容將顯示在前台學生個案詳情頁面的「要求」欄位中"
+              fullWidth
+            />
+
+            <TextField
               label="價格範圍"
               name="priceRange"
               value={formData.priceRange}
