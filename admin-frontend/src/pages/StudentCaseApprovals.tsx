@@ -96,6 +96,7 @@ const StudentCaseApprovals: React.FC = () => {
       const response = await api.get(`/admin/pending-student-cases?page=${page + 1}&limit=${rowsPerPage}`);
       
       if (response.data.success) {
+        console.log('🔍 API回傳的案例資料:', JSON.stringify(response.data.data.cases, null, 2));
         setCases(response.data.data.cases);
         setTotalCount(response.data.data.pagination.total);
       } else {
