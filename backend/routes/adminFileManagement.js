@@ -1,51 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 const User = require('../models/User');
-
-// 配置 multer 用於文件上傳
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const userId = req.params.userId;
-    const uploadPath = path.join(__dirname, '..', 'public', 'uploads', 'users', userId);
-    fs.mkdirSync(uploadPath, { recursive: true });
-    cb(null, uploadPath);
-  },
-  filename: function (req, file, cb) {
-    const timestamp = Date.now();
-    const extension = path.extname(file.originalname);
-    const filename = `${timestamp}_${file.originalname}`;
-    cb(null, filename);
-  }
-});
-
-const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB 限制
-  },
-  fileFilter: function (req, file, cb) {
-    // 允許常見的文件類型
-    const allowedTypes = [
-      'image/jpeg',
-      'image/png',
-      'image/gif',
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'text/plain'
-    ];
-    
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error('不支持的文件類型'), false);
-    }
-  }
-});
 
 // 獲取用戶文件列表
 router.get('/users/:userId/files', verifyToken, isAdmin, async (req, res) => {
@@ -125,11 +82,11 @@ router.get('/users/:userId/files', verifyToken, isAdmin, async (req, res) => {
   }
 });
 
-// 上傳文件到指定用戶
-router.post('/users/:userId/files', verifyToken, isAdmin, upload.array('files', 10), async (req, res) => {
+// 上傳文件到指定用戶 - 直接更新數據庫
+router.post('/users/:userId/files', verifyToken, isAdmin, async (req, res) => {
   try {
     const { userId } = req.params;
-    const { description } = req.body;
+    const { fileUrls, description } = req.body; // 接收文件 URL 數組
     
     // 檢查用戶是否存在 - 使用 userId 字段而不是 _id
     const user = await User.findOne({ userId: userId });
@@ -140,47 +97,44 @@ router.post('/users/:userId/files', verifyToken, isAdmin, upload.array('files', 
       });
     }
 
-    if (!req.files || req.files.length === 0) {
+    if (!fileUrls || !Array.isArray(fileUrls) || fileUrls.length === 0) {
       return res.status(400).json({
         success: false,
-        message: '沒有上傳文件'
+        message: '沒有提供文件 URL'
       });
     }
 
-    // 處理上傳的文件
-    const uploadedFiles = req.files.map(file => ({
-      filename: file.filename,
-      originalName: file.originalname,
-      url: `/uploads/users/${userId}/${file.filename}`,
-      size: file.size,
-      type: path.extname(file.filename).toLowerCase(),
-      uploadDate: new Date(),
-      description: description || ''
-    }));
-
-    // 更新用戶的組織文件記錄（如果用戶是機構）
-    if (user.userType === 'organization' && user.organizationProfile) {
-      if (!user.organizationProfile.documents) {
-        user.organizationProfile.documents = [];
-      }
-      
-      uploadedFiles.forEach(file => {
-        user.organizationProfile.documents.push({
-          type: 'admin_uploaded',
-          url: file.url,
-          filename: file.filename,
-          originalName: file.originalName,
-          description: file.description,
-          uploadDate: file.uploadDate
-        });
-      });
-      
-      await user.save();
+    // 將文件 URL 添加到用戶的 documents.educationCert 中
+    if (!user.documents) {
+      user.documents = { idCard: '', educationCert: [] };
     }
+    if (!user.documents.educationCert) {
+      user.documents.educationCert = [];
+    }
+
+    // 添加新文件到 educationCert 數組
+    const newFiles = fileUrls.filter(url => !user.documents.educationCert.includes(url));
+    user.documents.educationCert.push(...newFiles);
+
+    // 保存用戶記錄
+    await user.save();
+
+    const uploadedFiles = newFiles.map(url => {
+      const filename = url.split('/').pop();
+      return {
+        filename: filename,
+        url: url,
+        size: 0, // 無法獲取實際大小
+        uploadDate: new Date(),
+        type: path.extname(filename).toLowerCase(),
+        description: description || '',
+        source: 'educationCert'
+      };
+    });
 
     res.json({
       success: true,
-      message: '文件上傳成功',
+      message: `成功添加 ${uploadedFiles.length} 個文件`,
       data: {
         userId,
         userName: user.name,

@@ -787,43 +787,50 @@ const UserDetail: React.FC = () => {
   };
 
   const handleFileUpload = async () => {
-    if (!id || !selectedFiles || selectedFiles.length === 0) {
-      setError('請選擇要上傳的文件');
+    if (!id) {
+      setError('用戶 ID 不存在');
+      return;
+    }
+
+    // 檢查是否有文件 URL 輸入
+    const fileUrlInput = document.getElementById('fileUrlInput') as HTMLInputElement;
+    if (!fileUrlInput || !fileUrlInput.value.trim()) {
+      setError('請輸入文件 URL');
       return;
     }
 
     try {
       setUploading(true);
-      const formData = new FormData();
       
-      for (let i = 0; i < selectedFiles.length; i++) {
-        formData.append('files', selectedFiles[i]);
-      }
-      
-      if (fileDescription) {
-        formData.append('description', fileDescription);
+      // 將 URL 字符串分割成數組
+      const fileUrls = fileUrlInput.value
+        .split('\n')
+        .map(url => url.trim())
+        .filter(url => url.length > 0);
+
+      if (fileUrls.length === 0) {
+        setError('請輸入有效的文件 URL');
+        return;
       }
 
       const response = await api.post(
         `/admin/file-management/users/${id}/files`,
-        formData,
         {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+          fileUrls: fileUrls,
+          description: fileDescription
         }
       );
 
       if (response.data.success) {
-        setSuccess('文件上傳成功');
+        setSuccess(`成功添加 ${fileUrls.length} 個文件`);
         setUploadDialogOpen(false);
-        setSelectedFiles(null);
         setFileDescription('');
+        fileUrlInput.value = '';
         fetchUserFiles(id);
       }
     } catch (error: any) {
       console.error('Error uploading files:', error);
-      setError(error.message || '上傳文件失敗');
+      setError(error.message || '添加文件失敗');
     } finally {
       setUploading(false);
     }
@@ -2707,18 +2714,23 @@ const UserDetail: React.FC = () => {
       </Dialog>
 
       {/* 文件上傳對話框 */}
-      <Dialog open={uploadDialogOpen} onClose={() => setUploadDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>上傳文件</DialogTitle>
+      <Dialog open={uploadDialogOpen} onClose={() => setUploadDialogOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>添加文件</DialogTitle>
         <DialogContent>
           <Typography variant="body2" sx={{ mb: 2 }}>
-            為 {selectedUser?.name} 上傳文件
+            為 {selectedUser?.name} 添加文件（請輸入 S3 文件 URL）
           </Typography>
           
-          <input
-            type="file"
-            multiple
-            onChange={(e) => setSelectedFiles(e.target.files)}
-            style={{ marginBottom: '16px' }}
+          <TextField
+            id="fileUrlInput"
+            fullWidth
+            label="文件 URL（每行一個）"
+            multiline
+            rows={6}
+            placeholder="https://hihitutor-uploads.s3.ap-southeast-2.amazonaws.com/uploads/user-docs/1001000/example.jpg&#10;https://hihitutor-uploads.s3.ap-southeast-2.amazonaws.com/uploads/user-docs/1001000/example2.png"
+            variant="outlined"
+            sx={{ mb: 2 }}
+            helperText="請輸入完整的 S3 文件 URL，每行一個。文件會添加到用戶的教育證書中。"
           />
           
           <TextField
@@ -2738,9 +2750,9 @@ const UserDetail: React.FC = () => {
           <Button 
             onClick={handleFileUpload} 
             variant="contained"
-            disabled={uploading || !selectedFiles}
+            disabled={uploading}
           >
-            {uploading ? <CircularProgress size={20} /> : '上傳'}
+            {uploading ? <CircularProgress size={20} /> : '添加文件'}
           </Button>
         </DialogActions>
       </Dialog>
