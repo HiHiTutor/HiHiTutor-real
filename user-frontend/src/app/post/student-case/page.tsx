@@ -38,7 +38,13 @@ const formSchema = z.object({
   modes: z.array(z.string(), {
     required_error: '請輸入此欄位',
     invalid_type_error: '請輸入此欄位'
-  }).min(1, '請輸入此欄位'),
+  }).min(1, '請輸入此欄位').refine((modes) => {
+    // 允許的模式值
+    const validModes = ['in-person', 'online', 'both'];
+    return modes.every(mode => validModes.includes(mode));
+  }, {
+    message: '請選擇有效的教學模式'
+  }),
   regions: z.array(z.string()).optional(),
   subRegions: z.array(z.string()).optional(),
   price: z.coerce.number({

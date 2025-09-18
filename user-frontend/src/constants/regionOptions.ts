@@ -6,16 +6,6 @@ export interface RegionOption {
 
 export const REGION_OPTIONS = [
   {
-    value: 'unlimited',
-    label: '不限',
-    regions: []
-  },
-  {
-    value: 'all-hong-kong',
-    label: '全香港',
-    regions: []
-  },
-  {
     value: 'hong-kong-island',
     label: '香港島',
     regions: [

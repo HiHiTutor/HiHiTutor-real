@@ -223,8 +223,11 @@ const StudentCaseApprovals: React.FC = () => {
                 <TableCell>分類</TableCell>
                 <TableCell>科目</TableCell>
                 <TableCell>地區</TableCell>
-                <TableCell>預算</TableCell>
+                <TableCell>每堂堂費</TableCell>
+                <TableCell>每堂時長</TableCell>
+                <TableCell>每週堂數</TableCell>
                 <TableCell>教學模式</TableCell>
+                <TableCell>備註</TableCell>
                 <TableCell>學生</TableCell>
                 <TableCell>創建時間</TableCell>
                 <TableCell>操作</TableCell>
@@ -270,18 +273,42 @@ const StudentCaseApprovals: React.FC = () => {
                       ))}
                     </Box>
                   </TableCell>
-                  <TableCell>{caseItem.budget}</TableCell>
+                  <TableCell>
+                    <Typography variant="body2">
+                      {caseItem.budget ? `$${caseItem.budget}/堂` : '待議'}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2">
+                      {caseItem.duration ? 
+                        (caseItem.duration >= 60 ? 
+                          `${Math.floor(caseItem.duration / 60)}小時${caseItem.duration % 60 ? `${caseItem.duration % 60}分鐘` : ''}` :
+                          `${caseItem.duration}分鐘`
+                        ) : '未指定'
+                      }
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2">
+                      {caseItem.weeklyLessons ? `${caseItem.weeklyLessons}堂` : '未指定'}
+                    </Typography>
+                  </TableCell>
                   <TableCell>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                       {caseItem.modes?.map((mode, index) => (
                         <Chip 
                           key={index} 
-                          label={mode} 
+                          label={mode === 'in-person' ? '面授' : mode === 'online' ? '網課' : mode === 'both' ? '皆可' : mode} 
                           size="small" 
                           variant="outlined"
                         />
-                      )) || <Chip label={caseItem.mode} size="small" variant="outlined" />}
+                      )) || <Chip label={caseItem.mode === 'in-person' ? '面授' : caseItem.mode === 'online' ? '網課' : caseItem.mode === 'both' ? '皆可' : caseItem.mode} size="small" variant="outlined" />}
                     </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" sx={{ maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {caseItem.requirements || caseItem.requirement || '無備註'}
+                    </Typography>
                   </TableCell>
                   <TableCell>
                     {caseItem.studentId ? (
