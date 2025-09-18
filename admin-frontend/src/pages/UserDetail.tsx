@@ -303,6 +303,8 @@ const UserDetail: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [fileDescription, setFileDescription] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [previewFile, setPreviewFile] = useState<FileItem | null>(null);
 
   // 地區選擇相關狀態
   const [selectedRegion, setSelectedRegion] = useState<string>('');
@@ -865,6 +867,19 @@ const UserDetail: React.FC = () => {
         handleFileDownload(file);
       }, index * 500); // 每個文件間隔 500ms
     });
+  };
+
+  // 預覽文件
+  const handleFilePreview = (file: FileItem) => {
+    setPreviewFile(file);
+    setPreviewDialogOpen(true);
+  };
+
+  // 檢查是否為圖片文件
+  const isImageFile = (filename: string) => {
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.svg'];
+    const ext = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+    return imageExtensions.includes(ext);
   };
 
   const formatFileSize = (bytes: number) => {
@@ -1857,6 +1872,16 @@ const UserDetail: React.FC = () => {
                           {new Date(file.uploadDate).toLocaleString('zh-TW')}
                         </TableCell>
                         <TableCell>
+                          {isImageFile(file.filename) && (
+                            <IconButton
+                              size="small"
+                              onClick={() => handleFilePreview(file)}
+                              title="預覽"
+                              color="primary"
+                            >
+                              <ImageIcon />
+                            </IconButton>
+                          )}
                           <IconButton
                             size="small"
                             onClick={() => handleFileDownload(file)}
@@ -2716,6 +2741,81 @@ const UserDetail: React.FC = () => {
             disabled={uploading || !selectedFiles}
           >
             {uploading ? <CircularProgress size={20} /> : '上傳'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* 文件預覽對話框 */}
+      <Dialog 
+        open={previewDialogOpen} 
+        onClose={() => setPreviewDialogOpen(false)} 
+        maxWidth="md" 
+        fullWidth
+      >
+        <DialogTitle>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <ImageIcon />
+            文件預覽 - {previewFile?.filename}
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          {previewFile && (
+            <Box sx={{ textAlign: 'center' }}>
+              <img
+                src={previewFile.url}
+                alt={previewFile.filename}
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '70vh',
+                  objectFit: 'contain',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+                }}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const errorDiv = document.createElement('div');
+                  errorDiv.innerHTML = `
+                    <div style="padding: 40px; text-align: center; color: #666;">
+                      <p>無法載入圖片</p>
+                      <p>文件可能已損壞或格式不支援</p>
+                      <a href="${previewFile.url}" target="_blank" style="color: #1976d2; text-decoration: none;">
+                        點擊此處直接查看
+                      </a>
+                    </div>
+                  `;
+                  target.parentNode?.replaceChild(errorDiv, target);
+                }}
+              />
+              <Box sx={{ mt: 2, textAlign: 'left' }}>
+                <Typography variant="body2" color="text.secondary">
+                  <strong>文件名：</strong> {previewFile.filename}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  <strong>類型：</strong> {previewFile.type}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  <strong>大小：</strong> {formatFileSize(previewFile.size)}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  <strong>來源：</strong> {previewFile.sources?.map(source => 
+                    source === 'publicCertificates' ? '公開證書' : '教育證書'
+                  ).join(', ')}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPreviewDialogOpen(false)}>
+            關閉
+          </Button>
+          <Button 
+            onClick={() => previewFile && handleFileDownload(previewFile)} 
+            variant="contained"
+            startIcon={<DownloadIcon />}
+          >
+            下載文件
           </Button>
         </DialogActions>
       </Dialog>
