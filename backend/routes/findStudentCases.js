@@ -499,6 +499,8 @@ router.post('/', verifyToken, async (req, res) => {
       durationUnit,
       weeklyLessons,
       requirements,
+      detailedAddress,
+      startDate,
       // 新增的推薦相關字段
       isVip,
       vipLevel,
@@ -566,6 +568,7 @@ router.post('/', verifyToken, async (req, res) => {
       // tutorId,
       studentId: student, // 添加學生ID
       title: title || '',
+      description: description || '',
       category,
       subCategory: subCategory || '',
       subjects: Array.isArray(subjects) ? subjects : [subjects],
@@ -579,6 +582,8 @@ router.post('/', verifyToken, async (req, res) => {
       durationUnit: durationUnit || 'minutes',
       weeklyLessons: weeklyLessons || 1,
       requirements: requirements || description || '',
+      detailedAddress: detailedAddress || '',
+      startDate: startDate ? new Date(startDate) : null,
       featured: featured !== undefined ? featured : false,
       // 新增的推薦相關字段
       isVip: isVip !== undefined ? isVip : false,
