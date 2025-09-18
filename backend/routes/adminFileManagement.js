@@ -52,8 +52,8 @@ router.get('/users/:userId/files', verifyToken, isAdmin, async (req, res) => {
   try {
     const { userId } = req.params;
     
-    // 檢查用戶是否存在
-    const user = await User.findById(userId);
+    // 檢查用戶是否存在 - 使用 userId 字段而不是 _id
+    const user = await User.findOne({ userId: userId });
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -104,8 +104,8 @@ router.post('/users/:userId/files', verifyToken, isAdmin, upload.array('files', 
     const { userId } = req.params;
     const { description } = req.body;
     
-    // 檢查用戶是否存在
-    const user = await User.findById(userId);
+    // 檢查用戶是否存在 - 使用 userId 字段而不是 _id
+    const user = await User.findOne({ userId: userId });
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -175,8 +175,8 @@ router.delete('/users/:userId/files/:filename', verifyToken, isAdmin, async (req
   try {
     const { userId, filename } = req.params;
     
-    // 檢查用戶是否存在
-    const user = await User.findById(userId);
+    // 檢查用戶是否存在 - 使用 userId 字段而不是 _id
+    const user = await User.findOne({ userId: userId });
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -238,8 +238,8 @@ router.delete('/users/:userId/files', verifyToken, isAdmin, async (req, res) => 
       });
     }
     
-    // 檢查用戶是否存在
-    const user = await User.findById(userId);
+    // 檢查用戶是否存在 - 使用 userId 字段而不是 _id
+    const user = await User.findOne({ userId: userId });
     if (!user) {
       return res.status(404).json({
         success: false,
