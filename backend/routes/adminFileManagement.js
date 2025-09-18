@@ -129,17 +129,34 @@ router.post('/users/:userId/files', verifyToken, isAdmin, upload.single('file'),
     // 生成 S3 URL
     const url = `https://${BUCKET_NAME}.s3.ap-southeast-2.amazonaws.com/${key}`;
     
-    // 將文件 URL 添加到用戶的 documents.educationCert 中
+    // 將文件 URL 添加到用戶的多個字段中，確保前台能正確顯示
+    let updated = false;
+
+    // 添加到 documents.educationCert
     if (!user.documents) {
       user.documents = { idCard: '', educationCert: [] };
     }
     if (!user.documents.educationCert) {
       user.documents.educationCert = [];
     }
-
-    // 檢查文件是否已存在
     if (!user.documents.educationCert.includes(url)) {
       user.documents.educationCert.push(url);
+      updated = true;
+    }
+
+    // 添加到 tutorProfile.publicCertificates（如果是導師）
+    if (user.userType === 'tutor' && user.tutorProfile) {
+      if (!user.tutorProfile.publicCertificates) {
+        user.tutorProfile.publicCertificates = [];
+      }
+      if (!user.tutorProfile.publicCertificates.includes(url)) {
+        user.tutorProfile.publicCertificates.push(url);
+        updated = true;
+      }
+    }
+
+    // 檢查文件是否已存在
+    if (updated) {
       await user.save();
 
       const uploadedFile = {
@@ -193,13 +210,18 @@ router.delete('/users/:userId/files/:filename', verifyToken, isAdmin, async (req
 
     let fileFound = false;
     let updated = false;
+    let fileUrl = '';
 
     // 從 tutorProfile.publicCertificates 中移除文件
     if (user.tutorProfile && user.tutorProfile.publicCertificates) {
       const originalLength = user.tutorProfile.publicCertificates.length;
       user.tutorProfile.publicCertificates = user.tutorProfile.publicCertificates.filter(url => {
         const urlFilename = url.split('/').pop();
-        return urlFilename !== filename;
+        if (urlFilename === filename) {
+          fileUrl = url;
+          return false; // 移除這個文件
+        }
+        return true;
       });
       if (user.tutorProfile.publicCertificates.length < originalLength) {
         fileFound = true;
@@ -212,9 +234,30 @@ router.delete('/users/:userId/files/:filename', verifyToken, isAdmin, async (req
       const originalLength = user.documents.educationCert.length;
       user.documents.educationCert = user.documents.educationCert.filter(url => {
         const urlFilename = url.split('/').pop();
-        return urlFilename !== filename;
+        if (urlFilename === filename) {
+          fileUrl = url;
+          return false; // 移除這個文件
+        }
+        return true;
       });
       if (user.documents.educationCert.length < originalLength) {
+        fileFound = true;
+        updated = true;
+      }
+    }
+
+    // 從 organizationProfile.documents 中移除文件
+    if (user.organizationProfile && user.organizationProfile.documents) {
+      const originalLength = user.organizationProfile.documents.length;
+      user.organizationProfile.documents = user.organizationProfile.documents.filter(doc => {
+        const urlFilename = doc.url ? doc.url.split('/').pop() : '';
+        if (urlFilename === filename) {
+          fileUrl = doc.url;
+          return false; // 移除這個文件
+        }
+        return true;
+      });
+      if (user.organizationProfile.documents.length < originalLength) {
         fileFound = true;
         updated = true;
       }
@@ -225,6 +268,29 @@ router.delete('/users/:userId/files/:filename', verifyToken, isAdmin, async (req
         success: false,
         message: '文件不存在'
       });
+    }
+
+    // 從 S3 中刪除文件
+    if (fileUrl) {
+      try {
+        const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
+        const { s3Client, BUCKET_NAME } = require('../config/s3');
+        
+        // 從 URL 中提取 S3 key
+        const urlParts = fileUrl.split('/');
+        const key = urlParts.slice(3).join('/'); // 移除 https://bucket.s3.region.amazonaws.com/ 部分
+        
+        const deleteCommand = new DeleteObjectCommand({
+          Bucket: BUCKET_NAME,
+          Key: key
+        });
+        
+        await s3Client.send(deleteCommand);
+        console.log('✅ S3 文件刪除成功:', key);
+      } catch (s3Error) {
+        console.error('❌ S3 文件刪除失敗:', s3Error);
+        // 不影響數據庫刪除，只記錄錯誤
+      }
     }
 
     // 保存更新後的用戶記錄
@@ -280,13 +346,18 @@ router.delete('/users/:userId/files', verifyToken, isAdmin, async (req, res) => 
     for (const filename of filenames) {
       try {
         let fileFound = false;
+        let fileUrl = '';
 
         // 從 tutorProfile.publicCertificates 中移除文件
         if (user.tutorProfile && user.tutorProfile.publicCertificates) {
           const originalLength = user.tutorProfile.publicCertificates.length;
           user.tutorProfile.publicCertificates = user.tutorProfile.publicCertificates.filter(url => {
             const urlFilename = url.split('/').pop();
-            return urlFilename !== filename;
+            if (urlFilename === filename) {
+              fileUrl = url;
+              return false; // 移除這個文件
+            }
+            return true;
           });
           if (user.tutorProfile.publicCertificates.length < originalLength) {
             fileFound = true;
@@ -299,7 +370,11 @@ router.delete('/users/:userId/files', verifyToken, isAdmin, async (req, res) => 
           const originalLength = user.documents.educationCert.length;
           user.documents.educationCert = user.documents.educationCert.filter(url => {
             const urlFilename = url.split('/').pop();
-            return urlFilename !== filename;
+            if (urlFilename === filename) {
+              fileUrl = url;
+              return false; // 移除這個文件
+            }
+            return true;
           });
           if (user.documents.educationCert.length < originalLength) {
             fileFound = true;
@@ -307,8 +382,48 @@ router.delete('/users/:userId/files', verifyToken, isAdmin, async (req, res) => 
           }
         }
 
+        // 從 organizationProfile.documents 中移除文件
+        if (user.organizationProfile && user.organizationProfile.documents) {
+          const originalLength = user.organizationProfile.documents.length;
+          user.organizationProfile.documents = user.organizationProfile.documents.filter(doc => {
+            const urlFilename = doc.url ? doc.url.split('/').pop() : '';
+            if (urlFilename === filename) {
+              fileUrl = doc.url;
+              return false; // 移除這個文件
+            }
+            return true;
+          });
+          if (user.organizationProfile.documents.length < originalLength) {
+            fileFound = true;
+            updated = true;
+          }
+        }
+
         if (fileFound) {
           deletedFiles.push(filename);
+          
+          // 從 S3 中刪除文件
+          if (fileUrl) {
+            try {
+              const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
+              const { s3Client, BUCKET_NAME } = require('../config/s3');
+              
+              // 從 URL 中提取 S3 key
+              const urlParts = fileUrl.split('/');
+              const key = urlParts.slice(3).join('/'); // 移除 https://bucket.s3.region.amazonaws.com/ 部分
+              
+              const deleteCommand = new DeleteObjectCommand({
+                Bucket: BUCKET_NAME,
+                Key: key
+              });
+              
+              await s3Client.send(deleteCommand);
+              console.log('✅ S3 文件刪除成功:', key);
+            } catch (s3Error) {
+              console.error('❌ S3 文件刪除失敗:', s3Error);
+              // 不影響數據庫刪除，只記錄錯誤
+            }
+          }
         } else {
           failedFiles.push({ filename, reason: '文件不存在' });
         }
