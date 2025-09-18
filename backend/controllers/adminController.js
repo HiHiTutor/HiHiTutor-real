@@ -95,7 +95,7 @@ const createUser = async (req, res) => {
     }
 
     // 創建新用戶 - 密碼會由 User model 的 pre-save middleware 自動加密
-    const user = new User({
+    const userData = {
       name,
       email,
       phone,
@@ -103,10 +103,16 @@ const createUser = async (req, res) => {
       userType,
       status: 'active',
       userId: nextUserId,
-      tutorId,
       orgId,
       ...(finalTutorProfile ? { tutorProfile: finalTutorProfile } : {})
-    });
+    };
+
+    // 只有當 userType 為 tutor 且有 tutorId 時才添加 tutorId 字段
+    if (userType === 'tutor' && tutorId) {
+      userData.tutorId = tutorId;
+    }
+
+    const user = new User(userData);
 
     await user.save();
 
@@ -133,8 +139,25 @@ const createUser = async (req, res) => {
     if (error.code === 11000) {
       // MongoDB 重複鍵錯誤
       const field = Object.keys(error.keyValue)[0];
+      const value = error.keyValue[field];
+      
+      // 提供更詳細的錯誤信息
+      let errorMessage = `${field} already exists`;
+      if (field === 'tutorId') {
+        errorMessage = `導師ID "${value}" 已存在，請檢查數據庫狀態或聯繫管理員`;
+      } else if (field === 'email') {
+        errorMessage = `電子郵件 "${value}" 已被註冊`;
+      } else if (field === 'phone') {
+        errorMessage = `電話號碼 "${value}" 已被註冊`;
+      } else if (field === 'userId') {
+        errorMessage = `用戶ID "${value}" 已存在，請檢查數據庫狀態`;
+      }
+      
+      console.error(`❌ 重複鍵錯誤: ${field} = ${value}`, error);
       return res.status(400).json({ 
-        message: `${field} already exists` 
+        message: errorMessage,
+        field: field,
+        value: value
       });
     }
     
