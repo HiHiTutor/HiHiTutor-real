@@ -125,7 +125,8 @@ export const SUBREGION_MAP: Record<string, string> = {
   'yau-tsim-mong': '油尖旺區',
   'kowloon-city': '九龍城區',
   'kwai-tsing': '葵青區',
-  'north': '北區'
+  'north': '北區',
+  'mei-foo': '美孚'
 };
 
 // 教學模式映射

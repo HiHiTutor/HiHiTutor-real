@@ -768,14 +768,6 @@ const CreateCase: React.FC = () => {
               </Select>
             </FormControl>
 
-            <TextField
-              label="經驗要求"
-              name="experience"
-              value={formData.experience}
-              onChange={handleChange}
-              multiline
-              rows={2}
-            />
 
             <TextField
               label="用戶ID"
