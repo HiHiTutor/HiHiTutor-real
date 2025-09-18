@@ -382,7 +382,9 @@ router.post('/', verifyToken, async (req, res) => {
       id: uniqueId,
       studentId: studentId,
       title,
+      description: description || '',
       requirement: requirement || requirements || '',
+      requirements: requirements || requirement || '',
       category,
       subCategory: subCategory || '',
       subjects,
@@ -393,6 +395,8 @@ router.post('/', verifyToken, async (req, res) => {
       duration,
       durationUnit,
       weeklyLessons,
+      startDate: startDate ? new Date(startDate) : undefined,
+      detailedAddress: req.body.detailedAddress || '',
       status: 'open',
       featured: false,
       isApproved: true

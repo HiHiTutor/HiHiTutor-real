@@ -946,6 +946,8 @@ const createCase = async (req, res) => {
       requirements,
       region,
       priceRange,
+      detailedAddress,
+      startDate,
       featured,
       isVip,
       vipLevel,
@@ -968,6 +970,7 @@ const createCase = async (req, res) => {
       const caseData = {
         id: uniqueId, // StudentCase 模型需要這個字段
         title: title || '',
+        description: description || '',
         subject: subject || '',
         subjects: subjects || [],
         category: category || '',
@@ -979,6 +982,8 @@ const createCase = async (req, res) => {
         modes: modes || (mode ? [mode] : ['線上']), // 新增：支持modes字段
         requirement: requirement || description || '',
         requirements: requirements || description || '', // 新增：支持requirements字段
+        detailedAddress: detailedAddress || '',
+        startDate: startDate ? new Date(startDate) : undefined,
         status: 'open',
         isApproved: isApproved !== undefined ? isApproved : true,
         featured: featured !== undefined ? featured : false,
