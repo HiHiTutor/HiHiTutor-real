@@ -852,13 +852,13 @@ const CreateCase: React.FC = () => {
 
 
             <TextField
-              label="要求"
+              label="備註 e.g. 屋苑"
               name="requirements"
               value={formData.requirements}
               onChange={handleChange}
               multiline
               rows={3}
-              helperText="此內容將顯示在前台學生個案詳情頁面的「要求」欄位中"
+              helperText="此內容將顯示在前台學生個案詳情頁面的「備註」欄位中"
               fullWidth
             />
 

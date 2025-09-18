@@ -232,7 +232,7 @@ export default function FindStudentCaseDetailPage() {
           </div>
           
           <div className="bg-blue-50 rounded-lg p-4">
-            <h3 className="font-semibold text-blue-800 mb-2">📋 要求</h3>
+            <h3 className="font-semibold text-blue-800 mb-2">📋 備註</h3>
             <p className="text-gray-700">{getRequirements()}</p>
           </div>
           
