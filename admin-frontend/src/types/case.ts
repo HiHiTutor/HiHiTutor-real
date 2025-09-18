@@ -37,6 +37,8 @@ export interface Case {
   requirements?: string;      // 要求（複數）
   region?: string[];          // 地區
   priceRange?: string;        // 價格範圍
+  detailedAddress?: string;   // 詳細地址
+  startDate?: string;         // 開始上堂日子
   featured?: boolean;         // 特色
   isVip?: boolean;            // VIP
   vipLevel?: number;          // VIP等級
@@ -97,6 +99,8 @@ export interface CreateCaseData {
   requirements?: string;      // 要求（複數）
   region?: string[];          // 地區
   priceRange?: string;        // 價格範圍
+  detailedAddress?: string;   // 詳細地址
+  startDate?: string;         // 開始上堂日子
   featured?: boolean;         // 特色
   isVip?: boolean;            // VIP
   vipLevel?: number;          // VIP等級
@@ -108,4 +112,4 @@ export interface CreateCaseData {
   paymentType?: string;       // 付費類型
   promotionLevel?: number;    // 推廣等級
   isApproved?: boolean;       // 已審批
-} 
+}
