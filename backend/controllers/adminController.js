@@ -42,6 +42,47 @@ const createUser = async (req, res) => {
   try {
     const { name, email, phone, password, userType, tutorProfile } = req.body;
 
+    // 基本輸入驗證
+    console.log('📥 收到創建用戶請求:', { 
+      name: name || '[未提供]', 
+      email: email || '[未提供]', 
+      phone: phone || '[未提供]', 
+      userType: userType || '[未提供]',
+      password: password ? '[已提供]' : '[未提供]'
+    });
+
+    // 檢查必填字段
+    const missingFields = [];
+    if (!name) missingFields.push('name');
+    if (!email) missingFields.push('email');
+    if (!phone) missingFields.push('phone');
+    if (!password) missingFields.push('password');
+    if (!userType) missingFields.push('userType');
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        message: 'Missing required fields',
+        missingFields: missingFields,
+        receivedData: {
+          name: name || '[未提供]',
+          email: email || '[未提供]',
+          phone: phone || '[未提供]',
+          userType: userType || '[未提供]',
+          password: password ? '[已提供]' : '[未提供]'
+        }
+      });
+    }
+
+    // 檢查 userType 是否有效
+    const validUserTypes = ['student', 'tutor', 'organization', 'admin', 'super_admin'];
+    if (!validUserTypes.includes(userType)) {
+      return res.status(400).json({
+        message: 'Invalid userType',
+        receivedUserType: userType,
+        validUserTypes: validUserTypes
+      });
+    }
+
     // 檢查郵箱是否已存在
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -129,10 +170,29 @@ const createUser = async (req, res) => {
     
     // 提供更詳細的錯誤信息
     if (error.name === 'ValidationError') {
-      const validationErrors = Object.values(error.errors).map((err) => err.message);
+      const validationErrors = {};
+      const errorMessages = [];
+      
+      // 詳細解析每個驗證錯誤
+      for (const [field, err] of Object.entries(error.errors)) {
+        validationErrors[field] = err.message;
+        errorMessages.push(`${field}: ${err.message}`);
+      }
+      
+      console.error('❌ 驗證錯誤詳情:', validationErrors);
+      console.error('❌ 收到的數據:', { name, email, phone, userType, password: password ? '[已隱藏]' : '[未提供]' });
+      
       return res.status(400).json({ 
         message: 'Validation failed', 
-        errors: validationErrors 
+        errors: validationErrors,
+        errorMessages: errorMessages,
+        receivedData: {
+          name: name || '[未提供]',
+          email: email || '[未提供]',
+          phone: phone || '[未提供]',
+          userType: userType || '[未提供]',
+          password: password ? '[已提供]' : '[未提供]'
+        }
       });
     }
     
