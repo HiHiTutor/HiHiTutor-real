@@ -194,8 +194,20 @@ const Cases: React.FC = () => {
               <TableCell>編號</TableCell>
               <TableCell>類型</TableCell>
               <TableCell>標題</TableCell>
-              <TableCell>用戶ID</TableCell>
               <TableCell>分類</TableCell>
+              <TableCell>子分類</TableCell>
+              <TableCell>科目</TableCell>
+              <TableCell>地區</TableCell>
+              <TableCell>分區</TableCell>
+              <TableCell>每堂堂費</TableCell>
+              <TableCell>每堂時長</TableCell>
+              <TableCell>每週堂數</TableCell>
+              <TableCell>教學模式</TableCell>
+              <TableCell>備註</TableCell>
+              <TableCell>詳細地址</TableCell>
+              <TableCell>開始上堂日子</TableCell>
+              <TableCell>詳細描述</TableCell>
+              <TableCell>用戶ID</TableCell>
               <TableCell>狀態</TableCell>
               <TableCell>建立時間</TableCell>
               <TableCell>操作</TableCell>
