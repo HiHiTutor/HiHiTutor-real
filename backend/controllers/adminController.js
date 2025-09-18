@@ -2341,6 +2341,8 @@ const getPendingStudentCases = async (req, res) => {
       .skip(skip)
       .limit(parseInt(limit));
     
+    console.log('🔍 待審批案例資料:', JSON.stringify(pendingCases, null, 2));
+    
     const total = await StudentCase.countDocuments(query);
     
     res.json({
