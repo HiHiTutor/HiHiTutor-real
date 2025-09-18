@@ -786,15 +786,6 @@ const CreateCase: React.FC = () => {
               fullWidth
             />
 
-            <TextField
-              label="價格"
-              name="price"
-              type="number"
-              value={formData.price}
-              onChange={handleChange}
-              helperText="輸入價格（數字）"
-              fullWidth
-            />
 
             {/* 每堂時長 - 與前台格式一致 */}
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
@@ -861,7 +852,7 @@ const CreateCase: React.FC = () => {
 
 
             <TextField
-              label="要求（複數）"
+              label="要求"
               name="requirements"
               value={formData.requirements}
               onChange={handleChange}
@@ -871,14 +862,6 @@ const CreateCase: React.FC = () => {
               fullWidth
             />
 
-            <TextField
-              label="價格範圍"
-              name="priceRange"
-              value={formData.priceRange}
-              onChange={handleChange}
-              helperText="輸入價格範圍（如：100-200）"
-              fullWidth
-            />
 
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
               <FormControlLabel
