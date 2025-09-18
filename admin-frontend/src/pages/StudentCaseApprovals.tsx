@@ -44,6 +44,7 @@ interface StudentCase {
   modes?: string[];
   requirement?: string;
   requirements?: string;
+  detailedAddress?: string;
   duration: number;
   weeklyLessons: number;
   studentId?: {
@@ -228,6 +229,7 @@ const StudentCaseApprovals: React.FC = () => {
                 <TableCell>每週堂數</TableCell>
                 <TableCell>教學模式</TableCell>
                 <TableCell>備註</TableCell>
+                <TableCell>詳細地址</TableCell>
                 <TableCell>學生</TableCell>
                 <TableCell>創建時間</TableCell>
                 <TableCell>操作</TableCell>
@@ -308,6 +310,11 @@ const StudentCaseApprovals: React.FC = () => {
                   <TableCell>
                     <Typography variant="body2" sx={{ maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {caseItem.requirements || caseItem.requirement || '無備註'}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {caseItem.detailedAddress || '無詳細地址'}
                     </Typography>
                   </TableCell>
                   <TableCell>

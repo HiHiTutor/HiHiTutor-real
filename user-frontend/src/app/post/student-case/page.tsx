@@ -47,6 +47,7 @@ const formSchema = z.object({
   }),
   regions: z.array(z.string()).optional(),
   subRegions: z.array(z.string()).optional(),
+  detailedAddress: z.string().optional(),
   price: z.coerce.number({
     invalid_type_error: '請輸入此欄位',
     required_error: '請輸入此欄位'
@@ -208,7 +209,10 @@ export default function PostStudentCase() {
     watch,
     getValues
   } = useForm<FormData>({
-    resolver: zodResolver(formSchema)
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      modes: ['both'] // 預設選擇「皆可」
+    }
   });
 
   const watchModes = watch('modes');
@@ -659,6 +663,22 @@ export default function PostStudentCase() {
                     )}
                   </div>
                 )}
+
+                {/* 詳細地址 - 僅面授或皆可時顯示 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    詳細地址（可選）
+                  </label>
+                  <Textarea
+                    {...register('detailedAddress')}
+                    placeholder="請輸入詳細地址，例如：九龍塘窩打老道123號ABC大廈5樓A室"
+                    className="w-full"
+                    rows={3}
+                  />
+                  <p className="mt-1 text-sm text-gray-500">
+                    此地址僅供配對專員參考，不會公開顯示
+                  </p>
+                </div>
               </>
             )}
 
