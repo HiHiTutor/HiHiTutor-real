@@ -187,29 +187,28 @@ const Cases: React.FC = () => {
         </Box>
       </Stack>
 
-      <TableContainer component={Paper}>
-        <Table>
+      <TableContainer component={Paper} sx={{ overflow: 'auto' }}>
+        <Table sx={{ minWidth: 1200 }}>
           <TableHead>
             <TableRow>
-              <TableCell>編號</TableCell>
-              <TableCell>類型</TableCell>
-              <TableCell>標題</TableCell>
-              <TableCell>分類</TableCell>
-              <TableCell>子分類</TableCell>
-              <TableCell>科目</TableCell>
-              <TableCell>地區</TableCell>
-              <TableCell>分區</TableCell>
-              <TableCell>每堂堂費</TableCell>
-              <TableCell>每堂時長</TableCell>
-              <TableCell>每週堂數</TableCell>
-              <TableCell>教學模式</TableCell>
-              <TableCell>詳細地址</TableCell>
-              <TableCell>開始上堂日子</TableCell>
-              <TableCell>詳細描述</TableCell>
-              <TableCell>申請者</TableCell>
-              <TableCell>狀態</TableCell>
-              <TableCell>建立時間</TableCell>
-              <TableCell>操作</TableCell>
+              <TableCell sx={{ minWidth: 80, position: 'sticky', left: 0, backgroundColor: 'white', zIndex: 1 }}>
+                編號
+              </TableCell>
+              <TableCell sx={{ minWidth: 80 }}>類型</TableCell>
+              <TableCell sx={{ minWidth: 200, position: 'sticky', left: 80, backgroundColor: 'white', zIndex: 1 }}>
+                標題
+              </TableCell>
+              <TableCell sx={{ minWidth: 120 }}>分類資訊</TableCell>
+              <TableCell sx={{ minWidth: 150 }}>科目地區</TableCell>
+              <TableCell sx={{ minWidth: 120 }}>費用時長</TableCell>
+              <TableCell sx={{ minWidth: 100 }}>教學模式</TableCell>
+              <TableCell sx={{ minWidth: 200 }}>詳細資訊</TableCell>
+              <TableCell sx={{ minWidth: 120 }}>申請者</TableCell>
+              <TableCell sx={{ minWidth: 80 }}>狀態</TableCell>
+              <TableCell sx={{ minWidth: 100 }}>建立時間</TableCell>
+              <TableCell sx={{ minWidth: 80, position: 'sticky', right: 0, backgroundColor: 'white', zIndex: 1 }}>
+                操作
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -220,7 +219,11 @@ const Cases: React.FC = () => {
                 onClick={() => handleRowClick(caseItem.id || caseItem._id, caseItem.type)}
                 sx={{ cursor: 'pointer' }}
               >
-                <TableCell>{caseItem.id || caseItem._id}</TableCell>
+                <TableCell sx={{ position: 'sticky', left: 0, backgroundColor: 'white', zIndex: 1 }}>
+                  <Typography variant="caption">
+                    {caseItem.id || caseItem._id}
+                  </Typography>
+                </TableCell>
                 <TableCell>
                   <Chip
                     label={getTypeLabel(getCaseType(caseItem))}
@@ -228,76 +231,82 @@ const Cases: React.FC = () => {
                     size="small"
                   />
                 </TableCell>
-                <TableCell>{caseItem.title}</TableCell>
-                <TableCell>
-                  <Chip 
-                    label={caseItem.category} 
-                    size="small" 
-                    color="primary" 
-                    variant="outlined"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2">
-                    {caseItem.subCategory || '無子分類'}
+                <TableCell sx={{ position: 'sticky', left: 80, backgroundColor: 'white', zIndex: 1 }}>
+                  <Typography variant="body2" sx={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {caseItem.title}
                   </Typography>
                 </TableCell>
                 <TableCell>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {caseItem.subjects?.map((subject, index) => (
-                      <Chip 
-                        key={index} 
-                        label={subject} 
-                        size="small" 
-                        variant="outlined"
-                      />
-                    ))}
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                    <Chip 
+                      label={caseItem.category} 
+                      size="small" 
+                      color="primary" 
+                      variant="outlined"
+                    />
+                    <Typography variant="caption" color="text.secondary">
+                      {caseItem.subCategory || '無子分類'}
+                    </Typography>
                   </Box>
                 </TableCell>
                 <TableCell>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {caseItem.regions?.map((region, index) => (
-                      <Chip 
-                        key={index} 
-                        label={region} 
-                        size="small" 
-                        variant="outlined"
-                      />
-                    ))}
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {caseItem.subjects?.slice(0, 2).map((subject, index) => (
+                        <Chip 
+                          key={index} 
+                          label={subject} 
+                          size="small" 
+                          variant="outlined"
+                        />
+                      ))}
+                      {caseItem.subjects && caseItem.subjects.length > 2 && (
+                        <Chip 
+                          label={`+${caseItem.subjects.length - 2}`} 
+                          size="small" 
+                          variant="outlined"
+                          color="secondary"
+                        />
+                      )}
+                    </Box>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {caseItem.regions?.slice(0, 2).map((region, index) => (
+                        <Chip 
+                          key={index} 
+                          label={region} 
+                          size="small" 
+                          variant="outlined"
+                          color="info"
+                        />
+                      ))}
+                      {caseItem.regions && caseItem.regions.length > 2 && (
+                        <Chip 
+                          label={`+${caseItem.regions.length - 2}`} 
+                          size="small" 
+                          variant="outlined"
+                          color="secondary"
+                        />
+                      )}
+                    </Box>
                   </Box>
                 </TableCell>
                 <TableCell>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {caseItem.subRegions?.map((subRegion, index) => (
-                      <Chip 
-                        key={index} 
-                        label={subRegion} 
-                        size="small" 
-                        variant="outlined"
-                        color="secondary"
-                      />
-                    )) || <Typography variant="body2" color="text.secondary">無分區</Typography>}
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                    <Typography variant="body2">
+                      {caseItem.budget ? `$${caseItem.budget}/堂` : '待議'}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {caseItem.duration ? 
+                        (caseItem.duration >= 60 ? 
+                          `${Math.floor(caseItem.duration / 60)}小時${caseItem.duration % 60 ? `${caseItem.duration % 60}分鐘` : ''}` :
+                          `${caseItem.duration}分鐘`
+                        ) : '未指定'
+                      }
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {caseItem.weeklyLessons ? `${caseItem.weeklyLessons}堂/週` : '未指定'}
+                    </Typography>
                   </Box>
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2">
-                    {caseItem.budget ? `$${caseItem.budget}/堂` : '待議'}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2">
-                    {caseItem.duration ? 
-                      (caseItem.duration >= 60 ? 
-                        `${Math.floor(caseItem.duration / 60)}小時${caseItem.duration % 60 ? `${caseItem.duration % 60}分鐘` : ''}` :
-                        `${caseItem.duration}分鐘`
-                      ) : '未指定'
-                    }
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2">
-                    {caseItem.weeklyLessons ? `${caseItem.weeklyLessons}堂` : '未指定'}
-                  </Typography>
                 </TableCell>
                 <TableCell>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -312,19 +321,17 @@ const Cases: React.FC = () => {
                   </Box>
                 </TableCell>
                 <TableCell>
-                  <Typography variant="body2" sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {caseItem.detailedAddress || '無詳細地址'}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2">
-                    {caseItem.startDate ? new Date(caseItem.startDate).toLocaleDateString('zh-TW') : '未指定'}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2" sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {caseItem.requirements || caseItem.requirement || '無詳細描述'}
-                  </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                    <Typography variant="caption" sx={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {caseItem.detailedAddress || '無詳細地址'}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {caseItem.startDate ? new Date(caseItem.startDate).toLocaleDateString('zh-TW') : '未指定開始日期'}
+                    </Typography>
+                    <Typography variant="caption" sx={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {caseItem.requirements || caseItem.requirement || '無詳細描述'}
+                    </Typography>
+                  </Box>
                 </TableCell>
                 <TableCell>
                   {caseItem.studentId ? (
@@ -337,12 +344,12 @@ const Cases: React.FC = () => {
                           window.open(`mailto:${caseItem.studentId.email}`, '_blank');
                         }
                       }}
-                      sx={{ textTransform: 'none', p: 0, minWidth: 'auto' }}
+                      sx={{ textTransform: 'none', p: 0, minWidth: 'auto', fontSize: '0.75rem' }}
                     >
                       {caseItem.studentId.name || caseItem.studentId.userId || '未知'}
                     </Button>
                   ) : (
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="caption" color="text.secondary">
                       未指定
                     </Typography>
                   )}
@@ -355,9 +362,11 @@ const Cases: React.FC = () => {
                   />
                 </TableCell>
                 <TableCell>
-                  {new Date(caseItem.createdAt).toLocaleDateString('zh-TW')}
+                  <Typography variant="caption">
+                    {new Date(caseItem.createdAt).toLocaleDateString('zh-TW')}
+                  </Typography>
                 </TableCell>
-                <TableCell>
+                <TableCell sx={{ position: 'sticky', right: 0, backgroundColor: 'white', zIndex: 1 }}>
                   <Button
                     variant="outlined"
                     size="small"
