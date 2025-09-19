@@ -631,6 +631,76 @@ const CaseDetail: React.FC = () => {
             />
 
             <TextField
+              label="詳細地址"
+              name="detailedAddress"
+              value={editData.detailedAddress || ''}
+              onChange={handleEditChange}
+              multiline
+              rows={2}
+              helperText="具體的上課地點或地址"
+              fullWidth
+            />
+
+            <TextField
+              label="開始日期"
+              name="startDate"
+              type="date"
+              value={editData.startDate ? editData.startDate.split('T')[0] : ''}
+              onChange={handleEditChange}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              helperText="希望開始上課的日期"
+              fullWidth
+            />
+
+            <TextField
+              label="詳細描述"
+              name="requirements"
+              value={editData.requirements || editData.requirement || ''}
+              onChange={handleEditChange}
+              multiline
+              rows={3}
+              helperText="額外的要求或說明"
+              fullWidth
+            />
+
+            <TextField
+              label="申請者姓名"
+              name="studentName"
+              value={editData.studentId?.name || ''}
+              onChange={(e) => {
+                setEditData({
+                  ...editData,
+                  studentId: {
+                    ...editData.studentId,
+                    name: e.target.value
+                  }
+                });
+              }}
+              helperText="申請此案例的學生姓名"
+              fullWidth
+            />
+
+            <TextField
+              label="申請者電郵"
+              name="studentEmail"
+              type="email"
+              value={editData.studentId?.email || ''}
+              onChange={(e) => {
+                setEditData({
+                  ...editData,
+                  studentId: {
+                    ...editData.studentId,
+                    email: e.target.value
+                  }
+                });
+              }}
+              helperText="申請者的聯絡電郵"
+              fullWidth
+            />
+
+            <TextField
               label="用戶ID"
               name="userID"
               value={editData.userID || ''}
@@ -762,6 +832,45 @@ const CaseDetail: React.FC = () => {
                 經驗要求
               </Typography>
               <Typography>{selectedCase.experience ? getExperienceLabel(selectedCase.experience) : '不適用'}</Typography>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Typography variant="subtitle1" gutterBottom>
+                詳細地址
+              </Typography>
+              <Typography>{selectedCase.detailedAddress || '未提供詳細地址'}</Typography>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Typography variant="subtitle1" gutterBottom>
+                開始日期
+              </Typography>
+              <Typography>
+                {selectedCase.startDate ? new Date(selectedCase.startDate).toLocaleDateString('zh-TW') : '未指定開始日期'}
+              </Typography>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Typography variant="subtitle1" gutterBottom>
+                詳細描述
+              </Typography>
+              <Typography>
+                {selectedCase.requirements || selectedCase.requirement || '無詳細描述'}
+              </Typography>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Typography variant="subtitle1" gutterBottom>
+                申請者
+              </Typography>
+              <Typography>
+                {selectedCase.studentId?.name || selectedCase.studentId?.userId || '未指定申請者'}
+              </Typography>
+              {selectedCase.studentId?.email && (
+                <Typography variant="body2" color="text.secondary">
+                  聯絡電郵: {selectedCase.studentId.email}
+                </Typography>
+              )}
             </Grid>
 
             <Grid item xs={12}>
