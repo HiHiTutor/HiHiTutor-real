@@ -592,12 +592,12 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       return [{ value: 'unlimited', label: '不限' }];
     }
     
-    const selectedRegions = regionOptions.filter(region => 
+    const selectedRegions = regionOptions?.filter(region => 
       filters.regions.includes(region.value)
-    );
+    ) || [];
     
     // Get all sub-regions from selected regions, not just the ones already selected
-    const subRegions = selectedRegions.flatMap(region => region.regions);
+    const subRegions = selectedRegions.flatMap(region => region.regions || []);
     
     return [
       { value: 'unlimited', label: '不限' },
@@ -718,7 +718,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     
     // 教學模式
     if (filters.mode && filters.mode !== 'both') {
-      const modeOption = teachingModeOptions.find(m => m.value === filters.mode);
+      const modeOption = teachingModeOptions?.find(m => m.value === filters.mode);
       if (modeOption) {
         selected.push({ key: 'mode', label: modeOption.label, value: filters.mode });
       }
@@ -742,7 +742,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     // 地區 - 不顯示"不限"
     filters.regions.forEach(region => {
       if (region === 'unlimited') return;
-      const regionOption = regionOptions.find(r => r.value === region);
+      const regionOption = regionOptions?.find(r => r.value === region);
       if (regionOption) {
         selected.push({ key: 'regions', label: regionOption.label, value: region });
       }
@@ -751,7 +751,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     // 子地區 - 不顯示"不限"
     filters.subRegions.forEach(subRegion => {
       if (subRegion === 'unlimited') return;
-      const subRegionOption = getSelectedSubRegions().find(sr => sr.value === subRegion);
+      const subRegionOption = getSelectedSubRegions()?.find(sr => sr.value === subRegion);
       if (subRegionOption) {
         selected.push({ key: 'subRegions', label: subRegionOption.label, value: subRegion });
       }
@@ -1133,7 +1133,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                           {filters.subRegions.length === 0 || (filters.subRegions.length === 1 && filters.subRegions[0] === 'unlimited')
                             ? '不限'
                             : filters.subRegions.length === 1
-                            ? getSelectedSubRegions().find(sr => sr.value === filters.subRegions[0])?.label
+                            ? getSelectedSubRegions()?.find(sr => sr.value === filters.subRegions[0])?.label
                             : `已選擇 ${filters.subRegions.filter(sr => sr !== 'unlimited').length} 個子地區`}
                         </span>
                         <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
@@ -1150,7 +1150,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                         leaveTo="opacity-0"
                       >
                         <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                          {getSelectedSubRegions().map((subRegion) => (
+                          {getSelectedSubRegions()?.map((subRegion) => (
                             <Listbox.Option
                               key={subRegion.value}
                               className={({ active }) =>
