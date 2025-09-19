@@ -22,7 +22,6 @@ import {
   Settings as SettingsIcon,
   Notifications as NotificationsIcon,
   Article as ArticleIcon,
-  Folder as FolderIcon,
 } from '@mui/icons-material';
 import { useNotifications } from '../../hooks/useNotifications';
 
@@ -52,7 +51,6 @@ const Sidebar: React.FC<SidebarProps> = ({ open }) => {
     { text: '科目管理', icon: <CategoryIcon />, path: '/category-manager' },
     { text: '地區管理', icon: <LocationIcon />, path: '/region-manager' },
     { text: '教學模式管理', icon: <SettingsIcon />, path: '/mode-manager' },
-    { text: '文件管理', icon: <FolderIcon />, path: '/file-management' },
   ];
 
   return (
