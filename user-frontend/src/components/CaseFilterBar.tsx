@@ -72,8 +72,8 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     subCategory: [], // 預設為空陣列
     subjects: [],
     mode: 'both', // 預設為皆可
-    regions: ['unlimited'], // 預設為不限，改為單選
-    subRegions: ['unlimited'], // 預設為不限
+    regions: [''], // 預設為空，需要用戶選擇
+    subRegions: [''], // 預設為空
     priceRange: 'unlimited' // 預設為不限
   });
   
@@ -1105,11 +1105,12 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
               <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
                 <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">地區</label>
                 <select
-                  value={filters.regions[0] || 'unlimited'}
+                  value={filters.regions[0] || ''}
                   onChange={(e) => handleRegionChange(e.target.value)}
                   className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
                 >
-                  {regionOptions.map(option => (
+                  <option value="">請選擇地區</option>
+                  {regionOptions.filter(option => option.value !== 'all-hong-kong' && option.value !== 'unlimited').map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -1118,7 +1119,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
               </div>
 
               {/* 子地區選擇 */}
-              {filters.regions.length > 0 && filters.regions[0] !== 'unlimited' && (
+              {filters.regions.length > 0 && filters.regions[0] !== '' && (
                 <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
                   <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">子地區</label>
                   <Listbox
