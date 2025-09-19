@@ -17,6 +17,17 @@ router.get('/', async (req, res) => {
       }));
       
       console.log('✅ 從數據庫載入地區配置:', regionOptions.length, '個地區');
+      
+      // 詳細調試日誌
+      regionOptions.forEach((region, index) => {
+        console.log(`🔍 數據庫地區 ${index + 1}: ${region.label} (${region.value}) - 子地區數量: ${region.regions?.length || 0}`);
+        if (region.regions && region.regions.length > 0) {
+          region.regions.forEach((subRegion, subIndex) => {
+            console.log(`  📍 數據庫子地區 ${subIndex + 1}: ${subRegion.label} (${subRegion.value})`);
+          });
+        }
+      });
+      
       res.json(regionOptions);
     } else {
       // 如果數據庫沒有數據，從文件讀取（作為備用）

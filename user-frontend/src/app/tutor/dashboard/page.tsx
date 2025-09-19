@@ -309,13 +309,26 @@ export default function TutorDashboardPage() {
       
       const regions = await response.json();
       console.log('✅ 載入地區選項成功:', regions);
-      console.log('🔍 九龍地區子地區數量:', regions.find((r: any) => r.value === 'kowloon')?.regions?.length || 0);
+      console.log('🔍 總地區數量:', regions.length);
       
-      // 檢查九龍地區是否包含美孚
+      // 詳細檢查每個地區
+      regions.forEach((region: any, index: number) => {
+        console.log(`🔍 地區 ${index + 1}: ${region.label} (${region.value}) - 子地區數量: ${region.regions?.length || 0}`);
+        if (region.regions && region.regions.length > 0) {
+          region.regions.forEach((subRegion: any, subIndex: number) => {
+            console.log(`  📍 子地區 ${subIndex + 1}: ${subRegion.label} (${subRegion.value})`);
+          });
+        }
+      });
+      
+      // 特別檢查九龍地區
       const kowloonRegion = regions.find((r: any) => r.value === 'kowloon');
       if (kowloonRegion) {
+        console.log('🔍 九龍地區詳細信息:', kowloonRegion);
         const meiFooRegion = kowloonRegion.regions?.find((r: any) => r.value === 'mei-foo');
+        const choiHungRegion = kowloonRegion.regions?.find((r: any) => r.value === 'choi-hung');
         console.log('🔍 美孚地區:', meiFooRegion ? '找到' : '未找到');
+        console.log('🔍 彩虹地區:', choiHungRegion ? '找到' : '未找到');
       }
       
       setRegionOptions(regions);
