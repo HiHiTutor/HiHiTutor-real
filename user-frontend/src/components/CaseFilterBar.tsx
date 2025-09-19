@@ -486,7 +486,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       console.log('🔍 添加用戶選擇的科目:', filters.subjects);
     } else if (filters.category && filters.category !== 'unlimited') {
       // 若冇揀科目 → 自動傳出該子分類下所有科目
-      const category = CATEGORY_OPTIONS?.find(c => c.value === filters.category);
+      const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(c => c.value === filters.category) : null;
       if (category) {
         let subjects: { value: string; label: string }[] = [];
         
@@ -606,7 +606,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   };
 
   const getCategorySubjects = () => {
-    const category = CATEGORY_OPTIONS?.find(c => c.value === filters.category);
+    const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(c => c.value === filters.category) : null;
     if (!category) return [];
     
     if (category.subCategories && filters.subCategory.length > 0) {
@@ -628,7 +628,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   };
 
   const getSubOptions = () => {
-    const category = CATEGORY_OPTIONS?.find(c => c.value === filters.category);
+    const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(c => c.value === filters.category) : null;
     const subOptions = category?.subCategories || [];
     return [
       { value: 'unlimited', label: '不限' },
@@ -637,7 +637,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   };
 
   const getSubjectOptions = () => {
-    const category = CATEGORY_OPTIONS?.find(c => c.value === filters.category);
+    const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(c => c.value === filters.category) : null;
     if (!category) return [{ value: 'unlimited', label: '不限' }];
     
     let subjects: { value: string; label: string }[] = [];
@@ -661,7 +661,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   };
 
   const shouldShowSubjects = () => {
-    const category = CATEGORY_OPTIONS?.find(c => c.value === filters.category);
+    const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(c => c.value === filters.category) : null;
     if (!category || category.value === 'unlimited') return false;
 
     // 只有"中小學教育"有子分類，其他分類直接顯示科目
@@ -700,7 +700,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     filters.subCategory.forEach(subCat => {
       if (subCat !== 'unlimited') {
         const subOptions = getSubOptions();
-        const subOption = subOptions?.find(s => s.value === subCat);
+        const subOption = Array.isArray(subOptions) ? subOptions.find(s => s.value === subCat) : null;
         if (subOption) {
           selected.push({ key: 'subCategory', label: subOption.label, value: subCat });
         }
@@ -710,7 +710,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     // 科目
     filters.subjects.forEach(subject => {
       const subjectOptions = getSubjectOptions();
-      const subjectOption = subjectOptions?.find(s => s.value === subject);
+      const subjectOption = Array.isArray(subjectOptions) ? subjectOptions.find(s => s.value === subject) : null;
       if (subjectOption) {
         selected.push({ key: 'subjects', label: subjectOption.label, value: subject });
       }
@@ -718,9 +718,12 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     
     // 教學模式
     if (filters.mode && filters.mode !== 'both') {
-      const modeOption = teachingModeOptions?.find(m => m.value === filters.mode);
-      if (modeOption) {
-        selected.push({ key: 'mode', label: modeOption.label, value: filters.mode });
+      // 確保 teachingModeOptions 是陣列且不為空
+      if (Array.isArray(teachingModeOptions) && teachingModeOptions.length > 0) {
+        const modeOption = teachingModeOptions.find(m => m.value === filters.mode);
+        if (modeOption) {
+          selected.push({ key: 'mode', label: modeOption.label, value: filters.mode });
+        }
       }
     }
     
@@ -742,7 +745,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     // 地區 - 不顯示"不限"
     filters.regions.forEach(region => {
       if (region === 'unlimited') return;
-      const regionOption = regionOptions?.find(r => r.value === region);
+      const regionOption = Array.isArray(regionOptions) ? regionOptions.find(r => r.value === region) : null;
       if (regionOption) {
         selected.push({ key: 'regions', label: regionOption.label, value: region });
       }
@@ -751,7 +754,8 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     // 子地區 - 不顯示"不限"
     filters.subRegions.forEach(subRegion => {
       if (subRegion === 'unlimited') return;
-      const subRegionOption = getSelectedSubRegions()?.find(sr => sr.value === subRegion);
+      const subRegions = getSelectedSubRegions();
+      const subRegionOption = Array.isArray(subRegions) ? subRegions.find(sr => sr.value === subRegion) : null;
       if (subRegionOption) {
         selected.push({ key: 'subRegions', label: subRegionOption.label, value: subRegion });
       }
@@ -759,7 +763,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     
     // 價格範圍 - 不顯示"不限"
     if (filters.priceRange && filters.priceRange !== 'unlimited') {
-      const priceOption = PRICE_OPTIONS?.find(p => p.value === filters.priceRange);
+      const priceOption = Array.isArray(PRICE_OPTIONS) ? PRICE_OPTIONS.find(p => p.value === filters.priceRange) : null;
       if (priceOption) {
         selected.push({ key: 'priceRange', label: priceOption.label, value: filters.priceRange });
       }
@@ -909,7 +913,11 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                           {filters.subCategory.length === 0
                             ? '不限'
                             : filters.subCategory.length === 1
-                            ? getSubOptions()?.find(s => s.value === filters.subCategory[0])?.label
+                            ? (() => {
+                                const subOptions = getSubOptions();
+                                const found = Array.isArray(subOptions) ? subOptions.find(s => s.value === filters.subCategory[0]) : null;
+                                return found?.label || '未知';
+                              })()
                             : `已選擇 ${filters.subCategory.length} 個子分類`}
                         </span>
                         <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
@@ -972,7 +980,11 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                           {filters.subjects.length === 0
                             ? '不限'
                             : filters.subjects.length === 1
-                            ? getSubjectOptions()?.find(s => s.value === filters.subjects[0])?.label
+                            ? (() => {
+                                const subjectOptions = getSubjectOptions();
+                                const found = Array.isArray(subjectOptions) ? subjectOptions.find(s => s.value === filters.subjects[0]) : null;
+                                return found?.label || '未知';
+                              })()
                             : `已選擇 ${filters.subjects.length} 個科目`}
                         </span>
                         <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
@@ -1133,7 +1145,11 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                           {filters.subRegions.length === 0 || (filters.subRegions.length === 1 && filters.subRegions[0] === 'unlimited')
                             ? '不限'
                             : filters.subRegions.length === 1
-                            ? getSelectedSubRegions()?.find(sr => sr.value === filters.subRegions[0])?.label
+                            ? (() => {
+                                const subRegions = getSelectedSubRegions();
+                                const found = Array.isArray(subRegions) ? subRegions.find(sr => sr.value === filters.subRegions[0]) : null;
+                                return found?.label || '未知';
+                              })()
                             : `已選擇 ${filters.subRegions.filter(sr => sr !== 'unlimited').length} 個子地區`}
                         </span>
                         <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
