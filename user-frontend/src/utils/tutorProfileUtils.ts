@@ -130,7 +130,13 @@ export const REGION_MAP: { [key: string]: string } = {
   'islands-cheung-chau': '長洲',
   'islands-lamma-island': '南丫島',
   'islands-discovery-bay': '愉景灣',
-  'islands-pui-o': '貝澳'
+  'islands-pui-o': '貝澳',
+  
+  // 添加缺失的地區映射
+  'mei-foo': '美孚',
+  'kowloon-mei-foo': '美孚',
+  'mei-foo-sun-chuen': '美孚新邨',
+  'kowloon-mei-foo-sun-chuen': '美孚新邨'
 };
 
 // 課程分類映射
