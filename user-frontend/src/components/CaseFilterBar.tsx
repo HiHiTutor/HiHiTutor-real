@@ -486,7 +486,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       console.log('🔍 添加用戶選擇的科目:', filters.subjects);
     } else if (filters.category && filters.category !== 'unlimited') {
       // 若冇揀科目 → 自動傳出該子分類下所有科目
-      const category = CATEGORY_OPTIONS.find(c => c.value === filters.category);
+      const category = CATEGORY_OPTIONS?.find(c => c.value === filters.category);
       if (category) {
         let subjects: { value: string; label: string }[] = [];
         
@@ -606,7 +606,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   };
 
   const getCategorySubjects = () => {
-    const category = CATEGORY_OPTIONS.find(c => c.value === filters.category);
+    const category = CATEGORY_OPTIONS?.find(c => c.value === filters.category);
     if (!category) return [];
     
     if (category.subCategories && filters.subCategory.length > 0) {
@@ -628,7 +628,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   };
 
   const getSubOptions = () => {
-    const category = CATEGORY_OPTIONS.find(c => c.value === filters.category);
+    const category = CATEGORY_OPTIONS?.find(c => c.value === filters.category);
     const subOptions = category?.subCategories || [];
     return [
       { value: 'unlimited', label: '不限' },
@@ -637,7 +637,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   };
 
   const getSubjectOptions = () => {
-    const category = CATEGORY_OPTIONS.find(c => c.value === filters.category);
+    const category = CATEGORY_OPTIONS?.find(c => c.value === filters.category);
     if (!category) return [{ value: 'unlimited', label: '不限' }];
     
     let subjects: { value: string; label: string }[] = [];
@@ -661,7 +661,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   };
 
   const shouldShowSubjects = () => {
-    const category = CATEGORY_OPTIONS.find(c => c.value === filters.category);
+    const category = CATEGORY_OPTIONS?.find(c => c.value === filters.category);
     if (!category || category.value === 'unlimited') return false;
 
     // 只有"中小學教育"有子分類，其他分類直接顯示科目
@@ -700,7 +700,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     filters.subCategory.forEach(subCat => {
       if (subCat !== 'unlimited') {
         const subOptions = getSubOptions();
-        const subOption = subOptions.find(s => s.value === subCat);
+        const subOption = subOptions?.find(s => s.value === subCat);
         if (subOption) {
           selected.push({ key: 'subCategory', label: subOption.label, value: subCat });
         }
@@ -710,7 +710,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     // 科目
     filters.subjects.forEach(subject => {
       const subjectOptions = getSubjectOptions();
-      const subjectOption = subjectOptions.find(s => s.value === subject);
+      const subjectOption = subjectOptions?.find(s => s.value === subject);
       if (subjectOption) {
         selected.push({ key: 'subjects', label: subjectOption.label, value: subject });
       }
@@ -759,7 +759,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     
     // 價格範圍 - 不顯示"不限"
     if (filters.priceRange && filters.priceRange !== 'unlimited') {
-      const priceOption = PRICE_OPTIONS.find(p => p.value === filters.priceRange);
+      const priceOption = PRICE_OPTIONS?.find(p => p.value === filters.priceRange);
       if (priceOption) {
         selected.push({ key: 'priceRange', label: priceOption.label, value: filters.priceRange });
       }
@@ -909,7 +909,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                           {filters.subCategory.length === 0
                             ? '不限'
                             : filters.subCategory.length === 1
-                            ? getSubOptions().find(s => s.value === filters.subCategory[0])?.label
+                            ? getSubOptions()?.find(s => s.value === filters.subCategory[0])?.label
                             : `已選擇 ${filters.subCategory.length} 個子分類`}
                         </span>
                         <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
@@ -972,7 +972,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                           {filters.subjects.length === 0
                             ? '不限'
                             : filters.subjects.length === 1
-                            ? getSubjectOptions().find(s => s.value === filters.subjects[0])?.label
+                            ? getSubjectOptions()?.find(s => s.value === filters.subjects[0])?.label
                             : `已選擇 ${filters.subjects.length} 個科目`}
                         </span>
                         <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">

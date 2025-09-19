@@ -353,7 +353,7 @@ export default function PostStudentCase() {
     setValue('subjects', newSubjects);
   };
 
-  const selectedCategoryData = CATEGORY_OPTIONS.find(cat => cat.value === selectedCategory);
+  const selectedCategoryData = CATEGORY_OPTIONS?.find(cat => cat.value === selectedCategory);
   const selectedSubCategoryData = selectedCategoryData?.subCategories?.find(
     sub => sub.value === selectedSubCategory
   );
@@ -569,7 +569,7 @@ export default function PostStudentCase() {
                   {selectedRegions.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-2">
                       {selectedRegions.map(regionValue => {
-                        const region = REGION_OPTIONS.find(r => r.value === regionValue);
+                        const region = REGION_OPTIONS?.find(r => r.value === regionValue);
                         return (
                           <span
                             key={regionValue}
@@ -616,7 +616,7 @@ export default function PostStudentCase() {
                       </SelectTrigger>
                       <SelectContent>
                         {selectedRegions.map(regionValue => {
-                          const region = REGION_OPTIONS.find(r => r.value === regionValue);
+                          const region = REGION_OPTIONS?.find(r => r.value === regionValue);
                           return region?.regions.map(subRegion => (
                             <SelectItem key={subRegion.value} value={subRegion.value}>
                               <div className="flex items-center justify-between w-full">
@@ -634,7 +634,7 @@ export default function PostStudentCase() {
                       <div className="mt-2 flex flex-wrap gap-2">
                         {selectedSubRegions.map(subRegionValue => {
                           const subRegion = selectedRegions.flatMap(regionValue => {
-                            const region = REGION_OPTIONS.find(r => r.value === regionValue);
+                            const region = REGION_OPTIONS?.find(r => r.value === regionValue);
                             return region?.regions || [];
                           }).find(sr => sr.value === subRegionValue);
                           return (

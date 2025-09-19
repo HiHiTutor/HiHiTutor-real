@@ -1007,8 +1007,8 @@ export default function TutorDashboardPage() {
   // 時間選擇相關函數
   const handleAddTimeSlot = () => {
     if (selectedWeekday && selectedTimeSlot) {
-      const weekdayLabel = WEEKDAYS.find(w => w.value === selectedWeekday)?.label;
-      const timeLabel = TIME_SLOTS.find(t => t.value === selectedTimeSlot)?.label;
+      const weekdayLabel = WEEKDAYS?.find(w => w.value === selectedWeekday)?.label;
+      const timeLabel = TIME_SLOTS?.find(t => t.value === selectedTimeSlot)?.label;
       const newTimeSlot = `${weekdayLabel} ${timeLabel}`;
       
       if (!newAvailableTimes.includes(newTimeSlot)) {
@@ -1380,7 +1380,7 @@ export default function TutorDashboardPage() {
                       let subjectLabel = subject;
                       for (const category of CATEGORY_OPTIONS) {
                         if (category.subjects) {
-                          const found = category.subjects.find(s => s.value === subject);
+                          const found = category.subjects?.find(s => s.value === subject);
                           if (found) {
                             subjectLabel = `${category.label} > ${found.label}`;
                             break;
@@ -1388,7 +1388,7 @@ export default function TutorDashboardPage() {
                         }
                         if (category.subCategories) {
                           for (const subCategory of category.subCategories) {
-                            const found = subCategory.subjects.find(s => s.value === subject);
+                            const found = subCategory.subjects?.find(s => s.value === subject);
                             if (found) {
                               subjectLabel = `${category.label} > ${subCategory.label} > ${found.label}`;
                               break;
@@ -1871,7 +1871,7 @@ export default function TutorDashboardPage() {
             </div>
 
             {/* 子分類選擇 */}
-            {selectedCategory && CATEGORY_OPTIONS.find(c => c.value === selectedCategory)?.subCategories && (
+            {selectedCategory && CATEGORY_OPTIONS?.find(c => c.value === selectedCategory)?.subCategories && (
               <div className="space-y-4">
                 <Label>子分類</Label>
                 <Select value={selectedSubCategory} onValueChange={handleSubCategoryChange}>
@@ -1879,7 +1879,7 @@ export default function TutorDashboardPage() {
                     <SelectValue placeholder="選擇子分類" />
                   </SelectTrigger>
                   <SelectContent>
-                    {CATEGORY_OPTIONS.find(c => c.value === selectedCategory)?.subCategories?.map((subCategory) => (
+                    {CATEGORY_OPTIONS?.find(c => c.value === selectedCategory)?.subCategories?.map((subCategory) => (
                       <SelectItem key={subCategory.value} value={subCategory.value}>
                         {subCategory.label}
                       </SelectItem>
@@ -1895,7 +1895,7 @@ export default function TutorDashboardPage() {
                 <Label>科目</Label>
                 <div className="grid grid-cols-2 gap-4">
                   {(() => {
-                    const category = CATEGORY_OPTIONS.find(c => c.value === selectedCategory);
+                    const category = CATEGORY_OPTIONS?.find(c => c.value === selectedCategory);
                     if (!category) return null;
 
                     if (category.subjects) {
@@ -1914,7 +1914,7 @@ export default function TutorDashboardPage() {
                     }
 
                     if (category.subCategories && selectedSubCategory) {
-                      const subCategory = category.subCategories.find(sc => sc.value === selectedSubCategory);
+                      const subCategory = category.subCategories?.find(sc => sc.value === selectedSubCategory);
                       if (subCategory) {
                         return subCategory.subjects.map((subject) => (
                           <div key={subject.value} className="flex items-center space-x-2">
@@ -1945,7 +1945,7 @@ export default function TutorDashboardPage() {
                   let subjectLabel = subject;
                   for (const category of CATEGORY_OPTIONS) {
                     if (category.subjects) {
-                      const found = category.subjects.find(s => s.value === subject);
+                      const found = category.subjects?.find(s => s.value === subject);
                       if (found) {
                         subjectLabel = `${category.label} > ${found.label}`;
                         break;
@@ -1953,7 +1953,7 @@ export default function TutorDashboardPage() {
                     }
                     if (category.subCategories) {
                       for (const subCategory of category.subCategories) {
-                        const found = subCategory.subjects.find(s => s.value === subject);
+                        const found = subCategory.subjects?.find(s => s.value === subject);
                         if (found) {
                           subjectLabel = `${category.label} > ${subCategory.label} > ${found.label}`;
                           break;

@@ -52,7 +52,7 @@ export default function UpgradePage() {
   // 當選擇課程分類時，更新可選科目
   useEffect(() => {
     if (selectedCategory) {
-      const category = filteredCategories.find(cat => cat.value === selectedCategory);
+      const category = filteredCategories?.find(cat => cat.value === selectedCategory);
       if (category) {
         if (category.subCategories) {
           // 如果有子分類，先清空科目列表
@@ -76,9 +76,9 @@ export default function UpgradePage() {
   // 當選擇子分類時，更新可選科目
   useEffect(() => {
     if (selectedCategory && selectedSubCategory) {
-      const category = filteredCategories.find(cat => cat.value === selectedCategory);
+      const category = filteredCategories?.find(cat => cat.value === selectedCategory);
       if (category?.subCategories) {
-        const subCategory = category.subCategories.find(sub => sub.value === selectedSubCategory);
+        const subCategory = category.subCategories?.find(sub => sub.value === selectedSubCategory);
         if (subCategory) {
           const subjects = subCategory.subjects.map(subject => ({
             ...subject,
@@ -132,12 +132,12 @@ export default function UpgradePage() {
   const getSubjectLabel = (subjectValue: string) => {
     for (const category of filteredCategories) {
       if (category.subjects) {
-        const subject = category.subjects.find(s => s.value === subjectValue);
+        const subject = category.subjects?.find(s => s.value === subjectValue);
         if (subject) return subject.label;
       }
       if (category.subCategories) {
         for (const subCategory of category.subCategories) {
-          const subject = subCategory.subjects.find(s => s.value === subjectValue);
+          const subject = subCategory.subjects?.find(s => s.value === subjectValue);
           if (subject) return subject.label;
         }
       }
@@ -351,9 +351,9 @@ export default function UpgradePage() {
                         className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                       >
                         <option value="">請選擇子分類</option>
-                        {filteredCategories
-                          .find(cat => cat.value === selectedCategory)
-                          ?.subCategories?.map((subCategory) => (
+                  {filteredCategories
+                    ?.find(cat => cat.value === selectedCategory)
+                    ?.subCategories?.map((subCategory) => (
                             <option key={subCategory.value} value={subCategory.value}>
                               {subCategory.label}
                             </option>

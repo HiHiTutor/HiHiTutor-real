@@ -159,10 +159,10 @@ export default function TutorCasePage() {
 
   // 動態獲取科目選項
   const getSubjectOptions = () => {
-    const cat = effectiveCategories.find((opt: any) => opt.value === formData.category);
+    const cat = effectiveCategories?.find((opt: any) => opt.value === formData.category);
     if (!cat) return [];
     if (cat.subCategories && formData.subCategory) {
-      const sub = cat.subCategories.find((sc: any) => sc.value === formData.subCategory);
+      const sub = cat.subCategories?.find((sc: any) => sc.value === formData.subCategory);
       return sub ? sub.subjects : [];
     }
     return cat.subjects || [];
@@ -171,7 +171,7 @@ export default function TutorCasePage() {
   // 動態獲取細分地區選項
   const getSubRegionOptions = () => {
     if (!formData.regions) return [];
-    const region = effectiveRegions.find((r: any) => r.value === formData.regions);
+    const region = effectiveRegions?.find((r: any) => r.value === formData.regions);
     return region ? region.regions || [] : [];
   };
 
@@ -352,7 +352,7 @@ export default function TutorCasePage() {
               </select>
             </div>
             {/* 子分類（如有） */}
-            {effectiveCategories.find((opt: any) => opt.value === formData.category)?.subCategories && (
+            {effectiveCategories?.find((opt: any) => opt.value === formData.category)?.subCategories && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">子分類</label>
                 <select
@@ -362,7 +362,7 @@ export default function TutorCasePage() {
                   required
                 >
                   <option value="">請選擇</option>
-                  {effectiveCategories.find((opt: any) => opt.value === formData.category)?.subCategories?.map((sub: any) => (
+                  {effectiveCategories?.find((opt: any) => opt.value === formData.category)?.subCategories?.map((sub: any) => (
                     <option key={sub.value || sub.label} value={sub.value}>{sub.label}</option>
                   ))}
                 </select>
