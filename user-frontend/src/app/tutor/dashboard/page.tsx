@@ -294,19 +294,33 @@ export default function TutorDashboardPage() {
   const fetchRegionOptions = async () => {
     try {
       setLoadingRegions(true);
-      // 添加時間戳來破壞緩存
+      // 添加時間戳和隨機數來破壞緩存
       const timestamp = Date.now();
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/regions?t=${timestamp}`, {
+      const random = Math.random().toString(36).substring(7);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/regions?t=${timestamp}&r=${random}`, {
+        method: 'GET',
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
+          'Expires': '0',
         },
       });
+      
       if (!response.ok) {
-        throw new Error('Failed to fetch regions');
+        throw new Error(`Failed to fetch regions: ${response.status} ${response.statusText}`);
       }
+      
       const regions = await response.json();
-      console.log('✅ 載入地區選項:', regions);
+      console.log('✅ 載入地區選項成功:', regions);
+      console.log('🔍 九龍地區子地區數量:', regions.find((r: any) => r.value === 'kowloon')?.regions?.length || 0);
+      
+      // 檢查九龍地區是否包含美孚
+      const kowloonRegion = regions.find((r: any) => r.value === 'kowloon');
+      if (kowloonRegion) {
+        const meiFooRegion = kowloonRegion.regions?.find((r: any) => r.value === 'mei-foo');
+        console.log('🔍 美孚地區:', meiFooRegion ? '找到' : '未找到');
+      }
+      
       setRegionOptions(regions);
       setLoadingRegions(false);
     } catch (error) {
@@ -1397,7 +1411,19 @@ export default function TutorDashboardPage() {
 
             {/* 上堂地點 */}
             <div className="space-y-4">
-              <Label>上堂地點</Label>
+              <div className="flex items-center justify-between">
+                <Label>上堂地點</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={fetchRegionOptions}
+                  disabled={loadingRegions}
+                  className="text-xs"
+                >
+                  {loadingRegions ? '載入中...' : '刷新地區'}
+                </Button>
+              </div>
               
               {/* 說明文字 */}
               <p className="text-sm text-gray-600">
