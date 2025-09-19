@@ -1432,25 +1432,40 @@ export default function TutorDashboardPage() {
               
               
               <div className="space-y-4">
-                {/* 所有地區直接顯示 */}
-                {regionOptions.filter(region => region.value !== 'unlimited' && region.value !== 'all-hong-kong').map((region) => (
+                {/* 顯示所有地區，包括全港選項 */}
+                {regionOptions.map((region) => (
                   <div key={region.value} className="space-y-3">
                     <div className="font-medium text-gray-700 border-b pb-1">
                       {region.label}
                     </div>
                     <div className="grid grid-cols-2 gap-2">
-                      {region.regions?.map((subRegion: { value: string; label: string }) => (
-                        <div key={subRegion.value} className="flex items-center space-x-2">
+                      {/* 如果是全港或不限，顯示特殊選項 */}
+                      {region.value === 'all-hong-kong' || region.value === 'unlimited' ? (
+                        <div className="flex items-center space-x-2">
                           <Checkbox
-                            id={subRegion.value}
-                            checked={getAllSelectedSubRegions().includes(subRegion.value)}
-                            onCheckedChange={() => handleSubRegionToggle(subRegion.value)}
+                            id={region.value}
+                            checked={getAllSelectedSubRegions().includes(region.value)}
+                            onCheckedChange={() => handleSubRegionToggle(region.value)}
                           />
-                          <Label htmlFor={subRegion.value} className="text-sm">
-                            {subRegion.label}
+                          <Label htmlFor={region.value} className="text-sm">
+                            {region.label}
                           </Label>
                         </div>
-                      ))}
+                      ) : (
+                        /* 顯示子地區 */
+                        region.regions?.map((subRegion: { value: string; label: string }) => (
+                          <div key={subRegion.value} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={subRegion.value}
+                              checked={getAllSelectedSubRegions().includes(subRegion.value)}
+                              onCheckedChange={() => handleSubRegionToggle(subRegion.value)}
+                            />
+                            <Label htmlFor={subRegion.value} className="text-sm">
+                              {subRegion.label}
+                            </Label>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 ))}
