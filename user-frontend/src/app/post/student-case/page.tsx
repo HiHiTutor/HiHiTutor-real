@@ -353,10 +353,9 @@ export default function PostStudentCase() {
     setValue('subjects', newSubjects);
   };
 
-  const selectedCategoryData = CATEGORY_OPTIONS?.find(cat => cat.value === selectedCategory);
-  const selectedSubCategoryData = selectedCategoryData?.subCategories?.find(
-    sub => sub.value === selectedSubCategory
-  );
+  const selectedCategoryData = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(cat => cat.value === selectedCategory) : null;
+  const selectedSubCategoryData = selectedCategoryData?.subCategories ? 
+    (Array.isArray(selectedCategoryData.subCategories) ? selectedCategoryData.subCategories.find(sub => sub.value === selectedSubCategory) : null) : null;
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -569,7 +568,7 @@ export default function PostStudentCase() {
                   {selectedRegions.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-2">
                       {selectedRegions.map(regionValue => {
-                        const region = REGION_OPTIONS?.find(r => r.value === regionValue);
+                        const region = Array.isArray(REGION_OPTIONS) ? REGION_OPTIONS.find(r => r.value === regionValue) : null;
                         return (
                           <span
                             key={regionValue}
@@ -616,7 +615,7 @@ export default function PostStudentCase() {
                       </SelectTrigger>
                       <SelectContent>
                         {selectedRegions.map(regionValue => {
-                          const region = REGION_OPTIONS?.find(r => r.value === regionValue);
+                          const region = Array.isArray(REGION_OPTIONS) ? REGION_OPTIONS.find(r => r.value === regionValue) : null;
                           return region?.regions.map(subRegion => (
                             <SelectItem key={subRegion.value} value={subRegion.value}>
                               <div className="flex items-center justify-between w-full">
@@ -634,9 +633,9 @@ export default function PostStudentCase() {
                       <div className="mt-2 flex flex-wrap gap-2">
                         {selectedSubRegions.map(subRegionValue => {
                           const subRegion = selectedRegions.flatMap(regionValue => {
-                            const region = REGION_OPTIONS?.find(r => r.value === regionValue);
+                            const region = Array.isArray(REGION_OPTIONS) ? REGION_OPTIONS.find(r => r.value === regionValue) : null;
                             return region?.regions || [];
-                          }).find(sr => sr.value === subRegionValue);
+                          }).filter(Array.isArray).flat().find(sr => sr.value === subRegionValue);
                           return (
                             <span
                               key={subRegionValue}

@@ -64,7 +64,7 @@ function getRegionLabel(value: string) {
   const mappedValue = regionValueMap[value] || value;
   
   // 先找大區
-  const mainRegion = REGION_OPTIONS?.find(opt => opt.value === mappedValue);
+  const mainRegion = Array.isArray(REGION_OPTIONS) ? REGION_OPTIONS.find(opt => opt.value === mappedValue) : null;
   if (mainRegion) {
     console.log('🔍 找到大區：', mainRegion.label);
     return mainRegion.label;
@@ -72,7 +72,7 @@ function getRegionLabel(value: string) {
   
   // 再找細分地區
   for (const region of REGION_OPTIONS) {
-    const sub = region.regions?.find(r => r.value === mappedValue);
+    const sub = Array.isArray(region.regions) ? region.regions.find(r => r.value === mappedValue) : null;
     if (sub) {
       console.log('🔍 找到子地區：', sub.label);
       return sub.label;

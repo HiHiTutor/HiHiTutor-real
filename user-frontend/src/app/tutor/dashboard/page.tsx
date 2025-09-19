@@ -111,7 +111,7 @@ const prepareRegionOptions = (regionOptions: RegionOption[]): Option[] => {
 // 準備子地區選項數據
 const prepareSubRegionOptions = (regionValue: string, regionOptions: RegionOption[]): Option[] => {
   if (regionValue === 'all-hong-kong') return [];
-  const region = regionOptions?.find(r => r.value === regionValue);
+  const region = Array.isArray(regionOptions) ? regionOptions.find(r => r.value === regionValue) : null;
   return region ? (region.regions || []).map(area => ({
     value: area.value,
     label: area.label
@@ -230,7 +230,7 @@ export default function TutorDashboardPage() {
       // 嘗試通過 value 匹配
       let found = false;
       for (const region of regionOptions) {
-        const subRegion = region.regions?.find((sr: { value: string; label: string }) => sr.value === area);
+        const subRegion = Array.isArray(region.regions) ? region.regions.find((sr: { value: string; label: string }) => sr.value === area) : null;
         if (subRegion) {
           if (!subRegionsByRegion[region.value]) {
             subRegionsByRegion[region.value] = [];
@@ -245,7 +245,7 @@ export default function TutorDashboardPage() {
       // 如果通過 value 沒有找到，嘗試通過 label 匹配
       if (!found) {
         for (const region of regionOptions) {
-          const subRegion = region.regions?.find((sr: { value: string; label: string }) => sr.label === area);
+          const subRegion = Array.isArray(region.regions) ? region.regions.find((sr: { value: string; label: string }) => sr.label === area) : null;
           if (subRegion) {
             if (!subRegionsByRegion[region.value]) {
               subRegionsByRegion[region.value] = [];
@@ -261,10 +261,10 @@ export default function TutorDashboardPage() {
       // 如果還是沒有找到，嘗試通過模糊匹配
       if (!found) {
         for (const region of regionOptions) {
-          const subRegion = region.regions?.find((sr: { value: string; label: string }) => 
+          const subRegion = Array.isArray(region.regions) ? region.regions.find((sr: { value: string; label: string }) => 
             sr.label.includes(area) || area.includes(sr.label) ||
             sr.value.includes(area) || area.includes(sr.value)
-          );
+          ) : null;
           if (subRegion) {
             if (!subRegionsByRegion[region.value]) {
               subRegionsByRegion[region.value] = [];
@@ -322,11 +322,11 @@ export default function TutorDashboardPage() {
       });
       
       // 特別檢查九龍地區
-      const kowloonRegion = regions?.find((r: any) => r.value === 'kowloon');
+      const kowloonRegion = Array.isArray(regions) ? regions.find((r: any) => r.value === 'kowloon') : null;
       if (kowloonRegion) {
         console.log('🔍 九龍地區詳細信息:', kowloonRegion);
-        const meiFooRegion = kowloonRegion.regions?.find((r: any) => r.value === 'mei-foo');
-        const choiHungRegion = kowloonRegion.regions?.find((r: any) => r.value === 'choi-hung');
+        const meiFooRegion = Array.isArray(kowloonRegion.regions) ? kowloonRegion.regions.find((r: any) => r.value === 'mei-foo') : null;
+        const choiHungRegion = Array.isArray(kowloonRegion.regions) ? kowloonRegion.regions.find((r: any) => r.value === 'choi-hung') : null;
         console.log('🔍 美孚地區:', meiFooRegion ? '找到' : '未找到');
         console.log('🔍 彩虹地區:', choiHungRegion ? '找到' : '未找到');
       }
@@ -660,7 +660,7 @@ export default function TutorDashboardPage() {
       tutorProfile: {
         subRegions: getAllSelectedSubRegions().map(subRegion => {
           // 將簡短名稱轉換為完整路徑格式
-          const region = regionOptions?.find(r => r.regions?.some(sr => sr.value === subRegion));
+          const region = Array.isArray(regionOptions) ? regionOptions.find(r => r.regions?.some(sr => sr.value === subRegion)) : null;
           if (region) {
             return `${region.value}-${subRegion}`;
           }
@@ -973,9 +973,9 @@ export default function TutorDashboardPage() {
 
   const handleSubRegionToggle = (subRegion: string) => {
     // 找到這個子地區所屬的主要地區
-    const parentRegion = regionOptions?.find(region => 
+    const parentRegion = Array.isArray(regionOptions) ? regionOptions.find(region => 
       region.regions?.some(sr => sr.value === subRegion)
-    );
+    ) : null;
     
     if (!parentRegion) return;
     
@@ -1007,8 +1007,8 @@ export default function TutorDashboardPage() {
   // 時間選擇相關函數
   const handleAddTimeSlot = () => {
     if (selectedWeekday && selectedTimeSlot) {
-      const weekdayLabel = WEEKDAYS?.find(w => w.value === selectedWeekday)?.label;
-      const timeLabel = TIME_SLOTS?.find(t => t.value === selectedTimeSlot)?.label;
+      const weekdayLabel = Array.isArray(WEEKDAYS) ? WEEKDAYS.find(w => w.value === selectedWeekday)?.label : null;
+      const timeLabel = Array.isArray(TIME_SLOTS) ? TIME_SLOTS.find(t => t.value === selectedTimeSlot)?.label : null;
       const newTimeSlot = `${weekdayLabel} ${timeLabel}`;
       
       if (!newAvailableTimes.includes(newTimeSlot)) {
@@ -1380,7 +1380,7 @@ export default function TutorDashboardPage() {
                       let subjectLabel = subject;
                       for (const category of CATEGORY_OPTIONS) {
                         if (category.subjects) {
-                          const found = category.subjects?.find(s => s.value === subject);
+                          const found = Array.isArray(category.subjects) ? category.subjects.find(s => s.value === subject) : null;
                           if (found) {
                             subjectLabel = `${category.label} > ${found.label}`;
                             break;
@@ -1388,7 +1388,7 @@ export default function TutorDashboardPage() {
                         }
                         if (category.subCategories) {
                           for (const subCategory of category.subCategories) {
-                            const found = subCategory.subjects?.find(s => s.value === subject);
+                            const found = Array.isArray(subCategory.subjects) ? subCategory.subjects.find(s => s.value === subject) : null;
                             if (found) {
                               subjectLabel = `${category.label} > ${subCategory.label} > ${found.label}`;
                               break;
@@ -1871,7 +1871,10 @@ export default function TutorDashboardPage() {
             </div>
 
             {/* 子分類選擇 */}
-            {selectedCategory && CATEGORY_OPTIONS?.find(c => c.value === selectedCategory)?.subCategories && (
+            {selectedCategory && (() => {
+              const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(c => c.value === selectedCategory) : null;
+              return category?.subCategories;
+            })() && (
               <div className="space-y-4">
                 <Label>子分類</Label>
                 <Select value={selectedSubCategory} onValueChange={handleSubCategoryChange}>
@@ -1879,7 +1882,10 @@ export default function TutorDashboardPage() {
                     <SelectValue placeholder="選擇子分類" />
                   </SelectTrigger>
                   <SelectContent>
-                    {CATEGORY_OPTIONS?.find(c => c.value === selectedCategory)?.subCategories?.map((subCategory) => (
+                    {(() => {
+                      const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(c => c.value === selectedCategory) : null;
+                      return category?.subCategories;
+                    })()?.map((subCategory) => (
                       <SelectItem key={subCategory.value} value={subCategory.value}>
                         {subCategory.label}
                       </SelectItem>
@@ -1895,7 +1901,7 @@ export default function TutorDashboardPage() {
                 <Label>科目</Label>
                 <div className="grid grid-cols-2 gap-4">
                   {(() => {
-                    const category = CATEGORY_OPTIONS?.find(c => c.value === selectedCategory);
+                    const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(c => c.value === selectedCategory) : null;
                     if (!category) return null;
 
                     if (category.subjects) {
@@ -1914,7 +1920,7 @@ export default function TutorDashboardPage() {
                     }
 
                     if (category.subCategories && selectedSubCategory) {
-                      const subCategory = category.subCategories?.find(sc => sc.value === selectedSubCategory);
+                      const subCategory = Array.isArray(category.subCategories) ? category.subCategories.find(sc => sc.value === selectedSubCategory) : null;
                       if (subCategory) {
                         return subCategory.subjects.map((subject) => (
                           <div key={subject.value} className="flex items-center space-x-2">

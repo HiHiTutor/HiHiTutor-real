@@ -53,7 +53,7 @@ export default function PostTutorCase({ onSubmit }: PostTutorCaseProps) {
   };
 
   const getCategorySubjects = () => {
-    const category = CATEGORY_OPTIONS.find((c: CategoryOption) => c.value === formData.category);
+    const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find((c: CategoryOption) => c.value === formData.category) : null;
     return category?.subjects || [];
   };
 
@@ -65,7 +65,10 @@ export default function PostTutorCase({ onSubmit }: PostTutorCaseProps) {
           <div className="relative mt-1">
             <Listbox.Button className="relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-300">
               <span className="block truncate">
-                {formData.category ? CATEGORY_OPTIONS.find((opt: CategoryOption) => opt.value === formData.category)?.label : '選擇課程分類'}
+                {formData.category ? (() => {
+                  const found = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find((opt: CategoryOption) => opt.value === formData.category) : null;
+                  return found?.label || '未知分類';
+                })() : '選擇課程分類'}
               </span>
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                 <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
