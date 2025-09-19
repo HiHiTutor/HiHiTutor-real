@@ -111,8 +111,8 @@ const prepareRegionOptions = (regionOptions: RegionOption[]): Option[] => {
 // 準備子地區選項數據
 const prepareSubRegionOptions = (regionValue: string, regionOptions: RegionOption[]): Option[] => {
   if (regionValue === 'all-hong-kong') return [];
-  const region = regionOptions.find(r => r.value === regionValue);
-  return region ? region.regions.map(area => ({
+  const region = regionOptions?.find(r => r.value === regionValue);
+  return region ? (region.regions || []).map(area => ({
     value: area.value,
     label: area.label
   })) : [];
@@ -322,7 +322,7 @@ export default function TutorDashboardPage() {
       });
       
       // 特別檢查九龍地區
-      const kowloonRegion = regions.find((r: any) => r.value === 'kowloon');
+      const kowloonRegion = regions?.find((r: any) => r.value === 'kowloon');
       if (kowloonRegion) {
         console.log('🔍 九龍地區詳細信息:', kowloonRegion);
         const meiFooRegion = kowloonRegion.regions?.find((r: any) => r.value === 'mei-foo');
@@ -660,7 +660,7 @@ export default function TutorDashboardPage() {
       tutorProfile: {
         subRegions: getAllSelectedSubRegions().map(subRegion => {
           // 將簡短名稱轉換為完整路徑格式
-          const region = regionOptions.find(r => r.regions?.some(sr => sr.value === subRegion));
+          const region = regionOptions?.find(r => r.regions?.some(sr => sr.value === subRegion));
           if (region) {
             return `${region.value}-${subRegion}`;
           }
@@ -689,7 +689,7 @@ export default function TutorDashboardPage() {
       
       // 更新本地 formData 以反映最新的選擇
       const updatedTeachingAreas = getAllSelectedSubRegions().map(subRegion => {
-        const region = regionOptions.find(r => r.regions?.some(sr => sr.value === subRegion));
+        const region = regionOptions?.find(r => r.regions?.some(sr => sr.value === subRegion));
         if (region) {
           return `${region.value}-${subRegion}`;
         }
@@ -973,7 +973,7 @@ export default function TutorDashboardPage() {
 
   const handleSubRegionToggle = (subRegion: string) => {
     // 找到這個子地區所屬的主要地區
-    const parentRegion = regionOptions.find(region => 
+    const parentRegion = regionOptions?.find(region => 
       region.regions?.some(sr => sr.value === subRegion)
     );
     

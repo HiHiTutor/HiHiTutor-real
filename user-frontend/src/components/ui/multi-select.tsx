@@ -66,7 +66,7 @@ export function MultiSelect({
           <div className="flex gap-1 flex-wrap">
             {selected.length === 0 && placeholder}
             {selected.map((item) => {
-              const option = options.find((opt) => opt.value === item)
+              const option = options?.find((opt) => opt.value === item)
               return (
                 <Badge
                   variant="secondary"
