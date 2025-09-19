@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -74,6 +75,7 @@ interface PendingStudentCasesResponse {
 }
 
 const StudentCaseApprovals: React.FC = () => {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [cases, setCases] = useState<StudentCase[]>([]);
   const [loading, setLoading] = useState(true);
@@ -350,8 +352,9 @@ const StudentCaseApprovals: React.FC = () => {
                         variant="text"
                         color="primary"
                         onClick={() => {
-                          if (caseItem.studentId?.email) {
-                            window.open(`mailto:${caseItem.studentId.email}`, '_blank');
+                          const userId = caseItem.studentId?.userId;
+                          if (userId) {
+                            navigate(`/users/${userId}`);
                           }
                         }}
                         sx={{ textTransform: 'none', p: 0, minWidth: 'auto', fontSize: '0.75rem' }}

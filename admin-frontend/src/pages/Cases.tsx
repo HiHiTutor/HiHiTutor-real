@@ -340,8 +340,9 @@ const Cases: React.FC = () => {
                       color="primary"
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (caseItem.studentId?.email) {
-                          window.open(`mailto:${caseItem.studentId.email}`, '_blank');
+                        const userId = caseItem.studentId?.userId || caseItem.userID;
+                        if (userId) {
+                          navigate(`/users/${userId}`);
                         }
                       }}
                       sx={{ textTransform: 'none', p: 0, minWidth: 'auto', fontSize: '0.75rem' }}
