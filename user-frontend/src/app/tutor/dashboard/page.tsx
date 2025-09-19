@@ -102,13 +102,10 @@ const generateDayOptions = (year: number, month: number) => {
 
 // 準備地區選項數據
 const prepareRegionOptions = (regionOptions: RegionOption[]): Option[] => {
-  return [
-    { value: 'all-hong-kong', label: '全港' },
-    ...regionOptions.filter(region => region.value !== 'unlimited').map(region => ({
-      value: region.value,
-      label: region.label
-    }))
-  ];
+  return regionOptions.filter(region => region.value !== 'unlimited' && region.value !== 'all-hong-kong').map(region => ({
+    value: region.value,
+    label: region.label
+  }));
 };
 
 // 準備子地區選項數據
@@ -327,16 +324,6 @@ export default function TutorDashboardPage() {
       console.error('❌ 載入地區選項失敗:', error);
       // 如果API失敗，使用靜態資料作為備用
       const fallbackRegions = [
-        {
-          value: 'unlimited',
-          label: '不限',
-          regions: []
-        },
-        {
-          value: 'all-hong-kong',
-          label: '全香港',
-          regions: []
-        },
         {
           value: 'hong-kong-island',
           label: '香港島',
