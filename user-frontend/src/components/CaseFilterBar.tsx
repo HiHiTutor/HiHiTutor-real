@@ -675,7 +675,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       return filters.subCategory.length > 0;
     }
 
-    // 其他分類直接顯示科目
+    // 其他分類直接顯示科目（不需要子分類）
     return category.subjects && category.subjects.length > 0;
   };
 
@@ -973,7 +973,16 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
               {/* 科目選擇 - 只在選擇課程分類後顯示，且子分類不是"不限" */}
               {filters.category !== 'unlimited' && shouldShowSubjects() && (
                 <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">科目</label>
+                  <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">
+                    {(() => {
+                      const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(c => c.value === filters.category) : null;
+                      // 只有"中小學教育"有子分類，其他分類直接顯示科目
+                      if (category?.value === 'primary-secondary') {
+                        return '子分類';
+                      }
+                      return '科目';
+                    })()}
+                  </label>
                   <Listbox
                     value={filters.subjects}
                     onChange={(value) => handleFilterChange('subjects', value)}
