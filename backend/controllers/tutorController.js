@@ -362,14 +362,35 @@ const getAllTutors = async (req, res) => {
           
           if (subjects) {
             const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
-            const intersection = subjectArray.filter(subject => 
+            
+            // 驗證科目是否存在於分類選項中
+            const validSubjects = subjectArray.filter(subject => {
+              const isValid = Object.values(CATEGORY_OPTIONS).some(category => {
+                if (category.subjects) {
+                  return category.subjects.some(s => s.value === subject);
+                }
+                if (category.subCategories) {
+                  return category.subCategories.some(sc => 
+                    sc.subjects && sc.subjects.some(s => s.value === subject)
+                  );
+                }
+                return false;
+              });
+              
+              if (!isValid) {
+                console.log(`⚠️ 科目 "${subject}" 不存在於分類選項中，將被過濾掉`);
+              }
+              return isValid;
+            });
+            
+            const intersection = validSubjects.filter(subject => 
               categorySubjects.includes(subject)
             );
             if (intersection.length > 0) {
               query['tutorProfile.subjects'] = { $in: intersection };
               console.log(`🔍 科目交集: ${intersection.join(', ')}`);
             } else {
-              console.log('⚠️ 分類與科目沒有交集，返回空結果');
+              console.log('⚠️ 分類與有效科目沒有交集，返回空結果');
               tutors = [];
             }
           } else {
@@ -384,16 +405,68 @@ const getAllTutors = async (req, res) => {
         
         if (subjects) {
           const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
-          query['tutorProfile.subjects'] = { $in: subjectArray };
-          console.log(`🔍 直接使用科目過濾: ${subjectArray.join(', ')}`);
+          
+          // 驗證科目是否存在於分類選項中
+          const validSubjects = subjectArray.filter(subject => {
+            const isValid = Object.values(CATEGORY_OPTIONS).some(category => {
+              if (category.subjects) {
+                return category.subjects.some(s => s.value === subject);
+              }
+              if (category.subCategories) {
+                return category.subCategories.some(sc => 
+                  sc.subjects && sc.subjects.some(s => s.value === subject)
+                );
+              }
+              return false;
+            });
+            
+            if (!isValid) {
+              console.log(`⚠️ 科目 "${subject}" 不存在於分類選項中，將被過濾掉`);
+            }
+            return isValid;
+          });
+          
+          if (validSubjects.length > 0) {
+            query['tutorProfile.subjects'] = { $in: validSubjects };
+            console.log(`🔍 使用有效科目過濾: ${validSubjects.join(', ')}`);
+          } else {
+            console.log('⚠️ 沒有有效的科目，返回空結果');
+            tutors = [];
+          }
         }
       } else {
         console.log('🎯 沒有指定分類，查詢所有導師');
         
         if (subjects) {
           const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
-          query['tutorProfile.subjects'] = { $in: subjectArray };
-          console.log(`🔍 直接使用科目過濾: ${subjectArray.join(', ')}`);
+          
+          // 驗證科目是否存在於分類選項中
+          const validSubjects = subjectArray.filter(subject => {
+            const isValid = Object.values(CATEGORY_OPTIONS).some(category => {
+              if (category.subjects) {
+                return category.subjects.some(s => s.value === subject);
+              }
+              if (category.subCategories) {
+                return category.subCategories.some(sc => 
+                  sc.subjects && sc.subjects.some(s => s.value === subject)
+                );
+              }
+              return false;
+            });
+            
+            if (!isValid) {
+              console.log(`⚠️ 科目 "${subject}" 不存在於分類選項中，將被過濾掉`);
+            }
+            return isValid;
+          });
+          
+          if (validSubjects.length > 0) {
+            query['tutorProfile.subjects'] = { $in: validSubjects };
+            console.log(`🔍 使用有效科目過濾: ${validSubjects.join(', ')}`);
+          } else {
+            console.log('⚠️ 沒有有效的科目，返回空結果');
+            tutors = [];
+          }
         }
       }
       
