@@ -263,6 +263,8 @@ app.use('/api/super-admin', superAdminRoutes);
 app.use('/api/fix', fixIndexRoutes);
 app.use('/api/teaching-modes', teachingModesRouter);
 app.use('/api/organization-tutors', organizationTutorsRouter);
+app.use('/api/fix-user-data', require('./routes/fixUserData'));
+app.use('/api/sync-files', require('./routes/syncFiles'));
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));

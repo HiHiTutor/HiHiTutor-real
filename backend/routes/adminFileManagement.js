@@ -5,6 +5,7 @@ const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 const User = require('../models/User');
 const UploadLog = require('../models/UploadLog');
 const { upload, uploadToS3 } = require('../uploadMiddleware');
+const { syncUserFileFields } = require('../utils/fileSyncUtils');
 
 // 獲取用戶文件列表
 router.get('/users/:userId/files', verifyToken, isAdmin, async (req, res) => {
@@ -156,6 +157,11 @@ router.post('/users/:userId/files', verifyToken, isAdmin, upload.single('file'),
         updated = true;
         console.log('✅ 文件已添加到 tutorProfile.publicCertificates:', url);
       }
+    }
+
+    // 🔧 自動統一兩個字段 - 確保數據一致性
+    if (updated) {
+      syncUserFileFields(user, 'educationCert');
     }
 
     // 檢查文件是否已存在
@@ -315,6 +321,11 @@ router.delete('/users/:userId/files/:filename', verifyToken, isAdmin, async (req
       }
     }
 
+    // 🔧 自動統一兩個字段 - 確保數據一致性
+    if (updated) {
+      syncUserFileFields(user, 'educationCert');
+    }
+
     // 保存更新後的用戶記錄
     if (updated) {
       await user.save();
@@ -470,6 +481,19 @@ router.delete('/users/:userId/files', verifyToken, isAdmin, async (req, res) => 
         }
       } catch (error) {
         failedFiles.push({ filename, reason: error.message });
+      }
+    }
+
+    // 🔧 自動統一兩個字段 - 確保數據一致性
+    if (updated && user.userType === 'tutor' && user.tutorProfile) {
+      const educationCerts = user.documents.educationCert || [];
+      const publicCerts = user.tutorProfile.publicCertificates || [];
+      
+      // 如果兩個字段不一致，統一為 educationCert 的內容
+      if (JSON.stringify(educationCerts.sort()) !== JSON.stringify(publicCerts.sort())) {
+        console.log('🔧 批量刪除後檢測到字段不一致，正在統一...');
+        user.tutorProfile.publicCertificates = [...educationCerts];
+        console.log('✅ 已統一 publicCertificates 和 educationCert');
       }
     }
 
