@@ -607,7 +607,7 @@ export default function TutorDashboardPage() {
         courseFeatures: data.courseFeatures || '',
         documents: {
           idCard: data.documents?.idCard || '',
-          educationCert: data.documents?.educationCert || data.certificateLogs?.map((log: any) => log.fileUrl) || []
+          educationCert: data.documents?.educationCert || []
         },
         publicCertificates: publicCertificates,
         profileStatus: data.profileStatus || 'approved',
