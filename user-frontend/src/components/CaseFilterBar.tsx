@@ -79,16 +79,6 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   const [regionOptions, setRegionOptions] = useState<RegionOption[]>([]);
   const [loadingRegions, setLoadingRegions] = useState(true);
 
-  // Safety check for searchParams
-  if (!searchParams) {
-    return <div className="p-8">載入中...</div>;
-  }
-
-  // 如果科目資料還在載入中
-  if (categoriesLoading) {
-    return <div className="p-8">載入科目資料中...</div>;
-  }
-
   const isStudentCase = fetchUrl.includes('student');
   
   // 載入地區選項
@@ -404,6 +394,15 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       }));
     }
   }, [currentTarget]);
+
+  // 條件檢查放在所有 hooks 之後
+  if (categoriesLoading) {
+    return <div className="p-8">載入科目資料中...</div>;
+  }
+
+  if (!searchParams) {
+    return <div className="p-8">載入中...</div>;
+  }
 
   const handleFilterChange = (key: keyof FilterState, value: any) => {
     setFilters(prev => {
