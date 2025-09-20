@@ -1716,7 +1716,7 @@ export default function TutorDashboardPage() {
                     // 合併所有文件，去重
                     const allFiles = [...new Set([...educationCerts, ...publicCertificates])];
                     
-                    return allFiles.length > 0 && (
+                    return allFiles.length > 0 ? (
                       <>
                         <p className="text-sm text-green-600">已上傳 {allFiles.length} 個文件</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1762,8 +1762,7 @@ export default function TutorDashboardPage() {
                           ))}
                         </div>
                       </>
-                    )
-                  ) : (
+                    ) : (
                     // 如果是單一字串，顯示為單個證書
                     formData.documents.educationCert && (
                       <div className="space-y-2">
@@ -1849,8 +1848,8 @@ export default function TutorDashboardPage() {
                           </Label>
                         </div>
                       </div>
-                    )
-                  )}
+                    ) : null;
+                  })()}
                 </div>
               )}
             </div>
