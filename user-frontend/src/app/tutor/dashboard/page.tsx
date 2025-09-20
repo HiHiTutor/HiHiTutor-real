@@ -540,8 +540,8 @@ export default function TutorDashboardPage() {
          console.log('🔍 使用根級別 teachingAreas:', teachingAreas);
        }
        
-       // 處理公開證書數據
-       const publicCertificates = data.tutorProfile?.publicCertificates || data.publicCertificates || [];
+       // 處理公開證書數據 - 後端API直接返回 publicCertificates，不在 tutorProfile 裡
+       const publicCertificates = data.publicCertificates || [];
        console.log('🔍 公開證書數據:', publicCertificates);
        
        // 同步地區數據，確保數據一致性
