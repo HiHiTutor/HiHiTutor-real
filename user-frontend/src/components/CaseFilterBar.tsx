@@ -6,7 +6,7 @@ import { Listbox, Transition } from '@headlessui/react';
 import { ChevronUpDownIcon, CheckIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { Select } from '@headlessui/react';
 import { Checkbox } from '@/components/ui/checkbox';
-import CATEGORY_OPTIONS from '@/constants/categoryOptions';
+import { useCategories } from '@/hooks/useCategories';
 import { SUBJECT_MAP } from '@/constants/subjectOptions';
 import { TEACHING_MODE_OPTIONS, shouldShowRegionForMode, initializeTeachingModeOptions } from '@/constants/teachingModeOptions';
 import PRICE_OPTIONS from '@/constants/priceOptions';
@@ -59,10 +59,16 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const { categories: CATEGORY_OPTIONS, loading: categoriesLoading } = useCategories();
   
   // Safety check for searchParams
   if (!searchParams) {
     return <div className="p-8">載入中...</div>;
+  }
+
+  // 如果科目資料還在載入中
+  if (categoriesLoading) {
+    return <div className="p-8">載入科目資料中...</div>;
   }
   
   const [filters, setFilters] = useState<FilterState>({

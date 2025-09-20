@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { Listbox } from '@headlessui/react';
 import { ChevronUpDownIcon, CheckIcon } from '@heroicons/react/20/solid';
-import { CategoryOption, Subject, CATEGORY_OPTIONS } from '@/types/category';
+import { CategoryOption, Subject } from '@/types/category';
+import { useCategories } from '@/hooks/useCategories';
 
 interface PostTutorCaseProps {
   onSubmit: (data: any) => void;
@@ -20,6 +21,7 @@ interface FormData {
 }
 
 export default function PostTutorCase({ onSubmit }: PostTutorCaseProps) {
+  const { categories: CATEGORY_OPTIONS, loading: categoriesLoading } = useCategories();
   const [formData, setFormData] = useState<FormData>({
     category: '',
     subjects: [],
@@ -56,6 +58,10 @@ export default function PostTutorCase({ onSubmit }: PostTutorCaseProps) {
     const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find((c: CategoryOption) => c.value === formData.category) : null;
     return category?.subjects || [];
   };
+
+  if (categoriesLoading) {
+    return <div className="p-4 text-center">載入科目資料中...</div>;
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">

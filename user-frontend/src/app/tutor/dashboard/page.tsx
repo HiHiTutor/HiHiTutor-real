@@ -19,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { tutorApi } from '@/services/api';
-import CATEGORY_OPTIONS from '@/constants/categoryOptions';
+import { useCategories } from '@/hooks/useCategories';
 import TEACHING_MODE_OPTIONS from '@/constants/teachingModeOptions';
 import { useUser } from '@/hooks/useUser';
 import ContactInfoWarning from '@/components/ContactInfoWarning';
@@ -120,6 +120,7 @@ const prepareSubRegionOptions = (regionValue: string, regionOptions: RegionOptio
 
 export default function TutorDashboardPage() {
   const router = useRouter();
+  const { categories: CATEGORY_OPTIONS, loading: categoriesLoading } = useCategories();
   const [lastNotificationStatus, setLastNotificationStatus] = useState<string | null>(null);
   const [formData, setFormData] = useState<TutorProfile>({
     tutorId: '',
@@ -1045,8 +1046,8 @@ export default function TutorDashboardPage() {
   };
 
   // 顯示載入狀態
-  if (isLoading || loading) {
-    return <div className="container mx-auto py-8 text-center">載入中...</div>;
+  if (isLoading || loading || categoriesLoading) {
+    return <div className="container mx-auto py-8 text-center">{categoriesLoading ? '載入科目資料中...' : '載入中...'}</div>;
   }
 
   // 如果用戶不是導師，不顯示頁面內容

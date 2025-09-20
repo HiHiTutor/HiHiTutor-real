@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import CATEGORY_OPTIONS from "@/constants/categoryOptions";
+import { useCategories } from "@/hooks/useCategories";
 
 interface FormData {
   education: string;
@@ -20,6 +20,7 @@ interface SubjectOption {
 }
 
 export default function UpgradePage() {
+  const { categories: CATEGORY_OPTIONS, loading: categoriesLoading } = useCategories();
   const [formData, setFormData] = useState<FormData>({
     education: "",
     experience: "",
@@ -48,6 +49,18 @@ export default function UpgradePage() {
       return;
     }
   }, [router]);
+
+  // 如果科目資料還在載入中
+  if (categoriesLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">載入科目資料中...</p>
+        </div>
+      </div>
+    );
+  }
 
   // 當選擇課程分類時，更新可選科目
   useEffect(() => {
