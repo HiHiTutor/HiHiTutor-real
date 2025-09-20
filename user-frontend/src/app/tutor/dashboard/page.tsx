@@ -537,9 +537,11 @@ export default function TutorDashboardPage() {
          console.log('🔍 使用根級別 teachingAreas:', teachingAreas);
        }
        
+       // 處理公開證書數據
        const publicCertificates = data.tutorProfile?.publicCertificates || data.publicCertificates || [];
+       console.log('🔍 公開證書數據:', publicCertificates);
        
-               // 同步地區數據，確保數據一致性
+       // 同步地區數據，確保數據一致性
         if (data.tutorProfile?.subRegions && data.tutorProfile.subRegions.length > 0) {
           // 如果 tutorProfile.subRegions 存在，同步到根級別的 teachingAreas
           // 這樣可以確保兩個數據源保持一致
@@ -1035,6 +1037,8 @@ export default function TutorDashboardPage() {
       
       if (response.ok) {
         toast.success('證書公開設定已更新');
+        // 重新載入數據以確保同步
+        await fetchTutorProfile();
       } else {
         const error = await response.json();
         toast.error(error.message || '更新失敗');
@@ -1042,6 +1046,17 @@ export default function TutorDashboardPage() {
     } catch (error) {
       console.error('更新公開證書失敗:', error);
       toast.error('更新失敗，請稍後再試');
+    }
+  };
+
+  // 重新載入數據函數
+  const refreshData = async () => {
+    try {
+      await fetchTutorProfile();
+      toast.success('數據已刷新');
+    } catch (error) {
+      console.error('刷新數據失敗:', error);
+      toast.error('刷新數據失敗');
     }
   };
 
@@ -1668,7 +1683,18 @@ export default function TutorDashboardPage() {
 
             {/* 學歷證書 */}
             <div className="space-y-4">
-              <Label htmlFor="educationCert">學歷證書</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="educationCert">學歷證書</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={refreshData}
+                  className="text-sm"
+                >
+                  🔄 刷新數據
+                </Button>
+              </div>
               <Input
                 id="educationCert"
                 type="file"
