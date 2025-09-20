@@ -1705,15 +1705,22 @@ export default function TutorDashboardPage() {
                 onChange={(e) => handleDocumentUpload(e, 'educationCert')}
                 disabled={uploading}
               />
-              {formData.documents.educationCert && (
+              {(formData.documents.educationCert || publicCertificates.length > 0) && (
                 <div className="space-y-4">
-                  {/* 確保 educationCert 是陣列 */}
-                  {Array.isArray(formData.documents.educationCert) ? (
-                    formData.documents.educationCert.length > 0 && (
+                  {/* 合併所有文件：educationCert + publicCertificates */}
+                  {(() => {
+                    const educationCerts = Array.isArray(formData.documents.educationCert) 
+                      ? formData.documents.educationCert 
+                      : (formData.documents.educationCert ? [formData.documents.educationCert] : []);
+                    
+                    // 合併所有文件，去重
+                    const allFiles = [...new Set([...educationCerts, ...publicCertificates])];
+                    
+                    return allFiles.length > 0 && (
                       <>
-                        <p className="text-sm text-green-600">已上傳 {formData.documents.educationCert.length} 個文件</p>
+                        <p className="text-sm text-green-600">已上傳 {allFiles.length} 個文件</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {formData.documents.educationCert.map((cert, index) => (
+                          {allFiles.map((cert, index) => (
                             <div key={index} className="space-y-2">
                               <div className="relative w-full h-48 border rounded-lg overflow-hidden">
                                 <Image
