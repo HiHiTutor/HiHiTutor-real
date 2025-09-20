@@ -3,6 +3,7 @@ const router = express.Router();
 const path = require('path');
 const { verifyToken, isAdmin } = require('../middleware/authMiddleware');
 const User = require('../models/User');
+const UploadLog = require('../models/UploadLog');
 const { upload, uploadToS3 } = require('../uploadMiddleware');
 
 // 獲取用戶文件列表
@@ -303,7 +304,6 @@ router.delete('/users/:userId/files/:filename', verifyToken, isAdmin, async (req
     // 從 UploadLog 中刪除記錄
     if (fileUrl) {
       try {
-        const UploadLog = require('../models/UploadLog');
         const deleteResult = await UploadLog.deleteMany({ 
           userId: user._id,
           fileUrl: fileUrl
@@ -455,7 +455,6 @@ router.delete('/users/:userId/files', verifyToken, isAdmin, async (req, res) => 
           // 從 UploadLog 中刪除記錄
           if (fileUrl) {
             try {
-              const UploadLog = require('../models/UploadLog');
               const deleteResult = await UploadLog.deleteMany({ 
                 userId: user._id,
                 fileUrl: fileUrl

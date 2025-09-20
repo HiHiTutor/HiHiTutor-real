@@ -476,6 +476,9 @@ export default function TutorDashboardPage() {
       console.log('🔍 Raw API response:', response);
       console.log('🔍 Response type:', typeof response);
       console.log('🔍 Response keys:', Object.keys(response));
+      console.log('🔍 documents.educationCert:', response.documents?.educationCert);
+      console.log('🔍 certificateLogs:', response.certificateLogs);
+      console.log('🔍 publicCertificates:', response.publicCertificates);
       
       // 處理API回應格式
       let data;

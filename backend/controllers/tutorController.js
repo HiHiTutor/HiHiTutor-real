@@ -963,6 +963,9 @@ const getTutorProfile = async (req, res) => {
 
     console.log('✅ 導師 profile 獲取成功:', user.name);
     console.log('📁 證書記錄數量:', certificateLogs.length);
+    console.log('🔍 documents.educationCert:', user.documents?.educationCert);
+    console.log('🔍 tutorProfile.publicCertificates:', user.tutorProfile?.publicCertificates);
+    console.log('🔍 certificateLogs:', certificateLogs.map(log => ({ fileUrl: log.fileUrl, type: log.type })));
 
     // 回傳符合前端期望的格式
     res.json({
