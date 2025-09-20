@@ -645,6 +645,10 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(c => c.value === filters.category) : null;
     if (!category) return [{ value: 'unlimited', label: '不限' }];
     
+    console.log('🔍 當前分類:', category);
+    console.log('🔍 分類是否有子分類:', !!category.subCategories);
+    console.log('🔍 分類直接科目:', category.subjects);
+    
     let subjects: { value: string; label: string }[] = [];
     
     if (category.subCategories && filters.subCategory.length > 0) {
@@ -658,6 +662,8 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     } else {
       subjects = category.subjects || [];
     }
+    
+    console.log('🔍 最終科目選項:', subjects);
     
     return [
       { value: 'unlimited', label: '不限' },
