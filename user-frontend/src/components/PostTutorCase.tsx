@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { Listbox } from '@headlessui/react';
 import { ChevronUpDownIcon, CheckIcon } from '@heroicons/react/20/solid';
-import { CategoryOption, Subject } from '@/types/category';
-import { useCategories } from '@/hooks/useCategories';
+import { CategoryOption } from '@/hooks/useCategories';
+import { Subject } from '@/types/category';
 
 interface PostTutorCaseProps {
   onSubmit: (data: any) => void;
