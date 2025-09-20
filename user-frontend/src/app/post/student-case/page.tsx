@@ -116,23 +116,6 @@ export default function PostStudentCase() {
   const [teachingModeOptions, setTeachingModeOptions] = useState<any[]>([]);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
 
-  // 處理URL參數預設值
-  useEffect(() => {
-    if (searchParams) {
-      const category = searchParams.get('category');
-      const subjects = searchParams.getAll('subjects');
-      
-      if (category && category !== 'unlimited') {
-        setSelectedCategory(category);
-        setValue('category', category);
-      }
-      
-      if (subjects.length > 0) {
-        setValue('subjects', subjects);
-      }
-    }
-  }, [searchParams, setValue]);
-
   // 檢查用戶登入狀態
   useEffect(() => {
     if (!isLoading && !user) {
@@ -234,6 +217,23 @@ export default function PostStudentCase() {
   });
 
   const watchModes = watch('modes');
+
+  // 處理URL參數預設值
+  useEffect(() => {
+    if (searchParams) {
+      const category = searchParams.get('category');
+      const subjects = searchParams.getAll('subjects');
+      
+      if (category && category !== 'unlimited') {
+        setSelectedCategory(category);
+        setValue('category', category);
+      }
+      
+      if (subjects.length > 0) {
+        setValue('subjects', subjects);
+      }
+    }
+  }, [searchParams, setValue]);
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
