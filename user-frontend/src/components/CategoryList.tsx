@@ -42,9 +42,20 @@ const getCategoryDescription = (category: Category): string => {
   if (typeof (category as any).subjectCount === 'number') {
     return `${(category as any).subjectCount} 個科目`;
   }
-  // fallback: 舊結構
-  const totalSubjects = category.subCategories?.reduce((total, subCategory) => 
-    total + (subCategory.subjects?.length || 0), 0) || 0;
+  
+  // 計算科目總數
+  let totalSubjects = 0;
+  
+  // 如果有子分類（如中小學教育），計算所有子分類的科目總數
+  if (category.subCategories && category.subCategories.length > 0) {
+    totalSubjects = category.subCategories.reduce((total, subCategory) => 
+      total + (subCategory.subjects?.length || 0), 0);
+  }
+  // 如果直接有科目（如幼兒教育、興趣班等），計算直接科目的數量
+  else if (category.subjects && category.subjects.length > 0) {
+    totalSubjects = category.subjects.length;
+  }
+  
   return `${totalSubjects} 個科目`;
 };
 
