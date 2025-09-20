@@ -1083,6 +1083,12 @@ export default function TutorDashboardPage() {
     return null;
   }
 
+  // 計算學歷證書文件
+  const educationCerts = Array.isArray(formData.documents.educationCert)
+    ? formData.documents.educationCert
+    : (formData.documents.educationCert ? [formData.documents.educationCert] : []);
+  const allFiles = Array.from(new Set([...educationCerts, ...publicCertificates]));
+
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl">
       {/* 聯絡資料警告 */}
@@ -1707,147 +1713,139 @@ export default function TutorDashboardPage() {
               />
               {(formData.documents.educationCert || publicCertificates.length > 0) && (
                 <div className="space-y-4">
-                  {/* 合併所有文件：educationCert + publicCertificates */}
-                  {(() => {
-                    const educationCerts = Array.isArray(formData.documents.educationCert) 
-                      ? formData.documents.educationCert 
-                      : (formData.documents.educationCert ? [formData.documents.educationCert] : []);
-                    
-                    // 合併所有文件，去重
-                    const allFiles = [...new Set([...educationCerts, ...publicCertificates])];
-                    
-                    return allFiles.length > 0 && (
-                      <>
-                        <p className="text-sm text-green-600">已上傳 {allFiles.length} 個文件</p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {allFiles.map((cert, index) => (
-                            <div key={index} className="space-y-2">
-                              <div className="relative w-full h-48 border rounded-lg overflow-hidden">
-                                <Image
-                                  src={cert}
-                                  alt={`證書 ${index + 1}`}
-                                  fill
-                                  className="object-cover"
-                                  onError={(e) => {
-                                    console.error('圖片載入失敗:', cert);
-                                    const target = e.target as HTMLImageElement;
-                                    target.style.display = 'none';
-                                    // 顯示錯誤信息
-                                    const errorDiv = document.createElement('div');
-                                    errorDiv.className = 'flex items-center justify-center h-full bg-gray-100';
-                                    errorDiv.innerHTML = `
-                                      <div class="text-center">
-                                        <div class="text-4xl mb-2">❌</div>
-                                        <div class="text-sm text-gray-600">圖片載入失敗</div>
-                                        <a href="${cert}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm underline">
-                                          直接查看
-                                        </a>
-                                      </div>
-                                    `;
-                                    target.parentElement?.appendChild(errorDiv);
-                                  }}
-                                />
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <Checkbox
-                                  id={`cert-${index}`}
-                                  checked={publicCertificates.includes(cert)}
-                                  onCheckedChange={() => handleCertificateVisibility(cert)}
-                                />
-                                <Label htmlFor={`cert-${index}`} className="text-sm">
-                                  公開此證書（其他用戶可見，個人信息會被模糊處理）
-                                </Label>
-                              </div>
+                  {allFiles.length > 0 && (
+                    <>
+                      <p className="text-sm text-green-600">已上傳 {allFiles.length} 個文件</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {allFiles.map((cert, index) => (
+                          <div key={index} className="space-y-2">
+                            <div className="relative w-full h-48 border rounded-lg overflow-hidden">
+                              <Image
+                                src={cert}
+                                alt={`證書 ${index + 1}`}
+                                fill
+                                className="object-cover"
+                                onError={(e) => {
+                                  console.error('圖片載入失敗:', cert);
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  // 顯示錯誤信息
+                                  const errorDiv = document.createElement('div');
+                                  errorDiv.className = 'flex items-center justify-center h-full bg-gray-100';
+                                  errorDiv.innerHTML = `
+                                    <div class="text-center">
+                                      <div class="text-4xl mb-2">❌</div>
+                                      <div class="text-sm text-gray-600">圖片載入失敗</div>
+                                      <a href="${cert}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm underline">
+                                        直接查看
+                                      </a>
+                                    </div>
+                                  `;
+                                  target.parentElement?.appendChild(errorDiv);
+                                }}
+                              />
                             </div>
-                          ))}
-                        </div>
-                      </>
-                    );
-                      <div className="space-y-2">
-                        <p className="text-sm text-green-600">已上傳 1 個文件</p>
-                        <div className="relative w-full h-48 border rounded-lg overflow-hidden bg-gray-50">
-                          {(() => {
-                            const fileUrl = formData.documents.educationCert as string;
-                            const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(fileUrl);
-                            const isPdf = /\.pdf$/i.test(fileUrl);
-                            
-                            if (isImage) {
-                              return (
-                                <Image
-                                  src={fileUrl}
-                                  alt="證書"
-                                  fill
-                                  className="object-cover"
-                                  onError={(e) => {
-                                    console.error('圖片載入失敗:', fileUrl);
-                                    const target = e.target as HTMLImageElement;
-                                    target.style.display = 'none';
-                                    // 顯示錯誤信息
-                                    const errorDiv = document.createElement('div');
-                                    errorDiv.className = 'flex items-center justify-center h-full bg-gray-100';
-                                    errorDiv.innerHTML = `
-                                      <div class="text-center">
-                                        <div class="text-4xl mb-2">❌</div>
-                                        <div class="text-sm text-gray-600">圖片載入失敗</div>
-                                        <a href="${fileUrl}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm underline">
-                                          直接查看
-                                        </a>
-                                      </div>
-                                    `;
-                                    target.parentElement?.appendChild(errorDiv);
-                                  }}
-                                />
-                              );
-                            } else if (isPdf) {
-                              return (
-                                <div className="flex items-center justify-center h-full">
-                                  <div className="text-center">
-                                    <div className="text-4xl mb-2">📄</div>
-                                    <div className="text-sm text-gray-600">PDF 文件</div>
-                                    <a 
-                                      href={fileUrl} 
-                                      target="_blank" 
-                                      rel="noopener noreferrer"
-                                      className="text-blue-600 hover:text-blue-800 text-sm underline"
-                                    >
-                                      查看文件
-                                    </a>
-                                  </div>
-                                </div>
-                              );
-                            } else {
-                              return (
-                                <div className="flex items-center justify-center h-full">
-                                  <div className="text-center">
-                                    <div className="text-4xl mb-2">📎</div>
-                                    <div className="text-sm text-gray-600">文件</div>
-                                    <a 
-                                      href={fileUrl} 
-                                      target="_blank" 
-                                      rel="noopener noreferrer"
-                                      className="text-blue-600 hover:text-blue-800 text-sm underline"
-                                    >
-                                      查看文件
-                                    </a>
-                                  </div>
-                                </div>
-                              );
-                            }
-                          })()}
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="cert-0"
-                            checked={publicCertificates.includes(formData.documents.educationCert as string)}
-                            onCheckedChange={() => handleCertificateVisibility(formData.documents.educationCert as string)}
-                          />
-                          <Label htmlFor="cert-0" className="text-sm">
-                            公開此證書（其他用戶可見，個人信息會被模糊處理）
-                          </Label>
-                        </div>
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                id={`cert-${index}`}
+                                checked={publicCertificates.includes(cert)}
+                                onCheckedChange={() => handleCertificateVisibility(cert)}
+                              />
+                              <Label htmlFor={`cert-${index}`} className="text-sm">
+                                公開此證書（其他用戶可見，個人信息會被模糊處理）
+                              </Label>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    );
-                  })()}
+                    </>
+                  )}
+
+                  {allFiles.length === 0 && typeof formData.documents.educationCert === 'string' && (
+                    <div className="space-y-2">
+                      <p className="text-sm text-green-600">已上傳 1 個文件</p>
+                      <div className="relative w-full h-48 border rounded-lg overflow-hidden bg-gray-50">
+                        {(() => {
+                          const fileUrl = formData.documents.educationCert as string;
+                          const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(fileUrl);
+                          const isPdf = /\.pdf$/i.test(fileUrl);
+                          
+                          if (isImage) {
+                            return (
+                              <Image
+                                src={fileUrl}
+                                alt="證書"
+                                fill
+                                className="object-cover"
+                                onError={(e) => {
+                                  console.error('圖片載入失敗:', fileUrl);
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  // 顯示錯誤信息
+                                  const errorDiv = document.createElement('div');
+                                  errorDiv.className = 'flex items-center justify-center h-full bg-gray-100';
+                                  errorDiv.innerHTML = `
+                                    <div class="text-center">
+                                      <div class="text-4xl mb-2">❌</div>
+                                      <div class="text-sm text-gray-600">圖片載入失敗</div>
+                                      <a href="${fileUrl}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm underline">
+                                        直接查看
+                                      </a>
+                                    </div>
+                                  `;
+                                  target.parentElement?.appendChild(errorDiv);
+                                }}
+                              />
+                            );
+                          } else if (isPdf) {
+                            return (
+                              <div className="flex items-center justify-center h-full">
+                                <div className="text-center">
+                                  <div className="text-4xl mb-2">📄</div>
+                                  <div className="text-sm text-gray-600">PDF 文件</div>
+                                  <a 
+                                    href={fileUrl} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:text-blue-800 text-sm underline"
+                                  >
+                                    查看文件
+                                  </a>
+                                </div>
+                              </div>
+                            );
+                          } else {
+                            return (
+                              <div className="flex items-center justify-center h-full">
+                                <div className="text-center">
+                                  <div className="text-4xl mb-2">📎</div>
+                                  <div className="text-sm text-gray-600">文件</div>
+                                  <a 
+                                    href={fileUrl} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:text-blue-800 text-sm underline"
+                                  >
+                                    查看文件
+                                  </a>
+                                </div>
+                              </div>
+                            );
+                          }
+                        })()}
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="cert-0"
+                          checked={publicCertificates.includes(formData.documents.educationCert as string)}
+                          onCheckedChange={() => handleCertificateVisibility(formData.documents.educationCert as string)}
+                        />
+                        <Label htmlFor="cert-0" className="text-sm">
+                          公開此證書（其他用戶可見，個人信息會被模糊處理）
+                        </Label>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
