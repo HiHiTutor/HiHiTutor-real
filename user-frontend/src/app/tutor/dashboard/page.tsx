@@ -1083,8 +1083,13 @@ export default function TutorDashboardPage() {
     return null;
   }
 
-  // 計算學歷證書文件 - 使用 publicCertificates 作為權威數據源（與後台管理界面一致）
-  const allFiles = publicCertificates;
+  // 計算學歷證書文件 - 合併兩個數據源並去重，確保顯示所有文件
+  const educationCerts = Array.isArray(formData.documents.educationCert)
+    ? formData.documents.educationCert
+    : (formData.documents.educationCert ? [formData.documents.educationCert] : []);
+  
+  // 合併並去重，確保顯示所有文件
+  const allFiles = Array.from(new Set([...educationCerts, ...publicCertificates]));
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl">
