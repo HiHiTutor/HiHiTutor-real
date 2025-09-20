@@ -310,14 +310,43 @@ function TutorsPageContent() {
           <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-8 max-w-md mx-auto">
             <div className="text-6xl mb-4">🧑‍🏫</div>
             <p className="text-yellow-700 font-medium text-lg">目前沒有符合條件的導師</p>
-            <p className="text-yellow-500 mt-2">請嘗試調整搜尋條件</p>
-            <Button onClick={() => {
-              setSearchQuery('');
-              setSelectedSubjects([]);
-              setSelectedAreas([]);
-              setSelectedMethods([]);
-              fetchTutors();
-            }} className="mt-6 bg-yellow-500 hover:bg-yellow-600 text-white">清除篩選條件</Button>
+            <p className="text-yellow-500 mt-2 mb-6">不如試下發帖尋導師?</p>
+            <div className="space-y-3">
+              <Button 
+                onClick={() => {
+                  // 構建發帖頁面的URL，預設分類和科目
+                  const postUrl = new URLSearchParams();
+                  const category = searchParams.get('category');
+                  const subjects = searchParams.getAll('subjects');
+                  
+                  if (category && category !== 'unlimited') {
+                    postUrl.append('category', category);
+                  }
+                  if (subjects.length > 0) {
+                    subjects.forEach(subject => postUrl.append('subjects', subject));
+                  }
+                  
+                  const finalUrl = `/post/student-case${postUrl.toString() ? '?' + postUrl.toString() : ''}`;
+                  router.push(finalUrl);
+                }}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                發帖尋導師
+              </Button>
+              <Button 
+                onClick={() => {
+                  setSearchQuery('');
+                  setSelectedSubjects([]);
+                  setSelectedAreas([]);
+                  setSelectedMethods([]);
+                  fetchTutors();
+                }} 
+                variant="outline"
+                className="w-full border-yellow-300 text-yellow-700 hover:bg-yellow-50"
+              >
+                清除篩選條件
+              </Button>
+            </div>
           </div>
         </div>
       ) : (

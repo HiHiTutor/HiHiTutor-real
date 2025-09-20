@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -105,6 +105,7 @@ type FormData = z.infer<typeof formSchema>;
 
 export default function PostStudentCase() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, isLoading, error } = useUser();
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>('');
@@ -114,6 +115,23 @@ export default function PostStudentCase() {
   const [selectedTeachingSubCategories, setSelectedTeachingSubCategories] = useState<string[]>([]);
   const [teachingModeOptions, setTeachingModeOptions] = useState<any[]>([]);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
+
+  // 處理URL參數預設值
+  useEffect(() => {
+    if (searchParams) {
+      const category = searchParams.get('category');
+      const subjects = searchParams.getAll('subjects');
+      
+      if (category && category !== 'unlimited') {
+        setSelectedCategory(category);
+        setValue('category', category);
+      }
+      
+      if (subjects.length > 0) {
+        setValue('subjects', subjects);
+      }
+    }
+  }, [searchParams, setValue]);
 
   // 檢查用戶登入狀態
   useEffect(() => {
