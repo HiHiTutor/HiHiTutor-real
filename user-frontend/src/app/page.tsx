@@ -55,8 +55,13 @@ function HomeContent() {
     // 處理教學模式參數
     if (rest.modes && Array.isArray(rest.modes) && rest.modes.length > 0) {
       rest.modes.filter((mode: string) => mode !== 'unlimited').forEach((mode: string) => searchParams.append('modes', mode));
-    } else if (rest.mode && Array.isArray(rest.mode) && rest.mode.length > 0) {
-      rest.mode.filter((mode: string) => mode !== 'unlimited').forEach((mode: string) => searchParams.append('modes', mode));
+    } else if (rest.mode) {
+      // 檢查 mode 是陣列還是字串
+      if (Array.isArray(rest.mode)) {
+        rest.mode.filter((mode: string) => mode !== 'unlimited').forEach((mode: string) => searchParams.append('modes', mode));
+      } else if (rest.mode !== 'unlimited') {
+        searchParams.append('modes', rest.mode);
+      }
     }
     
     // 處理地區參數
