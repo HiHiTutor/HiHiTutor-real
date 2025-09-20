@@ -644,27 +644,31 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   const getSubjectOptions = () => {
     const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(c => c.value === filters.category) : null;
     if (!category) return [{ value: 'unlimited', label: '不限' }];
-    
+
     console.log('🔍 當前分類:', category);
     console.log('🔍 分類是否有子分類:', !!category.subCategories);
     console.log('🔍 分類直接科目:', category.subjects);
-    
+
     let subjects: { value: string; label: string }[] = [];
-    
-    if (category.subCategories && filters.subCategory.length > 0) {
-      // 顯示所有選中子分類的科目
-      subjects = category.subCategories
-        .filter(sc => filters.subCategory.includes(sc.value))
-        .flatMap(sc => sc.subjects || []);
-    } else if (category.subCategories && filters.subCategory.length === 0) {
-      // 如果沒有選擇子分類，顯示所有子分類的科目
-      subjects = category.subCategories.flatMap(sc => sc.subjects || []);
+
+    // 檢查是否有子分類且子分類陣列不為空
+    if (category.subCategories && category.subCategories.length > 0) {
+      if (filters.subCategory.length > 0) {
+        // 顯示所有選中子分類的科目
+        subjects = category.subCategories
+          .filter(sc => filters.subCategory.includes(sc.value))
+          .flatMap(sc => sc.subjects || []);
+      } else {
+        // 如果沒有選擇子分類，顯示所有子分類的科目
+        subjects = category.subCategories.flatMap(sc => sc.subjects || []);
+      }
     } else {
+      // 沒有子分類，直接使用分類的科目
       subjects = category.subjects || [];
     }
-    
+
     console.log('🔍 最終科目選項:', subjects);
-    
+
     return [
       { value: 'unlimited', label: '不限' },
       ...subjects
