@@ -22,9 +22,14 @@ export function useCategories() {
         setLoading(true);
         setError(null);
         
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/categories`);
+        const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE}/api/categories`;
+        console.log('🔍 正在載入科目資料，API URL:', apiUrl);
+        
+        const response = await fetch(apiUrl);
+        console.log('📡 API 回應狀態:', response.status, response.statusText);
+        
         if (!response.ok) {
-          throw new Error('Failed to fetch categories');
+          throw new Error(`Failed to fetch categories: ${response.status} ${response.statusText}`);
         }
         
         const data = await response.json();

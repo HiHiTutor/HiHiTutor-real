@@ -120,7 +120,7 @@ const prepareSubRegionOptions = (regionValue: string, regionOptions: RegionOptio
 
 export default function TutorDashboardPage() {
   const router = useRouter();
-  const { categories: CATEGORY_OPTIONS, loading: categoriesLoading } = useCategories();
+  const { categories: CATEGORY_OPTIONS, loading: categoriesLoading, error: categoriesError } = useCategories();
   const [lastNotificationStatus, setLastNotificationStatus] = useState<string | null>(null);
   const [formData, setFormData] = useState<TutorProfile>({
     tutorId: '',
@@ -1047,7 +1047,17 @@ export default function TutorDashboardPage() {
 
   // 顯示載入狀態
   if (isLoading || loading || categoriesLoading) {
-    return <div className="container mx-auto py-8 text-center">{categoriesLoading ? '載入科目資料中...' : '載入中...'}</div>;
+    return (
+      <div className="container mx-auto py-8 text-center">
+        {categoriesLoading ? '載入科目資料中...' : '載入中...'}
+        {categoriesError && (
+          <div className="mt-4 text-red-600">
+            <p>載入科目資料失敗: {categoriesError}</p>
+            <p className="text-sm text-gray-500">請檢查網絡連接或稍後再試</p>
+          </div>
+        )}
+      </div>
+    );
   }
 
   // 如果用戶不是導師，不顯示頁面內容
