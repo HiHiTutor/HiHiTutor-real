@@ -100,9 +100,9 @@ const generateDayOptions = (year: number, month: number) => {
   return Array.from({ length: daysInMonth }, (_, i) => i + 1);
 };
 
-// 準備地區選項數據
+// 準備地區選項數據 - 現在包含所有地區選項
 const prepareRegionOptions = (regionOptions: RegionOption[]): Option[] => {
-  return regionOptions.filter(region => region.value !== 'unlimited' && region.value !== 'all-hong-kong').map(region => ({
+  return regionOptions.map(region => ({
     value: region.value,
     label: region.label
   }));
@@ -291,17 +291,7 @@ export default function TutorDashboardPage() {
   const fetchRegionOptions = async () => {
     try {
       setLoadingRegions(true);
-      // 添加時間戳和隨機數來破壞緩存
-      const timestamp = Date.now();
-      const random = Math.random().toString(36).substring(7);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/regions?t=${timestamp}&r=${random}`, {
-        method: 'GET',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-        },
-      });
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/regions`);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch regions: ${response.status} ${response.statusText}`);
@@ -309,34 +299,21 @@ export default function TutorDashboardPage() {
       
       const regions = await response.json();
       console.log('✅ 載入地區選項成功:', regions);
-      console.log('🔍 總地區數量:', regions.length);
-      
-      // 詳細檢查每個地區
-      regions.forEach((region: any, index: number) => {
-        console.log(`🔍 地區 ${index + 1}: ${region.label} (${region.value}) - 子地區數量: ${region.regions?.length || 0}`);
-        if (region.regions && region.regions.length > 0) {
-          region.regions.forEach((subRegion: any, subIndex: number) => {
-            console.log(`  📍 子地區 ${subIndex + 1}: ${subRegion.label} (${subRegion.value})`);
-          });
-        }
-      });
-      
-      // 特別檢查九龍地區
-      const kowloonRegion = Array.isArray(regions) ? regions.find((r: any) => r.value === 'kowloon') : null;
-      if (kowloonRegion) {
-        console.log('🔍 九龍地區詳細信息:', kowloonRegion);
-        const meiFooRegion = Array.isArray(kowloonRegion.regions) ? kowloonRegion.regions.find((r: any) => r.value === 'mei-foo') : null;
-        const choiHungRegion = Array.isArray(kowloonRegion.regions) ? kowloonRegion.regions.find((r: any) => r.value === 'choi-hung') : null;
-        console.log('🔍 美孚地區:', meiFooRegion ? '找到' : '未找到');
-        console.log('🔍 彩虹地區:', choiHungRegion ? '找到' : '未找到');
-      }
-      
       setRegionOptions(regions);
-      setLoadingRegions(false);
     } catch (error) {
       console.error('❌ 載入地區選項失敗:', error);
       // 如果API失敗，使用靜態資料作為備用
       const fallbackRegions = [
+        {
+          value: 'unlimited',
+          label: '不限',
+          regions: []
+        },
+        {
+          value: 'all-hong-kong',
+          label: '全香港',
+          regions: []
+        },
         {
           value: 'hong-kong-island',
           label: '香港島',
