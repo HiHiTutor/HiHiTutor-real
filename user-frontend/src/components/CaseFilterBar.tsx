@@ -61,16 +61,6 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   const pathname = usePathname();
   const { categories: CATEGORY_OPTIONS, loading: categoriesLoading } = useCategories();
   
-  // Safety check for searchParams
-  if (!searchParams) {
-    return <div className="p-8">載入中...</div>;
-  }
-
-  // 如果科目資料還在載入中
-  if (categoriesLoading) {
-    return <div className="p-8">載入科目資料中...</div>;
-  }
-  
   const [filters, setFilters] = useState<FilterState>({
     target: '',
     search: '', // 添加搜尋字段
@@ -88,6 +78,16 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   // 地區資料狀態
   const [regionOptions, setRegionOptions] = useState<RegionOption[]>([]);
   const [loadingRegions, setLoadingRegions] = useState(true);
+
+  // Safety check for searchParams
+  if (!searchParams) {
+    return <div className="p-8">載入中...</div>;
+  }
+
+  // 如果科目資料還在載入中
+  if (categoriesLoading) {
+    return <div className="p-8">載入科目資料中...</div>;
+  }
 
   const isStudentCase = fetchUrl.includes('student');
   
