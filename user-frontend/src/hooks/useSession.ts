@@ -13,7 +13,7 @@ export function useSession() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
         if (!token) {
           setUser(null);
           setLoading(false);

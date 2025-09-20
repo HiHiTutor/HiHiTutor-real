@@ -24,7 +24,7 @@ export function useLogin() {
       })
       if (!res.ok) throw new Error('登入失敗')
       const data = await res.json()
-      localStorage.setItem('token', data.token) // 儲存 token
+      if (typeof window !== 'undefined') localStorage.setItem('token', data.token) // 儲存 token
       return data
     } catch (err) {
       setError(err instanceof Error ? err.message : '登入失敗')

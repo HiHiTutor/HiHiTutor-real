@@ -133,8 +133,10 @@ const Navbar = () => {
                   )}
                   <button
                     onClick={() => {
-                      localStorage.removeItem('token');
-                      window.dispatchEvent(new Event('logout'));
+                      if (typeof window !== 'undefined') {
+                        localStorage.removeItem('token');
+                        window.dispatchEvent(new Event('logout'));
+                      }
                       setDropdownOpen(false);
                       router.push('/');
                     }}
@@ -206,8 +208,10 @@ const Navbar = () => {
                     )}
                     <button
                       onClick={() => {
-                        localStorage.removeItem('token');
-                        window.dispatchEvent(new Event('logout'));
+                        if (typeof window !== 'undefined') {
+                          localStorage.removeItem('token');
+                          window.dispatchEvent(new Event('logout'));
+                        }
                         setDropdownOpen(false);
                         router.push('/');
                       }}

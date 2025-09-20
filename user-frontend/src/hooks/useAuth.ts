@@ -19,14 +19,18 @@ export function useAuth() {
   }, [user, isLoading]);
 
   const logout = () => {
-    localStorage.removeItem('token');
-    window.dispatchEvent(new Event('logout'));
-    window.location.href = '/login';
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+      window.dispatchEvent(new Event('logout'));
+      window.location.href = '/login';
+    }
   };
 
   const login = (token: string) => {
-    localStorage.setItem('token', token);
-    window.dispatchEvent(new Event('login'));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('token', token);
+      window.dispatchEvent(new Event('login'));
+    }
   };
 
   return {

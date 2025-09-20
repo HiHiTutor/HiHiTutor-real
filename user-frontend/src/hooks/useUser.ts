@@ -21,7 +21,7 @@ export function useUser() {
   const fetchUser = async () => {
     try {
       setError(null)
-      const token = localStorage.getItem('token')
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
       if (!token) {
         setUser(null)
         setIsLoading(false)
@@ -40,7 +40,7 @@ export function useUser() {
       if (!meRes.ok) {
         if (meRes.status === 401) {
           console.warn('🔒 Token 無效，清除並重新導向登入')
-          localStorage.removeItem('token')
+          if (typeof window !== 'undefined') localStorage.removeItem('token')
           setUser(null)
           setError('登入已過期，請重新登入')
           return
@@ -130,7 +130,7 @@ export function useUser() {
         if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
           setError('網路連線失敗，請檢查網路設定')
         } else if (err.message.includes('Not authenticated')) {
-          localStorage.removeItem('token')
+          if (typeof window !== 'undefined') localStorage.removeItem('token')
           setError('登入已過期，請重新登入')
         } else {
           setError('無法獲取用戶資料，請稍後再試')
