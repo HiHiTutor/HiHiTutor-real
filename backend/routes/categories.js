@@ -1,87 +1,49 @@
 const express = require('express');
 const router = express.Router();
+const Category = require('../models/Category');
 const CATEGORY_OPTIONS = require('../constants/categoryOptions');
 
-// 定義分類資料
-const categories = [
-  {
-    id: 'preschool',
-    name: '幼兒教育',
-    subCategories: [
-      {
-        id: '',
-        name: '幼兒教育',
-        subjects: ['preschool-chinese', 'preschool-english', 'preschool-math']
-      }
-    ]
-  },
-  {
-    id: 'primary-secondary',
-    name: '中小學教育',
-    subCategories: [
-      {
-        id: 'primary',
-        name: '小學',
-        subjects: ['primary-chinese', 'primary-english', 'primary-math']
-      },
-      {
-        id: 'secondary',
-        name: '中學',
-        subjects: ['secondary-physics', 'secondary-chemistry', 'secondary-biology']
-      }
-    ]
-  },
-  {
-    id: 'tertiary',
-    name: '大專補習課程',
-    subCategories: [
-      {
-        id: 'undergraduate',
-        name: '大學本科',
-        subjects: ['business', 'engineering', 'science', 'arts']
-      },
-      {
-        id: 'postgraduate',
-        name: '研究生',
-        subjects: ['masters', 'phd', 'research']
-      }
-    ]
-  },
-  {
-    id: 'interest',
-    name: '興趣班',
-    subCategories: [
-      {
-        id: '',
-        name: '興趣班',
-        subjects: ['music', 'piano', 'dance']
-      }
-    ]
-  },
-  {
-    id: 'adult',
-    name: '成人教育',
-    subCategories: [
-      {
-        id: '',
-        name: '成人教育',
-        subjects: ['business-english', 'conversation', 'ielts']
-      }
-    ]
+// 獲取所有分類 - 優先從數據庫讀取，失敗時使用硬編碼備用
+router.get('/', async (req, res) => {
+  try {
+    // 嘗試從數據庫獲取配置
+    const categories = await Category.find({});
+    
+    if (categories.length > 0) {
+      // 如果數據庫有數據，轉換為前台需要的格式
+      const categoriesArray = categories.map(category => ({
+        value: category.key,
+        label: category.label,
+        subjects: category.subjects || [],
+        subCategories: category.subCategories || []
+      }));
+      
+      console.log('✅ 從數據庫載入科目配置:', categoriesArray.length, '個分類');
+      res.json(categoriesArray);
+    } else {
+      // 如果數據庫沒有數據，從文件讀取（作為備用）
+      console.log('📁 數據庫無科目配置，使用文件備用');
+      const categoriesArray = Object.entries(CATEGORY_OPTIONS).map(([value, category]) => ({
+        value,
+        label: category.label,
+        subjects: category.subjects || [],
+        subCategories: category.subCategories || []
+      }));
+      
+      res.json(categoriesArray);
+    }
+  } catch (error) {
+    console.error('❌ 載入科目配置時發生錯誤:', error);
+    // 如果數據庫錯誤，使用文件備用
+    const categoriesArray = Object.entries(CATEGORY_OPTIONS).map(([value, category]) => ({
+      value,
+      label: category.label,
+      subjects: category.subjects || [],
+      subCategories: category.subCategories || []
+    }));
+    
+    res.json(categoriesArray);
   }
-];
-
-// 獲取所有分類
-router.get('/', (req, res) => {
-  // 將 CATEGORY_OPTIONS 對象轉換為數組格式
-  const categoriesArray = Object.entries(CATEGORY_OPTIONS).map(([value, category]) => ({
-    value,
-    label: category.label,
-    subjects: category.subjects,
-    subCategories: category.subCategories
-  }));
-  
-  res.json(categoriesArray);
 });
 
 module.exports = router; 
