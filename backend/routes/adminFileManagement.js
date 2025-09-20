@@ -300,6 +300,21 @@ router.delete('/users/:userId/files/:filename', verifyToken, isAdmin, async (req
       }
     }
 
+    // 從 UploadLog 中刪除記錄
+    if (fileUrl) {
+      try {
+        const UploadLog = require('../models/UploadLog');
+        const deleteResult = await UploadLog.deleteMany({ 
+          userId: user._id,
+          fileUrl: fileUrl
+        });
+        console.log('✅ UploadLog 記錄刪除成功:', deleteResult.deletedCount, '條記錄');
+      } catch (uploadLogError) {
+        console.error('❌ UploadLog 記錄刪除失敗:', uploadLogError);
+        // 不影響其他刪除操作，只記錄錯誤
+      }
+    }
+
     // 保存更新後的用戶記錄
     if (updated) {
       await user.save();
@@ -430,10 +445,25 @@ router.delete('/users/:userId/files', verifyToken, isAdmin, async (req, res) => 
               });
               
               await s3Client.send(deleteCommand);
-              console.log('✅ S3 文件刪除成功:', key);
+              console.log('✅ 批量刪除：S3 文件刪除成功:', key);
             } catch (s3Error) {
-              console.error('❌ S3 文件刪除失敗:', s3Error);
+              console.error('❌ 批量刪除：S3 文件刪除失敗:', s3Error);
               // 不影響數據庫刪除，只記錄錯誤
+            }
+          }
+
+          // 從 UploadLog 中刪除記錄
+          if (fileUrl) {
+            try {
+              const UploadLog = require('../models/UploadLog');
+              const deleteResult = await UploadLog.deleteMany({ 
+                userId: user._id,
+                fileUrl: fileUrl
+              });
+              console.log('✅ 批量刪除：UploadLog 記錄刪除成功:', deleteResult.deletedCount, '條記錄');
+            } catch (uploadLogError) {
+              console.error('❌ 批量刪除：UploadLog 記錄刪除失敗:', uploadLogError);
+              // 不影響其他刪除操作，只記錄錯誤
             }
           }
         } else {
