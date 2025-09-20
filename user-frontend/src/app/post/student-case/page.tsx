@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -104,6 +104,14 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 export default function PostStudentCase() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">載入中...</div>}>
+      <PostStudentCaseContent />
+    </Suspense>
+  );
+}
+
+function PostStudentCaseContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isLoading, error } = useUser();
