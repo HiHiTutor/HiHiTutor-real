@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Listbox } from '@headlessui/react';
 import { ChevronUpDownIcon, CheckIcon } from '@heroicons/react/20/solid';
-import { CategoryOption } from '@/hooks/useCategories';
+import { CategoryOption, useCategories } from '@/hooks/useCategories';
 import { Subject } from '@/types/category';
 
 interface PostTutorCaseProps {
