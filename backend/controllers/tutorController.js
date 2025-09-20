@@ -5,6 +5,39 @@ const mongoose = require('mongoose');
 const TutorCase = require('../models/TutorCase');
 const { getTeachingModeLabel } = require('../constants/teachingModeOptions');
 const CATEGORY_OPTIONS = require('../constants/categoryOptions');
+const Category = require('../models/Category');
+
+// 動態獲取分類資料
+const getDynamicCategories = async () => {
+  try {
+    const categories = await Category.find({});
+    if (categories.length > 0) {
+      return categories.map(category => ({
+        value: category.key,
+        label: category.label,
+        subjects: category.subjects || [],
+        subCategories: category.subCategories || []
+      }));
+    } else {
+      // 如果資料庫沒有資料，使用硬編碼備用
+      return Object.entries(CATEGORY_OPTIONS).map(([value, category]) => ({
+        value,
+        label: category.label,
+        subjects: category.subjects || [],
+        subCategories: category.subCategories || []
+      }));
+    }
+  } catch (error) {
+    console.error('❌ 載入動態分類資料失敗:', error);
+    // 如果資料庫錯誤，使用硬編碼備用
+    return Object.entries(CATEGORY_OPTIONS).map(([value, category]) => ({
+      value,
+      label: category.label,
+      subjects: category.subjects || [],
+      subCategories: category.subCategories || []
+    }));
+  }
+};
 
 // 根據分類獲取對應的科目列表
 const getCategorySubjects = (category) => {
@@ -354,121 +387,28 @@ const getAllTutors = async (req, res) => {
         ];
       }
       
-      // 分類過濾
-      if (category && category !== 'unlimited') {
+      // 科目過濾 - 優先處理具體科目
+      if (subjects) {
+        const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
+        console.log(`🎯 科目過濾: ${subjectArray.join(', ')}`);
+        
+        // 直接使用用戶選擇的科目進行過濾
+        query['tutorProfile.subjects'] = { $in: subjectArray };
+        console.log(`🔍 使用科目過濾: ${subjectArray.join(', ')}`);
+      } else if (category && category !== 'unlimited') {
+        // 如果沒有具體科目，才使用分類過濾
         console.log(`🎯 分類過濾: ${category}`);
         const categorySubjects = getCategorySubjects(category);
         if (categorySubjects && categorySubjects.length > 0) {
-          console.log(`📚 分類對應的科目: ${categorySubjects.join(', ')}`);
-          
-          if (subjects) {
-            const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
-            
-            // 驗證科目是否存在於分類選項中
-            const validSubjects = subjectArray.filter(subject => {
-              const isValid = Object.values(CATEGORY_OPTIONS).some(category => {
-                if (category.subjects) {
-                  return category.subjects.some(s => s.value === subject);
-                }
-                if (category.subCategories) {
-                  return category.subCategories.some(sc => 
-                    sc.subjects && sc.subjects.some(s => s.value === subject)
-                  );
-                }
-                return false;
-              });
-              
-              if (!isValid) {
-                console.log(`⚠️ 科目 "${subject}" 不存在於分類選項中，將被過濾掉`);
-              }
-              return isValid;
-            });
-            
-            const intersection = validSubjects.filter(subject => 
-              categorySubjects.includes(subject)
-            );
-            if (intersection.length > 0) {
-              query['tutorProfile.subjects'] = { $in: intersection };
-              console.log(`🔍 科目交集: ${intersection.join(', ')}`);
-            } else {
-              console.log('⚠️ 分類與有效科目沒有交集，返回空結果');
-              tutors = [];
-            }
-          } else {
-            query['tutorProfile.subjects'] = { $in: categorySubjects };
-            console.log(`🔍 使用分類科目過濾: ${categorySubjects.join(', ')}`);
-          }
+          query['tutorProfile.subjects'] = { $in: categorySubjects };
+          console.log(`🔍 使用分類科目過濾: ${categorySubjects.join(', ')}`);
         } else {
           console.log(`⚠️ 未找到分類 ${category} 對應的科目`);
         }
       } else if (category === 'unlimited') {
         console.log('🎯 分類設為 unlimited，跳過分類過濾');
-        
-        if (subjects) {
-          const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
-          
-          // 驗證科目是否存在於分類選項中
-          const validSubjects = subjectArray.filter(subject => {
-            const isValid = Object.values(CATEGORY_OPTIONS).some(category => {
-              if (category.subjects) {
-                return category.subjects.some(s => s.value === subject);
-              }
-              if (category.subCategories) {
-                return category.subCategories.some(sc => 
-                  sc.subjects && sc.subjects.some(s => s.value === subject)
-                );
-              }
-              return false;
-            });
-            
-            if (!isValid) {
-              console.log(`⚠️ 科目 "${subject}" 不存在於分類選項中，將被過濾掉`);
-            }
-            return isValid;
-          });
-          
-          if (validSubjects.length > 0) {
-            query['tutorProfile.subjects'] = { $in: validSubjects };
-            console.log(`🔍 使用有效科目過濾: ${validSubjects.join(', ')}`);
-          } else {
-            console.log('⚠️ 沒有有效的科目，返回空結果');
-            tutors = [];
-          }
-        }
       } else {
         console.log('🎯 沒有指定分類，查詢所有導師');
-        
-        if (subjects) {
-          const subjectArray = Array.isArray(subjects) ? subjects : subjects.split(',');
-          
-          // 驗證科目是否存在於分類選項中
-          const validSubjects = subjectArray.filter(subject => {
-            const isValid = Object.values(CATEGORY_OPTIONS).some(category => {
-              if (category.subjects) {
-                return category.subjects.some(s => s.value === subject);
-              }
-              if (category.subCategories) {
-                return category.subCategories.some(sc => 
-                  sc.subjects && sc.subjects.some(s => s.value === subject)
-                );
-              }
-              return false;
-            });
-            
-            if (!isValid) {
-              console.log(`⚠️ 科目 "${subject}" 不存在於分類選項中，將被過濾掉`);
-            }
-            return isValid;
-          });
-          
-          if (validSubjects.length > 0) {
-            query['tutorProfile.subjects'] = { $in: validSubjects };
-            console.log(`🔍 使用有效科目過濾: ${validSubjects.join(', ')}`);
-          } else {
-            console.log('⚠️ 沒有有效的科目，返回空結果');
-            tutors = [];
-          }
-        }
       }
       
       console.log('🔍 查詢條件:', JSON.stringify(query, null, 2));
