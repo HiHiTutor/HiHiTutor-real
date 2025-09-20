@@ -142,6 +142,7 @@ router.post('/users/:userId/files', verifyToken, isAdmin, upload.single('file'),
     if (!user.documents.educationCert.includes(url)) {
       user.documents.educationCert.push(url);
       updated = true;
+      console.log('✅ 文件已添加到 documents.educationCert:', url);
     }
 
     // 添加到 tutorProfile.publicCertificates（如果是導師）
@@ -152,6 +153,7 @@ router.post('/users/:userId/files', verifyToken, isAdmin, upload.single('file'),
       if (!user.tutorProfile.publicCertificates.includes(url)) {
         user.tutorProfile.publicCertificates.push(url);
         updated = true;
+        console.log('✅ 文件已添加到 tutorProfile.publicCertificates:', url);
       }
     }
 
@@ -212,24 +214,7 @@ router.delete('/users/:userId/files/:filename', verifyToken, isAdmin, async (req
     let updated = false;
     let fileUrl = '';
 
-    // 從 tutorProfile.publicCertificates 中移除文件
-    if (user.tutorProfile && user.tutorProfile.publicCertificates) {
-      const originalLength = user.tutorProfile.publicCertificates.length;
-      user.tutorProfile.publicCertificates = user.tutorProfile.publicCertificates.filter(url => {
-        const urlFilename = url.split('/').pop();
-        if (urlFilename === filename) {
-          fileUrl = url;
-          return false; // 移除這個文件
-        }
-        return true;
-      });
-      if (user.tutorProfile.publicCertificates.length < originalLength) {
-        fileFound = true;
-        updated = true;
-      }
-    }
-
-    // 從 documents.educationCert 中移除文件
+    // 從 documents.educationCert 中移除文件（優先處理，因為這是前台主要顯示的數據源）
     if (user.documents && user.documents.educationCert) {
       const originalLength = user.documents.educationCert.length;
       user.documents.educationCert = user.documents.educationCert.filter(url => {
@@ -243,6 +228,28 @@ router.delete('/users/:userId/files/:filename', verifyToken, isAdmin, async (req
       if (user.documents.educationCert.length < originalLength) {
         fileFound = true;
         updated = true;
+        console.log('✅ 從 documents.educationCert 中移除文件:', filename);
+      }
+    }
+
+    // 從 tutorProfile.publicCertificates 中移除文件
+    if (user.tutorProfile && user.tutorProfile.publicCertificates) {
+      const originalLength = user.tutorProfile.publicCertificates.length;
+      user.tutorProfile.publicCertificates = user.tutorProfile.publicCertificates.filter(url => {
+        const urlFilename = url.split('/').pop();
+        if (urlFilename === filename) {
+          // 如果 fileUrl 還沒有設置，設置它
+          if (!fileUrl) {
+            fileUrl = url;
+          }
+          return false; // 移除這個文件
+        }
+        return true;
+      });
+      if (user.tutorProfile.publicCertificates.length < originalLength) {
+        fileFound = true;
+        updated = true;
+        console.log('✅ 從 tutorProfile.publicCertificates 中移除文件:', filename);
       }
     }
 
@@ -348,24 +355,7 @@ router.delete('/users/:userId/files', verifyToken, isAdmin, async (req, res) => 
         let fileFound = false;
         let fileUrl = '';
 
-        // 從 tutorProfile.publicCertificates 中移除文件
-        if (user.tutorProfile && user.tutorProfile.publicCertificates) {
-          const originalLength = user.tutorProfile.publicCertificates.length;
-          user.tutorProfile.publicCertificates = user.tutorProfile.publicCertificates.filter(url => {
-            const urlFilename = url.split('/').pop();
-            if (urlFilename === filename) {
-              fileUrl = url;
-              return false; // 移除這個文件
-            }
-            return true;
-          });
-          if (user.tutorProfile.publicCertificates.length < originalLength) {
-            fileFound = true;
-            updated = true;
-          }
-        }
-
-        // 從 documents.educationCert 中移除文件
+        // 從 documents.educationCert 中移除文件（優先處理，因為這是前台主要顯示的數據源）
         if (user.documents && user.documents.educationCert) {
           const originalLength = user.documents.educationCert.length;
           user.documents.educationCert = user.documents.educationCert.filter(url => {
@@ -379,6 +369,28 @@ router.delete('/users/:userId/files', verifyToken, isAdmin, async (req, res) => 
           if (user.documents.educationCert.length < originalLength) {
             fileFound = true;
             updated = true;
+            console.log('✅ 批量刪除：從 documents.educationCert 中移除文件:', filename);
+          }
+        }
+
+        // 從 tutorProfile.publicCertificates 中移除文件
+        if (user.tutorProfile && user.tutorProfile.publicCertificates) {
+          const originalLength = user.tutorProfile.publicCertificates.length;
+          user.tutorProfile.publicCertificates = user.tutorProfile.publicCertificates.filter(url => {
+            const urlFilename = url.split('/').pop();
+            if (urlFilename === filename) {
+              // 如果 fileUrl 還沒有設置，設置它
+              if (!fileUrl) {
+                fileUrl = url;
+              }
+              return false; // 移除這個文件
+            }
+            return true;
+          });
+          if (user.tutorProfile.publicCertificates.length < originalLength) {
+            fileFound = true;
+            updated = true;
+            console.log('✅ 批量刪除：從 tutorProfile.publicCertificates 中移除文件:', filename);
           }
         }
 
