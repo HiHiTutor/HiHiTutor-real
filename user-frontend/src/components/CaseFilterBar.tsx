@@ -443,12 +443,17 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   };
 
   const handleModeChange = (mode: string) => {
-    // 只處理主教學模式（面授、網課、皆可）
+    // 只處理主教學模式（面授、網課）
     setFilters(prev => ({
       ...prev,
       mode: mode,
       // 當切換主模式時，清空子分類
-      subCategory: []
+      subCategory: [],
+      // 如果選擇網課，清空地區選擇
+      ...(mode === 'online' && {
+        regions: [''],
+        subRegions: ['']
+      })
     }));
   };
 
@@ -883,11 +888,19 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                   className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
                 >
                   <option value="" disabled>請選擇分類</option>
-                  {CATEGORY_OPTIONS.map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
+                  {CATEGORY_OPTIONS
+                    .sort((a, b) => {
+                      // 確保正確的順序：幼兒教育 → 中小學教育 → 興趣班 → 大專補習課程 → 成人教育
+                      const order = ['early-childhood', 'primary-secondary', 'interest', 'tertiary', 'adult'];
+                      const aIndex = order.indexOf(a.value);
+                      const bIndex = order.indexOf(b.value);
+                      return aIndex - bIndex;
+                    })
+                    .map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
                 </select>
               </div>
 
