@@ -70,7 +70,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     mode: '', // 預設為空，顯示"請選擇教學模式"
     regions: [''], // 預設為空，需要用戶選擇
     subRegions: [''], // 預設為空
-    priceRange: 'unlimited' // 預設為不限
+    priceRange: '' // 預設為空，顯示"請選擇堂費"
   });
   
   const [teachingModeOptions, setTeachingModeOptions] = useState<any[]>([]);
@@ -375,13 +375,13 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     setFilters({
       target,
       search: searchParams.get('search') || '', // 初始化搜尋字段
-      category: searchParams.get('category') || 'unlimited',
+      category: searchParams.get('category') || '',
       subCategory: searchParams.getAll('subCategory').length > 0 ? searchParams.getAll('subCategory') : [],
       subjects: searchParams.getAll('subjects').length > 0 ? [...new Set(searchParams.getAll('subjects'))] : [],
-              mode: searchParams.get('mode') || 'both', // 預設為皆可
-      regions: searchParams.getAll('regions').length > 0 ? searchParams.getAll('regions') : ['unlimited'],
-      subRegions: searchParams.getAll('subRegions').length > 0 ? searchParams.getAll('subRegions') : ['unlimited'],
-      priceRange: searchParams.get('priceRange') || 'unlimited'
+      mode: searchParams.get('mode') || '', // 預設為空
+      regions: searchParams.getAll('regions').length > 0 ? searchParams.getAll('regions') : [''],
+      subRegions: searchParams.getAll('subRegions').length > 0 ? searchParams.getAll('subRegions') : [''],
+      priceRange: searchParams.get('priceRange') || ''
     });
   }, [searchParams, pathname]);
 
@@ -431,7 +431,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     setFilters(prev => ({
       ...prev,
       regions: [value], // 改為單選
-      subRegions: value === 'unlimited' ? ['unlimited'] : []
+      subRegions: [] // 清空子地區選擇
     }));
   };
 
@@ -471,7 +471,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     }
     
     // 課程分類 - 確保正確添加分類參數
-    if (filters.category && filters.category !== 'unlimited' && filters.category !== '') {
+    if (filters.category && filters.category !== '') {
       params.set('category', filters.category);
       console.log('🔍 添加分類參數:', filters.category);
     }
@@ -479,7 +479,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     // 子分類 - 只有選擇具體子分類時才添加參數
     if (filters.subCategory.length > 0) {
       filters.subCategory.forEach(subCat => {
-        if (subCat !== 'unlimited') {
+        if (subCat !== '') {
           params.append('subCategory', subCat);
         }
       });
@@ -489,7 +489,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     if (filters.subjects.length > 0) {
       filters.subjects.forEach(subject => params.append('subjects', subject));
       console.log('🔍 添加用戶選擇的科目:', filters.subjects);
-    } else if (filters.category && filters.category !== 'unlimited') {
+    } else if (filters.category && filters.category !== '') {
       // 若冇揀科目 → 自動傳出該子分類下所有科目
       const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(c => c.value === filters.category) : null;
       if (category) {
@@ -517,8 +517,8 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     }
     // 如果課程分類是不限，不添加任何科目參數（清除之前的科目參數）
 
-    // 其他篩選條件 - 只添加非unlimited的值
-    if (filters.mode && filters.mode !== 'unlimited' && filters.mode !== '') {
+    // 其他篩選條件 - 只添加非空的值
+    if (filters.mode && filters.mode !== '') {
       params.append('modes', filters.mode);
       // 如果有子分類，也添加子分類
       if (filters.subCategory.length > 0) {
@@ -530,16 +530,16 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       }
     }
     filters.regions.forEach(region => {
-      if (region !== 'unlimited') {
+      if (region !== '') {
         params.append('regions', region);
       }
     });
     filters.subRegions.forEach(subRegion => {
-      if (subRegion !== 'unlimited') {
+      if (subRegion !== '') {
         params.append('subRegions', subRegion);
       }
     });
-    if (filters.priceRange && filters.priceRange !== 'unlimited') {
+    if (filters.priceRange && filters.priceRange !== '') {
       params.set('priceRange', filters.priceRange);
     }
 
@@ -572,7 +572,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       mode: '',
       regions: [''],
       subRegions: [''],
-      priceRange: 'unlimited'
+      priceRange: ''
     });
     // 直接用 usePathname 判斷
     const isTutorPage = pathname === "/tutors";
@@ -593,8 +593,8 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   };
 
   const getSelectedSubRegions = () => {
-    if (!filters.regions.length || filters.regions.includes('unlimited')) {
-      return [{ value: 'unlimited', label: '不限' }];
+    if (!filters.regions.length || filters.regions[0] === '') {
+      return [];
     }
     
     const selectedRegions = regionOptions?.filter(region => 
@@ -604,10 +604,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     // Get all sub-regions from selected regions, not just the ones already selected
     const subRegions = selectedRegions.flatMap(region => region.regions || []);
     
-    return [
-      { value: 'unlimited', label: '不限' },
-      ...subRegions
-    ];
+    return subRegions;
   };
 
   const getCategorySubjects = () => {
@@ -678,7 +675,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
 
   const shouldShowSubjects = () => {
     const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(c => c.value === filters.category) : null;
-    if (!category || category.value === 'unlimited' || category.value === '') return false;
+    if (!category || category.value === '') return false;
 
     // 只有"中小學教育"有子分類，其他分類直接顯示科目
     if (category.value === 'primary-secondary') {
@@ -712,9 +709,9 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     //   }
     // }
     
-    // 子分類 - 不顯示"不限"
+    // 子分類 - 不顯示空值
     filters.subCategory.forEach(subCat => {
-      if (subCat !== 'unlimited') {
+      if (subCat !== '') {
         const subOptions = getSubOptions();
         const subOption = Array.isArray(subOptions) ? subOptions.find(s => s.value === subCat) : null;
         if (subOption) {
@@ -733,7 +730,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     });
     
     // 教學模式
-    if (filters.mode && filters.mode !== 'both' && filters.mode !== '') {
+    if (filters.mode && filters.mode !== '') {
       // 確保 teachingModeOptions 是陣列且不為空
       if (Array.isArray(teachingModeOptions) && teachingModeOptions.length > 0) {
         const modeOption = teachingModeOptions.find(m => m.value === filters.mode);
@@ -745,7 +742,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     
     // 教學模式子分類
     filters.subCategory.forEach(subCat => {
-      if (subCat !== 'unlimited' && subCat !== '') {
+      if (subCat !== '') {
         const subCategoryLabels = {
           'one-on-one': '一對一',
           'small-group': '小班教學',
@@ -758,18 +755,18 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       }
     });
     
-    // 地區 - 不顯示"不限"
+    // 地區 - 不顯示空值
     filters.regions.forEach(region => {
-      if (region === 'unlimited') return;
+      if (region === '') return;
       const regionOption = Array.isArray(regionOptions) ? regionOptions.find(r => r.value === region) : null;
       if (regionOption) {
         selected.push({ key: 'regions', label: regionOption.label, value: region });
       }
     });
     
-    // 子地區 - 不顯示"不限"
+    // 子地區 - 不顯示空值
     filters.subRegions.forEach(subRegion => {
-      if (subRegion === 'unlimited') return;
+      if (subRegion === '') return;
       const subRegions = getSelectedSubRegions();
       const subRegionOption = Array.isArray(subRegions) ? subRegions.find(sr => sr.value === subRegion) : null;
       if (subRegionOption) {
@@ -777,8 +774,8 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       }
     });
     
-    // 價格範圍 - 不顯示"不限"
-    if (filters.priceRange && filters.priceRange !== 'unlimited') {
+    // 價格範圍 - 不顯示空值
+    if (filters.priceRange && filters.priceRange !== '') {
       const priceOption = Array.isArray(PRICE_OPTIONS) ? PRICE_OPTIONS.find(p => p.value === filters.priceRange) : null;
       if (priceOption) {
         selected.push({ key: 'priceRange', label: priceOption.label, value: filters.priceRange });
@@ -810,17 +807,17 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
           newFilters.subCategory = newFilters.subCategory.filter(cat => cat !== value);
           break;
         case 'regions':
-          newFilters.regions = ['unlimited'];
-          newFilters.subRegions = ['unlimited'];
+          newFilters.regions = [''];
+          newFilters.subRegions = [''];
           break;
         case 'subRegions':
           newFilters.subRegions = prev.subRegions.filter(sr => sr !== value);
           if (newFilters.subRegions.length === 0) {
-            newFilters.subRegions = ['unlimited'];
+            newFilters.subRegions = [''];
           }
           break;
         case 'priceRange':
-          newFilters.priceRange = 'unlimited';
+          newFilters.priceRange = '';
           break;
       }
       
@@ -840,7 +837,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       mode: '', // 重置為空，顯示"請選擇教學模式"
       regions: [''],
       subRegions: [''],
-      priceRange: 'unlimited'
+      priceRange: ''
     });
   };
 
@@ -906,7 +903,6 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                   className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
                 >
                   <option value="" disabled>請選擇分類</option>
-                  <option value="unlimited">不限</option>
                   {CATEGORY_OPTIONS.map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
@@ -1066,7 +1062,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                   onChange={(e) => handleModeChange(e.target.value)}
                   className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
                 >
-                  <option value="" disabled>請選擇教學模式</option>
+                  <option value="" disabled>請選擇模式</option>
                   <option value="both">皆可</option>
                   <option value="in-person">面授</option>
                   <option value="online">網課</option>
@@ -1157,8 +1153,8 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                 </select>
               </div>
 
-              {/* 子地區選擇 */}
-              {filters.regions.length > 0 && filters.regions[0] !== '' && (
+              {/* 子地區選擇 - 只在選擇地區且有子地區時顯示 */}
+              {filters.regions.length > 0 && filters.regions[0] !== '' && getSelectedSubRegions().length > 0 && (
                 <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
                   <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">子地區</label>
                   <Listbox
@@ -1169,15 +1165,15 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                     <div className="relative">
                       <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm max-sm:py-1 max-sm:text-xs">
                         <span className="block truncate">
-                          {filters.subRegions.length === 0 || (filters.subRegions.length === 1 && filters.subRegions[0] === 'unlimited')
-                            ? '不限'
+                          {filters.subRegions.length === 0 || (filters.subRegions.length === 1 && filters.subRegions[0] === '')
+                            ? '請選擇子地區'
                             : filters.subRegions.length === 1
                             ? (() => {
                                 const subRegions = getSelectedSubRegions();
                                 const found = Array.isArray(subRegions) ? subRegions.find(sr => sr.value === filters.subRegions[0]) : null;
                                 return found?.label || '未知';
                               })()
-                            : `已選擇 ${filters.subRegions.filter(sr => sr !== 'unlimited').length} 個子地區`}
+                            : `已選擇 ${filters.subRegions.filter(sr => sr !== '').length} 個子地區`}
                         </span>
                         <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                           <ChevronUpDownIcon
@@ -1232,7 +1228,8 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                   onChange={(e) => handlePriceChange(e.target.value)}
                   className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
                 >
-                  {PRICE_OPTIONS.map(option => (
+                  <option value="" disabled>請選擇堂費</option>
+                  {PRICE_OPTIONS.filter(option => option.value !== 'unlimited').map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
