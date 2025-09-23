@@ -376,7 +376,8 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       target,
       search: searchParams.get('search') || '', // 初始化搜尋字段
       category: searchParams.get('category') || '',
-      subCategory: searchParams.getAll('subCategory').length > 0 ? searchParams.getAll('subCategory') : [],
+      subCategory: searchParams.getAll('subCategory').length > 0 ? 
+        searchParams.getAll('subCategory').flatMap(cat => cat.split(',')).filter(cat => cat !== '') : [],
       subjects: searchParams.getAll('subjects').length > 0 ? [...new Set(searchParams.getAll('subjects'))] : [],
       mode: searchParams.get('mode') || '', // 預設為空
       regions: searchParams.getAll('regions').length > 0 ? searchParams.getAll('regions') : [''],
