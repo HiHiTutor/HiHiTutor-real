@@ -651,9 +651,12 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     if (category.subCategories && category.subCategories.length > 0) {
       if (filters.subCategory.length > 0) {
         // 顯示所有選中子分類的科目
-        subjects = category.subCategories
-          .filter(sc => filters.subCategory.includes(sc.value))
-          .flatMap(sc => sc.subjects || []);
+        console.log('🔍 已選子分類:', filters.subCategory);
+        console.log('🔍 所有子分類:', category.subCategories);
+        const selectedSubCategories = category.subCategories.filter(sc => filters.subCategory.includes(sc.value));
+        console.log('🔍 匹配的子分類:', selectedSubCategories);
+        subjects = selectedSubCategories.flatMap(sc => sc.subjects || []);
+        console.log('🔍 合併後的科目:', subjects);
       } else {
         // 如果沒有選擇子分類，顯示所有子分類的科目
         subjects = category.subCategories.flatMap(sc => sc.subjects || []);
