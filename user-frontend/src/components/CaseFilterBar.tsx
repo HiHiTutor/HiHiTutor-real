@@ -66,7 +66,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     search: '', // 添加搜尋字段
     category: '', // 預設為空，顯示"請選擇分類"
     subCategory: [], // 預設為空陣列
-    subjects: ['unlimited'], // 預設為不限
+    subjects: [], // 預設為空陣列
     mode: '', // 預設為空，顯示"請選擇教學模式"
     regions: [''], // 預設為空，需要用戶選擇
     subRegions: [''], // 預設為空
@@ -377,7 +377,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       search: searchParams.get('search') || '', // 初始化搜尋字段
       category: searchParams.get('category') || '',
       subCategory: searchParams.getAll('subCategory').length > 0 ? searchParams.getAll('subCategory') : [],
-      subjects: searchParams.getAll('subjects').length > 0 ? [...new Set(searchParams.getAll('subjects'))] : ['unlimited'],
+      subjects: searchParams.getAll('subjects').length > 0 ? [...new Set(searchParams.getAll('subjects'))] : [],
       mode: searchParams.get('mode') || '', // 預設為空
       regions: searchParams.getAll('regions').length > 0 ? searchParams.getAll('regions') : [''],
       subRegions: searchParams.getAll('subRegions').length > 0 ? searchParams.getAll('subRegions') : [''],
@@ -568,7 +568,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       search: '', // 重置搜尋字段
       category: '',
       subCategory: [],
-      subjects: ['unlimited'], // 設為不限
+      subjects: [], // 重置為空陣列
       mode: '',
       regions: [''],
       subRegions: [''],
@@ -660,10 +660,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
 
     console.log('🔍 最終科目選項:', subjects);
 
-    return [
-      { value: 'unlimited', label: '不限' },
-      ...subjects
-    ];
+    return subjects;
   };
 
   const shouldShowSubjects = () => {
@@ -826,7 +823,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       search: '', // 重置搜尋字段
       category: '', // 重置為空，顯示"請選擇分類"
       subCategory: [],
-      subjects: ['unlimited'], // 設為不限
+      subjects: [], // 重置為空陣列
       mode: '', // 重置為空，顯示"請選擇教學模式"
       regions: [''],
       subRegions: [''],
@@ -993,7 +990,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                       <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm max-sm:py-1 max-sm:text-xs">
                         <span className="block truncate">
                           {filters.subjects.length === 0
-                            ? '不限'
+                            ? '請選擇科目'
                             : filters.subjects.length === 1
                             ? (() => {
                                 const subjectOptions = getSubjectOptions();
