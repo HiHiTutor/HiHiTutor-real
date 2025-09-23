@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// 強制動態渲染，因為此路由使用 request.headers
+export const dynamic = 'force-dynamic';
+
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE || 'https://hi-hi-tutor-real-backend2.vercel.app';
 
 export async function POST(request: NextRequest) {
