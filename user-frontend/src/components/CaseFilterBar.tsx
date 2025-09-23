@@ -363,7 +363,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       subCategory: searchParams.getAll('subCategory').length > 0 ? 
         searchParams.getAll('subCategory').flatMap(cat => cat.split(',')).filter(cat => cat !== '') : [],
       subjects: searchParams.getAll('subjects').length > 0 ? [...new Set(searchParams.getAll('subjects'))] : [],
-      mode: searchParams.get('mode') || '', // 預設為空
+      mode: searchParams.getAll('modes').length > 0 ? searchParams.getAll('modes')[0] : '', // 預設為空
       regions: searchParams.getAll('regions').length > 0 ? searchParams.getAll('regions') : [''],
       subRegions: searchParams.getAll('subRegions').length > 0 ? searchParams.getAll('subRegions') : [''],
       priceRange: searchParams.get('priceRange') || ''
@@ -557,7 +557,14 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     }
     
     if (onFilter) {
-      onFilter(filters);
+      // 轉換 filters 格式以匹配導師列表頁面的期望
+      const formattedFilters = {
+        ...filters,
+        mode: filters.mode ? [filters.mode] : [], // 將 mode 轉換為數組
+        regions: filters.regions.filter(region => region !== ''), // 過濾空值
+        subRegions: filters.subRegions.filter(subRegion => subRegion !== '') // 過濾空值
+      };
+      onFilter(formattedFilters);
     }
   };
 
