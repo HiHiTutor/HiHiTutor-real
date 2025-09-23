@@ -574,10 +574,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       subRegions: [''],
       priceRange: ''
     });
-    // 不跳轉頁面，只清空選項
-    if (onFilter) {
-      onFilter({});
-    }
+    // 重置時不調用 onFilter，避免跳轉頁面
   };
 
   const getSubCategoryLabel = (value: string) => {
