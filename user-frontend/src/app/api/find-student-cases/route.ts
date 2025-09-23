@@ -28,8 +28,7 @@ export async function GET(req: Request) {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-      },
-      cache: 'no-store', // 確保不使用緩存
+      }
     });
 
     console.log('📥 Backend response status:', response.status);
@@ -121,8 +120,7 @@ export async function POST(req: Request) {
         paymentType: body.paymentType || 'free',
         promotionLevel: body.promotionLevel !== undefined ? Math.max(0, Math.min(5, body.promotionLevel)) : 0,
         featured: body.featured !== undefined ? body.featured : false
-      }),
-      cache: 'no-store',
+      })
     });
 
     console.log('📥 POST Backend response status:', response.status);

@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const backendRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/faqs`, { cache: 'no-store' });
+    const backendRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/faqs`);
     const data = await backendRes.json();
     return new Response(JSON.stringify(data), {
       status: backendRes.status,

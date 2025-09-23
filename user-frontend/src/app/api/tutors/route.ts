@@ -20,8 +20,7 @@ export async function GET(request: NextRequest) {
     const response = await fetch(apiUrl, {
       headers: {
         'Content-Type': 'application/json',
-      },
-      cache: 'no-store'
+      }
     });
 
     console.log('📊 後端響應狀態:', response.status);

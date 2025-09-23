@@ -18,8 +18,7 @@ export async function GET(
     const response = await fetch(`${baseURL}/api/tutors/detail/${id}`, {
       headers: {
         'Content-Type': 'application/json',
-      },
-      cache: 'no-store'
+      }
     });
 
     console.log('📊 後端響應狀態:', response.status);
