@@ -683,6 +683,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   // 獲取已選選項的顯示文字
   const getSelectedOptions = () => {
     const selected: { key: string; label: string; value: string }[] = [];
+    console.log('🔍 getSelectedOptions - 當前 filters:', filters);
     
 
     
@@ -745,10 +746,13 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     // });
     
     // 子地區 - 不顯示空值
+    console.log('🔍 檢查子地區:', filters.subRegions);
     filters.subRegions.forEach(subRegion => {
       if (subRegion === '') return;
       const subRegions = getSelectedSubRegions();
+      console.log('🔍 可用的子地區選項:', subRegions);
       const subRegionOption = Array.isArray(subRegions) ? subRegions.find(sr => sr.value === subRegion) : null;
+      console.log('🔍 找到的子地區選項:', subRegionOption);
       if (subRegionOption) {
         selected.push({ key: 'subRegions', label: subRegionOption.label, value: subRegion });
       }
@@ -767,13 +771,16 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     }
     
     // 價格範圍 - 不顯示空值
+    console.log('🔍 檢查價格範圍:', filters.priceRange);
     if (filters.priceRange && filters.priceRange !== '') {
       const priceOption = Array.isArray(PRICE_OPTIONS) ? PRICE_OPTIONS.find(p => p.value === filters.priceRange) : null;
+      console.log('🔍 找到的價格選項:', priceOption);
       if (priceOption) {
         selected.push({ key: 'priceRange', label: priceOption.label, value: filters.priceRange });
       }
     }
     
+    console.log('🔍 最終已選選項:', selected);
     return selected;
   };
 
