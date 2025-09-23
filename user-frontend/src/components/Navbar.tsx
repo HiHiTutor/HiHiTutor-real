@@ -91,18 +91,10 @@ const Navbar = () => {
             )}
           </nav>
         </div>
-        {/* 桌面右側用戶icon+名+下拉 */}
+        {/* 桌面右側用戶名+下拉 */}
         <div className="md:flex items-center gap-2 ml-auto z-10 relative max-md:hidden">
           {isLoggedIn && user && (
             <div className="relative flex items-center gap-2">
-              {/* Tutor 顯示頭像，Student 不顯示 */}
-              {user.userType === 'tutor' && (
-                <img
-                  src={user.avatarUrl || user.avatar || '/avatars/default.png'}
-                  alt="avatar"
-                  className="w-8 h-8 rounded-full border-2 border-gray-300"
-                />
-              )}
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-gray-700">
                   {user.name || '用戶'}
@@ -111,7 +103,9 @@ const Navbar = () => {
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   className="p-1 rounded-full hover:bg-gray-100 transition-colors"
                 >
-                  <UserGroupIcon className="w-5 h-5 text-gray-600" />
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
                 </button>
               </div>
               
