@@ -64,10 +64,10 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   const [filters, setFilters] = useState<FilterState>({
     target: '',
     search: '', // 添加搜尋字段
-    category: 'unlimited', // 預設為不限
+    category: '', // 預設為空，顯示"請選擇分類"
     subCategory: [], // 預設為空陣列
     subjects: [],
-    mode: 'both', // 預設為皆可
+    mode: '', // 預設為空，顯示"請選擇教學模式"
     regions: [''], // 預設為空，需要用戶選擇
     subRegions: [''], // 預設為空
     priceRange: 'unlimited' // 預設為不限
@@ -471,7 +471,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     }
     
     // 課程分類 - 確保正確添加分類參數
-    if (filters.category && filters.category !== 'unlimited') {
+    if (filters.category && filters.category !== 'unlimited' && filters.category !== '') {
       params.set('category', filters.category);
       console.log('🔍 添加分類參數:', filters.category);
     }
@@ -518,7 +518,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     // 如果課程分類是不限，不添加任何科目參數（清除之前的科目參數）
 
     // 其他篩選條件 - 只添加非unlimited的值
-    if (filters.mode && filters.mode !== 'unlimited') {
+    if (filters.mode && filters.mode !== 'unlimited' && filters.mode !== '') {
       params.append('modes', filters.mode);
       // 如果有子分類，也添加子分類
       if (filters.subCategory.length > 0) {
@@ -566,12 +566,12 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     setFilters({
       target: autoTarget,
       search: '', // 重置搜尋字段
-      category: 'unlimited',
+      category: '',
       subCategory: [],
       subjects: [],
-      mode: 'both',
-      regions: ['unlimited'],
-      subRegions: ['unlimited'],
+      mode: '',
+      regions: [''],
+      subRegions: [''],
       priceRange: 'unlimited'
     });
     // 直接用 usePathname 判斷
@@ -643,7 +643,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
 
   const getSubjectOptions = () => {
     const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(c => c.value === filters.category) : null;
-    if (!category) return [{ value: 'unlimited', label: '不限' }];
+    if (!category) return [{ value: '', label: '請選擇科目', disabled: true }];
 
     console.log('🔍 當前分類:', category);
     console.log('🔍 分類是否有子分類:', !!category.subCategories);
@@ -670,6 +670,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     console.log('🔍 最終科目選項:', subjects);
 
     return [
+      { value: '', label: '請選擇科目', disabled: true },
       { value: 'unlimited', label: '不限' },
       ...subjects
     ];
@@ -677,7 +678,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
 
   const shouldShowSubjects = () => {
     const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(c => c.value === filters.category) : null;
-    if (!category || category.value === 'unlimited') return false;
+    if (!category || category.value === 'unlimited' || category.value === '') return false;
 
     // 只有"中小學教育"有子分類，其他分類直接顯示科目
     if (category.value === 'primary-secondary') {
@@ -732,7 +733,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     });
     
     // 教學模式
-    if (filters.mode && filters.mode !== 'both') {
+    if (filters.mode && filters.mode !== 'both' && filters.mode !== '') {
       // 確保 teachingModeOptions 是陣列且不為空
       if (Array.isArray(teachingModeOptions) && teachingModeOptions.length > 0) {
         const modeOption = teachingModeOptions.find(m => m.value === filters.mode);
@@ -794,7 +795,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       
       switch (key) {
         case 'category':
-          newFilters.category = 'unlimited';
+          newFilters.category = '';
           newFilters.subCategory = [];
           newFilters.subjects = [];
           break;
@@ -802,7 +803,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
           newFilters.subjects = prev.subjects.filter(s => s !== value);
           break;
         case 'mode':
-          newFilters.mode = 'both';
+          newFilters.mode = '';
           newFilters.subCategory = [];
           break;
         case 'subCategory':
@@ -833,12 +834,12 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     setFilters({
       target: autoTarget,
       search: '', // 重置搜尋字段
-      category: 'unlimited',
+      category: '', // 重置為空，顯示"請選擇分類"
       subCategory: [],
       subjects: [],
-      mode: 'both',
-      regions: ['unlimited'],
-      subRegions: ['unlimited'],
+      mode: '', // 重置為空，顯示"請選擇教學模式"
+      regions: [''],
+      subRegions: [''],
       priceRange: 'unlimited'
     });
   };
@@ -904,6 +905,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                   onChange={(e) => handleFilterChange('category', e.target.value)}
                   className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
                 >
+                  <option value="" disabled>請選擇分類</option>
                   <option value="unlimited">不限</option>
                   {CATEGORY_OPTIONS.map(option => (
                     <option key={option.value} value={option.value}>
@@ -1002,7 +1004,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                       <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm max-sm:py-1 max-sm:text-xs">
                         <span className="block truncate">
                           {filters.subjects.length === 0
-                            ? '不限'
+                            ? '請選擇科目'
                             : filters.subjects.length === 1
                             ? (() => {
                                 const subjectOptions = getSubjectOptions();
@@ -1064,6 +1066,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                   onChange={(e) => handleModeChange(e.target.value)}
                   className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
                 >
+                  <option value="" disabled>請選擇教學模式</option>
                   <option value="both">皆可</option>
                   <option value="in-person">面授</option>
                   <option value="online">網課</option>
