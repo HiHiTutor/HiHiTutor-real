@@ -478,7 +478,9 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
 
     // 子分類 - 只有選擇具體子分類時才添加參數
     if (filters.subCategory.length > 0) {
-      filters.subCategory.forEach(subCat => {
+      // 去重後再添加參數
+      const uniqueSubCategories = [...new Set(filters.subCategory)];
+      uniqueSubCategories.forEach(subCat => {
         if (subCat !== '') {
           params.append('subCategory', subCat);
         }
@@ -522,7 +524,9 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       params.append('modes', filters.mode);
       // 如果有子分類，也添加子分類
       if (filters.subCategory.length > 0) {
-        filters.subCategory.forEach(subCat => {
+        // 去重後再添加參數
+        const uniqueSubCategories = [...new Set(filters.subCategory)];
+        uniqueSubCategories.forEach(subCat => {
           if (subCat !== '') {
             params.append('modes', subCat);
           }
@@ -626,10 +630,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   const getSubOptions = () => {
     const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(c => c.value === filters.category) : null;
     const subOptions = category?.subCategories || [];
-    return [
-      { value: 'unlimited', label: '不限' },
-      ...subOptions
-    ];
+    return subOptions;
   };
 
   const getSubjectOptions = () => {
