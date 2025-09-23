@@ -723,14 +723,14 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     
     // 移除教學模式子分類處理 - 不再需要面授子分類
     
-    // 地區 - 不顯示空值
-    filters.regions.forEach(region => {
-      if (region === '') return;
-      const regionOption = Array.isArray(regionOptions) ? regionOptions.find(r => r.value === region) : null;
-      if (regionOption) {
-        selected.push({ key: 'regions', label: regionOption.label, value: region });
-      }
-    });
+    // 主地區 - 不加入已選選項（香港島、九龍等不顯示在已選選項中）
+    // filters.regions.forEach(region => {
+    //   if (region === '') return;
+    //   const regionOption = Array.isArray(regionOptions) ? regionOptions.find(r => r.value === region) : null;
+    //   if (regionOption) {
+    //     selected.push({ key: 'regions', label: regionOption.label, value: region });
+    //   }
+    // });
     
     // 子地區 - 不顯示空值
     filters.subRegions.forEach(subRegion => {
