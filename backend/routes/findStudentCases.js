@@ -263,7 +263,23 @@ router.get('/', async (req, res) => {
 
     // 如果有類別篩選
     if (category && category !== 'unlimited') {
-      query.category = category;
+      // 支援英文和中文分類值
+      const categoryConditions = [
+        { category: category }, // 英文值
+        { category: mapCategoryToEnglishValue(category) } // 轉換後的值
+      ];
+      
+      // 如果已經有 $or 條件，需要合併
+      if (query.$or) {
+        const existingOr = query.$or;
+        query.$and = [
+          { $or: existingOr },
+          { $or: categoryConditions }
+        ];
+        delete query.$or;
+      } else {
+        query.$or = categoryConditions;
+      }
     }
 
     // 如果有子類別篩選
