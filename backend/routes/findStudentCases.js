@@ -284,7 +284,9 @@ router.get('/', async (req, res) => {
 
     // 如果有子類別篩選
     if (subCategory && subCategory !== 'unlimited') {
-      query.subCategory = subCategory;
+      // 處理逗號分隔的子分類值
+      const subCategoryArray = Array.isArray(subCategory) ? subCategory : subCategory.split(',');
+      query.subCategory = { $in: subCategoryArray };
     }
 
     // 如果有科目篩選
