@@ -630,6 +630,9 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   const getSubOptions = () => {
     const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(c => c.value === filters.category) : null;
     const subOptions = category?.subCategories || [];
+    console.log('🔍 getSubOptions - 當前分類:', category);
+    console.log('🔍 getSubOptions - 子分類選項:', subOptions);
+    console.log('🔍 getSubOptions - 已選子分類:', filters.subCategory);
     return subOptions;
   };
 
@@ -920,6 +923,11 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                             ? (() => {
                                 const subOptions = getSubOptions();
                                 const found = Array.isArray(subOptions) ? subOptions.find(s => s.value === filters.subCategory[0]) : null;
+                                console.log('🔍 子分類標籤查找:', {
+                                  subCategory: filters.subCategory[0],
+                                  subOptions,
+                                  found
+                                });
                                 return found?.label || '未知';
                               })()
                             : `已選擇 ${filters.subCategory.length} 個子分類`}
