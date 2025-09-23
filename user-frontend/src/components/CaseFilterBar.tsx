@@ -356,7 +356,17 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     const autoTarget = getAutoTarget(); // 根據 pathname 判斷正確目標
     const target = searchParams.get('target') || autoTarget;
 
-    setFilters({
+    console.log('🔍 URL 參數初始化 - searchParams:', {
+      category: searchParams.get('category'),
+      subCategory: searchParams.getAll('subCategory'),
+      subjects: searchParams.getAll('subjects'),
+      modes: searchParams.getAll('modes'),
+      regions: searchParams.getAll('regions'),
+      subRegions: searchParams.getAll('subRegions'),
+      priceRange: searchParams.get('priceRange')
+    });
+
+    const newFilters = {
       target,
       search: searchParams.get('search') || '', // 初始化搜尋字段
       category: searchParams.get('category') || '',
@@ -367,7 +377,10 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       regions: searchParams.getAll('regions').length > 0 ? searchParams.getAll('regions') : [''],
       subRegions: searchParams.getAll('subRegions').length > 0 ? searchParams.getAll('subRegions') : [''],
       priceRange: searchParams.get('priceRange') || ''
-    });
+    };
+
+    console.log('🔍 設置的 filters:', newFilters);
+    setFilters(newFilters);
   }, [searchParams, pathname]);
 
   // 同步 filters.target 與 currentTarget
