@@ -217,12 +217,8 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
           setTeachingModeOptions(data);
         } else {
           // 如果 API 失敗，使用預設值
-          setTeachingModeOptions([
-            { 
-              value: 'both', 
-              label: '皆可',
-              subCategories: []
-            },
+        setTeachingModeOptions([
+          // 移除"皆可"選項
             { 
               value: 'in-person', 
               label: '面授',
@@ -243,11 +239,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
         console.error('Failed to fetch teaching mode options:', error);
         // 使用預設值
         setTeachingModeOptions([
-          { 
-            value: 'both', 
-            label: '皆可',
-            subCategories: []
-          },
+          // 移除"皆可"選項
           { 
             value: 'in-person', 
             label: '面授',
@@ -447,9 +439,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   const handleSubRegionChange = (value: string) => {
     setFilters(prev => ({
       ...prev,
-      subRegions: prev.subRegions.includes(value)
-        ? prev.subRegions.filter(r => r !== value)
-        : [...prev.subRegions, value]
+      subRegions: [value] // 改為單選
     }));
   };
 
@@ -715,16 +705,16 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     //   }
     // }
     
-    // 子分類 - 不顯示空值
-    filters.subCategory.forEach(subCat => {
-      if (subCat !== '') {
-        const subOptions = getSubOptions();
-        const subOption = Array.isArray(subOptions) ? subOptions.find(s => s.value === subCat) : null;
-        if (subOption) {
-          selected.push({ key: 'subCategory', label: subOption.label, value: subCat });
-        }
-      }
-    });
+    // 子分類 - 不顯示在已選選項中（小學教育/中學教育不加入已選選項）
+    // filters.subCategory.forEach(subCat => {
+    //   if (subCat !== '') {
+    //     const subOptions = getSubOptions();
+    //     const subOption = Array.isArray(subOptions) ? subOptions.find(s => s.value === subCat) : null;
+    //     if (subOption) {
+    //       selected.push({ key: 'subCategory', label: subOption.label, value: subCat });
+    //     }
+    //   }
+    // });
     
     // 科目
     filters.subjects.forEach(subject => {
@@ -779,6 +769,18 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
         selected.push({ key: 'subRegions', label: subRegionOption.label, value: subRegion });
       }
     });
+    
+    // 教學模式 - 面授/網課會加入已選選項
+    if (filters.mode && filters.mode !== '') {
+      const modeLabels = {
+        'in-person': '面授',
+        'online': '網課'
+      };
+      const label = modeLabels[filters.mode as keyof typeof modeLabels];
+      if (label) {
+        selected.push({ key: 'mode', label: label, value: filters.mode });
+      }
+    }
     
     // 價格範圍 - 不顯示空值
     if (filters.priceRange && filters.priceRange !== '') {
@@ -1064,7 +1066,6 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                   className="w-full px-3 py-2 border rounded-md max-sm:px-2 max-sm:py-1 max-sm:text-xs max-[700px]:px-3 max-[700px]:py-2 max-[700px]:text-sm"
                 >
                   <option value="" disabled>請選擇模式</option>
-                  <option value="both">皆可</option>
                   <option value="in-person">面授</option>
                   <option value="online">網課</option>
                 </select>
@@ -1156,22 +1157,19 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                 <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
                   <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">子地區</label>
                   <Listbox
-                    value={filters.subRegions}
-                    onChange={(value) => handleFilterChange('subRegions', value)}
-                    multiple
+                    value={filters.subRegions[0] || ''}
+                    onChange={(value) => handleSubRegionChange(value)}
                   >
                     <div className="relative">
                       <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm max-sm:py-1 max-sm:text-xs">
                         <span className="block truncate">
                           {filters.subRegions.length === 0 || (filters.subRegions.length === 1 && filters.subRegions[0] === '')
                             ? '請選擇子地區'
-                            : filters.subRegions.length === 1
-                            ? (() => {
+                            : (() => {
                                 const subRegions = getSelectedSubRegions();
                                 const found = Array.isArray(subRegions) ? subRegions.find(sr => sr.value === filters.subRegions[0]) : null;
                                 return found?.label || '未知';
-                              })()
-                            : `已選擇 ${filters.subRegions.filter(sr => sr !== '').length} 個子地區`}
+                              })()}
                         </span>
                         <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                           <ChevronUpDownIcon
