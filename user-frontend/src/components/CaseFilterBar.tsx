@@ -425,12 +425,11 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     });
   };
 
-  const handleSubjectChange = (subject: string) => {
+  // 科目單選處理函數
+  const handleSubjectChange = (value: string) => {
     setFilters(prev => ({
       ...prev,
-      subjects: prev.subjects.includes(subject)
-        ? prev.subjects.filter(s => s !== subject)
-        : [...prev.subjects, subject]
+      subjects: [value] // 改為單選，包裝成陣列以保持一致性
     }));
   };
 
@@ -1002,22 +1001,19 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                     科目
                   </label>
                   <Listbox
-                    value={filters.subjects}
-                    onChange={(value) => handleFilterChange('subjects', value)}
-                    multiple
+                    value={filters.subjects[0] || ''}
+                    onChange={(value) => handleSubjectChange(value)}
                   >
                     <div className="relative">
                       <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm max-sm:py-1 max-sm:text-xs">
                         <span className="block truncate">
-                          {filters.subjects.length === 0
+                          {filters.subjects.length === 0 || filters.subjects[0] === ''
                             ? '請選擇科目'
-                            : filters.subjects.length === 1
-                            ? (() => {
+                            : (() => {
                                 const subjectOptions = getSubjectOptions();
                                 const found = Array.isArray(subjectOptions) ? subjectOptions.find(s => s.value === filters.subjects[0]) : null;
                                 return found?.label || '未知';
-                              })()
-                            : `已選擇 ${filters.subjects.length} 個科目`}
+                              })()}
                         </span>
                         <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                           <ChevronUpDownIcon
