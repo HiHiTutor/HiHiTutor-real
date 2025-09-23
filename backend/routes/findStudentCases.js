@@ -362,8 +362,12 @@ router.get('/', async (req, res) => {
       query.featured = true;
     }
 
+    // 調試：打印最終查詢條件
+    console.log('🔍 最終查詢條件:', JSON.stringify(query, null, 2));
+
     // 獲取總數
     const count = await StudentCase.countDocuments(query);
+    console.log('📊 查詢結果數量:', count);
 
     // 獲取案例列表
     const cases = await StudentCase.find(query)
