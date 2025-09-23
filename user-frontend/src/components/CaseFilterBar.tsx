@@ -1045,8 +1045,9 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
 
               {/* 移除面授子分類選擇器 - 選擇面授後直接加入已選選項 */}
 
-              {/* 地區選擇 - 任何教學模式下都顯示 */}
-              <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
+              {/* 地區選擇 - 只在選擇面授時顯示，網課不顯示地區 */}
+              {filters.mode === 'in-person' && (
+                <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
                 <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">地區</label>
                 <select
                   value={filters.regions[0] || ''}
@@ -1060,10 +1061,11 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                     </option>
                   ))}
                 </select>
-              </div>
+                </div>
+              )}
 
-              {/* 子地區選擇 - 只在選擇地區且有子地區時顯示 */}
-              {filters.regions.length > 0 && filters.regions[0] !== '' && getSelectedSubRegions().length > 0 && (
+              {/* 子地區選擇 - 只在面授模式下選擇地區且有子地區時顯示 */}
+              {filters.mode === 'in-person' && filters.regions.length > 0 && filters.regions[0] !== '' && getSelectedSubRegions().length > 0 && (
                 <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
                   <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">子地區</label>
                   <Listbox
