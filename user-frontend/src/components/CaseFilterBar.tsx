@@ -218,15 +218,11 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
         } else {
           // 如果 API 失敗，使用預設值
         setTeachingModeOptions([
-          // 移除"皆可"選項
+          // 移除"皆可"選項，移除面授子分類
             { 
               value: 'in-person', 
               label: '面授',
-              subCategories: [
-                { value: 'one-on-one', label: '一對一' },
-                { value: 'small-group', label: '小班教學' },
-                { value: 'large-center', label: '補習社' }
-              ]
+              subCategories: []
             },
             { 
               value: 'online', 
@@ -239,15 +235,11 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
         console.error('Failed to fetch teaching mode options:', error);
         // 使用預設值
         setTeachingModeOptions([
-          // 移除"皆可"選項
+          // 移除"皆可"選項，移除面授子分類
           { 
             value: 'in-person', 
             label: '面授',
-            subCategories: [
-              { value: 'one-on-one', label: '一對一' },
-              { value: 'small-group', label: '小班教學' },
-              { value: 'large-center', label: '補習社' }
-            ]
+            subCategories: []
           },
           { 
             value: 'online', 
@@ -580,14 +572,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     // 重置時不調用 onFilter，避免跳轉頁面
   };
 
-  const getSubCategoryLabel = (value: string) => {
-    const labels = {
-      'one-on-one': '一對一',
-      'small-group': '小班教學',
-      'large-center': '補習社'
-    };
-    return labels[value as keyof typeof labels] || value;
-  };
+  // 移除 getSubCategoryLabel 函數 - 不再需要面授子分類
 
   const getSelectedSubRegions = () => {
     if (!filters.regions.length || filters.regions[0] === '') {
@@ -736,20 +721,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       }
     }
     
-    // 教學模式子分類
-    filters.subCategory.forEach(subCat => {
-      if (subCat !== '') {
-        const subCategoryLabels = {
-          'one-on-one': '一對一',
-          'small-group': '小班教學',
-          'large-center': '補習社'
-        };
-        const label = subCategoryLabels[subCat as keyof typeof subCategoryLabels];
-        if (label) {
-          selected.push({ key: 'subCategory', label: label, value: subCat });
-        }
-      }
-    });
+    // 移除教學模式子分類處理 - 不再需要面授子分類
     
     // 地區 - 不顯示空值
     filters.regions.forEach(region => {
@@ -1071,69 +1043,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                 </select>
               </div>
 
-              {/* 子分類選擇 - 只在選擇面授時顯示 */}
-              {filters.mode === 'in-person' && (
-                <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">子分類</label>
-                  <Listbox
-                    value={filters.subCategory[0] || ''}
-                    onChange={(value) => handleSubCategoryChange(value)}
-                  >
-                    <div className="relative">
-                      <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm max-sm:py-1 max-sm:text-xs">
-                        <span className="block truncate">
-                          {filters.subCategory.length === 0
-                            ? '請選擇子分類'
-                            : getSubCategoryLabel(filters.subCategory[0])}
-                        </span>
-                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                          <ChevronUpDownIcon
-                            className="h-5 w-5 text-gray-400"
-                            aria-hidden="true"
-                          />
-                        </span>
-                      </Listbox.Button>
-                      <Transition
-                        as={Fragment}
-                        leave="transition ease-in duration-100"
-                        leaveFrom="opacity-100"
-                        leaveTo="opacity-0"
-                      >
-                        <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                          {[
-                            { value: 'one-on-one', label: '一對一' },
-                            { value: 'small-group', label: '小班教學' },
-                            { value: 'large-center', label: '補習社' }
-                          ].map((subCategory) => (
-                            <Listbox.Option
-                              key={subCategory.value}
-                              className={({ active }) =>
-                                `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                                  active ? 'bg-amber-100 text-amber-900' : 'text-gray-900'
-                                }`
-                              }
-                              value={subCategory.value}
-                            >
-                              {({ selected }) => (
-                                <>
-                                  <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
-                                    {subCategory.label}
-                                  </span>
-                                  {selected ? (
-                                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
-                                      <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                                    </span>
-                                  ) : null}
-                                </>
-                              )}
-                            </Listbox.Option>
-                          ))}
-                        </Listbox.Options>
-                      </Transition>
-                    </div>
-                  </Listbox>
-                </div>
-              )}
+              {/* 移除面授子分類選擇器 - 選擇面授後直接加入已選選項 */}
 
               {/* 地區選擇 - 任何教學模式下都顯示 */}
               <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
