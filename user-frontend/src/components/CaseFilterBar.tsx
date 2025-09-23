@@ -413,6 +413,14 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       if (key === 'category') {
         newFilters.subCategory = [];
         newFilters.subjects = [];
+        
+        // 如果選擇了"中小學教育"，自動選擇第一個子分類
+        if (value === 'primary-secondary') {
+          const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(c => c.value === value) : null;
+          if (category?.subCategories && category.subCategories.length > 0) {
+            newFilters.subCategory = [category.subCategories[0].value];
+          }
+        }
       }
       
       return newFilters;
@@ -505,7 +513,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
             .flatMap(sc => sc.subjects || []);
           console.log('🔍 使用具體子分類科目:', subjects.map(s => s.value));
         } else if (category.subCategories && filters.subCategory.length === 0) {
-          // 子分類是不限，使用所有子分類的科目
+          // 沒有選擇子分類，使用所有子分類的科目
           subjects = category.subCategories.flatMap(sc => sc.subjects || []);
           console.log('🔍 使用所有子分類科目:', subjects.map(s => s.value));
         } else {
@@ -518,7 +526,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
         console.log('🔍 自動添加分類科目:', subjects.map(s => s.value));
       }
     }
-    // 如果課程分類是不限，不添加任何科目參數（清除之前的科目參數）
+    // 如果課程分類是空值，不添加任何科目參數（清除之前的科目參數）
 
     // 其他篩選條件 - 只添加非空的值
     if (filters.mode && filters.mode !== '') {
@@ -620,10 +628,10 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     return category.subjects || [];
   };
 
-  const handleSubCategoryChange = (value: string[]) => {
+  const handleSubCategoryChange = (value: string) => {
     setFilters(prev => ({
       ...prev,
-      subCategory: value,
+      subCategory: [value], // 改為單選，包裝成陣列以保持一致性
       subjects: [] // 清空科目選擇
     }));
   };
@@ -914,17 +922,15 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                 <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
                   <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">子分類</label>
                   <Listbox
-                    value={filters.subCategory}
+                    value={filters.subCategory[0] || ''}
                     onChange={(value) => handleSubCategoryChange(value)}
-                    multiple
                   >
                     <div className="relative">
                       <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm max-sm:py-1 max-sm:text-xs">
                         <span className="block truncate">
                           {filters.subCategory.length === 0
-                            ? '不限'
-                            : filters.subCategory.length === 1
-                            ? (() => {
+                            ? '請選擇子分類'
+                            : (() => {
                                 const subOptions = getSubOptions();
                                 const found = Array.isArray(subOptions) ? subOptions.find(s => s.value === filters.subCategory[0]) : null;
                                 console.log('🔍 子分類標籤查找:', {
@@ -933,8 +939,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                                   found
                                 });
                                 return found?.label || '未知';
-                              })()
-                            : `已選擇 ${filters.subCategory.length} 個子分類`}
+                              })()}
                         </span>
                         <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                           <ChevronUpDownIcon
@@ -981,18 +986,11 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                 </div>
               )}
 
-              {/* 科目選擇 - 只在選擇課程分類後顯示，且子分類不是"不限" */}
-              {filters.category !== 'unlimited' && shouldShowSubjects() && (
+              {/* 科目選擇 - 只在選擇課程分類後顯示 */}
+              {filters.category !== '' && shouldShowSubjects() && (
                 <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
                   <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">
-                    {(() => {
-                      const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(c => c.value === filters.category) : null;
-                      // 只有"中小學教育"有子分類，其他分類直接顯示科目
-                      if (category?.value === 'primary-secondary') {
-                        return '子分類';
-                      }
-                      return '科目';
-                    })()}
+                    科目
                   </label>
                   <Listbox
                     value={filters.subjects}
@@ -1075,20 +1073,17 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
               {/* 子分類選擇 - 只在選擇面授時顯示 */}
               {filters.mode === 'in-person' && (
                 <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">子分類（可多選）</label>
+                  <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">子分類</label>
                   <Listbox
-                    value={filters.subCategory}
+                    value={filters.subCategory[0] || ''}
                     onChange={(value) => handleSubCategoryChange(value)}
-                    multiple
                   >
                     <div className="relative">
                       <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm max-sm:py-1 max-sm:text-xs">
                         <span className="block truncate">
                           {filters.subCategory.length === 0
-                            ? '請選擇'
-                            : filters.subCategory.length === 1
-                            ? getSubCategoryLabel(filters.subCategory[0])
-                            : `已選擇 ${filters.subCategory.length} 個子分類`}
+                            ? '請選擇子分類'
+                            : getSubCategoryLabel(filters.subCategory[0])}
                         </span>
                         <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                           <ChevronUpDownIcon
