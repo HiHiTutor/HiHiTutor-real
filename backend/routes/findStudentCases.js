@@ -271,29 +271,34 @@ router.get('/', async (req, res) => {
       query.subCategory = subCategory;
     }
 
-    // 如果有科目篩選
+    // 如果有科目篩選（排除 'unlimited'）
     if (subjects && subjects.length > 0) {
       const subjectArray = Array.isArray(subjects) ? subjects : [subjects];
-      console.log('📚 科目篩選條件:', subjectArray);
+      // 過濾掉 'unlimited' 選項
+      const filteredSubjects = subjectArray.filter(subject => subject !== 'unlimited');
       
-      // 檢查 subjects 字段（數組）或 subject 字段（字符串）
-      const subjectConditions = subjectArray.map(subject => ({
-        $or: [
-          { subjects: { $in: [subject] } },
-          { subject: subject }
-        ]
-      }));
-      
-      if (query.$or) {
-        // 如果已經有 $or 條件，需要合併
-        const existingOr = query.$or;
-        query.$and = [
-          { $or: existingOr },
-          { $or: subjectConditions }
-        ];
-        delete query.$or;
-      } else {
-        query.$or = subjectConditions;
+      if (filteredSubjects.length > 0) {
+        console.log('📚 科目篩選條件:', filteredSubjects);
+        
+        // 檢查 subjects 字段（數組）或 subject 字段（字符串）
+        const subjectConditions = filteredSubjects.map(subject => ({
+          $or: [
+            { subjects: { $in: [subject] } },
+            { subject: subject }
+          ]
+        }));
+        
+        if (query.$or) {
+          // 如果已經有 $or 條件，需要合併
+          const existingOr = query.$or;
+          query.$and = [
+            { $or: existingOr },
+            { $or: subjectConditions }
+          ];
+          delete query.$or;
+        } else {
+          query.$or = subjectConditions;
+        }
       }
     }
 
