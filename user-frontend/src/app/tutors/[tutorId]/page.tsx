@@ -123,13 +123,6 @@ export default function TutorDetailPage() {
           <Card>
             <CardContent className="pt-6 max-sm:pt-4 max-[700px]:pt-5">
               <div className="flex items-start gap-6 max-sm:flex-col max-sm:items-center max-sm:gap-4 max-sm:text-center max-[700px]:flex-col max-[700px]:items-center max-[700px]:gap-4 max-[700px]:text-center">
-                <Avatar className="h-24 w-24 max-sm:h-20 max-sm:w-20 max-[700px]:h-22 max-[700px]:w-22">
-                  <AvatarImage 
-                    src={tutor.avatar || 'https://hi-hi-tutor-real-backend2.vercel.app/avatars/default.png'} 
-                    alt={tutor.tutorId || ''} 
-                  />
-                  <AvatarFallback className="max-sm:text-lg max-[700px]:text-lg">{tutor.tutorId?.[0] || 'T'}</AvatarFallback>
-                </Avatar>
                 <div className="flex-1 max-sm:w-full max-[700px]:w-full">
                   <h1 className="text-2xl font-bold mb-2 max-sm:text-xl max-sm:mb-1 max-[700px]:text-xl max-[700px]:mb-2">{tutor.tutorId}</h1>
                   <div className="text-muted-foreground mb-4 max-sm:text-sm max-sm:mb-3 max-[700px]:text-sm max-[700px]:mb-3">
@@ -142,7 +135,7 @@ export default function TutorDetailPage() {
                       console.log('🔍 計算年齡 - 出生日期 (tutor.tutorProfile.birthDate):', tutor.tutorProfile?.birthDate);
                       console.log('🔍 計算年齡 - 最終使用的出生日期:', birthDate);
                       console.log('🔍 計算年齡 - 結果:', age);
-                      return `年齡 ${formatAge(age)} | 教學經驗 ${tutor.experience} 年 | 評分 ${Number(tutor.rating).toFixed(1)} / 5.0`;
+                      return `年齡 ${formatAge(age)} | 教學經驗 ${tutor.experience} 年`;
                     })()}
                   </div>
                   <div className="flex flex-wrap gap-2 max-sm:gap-1 max-sm:justify-center max-[700px]:gap-2 max-[700px]:justify-center">

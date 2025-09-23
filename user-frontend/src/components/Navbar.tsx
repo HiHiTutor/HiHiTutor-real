@@ -169,15 +169,6 @@ const Navbar = () => {
           {/* 登入狀態 - 顯示用戶頭像、用戶名和漢堡選單 */}
           {isLoggedIn && user && (
             <div className="flex items-center gap-2">
-              {/* 用戶頭像 */}
-              {user.userType === 'tutor' && (
-                <img
-                  src={user.avatarUrl || user.avatar || '/avatars/default.png'}
-                  alt="avatar"
-                  className="w-8 h-8 rounded-full border-2 border-gray-300"
-                />
-              )}
-              
               {/* 用戶名下拉選單 */}
               <div className="relative">
                 <button
