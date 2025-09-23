@@ -1052,16 +1052,6 @@ export default function TutorDashboardPage() {
     }
   };
 
-  // 重新載入數據函數
-  const refreshData = async () => {
-    try {
-      await fetchTutorProfile();
-      toast.success('數據已刷新');
-    } catch (error) {
-      console.error('刷新數據失敗:', error);
-      toast.error('刷新數據失敗');
-    }
-  };
 
   // 顯示載入狀態
   if (isLoading || loading || categoriesLoading) {
@@ -1427,37 +1417,6 @@ export default function TutorDashboardPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label>上堂地點</Label>
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={fetchRegionOptions}
-                    disabled={loadingRegions}
-                    className="text-xs"
-                  >
-                    {loadingRegions ? '載入中...' : '刷新地區'}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={async () => {
-                      try {
-                        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/regions`);
-                        const data = await response.json();
-                        console.log('🧪 測試 API 響應:', data);
-                        alert(`API 返回 ${data.length} 個地區，請查看控制台`);
-                      } catch (error) {
-                        console.error('🧪 測試 API 錯誤:', error);
-                        alert('API 測試失敗，請查看控制台');
-                      }
-                    }}
-                    className="text-xs"
-                  >
-                    測試 API
-                  </Button>
-                </div>
               </div>
               
               {/* 說明文字 */}
@@ -1696,15 +1655,6 @@ export default function TutorDashboardPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label htmlFor="educationCert">學歷證書</Label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={refreshData}
-                  className="text-sm"
-                >
-                  🔄 刷新數據
-                </Button>
               </div>
               <Input
                 id="educationCert"
