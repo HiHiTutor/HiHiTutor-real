@@ -1163,9 +1163,9 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                 </div>
               )}
 
-              {/* 每堂堂費 */}
+              {/* 每小時堂費 */}
               <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
-                <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">每堂堂費</label>
+                <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">每小時堂費</label>
                 <select
                   value={filters.priceRange}
                   onChange={(e) => handlePriceChange(e.target.value)}

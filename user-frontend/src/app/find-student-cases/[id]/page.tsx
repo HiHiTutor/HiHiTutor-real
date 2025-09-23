@@ -96,7 +96,7 @@ export default function FindStudentCaseDetailPage() {
     return [...regionNames, ...subRegionNames].join('、');
   };
 
-  // 處理預算 - 改為每堂堂費
+  // 處理預算 - 改為每小時堂費
   const getBudget = () => {
     console.log('💰 處理預算，原始資料:', caseDetail.budget);
     
@@ -248,7 +248,7 @@ export default function FindStudentCaseDetailPage() {
             </div>
             
             <div className="bg-blue-50 rounded-lg p-4">
-              <h3 className="font-semibold text-blue-800 mb-2">💰 每堂堂費</h3>
+              <h3 className="font-semibold text-blue-800 mb-2">💰 每小時堂費</h3>
               <p className="text-gray-700">{getBudget()}</p>
             </div>
             
