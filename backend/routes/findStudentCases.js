@@ -294,13 +294,11 @@ router.get('/', async (req, res) => {
       const subjectArray = Array.isArray(subjects) ? subjects : [subjects];
       console.log('📚 科目篩選條件:', subjectArray);
       
-      // 檢查 subjects 字段（數組）或 subject 字段（字符串）
-      const subjectConditions = subjectArray.map(subject => ({
-        $or: [
-          { subjects: { $in: [subject] } },
-          { subject: subject }
-        ]
-      }));
+      // 使用 OR 邏輯：個案包含任一科目即可
+      const subjectConditions = [
+        { subjects: { $in: subjectArray } }, // subjects 字段包含任一科目
+        { subject: { $in: subjectArray } }   // subject 字段匹配任一科目
+      ];
       
       if (query.$or) {
         // 如果已經有 $or 條件，需要合併
