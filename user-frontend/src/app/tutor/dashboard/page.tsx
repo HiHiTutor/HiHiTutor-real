@@ -220,10 +220,21 @@ export default function TutorDashboardPage() {
     }
   }, [regionOptions, formData.regions]);
 
+  // 確保在 formData 更新後重新處理地區
+  useEffect(() => {
+    if (regionOptions.length > 0 && formData.regions && formData.regions.length > 0) {
+      console.log('🔄 重新處理地區數據:', formData.regions);
+      processRegions(formData.regions);
+    }
+  }, [formData.regions, regionOptions]);
+
 
   // 處理地區狀態設置的函數
   const processRegions = (regions: string[]) => {
-    if (regions.length === 0 || regionOptions.length === 0) return;
+    if (regions.length === 0 || regionOptions.length === 0) {
+      console.log('⚠️ 跳過地區處理:', { regionsLength: regions.length, regionOptionsLength: regionOptions.length });
+      return;
+    }
     
     console.log('🔍 處理已選地區:', regions);
     console.log('🔍 可用地區選項:', regionOptions);
