@@ -10,7 +10,6 @@ import { Star } from 'lucide-react';
 import { tutorApi } from '@/services/api';
 import HeroSection from '@/components/HeroSection';
 import HeroAdCarousel from '@/components/ads/HeroAdCarousel';
-import CategoryList from '@/components/CategoryList';
 import CaseSection from '@/components/CaseSection';
 import TutorSection from '@/components/TutorSection';
 import Advertisement from '@/components/Advertisement';
@@ -107,7 +106,6 @@ function HomeContent() {
             </Suspense>
           </div>
 
-          <CategoryList />
         </div>
       </div>
       
