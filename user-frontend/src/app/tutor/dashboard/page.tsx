@@ -233,18 +233,34 @@ export default function TutorDashboardPage() {
     regions.forEach((area: string) => {
       console.log(`🔍 處理地區: ${area}`);
       
-      // 嘗試通過 value 匹配
+      // 檢查是否為完整路徑格式 (如: kowloon-kowloon-city)
       let found = false;
-      for (const region of regionOptions) {
-        const subRegion = Array.isArray(region.regions) ? region.regions.find((sr: { value: string; label: string }) => sr.value === area) : null;
-        if (subRegion) {
-          if (!subRegionsByRegion[region.value]) {
-            subRegionsByRegion[region.value] = [];
+      if (area.includes('-')) {
+        const [parentRegion, subRegion] = area.split('-');
+        const region = regionOptions.find(r => r.value === parentRegion);
+        if (region && region.regions.some(sr => sr.value === subRegion)) {
+          if (!subRegionsByRegion[parentRegion]) {
+            subRegionsByRegion[parentRegion] = [];
           }
-          subRegionsByRegion[region.value].push(area);
+          subRegionsByRegion[parentRegion].push(subRegion);
           found = true;
-          console.log(`✅ 通過 value 匹配: ${area} -> ${region.label}`);
-          break;
+          console.log(`✅ 通過完整路徑匹配: ${area} -> ${parentRegion} -> ${subRegion}`);
+        }
+      }
+      
+      // 如果完整路徑匹配失敗，嘗試通過 value 匹配
+      if (!found) {
+        for (const region of regionOptions) {
+          const subRegion = Array.isArray(region.regions) ? region.regions.find((sr: { value: string; label: string }) => sr.value === area) : null;
+          if (subRegion) {
+            if (!subRegionsByRegion[region.value]) {
+              subRegionsByRegion[region.value] = [];
+            }
+            subRegionsByRegion[region.value].push(area);
+            found = true;
+            console.log(`✅ 通過 value 匹配: ${area} -> ${region.label}`);
+            break;
+          }
         }
       }
       
