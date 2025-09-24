@@ -40,7 +40,7 @@ const formSchema = z.object({
     invalid_type_error: '請輸入此欄位'
   }).min(1, '請輸入此欄位').refine((modes) => {
     // 允許的模式值
-    const validModes = ['in-person', 'online', 'both'];
+    const validModes = ['in-person', 'online'];
     return modes.every(mode => validModes.includes(mode));
   }, {
     message: '請選擇有效的教學模式'
@@ -91,8 +91,8 @@ const formSchema = z.object({
   message: "請輸入此欄位",
   path: ["subjects"] // 錯誤顯示在科目欄位
 }).refine((data) => {
-  // 如果選擇面授或皆可，則地區是必填的
-  if (data.modes && (data.modes.includes('in-person') || data.modes.includes('both'))) {
+  // 如果選擇面授，則地區是必填的
+  if (data.modes && data.modes.includes('in-person')) {
     return (data.regions && data.regions.length > 0);
   }
   return true;
@@ -154,25 +154,12 @@ function PostStudentCaseContent() {
             { 
               value: 'in-person', 
               label: '面授',
-              subCategories: [
-                { value: 'one-on-one', label: '一對一' },
-                { value: 'small-group', label: '小班教學' },
-                { value: 'large-center', label: '補習社' }
-              ]
+              subCategories: []
             },
             { 
               value: 'online', 
               label: '網課',
               subCategories: []
-            },
-            { 
-              value: 'both', 
-              label: '皆可',
-              subCategories: [
-                { value: 'one-on-one', label: '一對一' },
-                { value: 'small-group', label: '小班教學' },
-                { value: 'large-center', label: '補習社' }
-              ]
             }
           ]);
         }
@@ -183,25 +170,12 @@ function PostStudentCaseContent() {
           { 
             value: 'in-person', 
             label: '面授',
-            subCategories: [
-              { value: 'one-on-one', label: '一對一' },
-              { value: 'small-group', label: '小班教學' },
-              { value: 'large-center', label: '補習社' }
-            ]
+            subCategories: []
           },
           { 
             value: 'online', 
             label: '網課',
             subCategories: []
-          },
-          { 
-            value: 'both', 
-            label: '皆可',
-            subCategories: [
-              { value: 'one-on-one', label: '一對一' },
-              { value: 'small-group', label: '小班教學' },
-              { value: 'large-center', label: '補習社' }
-            ]
           }
         ]);
       }
@@ -220,7 +194,7 @@ function PostStudentCaseContent() {
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      modes: ['both'] // 預設選擇「皆可」
+      modes: ['in-person'] // 預設選擇「面授」
     }
   });
 
@@ -357,7 +331,7 @@ function PostStudentCaseContent() {
   };
 
   const handleModeChange = (mode: string) => {
-    // 只處理主教學模式（面授、網課、皆可）
+    // 只處理主教學模式（面授、網課）
     setSelectedModes([mode]);
     setValue('modes', [mode]);
     // 當切換主模式時，清空教學模式子分類
@@ -491,14 +465,13 @@ function PostStudentCaseContent() {
 
             <div className="space-y-2">
               <Label>教學模式</Label>
-                              <Select onValueChange={(value) => handleModeChange(value)} value={selectedModes[0] || 'both'}>
+                              <Select onValueChange={(value) => handleModeChange(value)} value={selectedModes[0] || 'in-person'}>
                 <SelectTrigger>
                   <SelectValue placeholder="請選擇教學模式" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="in-person">面授</SelectItem>
                   <SelectItem value="online">網課</SelectItem>
-                  <SelectItem value="both">皆可</SelectItem>
                 </SelectContent>
               </Select>
               {errors.modes && (
@@ -506,72 +479,16 @@ function PostStudentCaseContent() {
               )}
             </div>
 
-            {/* 子分類選擇 - 只在選擇面授或皆可時顯示 */}
-            {(selectedModes.includes('in-person') || selectedModes.includes('both')) && (
-              <div className="space-y-2">
-                <Label>子分類（可多選）</Label>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="teaching-one-on-one"
-                      checked={selectedTeachingSubCategories.includes('one-on-one')}
-                      onCheckedChange={(checked) => {
-                        handleTeachingSubCategoryChange('one-on-one');
-                      }}
-                    />
-                    <label
-                      htmlFor="teaching-one-on-one"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      一對一
-                    </label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="teaching-small-group"
-                      checked={selectedTeachingSubCategories.includes('small-group')}
-                      onCheckedChange={(checked) => {
-                        handleTeachingSubCategoryChange('small-group');
-                      }}
-                    />
-                    <label
-                      htmlFor="teaching-small-group"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      小班教學
-                    </label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="teaching-large-center"
-                      checked={selectedTeachingSubCategories.includes('large-center')}
-                      onCheckedChange={(checked) => {
-                        handleTeachingSubCategoryChange('large-center');
-                      }}
-                    />
-                    <label
-                      htmlFor="teaching-large-center"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      補習社
-                    </label>
-                  </div>
-                </div>
-              </div>
-            )}
 
-            {(selectedModes.includes('in-person') || selectedModes.includes('both')) && (
+            {selectedModes.includes('in-person') && (
               <>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     上堂地區
                   </label>
                   <Select onValueChange={(value) => {
-                    const newRegions = selectedRegions.includes(value)
-                      ? selectedRegions.filter(r => r !== value)
-                      : [...selectedRegions, value];
-                    setSelectedRegions(newRegions);
-                    setValue('regions', newRegions);
+                    setSelectedRegions([value]);
+                    setValue('regions', [value]);
                     setSelectedSubRegions([]);
                     setValue('subRegions', []);
                   }}>
@@ -581,44 +498,11 @@ function PostStudentCaseContent() {
                     <SelectContent>
                       {REGION_OPTIONS.map(region => (
                         <SelectItem key={region.value} value={region.value}>
-                          <div className="flex items-center justify-between w-full">
-                            <span>{region.label}</span>
-                            {selectedRegions.includes(region.value) && (
-                              <span className="text-blue-500">✓</span>
-                            )}
-                          </div>
+                          {region.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  {selectedRegions.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {selectedRegions.map(regionValue => {
-                        const region = Array.isArray(REGION_OPTIONS) ? REGION_OPTIONS.find(r => r.value === regionValue) : null;
-                        return (
-                          <span
-                            key={regionValue}
-                            className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                          >
-                            {region?.label}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const newRegions = selectedRegions.filter(r => r !== regionValue);
-                                setSelectedRegions(newRegions);
-                                setValue('regions', newRegions);
-                                setSelectedSubRegions([]);
-                                setValue('subRegions', []);
-                              }}
-                              className="ml-1 text-blue-600 hover:text-blue-800"
-                            >
-                              ×
-                            </button>
-                          </span>
-                        );
-                      })}
-                    </div>
-                  )}
                   {errors.regions && (
                     <p className="mt-1 text-sm text-red-600">{errors.regions.message as string}</p>
                   )}
