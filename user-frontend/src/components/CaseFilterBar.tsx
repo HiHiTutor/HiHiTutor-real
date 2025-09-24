@@ -739,8 +739,8 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                   <option value="" disabled>請選擇分類</option>
                   {CATEGORY_OPTIONS
                     .sort((a, b) => {
-                      // 確保正確的順序：幼兒教育 → 小學教育 → 中學教育
-                      const order = ['early-childhood', 'primary', 'secondary'];
+                      // 確保正確的順序：幼兒教育 → 小學教育 → 中學教育 → 興趣班 → 大專補習 → 成人教育
+                      const order = ['early-childhood', 'primary', 'secondary', 'interest', 'tertiary', 'adult'];
                       const aIndex = order.indexOf(a.value);
                       const bIndex = order.indexOf(b.value);
                       return aIndex - bIndex;
