@@ -64,7 +64,7 @@ const CATEGORY_OPTIONS = {
     ]
   },
   'tertiary': {
-    label: '大專補習課程',
+    label: '大專補習',
     subjects: [
       { value: 'uni-liberal', label: '大學通識' },
       { value: 'uni-math', label: '大學統計與數學' },
@@ -92,14 +92,10 @@ const CATEGORY_OPTIONS = {
 const CATEGORY_OPTIONS_ARRAY = Object.entries(CATEGORY_OPTIONS).map(([value, category]) => ({
   value,
   label: category.label,
-  subjects: category.subjects || []
+  subjects: category.subjects
 }));
-
-// 轉換為對象格式（供後端使用）
-const CATEGORY_OPTIONS_OBJECT = CATEGORY_OPTIONS;
 
 module.exports = {
   CATEGORY_OPTIONS,
-  CATEGORY_OPTIONS_ARRAY,
-  CATEGORY_OPTIONS_OBJECT
+  CATEGORY_OPTIONS_ARRAY
 };

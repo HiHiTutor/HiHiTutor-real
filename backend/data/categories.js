@@ -66,7 +66,7 @@ module.exports = [
   },
   {
     value: 'tertiary',
-    label: '大專補習課程',
+    label: '大專補習',
     subjects: [
       { value: 'uni-liberal', label: '大學通識' },
       { value: 'uni-math', label: '大學統計與數學' },
@@ -89,4 +89,4 @@ module.exports = [
       { value: 'adult-hobby', label: '興趣技能' }
     ]
   }
-]; 
+];

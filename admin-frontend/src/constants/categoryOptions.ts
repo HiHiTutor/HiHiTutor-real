@@ -205,7 +205,7 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
   },
   {
     "value": "tertiary",
-    "label": "大專補習課程",
+    "label": "大專補習",
     "subjects": [
       {
         "value": "uni-liberal",
