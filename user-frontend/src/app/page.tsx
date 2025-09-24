@@ -90,51 +90,9 @@ function HomeContent() {
           <div className="absolute bottom-0 right-0 w-64 h-64 bg-pink-400 rounded-full mix-blend-multiply filter blur-xl transform translate-x-1/2 translate-y-1/2"></div>
         </div>
         <div className="relative">
-          {/* 第一行：黑板背景 banner + 熱門科目 */}
+          {/* 第一行：黑板背景 banner (包含熱門科目) */}
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-              {/* 左面：黑板背景 banner */}
-              <div className="flex-1">
-                <HeroSection />
-              </div>
-
-              {/* 右面：熱門科目 */}
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">熱門科目</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center">
-                    <div className="text-3xl mb-2">📊</div>
-                    <div className="text-lg font-semibold text-gray-800">數學</div>
-                    <div className="text-sm text-gray-600">95%</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl mb-2">🔤</div>
-                    <div className="text-lg font-semibold text-gray-800">英文</div>
-                    <div className="text-sm text-gray-600">90%</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl mb-2">📝</div>
-                    <div className="text-lg font-semibold text-gray-800">中文</div>
-                    <div className="text-sm text-gray-600">85%</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl mb-2">⚛️</div>
-                    <div className="text-lg font-semibold text-gray-800">物理</div>
-                    <div className="text-sm text-gray-600">80%</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl mb-2">🧪</div>
-                    <div className="text-lg font-semibold text-gray-800">化學</div>
-                    <div className="text-sm text-gray-600">75%</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl mb-2">🧬</div>
-                    <div className="text-lg font-semibold text-gray-800">生物</div>
-                    <div className="text-sm text-gray-600">70%</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <HeroSection />
           </div>
 
           {/* 第二行：Search Bar */}
