@@ -55,15 +55,15 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
     "subjects": [
       {
         "value": "primary-chinese",
-        "label": "中文"
+        "label": "小學中文"
       },
       {
         "value": "primary-english",
-        "label": "英文"
+        "label": "小學英文"
       },
       {
         "value": "primary-math",
-        "label": "數學"
+        "label": "小學數學"
       },
       {
         "value": "primary-general",
@@ -89,15 +89,15 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
     "subjects": [
       {
         "value": "secondary-chinese",
-        "label": "中文"
+        "label": "中學中文"
       },
       {
         "value": "secondary-english",
-        "label": "英文"
+        "label": "中學英文"
       },
       {
         "value": "secondary-math",
-        "label": "數學"
+        "label": "中學數學"
       },
       {
         "value": "secondary-ls",
