@@ -416,12 +416,31 @@ const getAllTutors = async (req, res) => {
         // 確保 modes 是數組格式
         const modesArray = Array.isArray(modes) ? modes : [modes];
         console.log(`🎯 教學模式篩選: ${modesArray.join(', ')}`);
-        // 使用 teachingMode 字段進行篩選，同時也檢查 teachingMethods 字段
+        
+        // 創建教學模式映射
+        const modeMapping = {
+          'in-person': ['面對面教學', '一對一教學', '小組教學'],
+          'online': ['網上教學', '混合式教學'],
+          'both': ['面對面教學', '網上教學', '混合式教學', '一對一教學', '小組教學']
+        };
+        
+        // 獲取所有相關的教學模式
+        const allRelatedModes = [];
+        modesArray.forEach(mode => {
+          if (modeMapping[mode]) {
+            allRelatedModes.push(...modeMapping[mode]);
+          } else {
+            allRelatedModes.push(mode);
+          }
+        });
+        
+        // 使用多個字段進行篩選
         query.$or = [
-          { 'tutorProfile.teachingMode': { $in: modesArray } },
-          { 'tutorProfile.teachingMethods': { $in: modesArray } }
+          { 'teachingModes': { $in: allRelatedModes } }, // 根級別字段
+          { 'tutorProfile.teachingMode': { $in: modesArray } }, // tutorProfile字段
+          { 'tutorProfile.teachingMethods': { $in: modesArray } } // tutorProfile字段
         ];
-        console.log(`🔍 使用教學模式過濾: ${modesArray.join(', ')}`);
+        console.log(`🔍 使用教學模式過濾: ${modesArray.join(', ')} -> ${allRelatedModes.join(', ')}`);
       }
       
       console.log('🔍 查詢條件:', JSON.stringify(query, null, 2));
@@ -744,10 +763,28 @@ const getTutors = async (req, res) => {
 
     // 授課方式篩選 - 修復使用正確的教學模式字段
     if (methods.length > 0) {
-      // 使用 teachingMode 字段進行篩選，同時也檢查 teachingMethods 字段
+      // 創建教學模式映射
+      const modeMapping = {
+        'in-person': ['面對面教學', '一對一教學', '小組教學'],
+        'online': ['網上教學', '混合式教學'],
+        'both': ['面對面教學', '網上教學', '混合式教學', '一對一教學', '小組教學']
+      };
+      
+      // 獲取所有相關的教學模式
+      const allRelatedModes = [];
+      methods.forEach(mode => {
+        if (modeMapping[mode]) {
+          allRelatedModes.push(...modeMapping[mode]);
+        } else {
+          allRelatedModes.push(mode);
+        }
+      });
+      
+      // 使用多個字段進行篩選
       query.$or = [
-        { 'tutorProfile.teachingMode': { $in: methods } },
-        { 'tutorProfile.teachingMethods': { $in: methods } }
+        { 'teachingModes': { $in: allRelatedModes } }, // 根級別字段
+        { 'tutorProfile.teachingMode': { $in: methods } }, // tutorProfile字段
+        { 'tutorProfile.teachingMethods': { $in: methods } } // tutorProfile字段
       ];
     }
 
