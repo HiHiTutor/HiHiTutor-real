@@ -2204,25 +2204,6 @@ const UserDetail: React.FC = () => {
                   </Box>
                 )}
 
-                {/* 子科目 (僅中小學教育顯示，可選) */}
-                {editForm.tutorProfile.category === 'primary-secondary' && (
-                  <TextField
-                    select
-                    label="子科目 (可選)"
-                    name="subCategory"
-                    value={editForm.tutorProfile.subCategory || ''}
-                    onChange={handleInputChange}
-                    fullWidth
-                    sx={{ mb: 2 }}
-                    helperText="選擇特定教育階段，或留空表示可教授所有階段"
-                  >
-                    {getSubCategories().map((subCategory) => (
-                      <MenuItem key={subCategory.value} value={subCategory.value}>
-                        {subCategory.label}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                )}
 
                 {/* 科目選擇提示 */}
                 {editForm.tutorProfile.categories && editForm.tutorProfile.categories.length > 0 && (

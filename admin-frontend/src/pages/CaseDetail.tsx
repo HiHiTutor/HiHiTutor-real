@@ -343,119 +343,31 @@ const CaseDetail: React.FC = () => {
               </Select>
             </FormControl>
 
-            {editData.category === 'primary-secondary' && (
+
+            {editData.category && (
               <TextField
                 select
-                label="子科目 (可選)"
-                name="subCategory"
-                value={editData.subCategory || ''}
-                onChange={handleSelectChange}
-                helperText="選擇特定教育階段，或留空表示可教授所有階段"
+                label="需要科目"
+                name="subjects"
+                SelectProps={{ multiple: true }}
+                value={Array.isArray(editData.subjects) ? editData.subjects : []}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setEditData({
+                    ...editData,
+                    subjects: Array.isArray(value) ? value : [value]
+                  });
+                }}
+                required
+                helperText="可多選，按住 Ctrl/Command 鍵選多個"
                 fullWidth
               >
-                <MenuItem value="">不選擇</MenuItem>
-                {Array.isArray(getSubCategories()) && getSubCategories().map((subCategory) => (
-                  <MenuItem key={subCategory.value} value={subCategory.value}>
-                    {subCategory.label}
+                {getAvailableSubjects().map((subject) => (
+                  <MenuItem key={subject.value} value={subject.value}>
+                    {subject.label}
                   </MenuItem>
                 ))}
               </TextField>
-            )}
-
-            {editData.category && (
-              <>
-                {editData.category === 'primary-secondary' ? (
-                  <Box>
-                    <Typography variant="subtitle1" color="primary" sx={{ mb: 1, fontWeight: 'bold' }}>
-                      需要科目
-                    </Typography>
-                    
-                    <Box sx={{ mb: 2 }}>
-                      <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
-                        🏫 小學教育科目
-                      </Typography>
-                      <TextField
-                        select
-                        label="小學科目"
-                        SelectProps={{ multiple: true }}
-                                                 value={Array.isArray(editData.subjects) ? editData.subjects.filter((subject: string) => subject.startsWith('primary-')) : []}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          const selectedPrimarySubjects = Array.isArray(value) ? value : [value];
-                                                     const existingSecondarySubjects = Array.isArray(editData.subjects) ? editData.subjects.filter((subject: string) => subject.startsWith('secondary-')) : [];
-                          const allSubjects = [...selectedPrimarySubjects, ...existingSecondarySubjects];
-                          setEditData({
-                            ...editData,
-                            subjects: allSubjects
-                          });
-                        }}
-                        helperText="可多選小學科目"
-                        fullWidth
-                      >
-                        {CATEGORY_OPTIONS['primary-secondary'].subCategories?.find(sub => sub.value === 'primary')?.subjects && Array.isArray(CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'primary')?.subjects) && CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'primary')?.subjects?.map((subject) => (
-                          <MenuItem key={subject.value} value={subject.value}>
-                            {subject.label}
-                          </MenuItem>
-                        ))}
-                      </TextField>
-                    </Box>
-
-                    <Box sx={{ mb: 2 }}>
-                      <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
-                        🎓 中學教育科目
-                      </Typography>
-                      <TextField
-                        select
-                        label="中學科目"
-                        SelectProps={{ multiple: true }}
-                                                 value={Array.isArray(editData.subjects) ? editData.subjects.filter((subject: string) => subject.startsWith('secondary-')) : []}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          const selectedSecondarySubjects = Array.isArray(value) ? value : [value];
-                                                     const existingPrimarySubjects = Array.isArray(editData.subjects) ? editData.subjects.filter((subject: string) => subject.startsWith('primary-')) : [];
-                          const allSubjects = [...existingPrimarySubjects, ...selectedSecondarySubjects];
-                          setEditData({
-                            ...editData,
-                            subjects: allSubjects
-                          });
-                        }}
-                        helperText="可多選中學科目"
-                        fullWidth
-                      >
-                        {CATEGORY_OPTIONS['primary-secondary'].subCategories?.find(sub => sub.value === 'secondary')?.subjects && Array.isArray(CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'secondary')?.subjects) && CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'secondary')?.subjects?.map((subject) => (
-                          <MenuItem key={subject.value} value={subject.value}>
-                            {subject.label}
-                          </MenuItem>
-                        ))}
-                      </TextField>
-                    </Box>
-                  </Box>
-                ) : (
-                  <TextField
-                    select
-                    label="需要科目"
-                    name="subjects"
-                    SelectProps={{ multiple: true }}
-                    value={Array.isArray(editData.subjects) ? editData.subjects : []}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setEditData({
-                        ...editData,
-                        subjects: Array.isArray(value) ? value : [value]
-                      });
-                    }}
-                    required
-                    helperText="可多選，按住 Ctrl/Command 鍵選多個"
-                    fullWidth
-                  >
-                    {Array.isArray(getAvailableSubjects()) && getAvailableSubjects().map((subject) => (
-                      <MenuItem key={subject.value} value={subject.value}>
-                        {subject.label}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                )}
-              </>
             )}
 
             <Box>
