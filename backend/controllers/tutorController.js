@@ -623,7 +623,9 @@ const getTutorByTutorId = async (req, res) => {
       avatarOffsetX: user.tutorProfile?.avatarOffsetX || 50,
       subjects: user.tutorProfile?.subjects || [],
       teachingAreas: user.tutorProfile?.teachingAreas || [],
-      teachingMethods: user.tutorProfile?.teachingMethods || [],
+      teachingMethods: user.tutorProfile?.teachingMethods || [], // 保留向後兼容
+      teachingMode: user.teachingMode || user.tutorProfile?.teachingMode || '', // 主要教學模式
+      teachingSubModes: user.teachingSubModes || user.tutorProfile?.teachingSubModes || [], // 教學子模式
       experience: user.tutorProfile?.teachingExperienceYears || 0,
       introduction: user.tutorProfile?.introduction || '',
       education: user.tutorProfile?.educationLevel || '',
@@ -878,7 +880,9 @@ const getTutorDetail = async (req, res) => {
       avatar: tutor.avatar || tutor.tutorProfile?.avatarUrl || 'https://hi-hi-tutor-real-backend2.vercel.app/avatars/default.png', // 使用真實頭像或完整預設 URL
       subjects: tutor.tutorProfile?.subjects || [],
       teachingAreas: tutor.tutorProfile?.teachingAreas || [],
-      teachingMethods: tutor.tutorProfile?.teachingMethods || [],
+      teachingMethods: tutor.tutorProfile?.teachingMethods || [], // 保留向後兼容
+      teachingMode: tutor.teachingMode || tutor.tutorProfile?.teachingMode || '', // 主要教學模式
+      teachingSubModes: tutor.teachingSubModes || tutor.tutorProfile?.teachingSubModes || [], // 教學子模式
       experience: tutor.tutorProfile?.teachingExperienceYears || 0,
       introduction: tutor.tutorProfile?.introduction || '',
       education: tutor.tutorProfile?.educationLevel || '',
@@ -896,8 +900,8 @@ const getTutorDetail = async (req, res) => {
       tutorProfile: {
         gender: tutor.tutorProfile?.gender || 'male', // 添加性別信息
         birthDate: tutor.tutorProfile?.birthDate, // 添加出生日期
-        teachingMode: tutor.tutorProfile?.teachingMethods?.[0] || '', // 使用第一個教學方法作為主要形式
-        teachingSubModes: tutor.tutorProfile?.teachingMethods || [], // 使用 teachingMethods 作為教學方式
+        teachingMode: tutor.teachingMode || tutor.tutorProfile?.teachingMode || '', // 使用正確的教學模式字段
+        teachingSubModes: tutor.teachingSubModes || tutor.tutorProfile?.teachingSubModes || [], // 使用正確的教學子模式字段
         sessionRate: tutor.tutorProfile?.sessionRate || 0,
         region: tutor.tutorProfile?.region || '',
         subRegions: tutor.tutorProfile?.subRegions || [],
@@ -1029,7 +1033,9 @@ const getTutorProfile = async (req, res) => {
       birthDate: user.tutorProfile?.birthDate,
       subjects: user.tutorProfile?.subjects || [],
       teachingAreas: user.tutorProfile?.teachingAreas || [],
-      teachingMethods: user.tutorProfile?.teachingMethods || [],
+      teachingMethods: user.tutorProfile?.teachingMethods || [], // 保留向後兼容
+      teachingMode: user.teachingMode || user.tutorProfile?.teachingMode || '', // 主要教學模式
+      teachingSubModes: user.teachingSubModes || user.tutorProfile?.teachingSubModes || [], // 教學子模式
       experience: user.tutorProfile?.teachingExperienceYears || 0,
       introduction: user.tutorProfile?.introduction || '',
       education: user.tutorProfile?.educationLevel || '',
