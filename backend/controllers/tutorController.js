@@ -412,14 +412,16 @@ const getAllTutors = async (req, res) => {
       }
       
       // 教學模式篩選 - 修復使用正確的教學模式字段
-      if (modes && modes.length > 0) {
-        console.log(`🎯 教學模式篩選: ${modes.join(', ')}`);
+      if (modes) {
+        // 確保 modes 是數組格式
+        const modesArray = Array.isArray(modes) ? modes : [modes];
+        console.log(`🎯 教學模式篩選: ${modesArray.join(', ')}`);
         // 使用 teachingMode 字段進行篩選，同時也檢查 teachingMethods 字段
         query.$or = [
-          { 'tutorProfile.teachingMode': { $in: modes } },
-          { 'tutorProfile.teachingMethods': { $in: modes } }
+          { 'tutorProfile.teachingMode': { $in: modesArray } },
+          { 'tutorProfile.teachingMethods': { $in: modesArray } }
         ];
-        console.log(`🔍 使用教學模式過濾: ${modes.join(', ')}`);
+        console.log(`🔍 使用教學模式過濾: ${modesArray.join(', ')}`);
       }
       
       console.log('🔍 查詢條件:', JSON.stringify(query, null, 2));
