@@ -152,6 +152,120 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
         "label": "全科補習"
       }
     ]
+  },
+  {
+    "value": "interest",
+    "label": "興趣班",
+    "subjects": [
+      {
+        "value": "art",
+        "label": "繪畫"
+      },
+      {
+        "value": "music",
+        "label": "音樂（鋼琴、結他、小提琴等）"
+      },
+      {
+        "value": "dance",
+        "label": "跳舞／舞蹈訓練"
+      },
+      {
+        "value": "drama",
+        "label": "戲劇／演講"
+      },
+      {
+        "value": "programming",
+        "label": "編程／STEM"
+      },
+      {
+        "value": "foreign-language",
+        "label": "外語（韓文／日文／法文／德文等）"
+      },
+      {
+        "value": "magic-chess",
+        "label": "魔術／棋藝"
+      },
+      {
+        "value": "photography",
+        "label": "攝影／影片剪接"
+      },
+      {
+        "value": "piano",
+        "label": "鋼琴"
+      },
+      {
+        "value": "drawing",
+        "label": "繪畫"
+      },
+      {
+        "value": "mandarin",
+        "label": "普通話"
+      }
+    ]
+  },
+  {
+    "value": "tertiary",
+    "label": "大專補習課程",
+    "subjects": [
+      {
+        "value": "uni-liberal",
+        "label": "大學通識"
+      },
+      {
+        "value": "uni-math",
+        "label": "大學統計與數學"
+      },
+      {
+        "value": "uni-economics",
+        "label": "經濟學"
+      },
+      {
+        "value": "uni-it",
+        "label": "資訊科技"
+      },
+      {
+        "value": "uni-business",
+        "label": "商科（會計、管理、市場學等）"
+      },
+      {
+        "value": "uni-engineering",
+        "label": "工程科目"
+      },
+      {
+        "value": "uni-thesis",
+        "label": "論文指導／報告協助"
+      }
+    ]
+  },
+  {
+    "value": "adult",
+    "label": "成人教育",
+    "subjects": [
+      {
+        "value": "adult-english",
+        "label": "成人英語"
+      },
+      {
+        "value": "adult-mandarin",
+        "label": "成人普通話"
+      },
+      {
+        "value": "adult-computer",
+        "label": "電腦技能"
+      },
+      {
+        "value": "adult-business",
+        "label": "商業技能"
+      },
+      {
+        "value": "adult-language",
+        "label": "外語學習"
+      },
+      {
+        "value": "adult-hobby",
+        "label": "興趣技能"
+      }
+    ]
   }
 ];
 
