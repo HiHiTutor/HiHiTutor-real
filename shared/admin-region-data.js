@@ -1,14 +1,8 @@
 // 從統一配置文件導入地區分類
-// 注意：此文件現在從 shared/regionOptions.js 自動生成
+// 注意：此數據從 shared/regionOptions.js 自動生成
 // 如需修改地區配置，請編輯 shared/regionOptions.js
 
-export interface RegionOption {
-  value: string;
-  label: string;
-  regions: { value: string; label: string }[];
-}
-
-export const REGION_OPTIONS = [
+const fallbackRegions = [
   {
     "value": "unlimited",
     "label": "不限",
@@ -328,5 +322,3 @@ export const REGION_OPTIONS = [
     ]
   }
 ];
-
-export default REGION_OPTIONS;
