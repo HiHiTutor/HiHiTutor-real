@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import TagCheckbox from '@/components/TagCheckbox';
 import CATEGORY_OPTIONS from '@/constants/categoryOptions';
-import REGION_OPTIONS from '@/constants/regionOptions';
+import { REGION_OPTIONS } from '@/constants/regionOptions';
+import TagCheckbox from '@/components/TagCheckbox';
 import { caseApi } from '@/services/api';
 import { TEACHING_MODE_OPTIONS } from '@/constants/teachingModeOptions';
 import { useUser } from '@/hooks/useUser';
@@ -37,26 +37,11 @@ export default function TutorCasePage() {
   });
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    fetch('/api/categories', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-      .then(res => res.json())
-      .then(data => {
-        const arr = Array.isArray(data) ? data : (data?.data || []);
-        setCategories(arr);
-      })
-      .catch(err => console.error('載入分類失敗', err));
-
-    fetch('/api/regions', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-      .then(res => res.json())
-      .then(data => {
-        const arr = Array.isArray(data) ? data : (data?.data || []);
-        setRegions(arr);
-      })
-      .catch(err => console.error('載入地區失敗', err));
+    // 使用靜態科目和地區選項
+    console.log('✅ 使用靜態科目選項');
+    setCategories(CATEGORY_OPTIONS);
+    console.log('✅ 使用靜態地區選項');
+    setRegions(REGION_OPTIONS);
 
     // 初始化教學模式選項
     const initTeachingModes = async () => {

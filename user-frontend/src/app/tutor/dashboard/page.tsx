@@ -19,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { tutorApi } from '@/services/api';
-import { useCategories } from '@/hooks/useCategories';
+import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 import TEACHING_MODE_OPTIONS from '@/constants/teachingModeOptions';
 import { REGION_OPTIONS } from '@/constants/regionOptions';
 import { useUser } from '@/hooks/useUser';
@@ -123,7 +123,6 @@ const prepareSubRegionOptions = (regionValue: string, regionOptions: RegionOptio
 
 export default function TutorDashboardPage() {
   const router = useRouter();
-  const { categories: CATEGORY_OPTIONS, loading: categoriesLoading, error: categoriesError } = useCategories();
   const [lastNotificationStatus, setLastNotificationStatus] = useState<string | null>(null);
   const [formData, setFormData] = useState<TutorProfile>({
     tutorId: '',
@@ -984,16 +983,10 @@ export default function TutorDashboardPage() {
 
 
   // 顯示載入狀態
-  if (isLoading || loading || categoriesLoading) {
+  if (isLoading || loading) {
     return (
       <div className="container mx-auto py-8 text-center">
-        {categoriesLoading ? '載入科目資料中...' : '載入中...'}
-        {categoriesError && (
-          <div className="mt-4 text-red-600">
-            <p>載入科目資料失敗: {categoriesError}</p>
-            <p className="text-sm text-gray-500">請檢查網絡連接或稍後再試</p>
-          </div>
-        )}
+        載入中...
       </div>
     );
   }

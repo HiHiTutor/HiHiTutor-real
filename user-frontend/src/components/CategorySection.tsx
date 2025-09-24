@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { categoryApi } from '../services/api';
+import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 import {
   BookOpenIcon,
   LanguageIcon,
@@ -30,23 +30,11 @@ const CategorySection = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        console.log('fetching categories...');
-        setLoading(true);
-        const data = await categoryApi.getAllCategories();
-        console.log('categories:', data);
-        setCategories(data);
-        setError(null);
-      } catch (err) {
-        console.error('獲取課程分類失敗:', err);
-        setError('獲取課程分類失敗，請稍後再試');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCategories();
+    // 使用靜態科目選項
+    console.log('✅ 使用靜態科目選項');
+    setCategories(CATEGORY_OPTIONS);
+    setError(null);
+    setLoading(false);
   }, []);
 
   return (

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import CategoryCard from './CategoryCard';
 import { useRouter } from 'next/navigation';
-import { categoryApi } from '../services/api';
+import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 
 interface Subject {
   value: string;
@@ -66,26 +66,11 @@ const CategoryList: React.FC = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const data = await categoryApi.getAllCategories();
-        console.log('📦 獲取到的分類數據:', data);
-        // 支援 array 或 { data: array } 結構
-        const arr = Array.isArray(data) ? data : (data?.data || []);
-        if (!Array.isArray(arr)) {
-          throw new Error('分類數據格式錯誤');
-        }
-        setCategories(arr);
-        setError(null);
-      } catch (err) {
-        console.error('獲取分類失敗:', err);
-        setError(err instanceof Error ? err.message : '未知錯誤');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCategories();
+    // 使用靜態科目選項
+    console.log('✅ 使用靜態科目選項');
+    setCategories(CATEGORY_OPTIONS);
+    setError(null);
+    setLoading(false);
   }, []);
 
   if (loading) {
