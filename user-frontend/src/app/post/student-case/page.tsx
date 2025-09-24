@@ -496,13 +496,11 @@ function PostStudentCaseContent() {
                       <SelectValue placeholder="請選擇地區" />
                     </SelectTrigger>
                     <SelectContent>
-                      {REGION_OPTIONS.map(region => 
-                        region.regions.map(subRegion => (
-                          <SelectItem key={`${region.value}-${subRegion.value}`} value={`${region.value}-${subRegion.value}`}>
-                            {subRegion.label}
-                          </SelectItem>
-                        ))
-                      )}
+                      {REGION_OPTIONS.map(region => (
+                        <SelectItem key={region.value} value={region.value}>
+                          {region.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   {errors.regions && (
@@ -513,17 +511,13 @@ function PostStudentCaseContent() {
                   {selectedRegions.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-2">
                       {selectedRegions.map(regionValue => {
-                        // 解析完整路徑格式的地區值 (如: kowloon-kowloon-city)
-                        const [parentRegion, subRegion] = regionValue.split('-');
-                        const region = REGION_OPTIONS.find(r => r.value === parentRegion);
-                        const subRegionObj = region?.regions.find(sr => sr.value === subRegion);
-                        
+                        const region = REGION_OPTIONS.find(r => r.value === regionValue);
                         return (
                           <span
                             key={regionValue}
                             className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
                           >
-                            {subRegionObj?.label || regionValue}
+                            {region?.label || regionValue}
                             <button
                               type="button"
                               onClick={() => {
@@ -543,6 +537,71 @@ function PostStudentCaseContent() {
                   )}
                 </div>
 
+                {selectedRegions.length > 0 && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      分區
+                    </label>
+                    <Select onValueChange={(value) => {
+                      const newSubRegions = selectedSubRegions.includes(value)
+                        ? selectedSubRegions.filter(r => r !== value)
+                        : [...selectedSubRegions, value];
+                      setSelectedSubRegions(newSubRegions);
+                      setValue('subRegions', newSubRegions);
+                    }}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="請選擇分區" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {selectedRegions.map(regionValue => {
+                          const region = REGION_OPTIONS.find(r => r.value === regionValue);
+                          return region?.regions.map(subRegion => (
+                            <SelectItem key={subRegion.value} value={subRegion.value}>
+                              <div className="flex items-center justify-between w-full">
+                                <span>{subRegion.label}</span>
+                                {selectedSubRegions.includes(subRegion.value) && (
+                                  <span className="text-blue-500">✓</span>
+                                )}
+                              </div>
+                            </SelectItem>
+                          ));
+                        })}
+                      </SelectContent>
+                    </Select>
+                    {selectedSubRegions.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {selectedSubRegions.map(subRegionValue => {
+                          const subRegion = selectedRegions.flatMap(regionValue => {
+                            const region = REGION_OPTIONS.find(r => r.value === regionValue);
+                            return region?.regions || [];
+                          }).find(sr => sr.value === subRegionValue);
+                          return (
+                            <span
+                              key={subRegionValue}
+                              className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                            >
+                              {subRegion?.label}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newSubRegions = selectedSubRegions.filter(r => r !== subRegionValue);
+                                  setSelectedSubRegions(newSubRegions);
+                                  setValue('subRegions', newSubRegions);
+                                }}
+                                className="ml-1 text-green-600 hover:text-green-800"
+                              >
+                                ×
+                              </button>
+                            </span>
+                          );
+                        })}
+                      </div>
+                    )}
+                    {errors.subRegions && (
+                      <p className="mt-1 text-sm text-red-600">{errors.subRegions.message as string}</p>
+                    )}
+                  </div>
+                )}
 
                 {/* 詳細地址 - 僅面授或皆可時顯示 */}
                 <div>
