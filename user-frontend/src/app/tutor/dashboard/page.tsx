@@ -532,19 +532,21 @@ export default function TutorDashboardPage() {
     e.preventDefault();
     
     // 準備完整的表單數據
+    const updatedTeachingAreas = getAllSelectedSubRegions().map(subRegion => {
+      // 將簡短名稱轉換為完整路徑格式
+      const region = Array.isArray(regionOptions) ? regionOptions.find(r => r.regions?.some(sr => sr.value === subRegion)) : null;
+      if (region) {
+        return `${region.value}-${subRegion}`;
+      }
+      return subRegion;
+    });
+    
+    console.log('🔍 準備保存的地區數據:', updatedTeachingAreas);
+    
     const completeFormData = {
       ...formData,
       birthDate: formData.birthDate, // 確保出生日期被包含
-      tutorProfile: {
-        subRegions: getAllSelectedSubRegions().map(subRegion => {
-          // 將簡短名稱轉換為完整路徑格式
-          const region = Array.isArray(regionOptions) ? regionOptions.find(r => r.regions?.some(sr => sr.value === subRegion)) : null;
-          if (region) {
-            return `${region.value}-${subRegion}`;
-          }
-          return subRegion;
-        })
-      },
+      teachingAreas: updatedTeachingAreas, // 直接設置 teachingAreas
       publicCertificates: publicCertificates,
     };
     
@@ -566,14 +568,6 @@ export default function TutorDashboardPage() {
       await tutorApi.updateProfile(completeFormData);
       
       // 更新本地 formData 以反映最新的選擇
-      const updatedTeachingAreas = getAllSelectedSubRegions().map(subRegion => {
-        const region = regionOptions?.find(r => r.regions?.some(sr => sr.value === subRegion));
-        if (region) {
-          return `${region.value}-${subRegion}`;
-        }
-        return subRegion;
-      });
-      
       setFormData(prev => ({
         ...prev,
         teachingAreas: updatedTeachingAreas
