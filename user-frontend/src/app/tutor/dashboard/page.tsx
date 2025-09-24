@@ -62,7 +62,7 @@ interface TutorProfile {
   gender: 'male' | 'female';
   birthDate: Date | undefined;
   subjects: string[];
-  teachingAreas: string[];
+  regions: string[]; // 統一使用 regions 替代 teachingAreas
   teachingMethods: string[]; // 保留向後兼容
   teachingMode: string; // 主要教學模式：in-person, online, both
   teachingSubModes: string[]; // 教學子模式：one-on-one, small-group, etc.
@@ -131,7 +131,7 @@ export default function TutorDashboardPage() {
     gender: 'male',
     birthDate: undefined,
     subjects: [],
-    teachingAreas: [],
+    regions: [], // 統一使用 regions 替代 teachingAreas
     teachingMethods: [], // 保留向後兼容
     teachingMode: '', // 主要教學模式
     teachingSubModes: [], // 教學子模式
@@ -214,23 +214,23 @@ export default function TutorDashboardPage() {
 
   // 當 regionOptions 載入完成後，處理已選地區
   useEffect(() => {
-    if (regionOptions.length > 0 && formData.teachingAreas.length > 0) {
-      console.log('🔄 觸發地區處理:', { regionOptions: regionOptions.length, teachingAreas: formData.teachingAreas.length });
-      processTeachingAreas(formData.teachingAreas);
+    if (regionOptions.length > 0 && formData.regions.length > 0) {
+      console.log('🔄 觸發地區處理:', { regionOptions: regionOptions.length, regions: formData.regions.length });
+      processRegions(formData.regions);
     }
-  }, [regionOptions, formData.teachingAreas]);
+  }, [regionOptions, formData.regions]);
 
 
   // 處理地區狀態設置的函數
-  const processTeachingAreas = (teachingAreas: string[]) => {
-    if (teachingAreas.length === 0 || regionOptions.length === 0) return;
+  const processRegions = (regions: string[]) => {
+    if (regions.length === 0 || regionOptions.length === 0) return;
     
-    console.log('🔍 處理已選地區:', teachingAreas);
+    console.log('🔍 處理已選地區:', regions);
     
     // 根據已選地區設置狀態
     const subRegionsByRegion: {[key: string]: string[]} = {};
     
-    teachingAreas.forEach((area: string) => {
+    regions.forEach((area: string) => {
       console.log(`🔍 處理地區: ${area}`);
       
       // 嘗試通過 value 匹配
@@ -399,38 +399,36 @@ export default function TutorDashboardPage() {
        const availableTime = data.tutorProfile?.availableTime || data.availableTime || [];
        const qualifications = data.tutorProfile?.qualifications || data.qualifications || [];
        
-       // 處理地區數據 - 統一使用 tutorProfile.subRegions 作為權威數據源
-       let teachingAreas: string[] = [];
+       // 處理地區數據 - 統一使用 regions 字段
+       let regions: string[] = [];
        
        // 檢查數據一致性
        console.log('🔍 檢查地區數據一致性:');
-       console.log('  - 根級別 teachingAreas:', data.teachingAreas);
-       console.log('  - tutorProfile.teachingAreas:', data.tutorProfile?.teachingAreas);
-       console.log('  - tutorProfile.subRegions:', data.tutorProfile?.subRegions);
+       console.log('  - 根級別 regions:', data.regions);
+       console.log('  - 根級別 teachingAreas (向後兼容):', data.teachingAreas);
+       console.log('  - tutorProfile.regions:', data.tutorProfile?.regions);
+       console.log('  - tutorProfile.teachingAreas (向後兼容):', data.tutorProfile?.teachingAreas);
+       console.log('  - tutorProfile.subRegions (向後兼容):', data.tutorProfile?.subRegions);
        
-       if (data.tutorProfile?.subRegions && data.tutorProfile.subRegions.length > 0) {
-         // 優先使用 tutorProfile.subRegions（完整路徑格式）
-         teachingAreas = data.tutorProfile.subRegions;
-         console.log('✅ 使用 tutorProfile.subRegions (權威數據源):', teachingAreas);
-         
-         // 檢查是否有數據不一致的情況
-         if (data.teachingAreas && data.teachingAreas.length > 0) {
-           console.log('⚠️ 發現數據不一致:');
-           console.log('  - 根級別 teachingAreas 數量:', data.teachingAreas.length);
-           console.log('  - tutorProfile.subRegions 數量:', data.tutorProfile.subRegions.length);
-           
-           if (data.teachingAreas.length !== data.tutorProfile.subRegions.length) {
-             console.warn('⚠️ 地區數量不匹配，建議同步數據');
-           }
-         }
+       // 優先使用新的 regions 字段
+       if (data.regions && data.regions.length > 0) {
+         regions = data.regions;
+         console.log('✅ 使用根級別 regions:', regions);
+       } else if (data.tutorProfile?.regions && data.tutorProfile.regions.length > 0) {
+         regions = data.tutorProfile.regions;
+         console.log('✅ 使用 tutorProfile.regions:', regions);
+       } else if (data.tutorProfile?.subRegions && data.tutorProfile.subRegions.length > 0) {
+         // 向後兼容：使用 subRegions
+         regions = data.tutorProfile.subRegions;
+         console.log('🔍 使用 tutorProfile.subRegions (向後兼容):', regions);
        } else if (data.tutorProfile?.teachingAreas && data.tutorProfile.teachingAreas.length > 0) {
-         // 如果沒有 subRegions 但有 teachingAreas，使用它們
-         teachingAreas = data.tutorProfile.teachingAreas;
-         console.log('🔍 使用 tutorProfile.teachingAreas:', teachingAreas);
+         // 向後兼容：使用 teachingAreas
+         regions = data.tutorProfile.teachingAreas;
+         console.log('🔍 使用 tutorProfile.teachingAreas (向後兼容):', regions);
        } else if (data.teachingAreas && data.teachingAreas.length > 0) {
-         // 最後才使用根級別的 teachingAreas
-         teachingAreas = data.teachingAreas;
-         console.log('🔍 使用根級別 teachingAreas:', teachingAreas);
+         // 向後兼容：使用根級別 teachingAreas
+         regions = data.teachingAreas;
+         console.log('🔍 使用根級別 teachingAreas (向後兼容):', regions);
        }
        
        // 處理公開證書數據 - 後端API直接返回 publicCertificates，不在 tutorProfile 裡
@@ -438,16 +436,15 @@ export default function TutorDashboardPage() {
        console.log('🔍 公開證書數據:', publicCertificates);
        
        // 同步地區數據，確保數據一致性
-        if (data.tutorProfile?.subRegions && data.tutorProfile.subRegions.length > 0) {
-          // 如果 tutorProfile.subRegions 存在，同步到根級別的 teachingAreas
-          // 這樣可以確保兩個數據源保持一致
-          console.log('🔄 同步地區數據到根級別 teachingAreas');
-          data.teachingAreas = data.tutorProfile.subRegions;
-          
-          // 強制使用 subRegions 作為權威數據源
-          teachingAreas = data.tutorProfile.subRegions;
-          console.log('✅ 強制使用 subRegions 作為權威數據源:', teachingAreas);
-        }
+       if (regions.length > 0) {
+         // 如果找到地區數據，同步到根級別的 regions 字段
+         console.log('🔄 同步地區數據到根級別 regions');
+         data.regions = regions;
+         
+         // 向後兼容：也同步到 teachingAreas
+         data.teachingAreas = regions;
+         console.log('✅ 同步地區數據完成:', regions);
+       }
       
       // 處理出生日期，確保正確的格式
       let processedBirthDate: Date | undefined = undefined;
@@ -487,7 +484,7 @@ export default function TutorDashboardPage() {
         gender: data.gender || 'male',
         birthDate: processedBirthDate,
         subjects: subjects,
-        teachingAreas: teachingAreas,
+        regions: regions,
         teachingMethods: data.teachingMethods || [], // 保留向後兼容
         teachingMode: data.teachingMode || data.tutorProfile?.teachingMode || '', // 主要教學模式
         teachingSubModes: data.teachingSubModes || data.tutorProfile?.teachingSubModes || [], // 教學子模式
@@ -546,7 +543,7 @@ export default function TutorDashboardPage() {
     const completeFormData = {
       ...formData,
       birthDate: formData.birthDate, // 確保出生日期被包含
-      teachingAreas: updatedTeachingAreas, // 直接設置 teachingAreas
+      regions: updatedTeachingAreas, // 統一使用 regions 字段
       publicCertificates: publicCertificates,
     };
     
@@ -570,7 +567,7 @@ export default function TutorDashboardPage() {
       // 更新本地 formData 以反映最新的選擇
       setFormData(prev => ({
         ...prev,
-        teachingAreas: updatedTeachingAreas
+        regions: updatedTeachingAreas
       }));
       
       // 觸發用戶數據更新事件

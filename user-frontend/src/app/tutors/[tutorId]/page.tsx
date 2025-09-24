@@ -189,12 +189,12 @@ export default function TutorDetailPage() {
                   </div>
                 )}
                 
-                {/* 教授地區 - 簡化條件判斷 */}
+                {/* 教授地區 - 統一使用 regions 字段 */}
                 <div className="flex items-start">
                   <span className="font-medium text-sm w-24 flex-shrink-0 max-sm:w-20 max-[700px]:w-20">教授地區：</span>
                   <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
-                    {tutor.teachingAreas && tutor.teachingAreas.length > 0 ? (
-                      formatRegions(tutor.teachingAreas)
+                    {(tutor.regions && tutor.regions.length > 0) || (tutor.teachingAreas && tutor.teachingAreas.length > 0) ? (
+                      formatRegions(tutor.regions || tutor.teachingAreas || [])
                     ) : (
                       '暫未設定'
                     )}

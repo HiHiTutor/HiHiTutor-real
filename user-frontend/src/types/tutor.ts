@@ -12,7 +12,8 @@ export interface Tutor {
   avatarOffsetX?: number;
   rating?: number;
   introduction?: string;
-  teachingAreas?: string[];
+  regions?: string[]; // 統一使用 regions 替代 teachingAreas
+  teachingAreas?: string[]; // 保留向後兼容
   teachingMethods?: string[];
   qualifications?: string[];
   hourlyRate?: number;
