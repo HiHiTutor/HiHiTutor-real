@@ -599,7 +599,9 @@ export default function TutorDashboardPage() {
         birthDate: processedBirthDate,
         subjects: subjects,
         teachingAreas: teachingAreas,
-        teachingMethods: data.teachingMethods || [],
+        teachingMethods: data.teachingMethods || [], // 保留向後兼容
+        teachingMode: data.teachingMode || data.tutorProfile?.teachingMode || '', // 主要教學模式
+        teachingSubModes: data.teachingSubModes || data.tutorProfile?.teachingSubModes || [], // 教學子模式
         experience: data.experience || 0,
         introduction: data.introduction || '',
         education: data.education || '',  // 直接使用 data.education
