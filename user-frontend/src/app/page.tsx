@@ -90,32 +90,12 @@ function HomeContent() {
           <div className="absolute bottom-0 right-0 w-64 h-64 bg-pink-400 rounded-full mix-blend-multiply filter blur-xl transform translate-x-1/2 translate-y-1/2"></div>
         </div>
         <div className="relative">
-          {/* 第一行：會員優惠信息 + 熱門科目 */}
+          {/* 第一行：黑板背景 banner + 熱門科目 */}
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-              {/* 左面：會員優惠信息 */}
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
-                    <span className="text-2xl">🎁</span>
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-900">成為會員即送報名禮券</h2>
-                </div>
-                <p className="text-gray-700 text-lg mb-4">
-                  註冊帳戶即享首次報名折扣優惠，精明家長之選！
-                </p>
-                <div className="flex gap-3">
-                  <Link href="/register">
-                    <button className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:from-yellow-500 hover:to-orange-600 transition-all shadow-md">
-                      立即註冊
-                    </button>
-                  </Link>
-                  <Link href="/login">
-                    <button className="border-2 border-yellow-400 text-yellow-600 px-6 py-3 rounded-lg font-semibold hover:bg-yellow-50 transition-all">
-                      登入帳戶
-                    </button>
-                  </Link>
-                </div>
+              {/* 左面：黑板背景 banner */}
+              <div className="flex-1">
+                <HeroSection />
               </div>
 
               {/* 右面：熱門科目 */}
@@ -169,8 +149,6 @@ function HomeContent() {
             </Suspense>
           </div>
 
-          {/* 刪除手機版主頁上方按鈕區域 */}
-          <HeroSection />
           <CategoryList />
         </div>
       </div>
