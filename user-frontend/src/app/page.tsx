@@ -90,9 +90,75 @@ function HomeContent() {
           <div className="absolute bottom-0 right-0 w-64 h-64 bg-pink-400 rounded-full mix-blend-multiply filter blur-xl transform translate-x-1/2 translate-y-1/2"></div>
         </div>
         <div className="relative">
-          {/* 刪除手機版主頁上方按鈕區域 */}
-          <HeroSection />
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* 第一行：會員優惠信息 + 熱門科目 */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+              {/* 左面：會員優惠信息 */}
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
+                    <span className="text-2xl">🎁</span>
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-900">成為會員即送報名禮券</h2>
+                </div>
+                <p className="text-gray-700 text-lg mb-4">
+                  註冊帳戶即享首次報名折扣優惠，精明家長之選！
+                </p>
+                <div className="flex gap-3">
+                  <Link href="/register">
+                    <button className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-lg font-semibold hover:from-yellow-500 hover:to-orange-600 transition-all shadow-md">
+                      立即註冊
+                    </button>
+                  </Link>
+                  <Link href="/login">
+                    <button className="border-2 border-yellow-400 text-yellow-600 px-6 py-3 rounded-lg font-semibold hover:bg-yellow-50 transition-all">
+                      登入帳戶
+                    </button>
+                  </Link>
+                </div>
+              </div>
+
+              {/* 右面：熱門科目 */}
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg">
+                <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">熱門科目</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center">
+                    <div className="text-3xl mb-2">📊</div>
+                    <div className="text-lg font-semibold text-gray-800">數學</div>
+                    <div className="text-sm text-gray-600">95%</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl mb-2">🔤</div>
+                    <div className="text-lg font-semibold text-gray-800">英文</div>
+                    <div className="text-sm text-gray-600">90%</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl mb-2">📝</div>
+                    <div className="text-lg font-semibold text-gray-800">中文</div>
+                    <div className="text-sm text-gray-600">85%</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl mb-2">⚛️</div>
+                    <div className="text-lg font-semibold text-gray-800">物理</div>
+                    <div className="text-sm text-gray-600">80%</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl mb-2">🧪</div>
+                    <div className="text-lg font-semibold text-gray-800">化學</div>
+                    <div className="text-sm text-gray-600">75%</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl mb-2">🧬</div>
+                    <div className="text-lg font-semibold text-gray-800">生物</div>
+                    <div className="text-sm text-gray-600">70%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 第二行：Search Bar */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
             <Suspense fallback={<div className="text-center py-8">載入篩選器...</div>}>
               <CaseFilterBar
                 onFilter={handleSearch}
@@ -102,18 +168,16 @@ function HomeContent() {
               />
             </Suspense>
           </div>
+
+          {/* 刪除手機版主頁上方按鈕區域 */}
+          <HeroSection />
           <CategoryList />
         </div>
       </div>
       
-      {/* MainBanner 廣告位 */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-        <MainBannerAd />
-      </div>
-      
-      {/* 精選導師個案 */}
-      <div className="relative overflow-hidden">
-        <div className="bg-yellow-50 max-w-7xl mx-auto rounded-2xl">
+      {/* 第三行：導師列表 */}
+      <div className="bg-white py-12 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto">
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 left-0 w-32 h-32 bg-yellow-500 rounded-full mix-blend-multiply filter blur-xl transform -translate-x-1/2 -translate-y-1/2"></div>
             <div className="absolute bottom-0 right-0 w-32 h-32 bg-yellow-600 rounded-full mix-blend-multiply filter blur-xl transform translate-x-1/2 translate-y-1/2"></div>
@@ -133,8 +197,8 @@ function HomeContent() {
         </div>
       </div>
 
-      {/* 成為導師宣傳區塊（banner/poster） */}
-      <section className="bg-white relative overflow-hidden">
+      {/* 第五行：加入我們的導師團隊 */}
+      <section className="bg-gradient-to-r from-blue-50 to-purple-50 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-64 h-64 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl transform -translate-x-1/2 -translate-y-1/2"></div>
           <div className="absolute top-0 right-0 w-64 h-64 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl transform translate-x-1/2 -translate-y-1/2"></div>
@@ -172,8 +236,8 @@ function HomeContent() {
         </div>
       </section>
 
-      {/* 最新學生搵導師個案 */}
-      <div className="bg-white py-12 relative overflow-hidden">
+      {/* 第四行：補習個案 */}
+      <div className="bg-gray-50 py-12 relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 left-0 w-32 h-32 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl transform -translate-x-1/2 -translate-y-1/2"></div>
@@ -194,7 +258,8 @@ function HomeContent() {
         </div>
       </div>
 
-      <Advertisement />
+      {/* 第六行：導師配對服務介紹（暫時隱藏） */}
+      {/* <Advertisement /> */}
 
     </main>
   );
