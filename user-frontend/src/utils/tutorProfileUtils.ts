@@ -35,6 +35,8 @@ export const REGION_MAP: { [key: string]: string } = {
   'wong-tai-sin': '黃大仙',
   'kowloon-bay': '九龍灣',
   'ngau-tau-kok': '牛頭角',
+  'kowloon-city': '九龍城',
+  'whampoa': '黃埔',
   'kwun-tong': '觀塘',
   'lam-tin': '藍田',
   'yau-tong': '油塘',
