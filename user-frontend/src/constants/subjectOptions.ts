@@ -17,7 +17,7 @@ export const SUBJECT_MAP: { [key: string]: string } = {
   'primary-math': '小學數學',
   'primary-general': '常識',
   'primary-mandarin': '普通話',
-  'primary-stem': '常識／STEM',
+  'primary-stem': 'STEM',
   'primary-all': '全科補習',
 
   // 中學教育
