@@ -2270,7 +2270,7 @@ const UserDetail: React.FC = () => {
                          let found = false;
                          
                          // 從課程分類選項中查找
-                         for (const [categoryKey, category] of Object.entries(CATEGORY_OPTIONS)) {
+                         for (const [categoryKey, category] of Object.entries(CATEGORY_OPTIONS_OBJECT)) {
                            if (found) break; // 已找到，退出外層迴圈
                            
                            if ('subCategories' in category && category.subCategories) {
