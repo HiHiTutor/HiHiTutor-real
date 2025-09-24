@@ -24,6 +24,8 @@ export interface Tutor {
   isTop?: boolean;
   region?: string;
   teachingModes?: string[];
+  teachingMode?: string; // 主要教學模式：in-person, online, both
+  teachingSubModes?: string[]; // 教學子模式：one-on-one, small-group, etc.
   gender?: 'male' | 'female'; // 添加根級別性別字段
   birthDate?: Date | string; // 添加出生日期字段
   

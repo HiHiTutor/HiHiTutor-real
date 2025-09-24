@@ -155,11 +155,13 @@ export default function TutorDetailPage() {
             <CardContent className="pt-6 max-sm:pt-4 max-[700px]:pt-5">
               <h2 className="text-xl font-semibold mb-4 max-sm:text-lg max-sm:mb-3 max-[700px]:text-lg max-[700px]:mb-3">教學資訊</h2>
               <div className="space-y-3 max-sm:space-y-2 max-[700px]:space-y-2">
-                {tutor.teachingMethods && tutor.teachingMethods.length > 0 ? (
+                {(tutor.teachingMode || (tutor.teachingSubModes && tutor.teachingSubModes.length > 0)) ? (
                   <div className="flex items-start">
                     <span className="font-medium text-sm w-24 flex-shrink-0 max-sm:w-20 max-[700px]:w-20">教學方式：</span>
                     <span className="text-muted-foreground text-sm max-sm:text-xs max-[700px]:text-xs">
-                      {formatTeachingSubModes(tutor.teachingMethods)}
+                      {tutor.teachingMode && getTeachingModeDisplay(tutor.teachingMode)}
+                      {tutor.teachingMode && tutor.teachingSubModes && tutor.teachingSubModes.length > 0 && ' - '}
+                      {tutor.teachingSubModes && tutor.teachingSubModes.length > 0 && formatTeachingSubModes(tutor.teachingSubModes)}
                     </span>
                   </div>
                 ) : (

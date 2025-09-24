@@ -7,6 +7,7 @@ import Rating from './Rating';
 import { getSubjectName } from '@/utils/translate';
 import { Tutor } from '@/types/tutor';
 import { calculateAge, formatAge } from '@/utils/ageUtils';
+import { getTeachingModeDisplay, formatTeachingSubModes } from '@/utils/tutorProfileUtils';
 
 interface TutorCardProps {
   tutor: Tutor;
@@ -132,6 +133,14 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
             <span>年齡: {formatAge(age)}</span>
             <span>教學年資: {displayExperience}</span>
           </div>
+          {/* 教學模式顯示 */}
+          {(tutor.teachingMode || (tutor.teachingSubModes && tutor.teachingSubModes.length > 0)) && (
+            <div className="text-xs text-yellow-600 text-center">
+              {tutor.teachingMode && getTeachingModeDisplay(tutor.teachingMode)}
+              {tutor.teachingMode && tutor.teachingSubModes && tutor.teachingSubModes.length > 0 && ' - '}
+              {tutor.teachingSubModes && tutor.teachingSubModes.length > 0 && formatTeachingSubModes(tutor.teachingSubModes)}
+            </div>
+          )}
         </div>
       </div>
     </Link>

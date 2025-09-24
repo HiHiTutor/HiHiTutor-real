@@ -62,7 +62,9 @@ interface TutorProfile {
   birthDate: Date | undefined;
   subjects: string[];
   teachingAreas: string[];
-  teachingMethods: string[];
+  teachingMethods: string[]; // 保留向後兼容
+  teachingMode: string; // 主要教學模式：in-person, online, both
+  teachingSubModes: string[]; // 教學子模式：one-on-one, small-group, etc.
   experience: number;
   introduction: string;
   education: string;
@@ -129,7 +131,9 @@ export default function TutorDashboardPage() {
     birthDate: undefined,
     subjects: [],
     teachingAreas: [],
-    teachingMethods: [],
+    teachingMethods: [], // 保留向後兼容
+    teachingMode: '', // 主要教學模式
+    teachingSubModes: [], // 教學子模式
     experience: 0,
     introduction: '',
     education: '',
@@ -1453,57 +1457,165 @@ export default function TutorDashboardPage() {
 
             {/* 教學方式選項 */}
             <div className="space-y-4">
-              <Label>教學方式</Label>
+              <Label>主要教學模式</Label>
               <div className="space-y-3">
                 {/* 面授教學 */}
                 <div className="flex items-center space-x-2">
-                  <Checkbox
+                  <input
+                    type="radio"
                     id="in-person-teaching"
-                    checked={formData.teachingMethods.includes('in-person')}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setFormData(prev => ({
-                          ...prev,
-                          teachingMethods: [...prev.teachingMethods, 'in-person']
-                        }));
-                      } else {
-                        setFormData(prev => ({
-                          ...prev,
-                          teachingMethods: prev.teachingMethods.filter(m => m !== 'in-person')
-                        }));
-                      }
+                    name="teachingMode"
+                    value="in-person"
+                    checked={formData.teachingMode === 'in-person'}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        teachingMode: e.target.value
+                      }));
                     }}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
                   />
                   <Label htmlFor="in-person-teaching">面授教學</Label>
                 </div>
                 
                 {/* 網上課程 */}
                 <div className="flex items-center space-x-2">
-                  <Checkbox
+                  <input
+                    type="radio"
                     id="online-teaching"
-                    checked={formData.teachingMethods.includes('online')}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setFormData(prev => ({
-                          ...prev,
-                          teachingMethods: [...prev.teachingMethods, 'online']
-                        }));
-                      } else {
-                        setFormData(prev => ({
-                          ...prev,
-                          teachingMethods: prev.teachingMethods.filter(m => m !== 'online')
-                        }));
-                      }
+                    name="teachingMode"
+                    value="online"
+                    checked={formData.teachingMode === 'online'}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        teachingMode: e.target.value
+                      }));
                     }}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
                   />
                   <Label htmlFor="online-teaching">網上課程</Label>
                 </div>
-                
+
+                {/* 混合模式 */}
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    id="both-teaching"
+                    name="teachingMode"
+                    value="both"
+                    checked={formData.teachingMode === 'both'}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        teachingMode: e.target.value
+                      }));
+                    }}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+                  />
+                  <Label htmlFor="both-teaching">面授 + 網上</Label>
+                </div>
               </div>
+
+              {/* 教學子模式選項 */}
+              {formData.teachingMode && (
+                <div className="space-y-3">
+                  <Label>教學方式細項</Label>
+                  <div className="space-y-2">
+                    {/* 一對一教學 */}
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="one-on-one"
+                        checked={formData.teachingSubModes.includes('one-on-one')}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setFormData(prev => ({
+                              ...prev,
+                              teachingSubModes: [...prev.teachingSubModes, 'one-on-one']
+                            }));
+                          } else {
+                            setFormData(prev => ({
+                              ...prev,
+                              teachingSubModes: prev.teachingSubModes.filter(m => m !== 'one-on-one')
+                            }));
+                          }
+                        }}
+                      />
+                      <Label htmlFor="one-on-one">一對一教學</Label>
+                    </div>
+
+                    {/* 小組教學 */}
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="small-group"
+                        checked={formData.teachingSubModes.includes('small-group')}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setFormData(prev => ({
+                              ...prev,
+                              teachingSubModes: [...prev.teachingSubModes, 'small-group']
+                            }));
+                          } else {
+                            setFormData(prev => ({
+                              ...prev,
+                              teachingSubModes: prev.teachingSubModes.filter(m => m !== 'small-group')
+                            }));
+                          }
+                        }}
+                      />
+                      <Label htmlFor="small-group">小組教學</Label>
+                    </div>
+
+                    {/* Zoom */}
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="zoom"
+                        checked={formData.teachingSubModes.includes('zoom')}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setFormData(prev => ({
+                              ...prev,
+                              teachingSubModes: [...prev.teachingSubModes, 'zoom']
+                            }));
+                          } else {
+                            setFormData(prev => ({
+                              ...prev,
+                              teachingSubModes: prev.teachingSubModes.filter(m => m !== 'zoom')
+                            }));
+                          }
+                        }}
+                      />
+                      <Label htmlFor="zoom">Zoom</Label>
+                    </div>
+
+                    {/* Google Meet */}
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="google-meet"
+                        checked={formData.teachingSubModes.includes('google-meet')}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setFormData(prev => ({
+                              ...prev,
+                              teachingSubModes: [...prev.teachingSubModes, 'google-meet']
+                            }));
+                          } else {
+                            setFormData(prev => ({
+                              ...prev,
+                              teachingSubModes: prev.teachingSubModes.filter(m => m !== 'google-meet')
+                            }));
+                          }
+                        }}
+                      />
+                      <Label htmlFor="google-meet">Google Meet</Label>
+                    </div>
+                  </div>
+                </div>
+              )}
               
               {/* 說明文字 */}
               <p className="text-sm text-gray-500">
-                請選擇您提供的教學方式。您可以選擇多種方式，選擇完成後請點擊頁面底部的「保存所有資料」按鈕。
+                請選擇您的主要教學模式，然後選擇相應的教學方式細項。選擇完成後請點擊頁面底部的「保存所有資料」按鈕。
               </p>
             </div>
 

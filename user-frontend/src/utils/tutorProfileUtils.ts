@@ -4,7 +4,9 @@ export const TEACHING_MODE_MAP: { [key: string]: string } = {
   'in-person': '面授',
   'both': '皆可',
   'one-on-one': '一對一',
-  'small-group': '小班教學',
+  'small-group': '小組教學',
+  'zoom': 'Zoom',
+  'google-meet': 'Google Meet',
   'large-center': '大型補習社'
 };
 
