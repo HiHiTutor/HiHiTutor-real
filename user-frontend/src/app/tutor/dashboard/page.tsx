@@ -300,6 +300,11 @@ export default function TutorDashboardPage() {
     setLoadingRegions(false);
   };
 
+  // 載入地區選項
+  useEffect(() => {
+    fetchRegionOptions();
+  }, []);
+
     // 移除定期檢查審批狀態的功能 - 用戶要求移除自動檢查
 
   useEffect(() => {

@@ -49,7 +49,6 @@ const Sidebar: React.FC<SidebarProps> = ({ open }) => {
     { text: '導師資料審批', icon: <SchoolIcon />, path: '/tutor-profile-approvals', badge: notifications?.pendingTutorProfiles },
     { text: '導師修改監控', icon: <NotificationsIcon />, path: '/tutor-change-monitor', badge: notifications?.tutorChanges },
     { text: '科目管理', icon: <CategoryIcon />, path: '/category-manager' },
-    { text: '地區管理', icon: <LocationIcon />, path: '/region-manager' },
     { text: '教學模式管理', icon: <SettingsIcon />, path: '/mode-manager' },
   ];
 

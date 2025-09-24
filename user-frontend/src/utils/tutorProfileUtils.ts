@@ -103,6 +103,9 @@ export const REGION_MAP: { [key: string]: string } = {
   'kowloon-kwun-tong': '觀塘',
   'kowloon-yau-tong': '油塘',
   'kowloon-wong-tai-sin': '黃大仙',
+  'kowloon-kowloon-city': '九龍城',
+  'kowloon-whampoa': '黃埔',
+  'kowloon-kowloon-bay': '九龍灣',
   
   'new-territories-sha-tin': '沙田',
   'new-territories-ma-on-shan': '馬鞍山',
@@ -113,6 +116,7 @@ export const REGION_MAP: { [key: string]: string } = {
   'new-territories-fan-ling': '粉嶺',
   'new-territories-sheung-shui': '上水',
   'new-territories-tseung-kwan-o': '將軍澳',
+  'new-territories-tiu-keng-leng': '調景嶺',
   'new-territories-hang-hau': '坑口',
   'new-territories-po-lam': '寶琳',
   'new-territories-lohas-park': '康城',
