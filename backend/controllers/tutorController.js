@@ -411,6 +411,17 @@ const getAllTutors = async (req, res) => {
         console.log('🎯 沒有指定分類，查詢所有導師');
       }
       
+      // 教學模式篩選 - 修復使用正確的教學模式字段
+      if (modes && modes.length > 0) {
+        console.log(`🎯 教學模式篩選: ${modes.join(', ')}`);
+        // 使用 teachingMode 字段進行篩選，同時也檢查 teachingMethods 字段
+        query.$or = [
+          { 'tutorProfile.teachingMode': { $in: modes } },
+          { 'tutorProfile.teachingMethods': { $in: modes } }
+        ];
+        console.log(`🔍 使用教學模式過濾: ${modes.join(', ')}`);
+      }
+      
       console.log('🔍 查詢條件:', JSON.stringify(query, null, 2));
       
              // 執行查詢
@@ -729,9 +740,13 @@ const getTutors = async (req, res) => {
       query['teachingAreas'] = { $in: areas };
     }
 
-    // 授課方式篩選
+    // 授課方式篩選 - 修復使用正確的教學模式字段
     if (methods.length > 0) {
-      query['teachingMethods'] = { $in: methods };
+      // 使用 teachingMode 字段進行篩選，同時也檢查 teachingMethods 字段
+      query.$or = [
+        { 'tutorProfile.teachingMode': { $in: methods } },
+        { 'tutorProfile.teachingMethods': { $in: methods } }
+      ];
     }
 
     // 構建排序條件
