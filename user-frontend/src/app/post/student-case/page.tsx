@@ -496,11 +496,13 @@ function PostStudentCaseContent() {
                       <SelectValue placeholder="請選擇地區" />
                     </SelectTrigger>
                     <SelectContent>
-                      {REGION_OPTIONS.map(region => (
-                        <SelectItem key={region.value} value={region.value}>
-                          {region.label}
-                        </SelectItem>
-                      ))}
+                      {REGION_OPTIONS.map(region => 
+                        region.regions.map(subRegion => (
+                          <SelectItem key={`${region.value}-${subRegion.value}`} value={`${region.value}-${subRegion.value}`}>
+                            {subRegion.label}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                   {errors.regions && (
@@ -511,13 +513,17 @@ function PostStudentCaseContent() {
                   {selectedRegions.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-2">
                       {selectedRegions.map(regionValue => {
-                        const region = REGION_OPTIONS.find(r => r.value === regionValue);
+                        // 解析完整路徑格式的地區值 (如: kowloon-kowloon-city)
+                        const [parentRegion, subRegion] = regionValue.split('-');
+                        const region = REGION_OPTIONS.find(r => r.value === parentRegion);
+                        const subRegionObj = region?.regions.find(sr => sr.value === subRegion);
+                        
                         return (
                           <span
                             key={regionValue}
                             className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
                           >
-                            {region?.label}
+                            {subRegionObj?.label || regionValue}
                             <button
                               type="button"
                               onClick={() => {
