@@ -142,6 +142,9 @@ const userSchema = new mongoose.Schema({
     teachingAreas: [{
       type: String
     }],
+    regions: [{
+      type: String
+    }],
     availableTime: [{
       day: {
         type: String

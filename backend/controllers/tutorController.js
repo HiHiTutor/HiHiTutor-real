@@ -1171,6 +1171,14 @@ const updateTutorProfile = async (req, res) => {
     if (updateData.region !== undefined) updateObject['tutorProfile.region'] = updateData.region;
     if (updateData.subRegions !== undefined) updateObject['tutorProfile.subRegions'] = updateData.subRegions;
     
+    // 處理新的 regions 字段（統一地區管理）
+    if (updateData.regions !== undefined) {
+      updateObject['tutorProfile.subRegions'] = updateData.regions;
+      // 同時更新根級別的 teachingAreas 以保持向後兼容
+      updateObject['tutorProfile.teachingAreas'] = updateData.regions;
+      console.log('🔍 更新地區數據:', updateData.regions);
+    }
+    
     // 處理嵌套的 tutorProfile 數據
     if (updateData.tutorProfile) {
       if (updateData.tutorProfile.subRegions !== undefined) {
