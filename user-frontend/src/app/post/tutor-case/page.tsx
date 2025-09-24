@@ -27,8 +27,8 @@ export default function TutorCasePage() {
     weeklyLessons: 1
   });
 
-  const [categories, setCategories] = useState([]);
-  const [regions, setRegions] = useState([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [regions, setRegions] = useState<any[]>([]);
   const [teachingModeOptions, setTeachingModeOptions] = useState<any[]>([]);
 
   const [errors, setErrors] = useState({
