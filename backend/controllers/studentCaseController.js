@@ -218,11 +218,37 @@ const searchStudentCases = async (req, res) => {
       query.modes = { $in: modeArray };
     }
 
-    // 價格範圍篩選
+    // 價格範圍篩選 - 修復字符串budget字段的查詢
     if (priceRange && priceRange !== 'unlimited') {
       const priceQuery = buildPriceQuery(priceRange);
       if (Object.keys(priceQuery).length > 0) {
-        query.budget = priceQuery;
+        // 由於budget字段是字符串，使用$expr進行數字比較
+        const exprConditions = [
+          { $ne: ['$budget', ''] }, // budget不為空
+          { $ne: ['$budget', null] }, // budget不為null
+          { $ne: ['$budget', undefined] } // budget不為undefined
+        ];
+
+        // 添加價格範圍條件 - 使用$toInt直接轉換
+        if (priceQuery.$gte !== undefined) {
+          exprConditions.push({
+            $gte: [
+              { $toInt: '$budget' },
+              priceQuery.$gte
+            ]
+          });
+        }
+
+        if (priceQuery.$lte !== undefined) {
+          exprConditions.push({
+            $lte: [
+              { $toInt: '$budget' },
+              priceQuery.$lte
+            ]
+          });
+        }
+
+        query.$expr = { $and: exprConditions };
       }
     }
 
