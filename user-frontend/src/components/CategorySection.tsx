@@ -25,7 +25,7 @@ const iconMap: Record<string, JSX.Element> = {
 };
 
 const CategorySection = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
