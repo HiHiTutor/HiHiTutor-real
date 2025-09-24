@@ -6,7 +6,7 @@ import { Listbox, Transition } from '@headlessui/react';
 import { ChevronUpDownIcon, CheckIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { Select } from '@headlessui/react';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useCategories } from '@/hooks/useCategories';
+import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 import { SUBJECT_MAP } from '@/constants/subjectOptions';
 import { TEACHING_MODE_OPTIONS, shouldShowRegionForMode, initializeTeachingModeOptions } from '@/constants/teachingModeOptions';
 import PRICE_OPTIONS from '@/constants/priceOptions';
@@ -60,7 +60,8 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const { categories: CATEGORY_OPTIONS, loading: categoriesLoading } = useCategories();
+  // 使用靜態科目選項
+  const categoriesLoading = false;
   
   const [filters, setFilters] = useState<FilterState>({
     target: '',
@@ -284,18 +285,9 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     setFilters(prev => {
       const newFilters = { ...prev, [key]: value };
       
-      // 當課程分類改變時，清空子分類和科目選擇
+      // 當課程分類改變時，清空科目選擇
       if (key === 'category') {
-        newFilters.subCategory = [];
         newFilters.subjects = [];
-        
-        // 如果選擇了"中小學教育"，自動選擇第一個子分類
-        if (value === 'primary-secondary') {
-          const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(c => c.value === value) : null;
-          if (category?.subCategories && category.subCategories.length > 0) {
-            newFilters.subCategory = [category.subCategories[0].value];
-          }
-        }
       }
       
       return newFilters;
@@ -378,27 +370,11 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       filters.subjects.forEach(subject => params.append('subjects', subject));
       console.log('🔍 添加用戶選擇的科目:', filters.subjects);
     } else if (filters.category && filters.category !== '') {
-      // 若冇揀科目 → 自動傳出該子分類下所有科目
+      // 若冇揀科目 → 自動傳出該分類下所有科目
       const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(c => c.value === filters.category) : null;
       if (category) {
-        let subjects: { value: string; label: string }[] = [];
-        
-        if (category.subCategories && filters.subCategory.length > 0) {
-          // 有選擇具體子分類
-          subjects = category.subCategories
-            .filter(sc => filters.subCategory.includes(sc.value))
-            .flatMap(sc => sc.subjects || []);
-          console.log('🔍 使用具體子分類科目:', subjects.map(s => s.value));
-        } else if (category.subCategories && filters.subCategory.length === 0) {
-          // 沒有選擇子分類，使用所有子分類的科目
-          subjects = category.subCategories.flatMap(sc => sc.subjects || []);
-          console.log('🔍 使用所有子分類科目:', subjects.map(s => s.value));
-        } else {
-          // 沒有子分類，直接使用分類的科目
-          subjects = category.subjects || [];
-          console.log('🔍 使用分類直接科目:', subjects.map(s => s.value));
-        }
-        
+        // 新的三層結構：直接使用分類的科目
+        const subjects = category.subjects || [];
         subjects.forEach(subject => params.append('subjects', subject.value));
         console.log('🔍 自動添加分類科目:', subjects.map(s => s.value));
       }
@@ -527,29 +503,10 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     if (!category) return [{ value: '', label: '請選擇科目', disabled: true }];
 
     console.log('🔍 當前分類:', category);
-    console.log('🔍 分類是否有子分類:', !!category.subCategories);
     console.log('🔍 分類直接科目:', category.subjects);
 
-    let subjects: { value: string; label: string }[] = [];
-
-    // 檢查是否有子分類且子分類陣列不為空
-    if (category.subCategories && category.subCategories.length > 0) {
-      if (filters.subCategory.length > 0) {
-        // 顯示所有選中子分類的科目
-        console.log('🔍 已選子分類:', filters.subCategory);
-        console.log('🔍 所有子分類:', category.subCategories);
-        const selectedSubCategories = category.subCategories.filter(sc => filters.subCategory.includes(sc.value));
-        console.log('🔍 匹配的子分類:', selectedSubCategories);
-        subjects = selectedSubCategories.flatMap(sc => sc.subjects || []);
-        console.log('🔍 合併後的科目:', subjects);
-      } else {
-        // 如果沒有選擇子分類，顯示所有子分類的科目
-        subjects = category.subCategories.flatMap(sc => sc.subjects || []);
-      }
-    } else {
-      // 沒有子分類，直接使用分類的科目
-      subjects = category.subjects || [];
-    }
+    // 新的三層結構：直接使用分類的科目
+    const subjects = category.subjects || [];
 
     console.log('🔍 最終科目選項:', subjects);
 
@@ -560,13 +517,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     const category = Array.isArray(CATEGORY_OPTIONS) ? CATEGORY_OPTIONS.find(c => c.value === filters.category) : null;
     if (!category || category.value === '') return false;
 
-    // 只有"中小學教育"有子分類，其他分類直接顯示科目
-    if (category.value === 'primary-secondary') {
-      // 如果有子分類，需要選擇具體的子分類後才顯示科目
-      return filters.subCategory.length > 0;
-    }
-
-    // 其他分類直接顯示科目（不需要子分類）
+    // 新的三層結構：所有分類都直接顯示科目（不需要子分類）
     return category.subjects && category.subjects.length > 0;
   };
 
@@ -788,8 +739,8 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                   <option value="" disabled>請選擇分類</option>
                   {CATEGORY_OPTIONS
                     .sort((a, b) => {
-                      // 確保正確的順序：幼兒教育 → 中小學教育 → 興趣班 → 大專補習課程 → 成人教育
-                      const order = ['early-childhood', 'primary-secondary', 'interest', 'tertiary', 'adult'];
+                      // 確保正確的順序：幼兒教育 → 小學教育 → 中學教育
+                      const order = ['early-childhood', 'primary', 'secondary'];
                       const aIndex = order.indexOf(a.value);
                       const bIndex = order.indexOf(b.value);
                       return aIndex - bIndex;
@@ -802,74 +753,6 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
                 </select>
               </div>
 
-              {/* 子分類選擇 - 只在選擇"中小學教育"後顯示 */}
-              {filters.category === 'primary-secondary' && getSubOptions().length > 0 && (
-                <div className="space-y-2 max-sm:space-y-1 max-[700px]:space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 max-sm:text-xs max-[700px]:text-sm">子分類</label>
-                  <Listbox
-                    value={filters.subCategory[0] || ''}
-                    onChange={(value) => handleSubCategoryChange(value)}
-                  >
-                    <div className="relative">
-                      <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm max-sm:py-1 max-sm:text-xs">
-                        <span className="block truncate">
-                          {filters.subCategory.length === 0
-                            ? '請選擇子分類'
-                            : (() => {
-                                const subOptions = getSubOptions();
-                                const found = Array.isArray(subOptions) ? subOptions.find(s => s.value === filters.subCategory[0]) : null;
-                                console.log('🔍 子分類標籤查找:', {
-                                  subCategory: filters.subCategory[0],
-                                  subOptions,
-                                  found
-                                });
-                                return found?.label || '未知';
-                              })()}
-                        </span>
-                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                          <ChevronUpDownIcon
-                            className="h-5 w-5 text-gray-400"
-                            aria-hidden="true"
-                          />
-                        </span>
-                      </Listbox.Button>
-                      <Transition
-                        as={Fragment}
-                        leave="transition ease-in duration-100"
-                        leaveFrom="opacity-100"
-                        leaveTo="opacity-0"
-                      >
-                        <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                          {getSubOptions().map((option) => (
-                            <Listbox.Option
-                              key={option.value}
-                              className={({ active }) =>
-                                `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                                  active ? 'bg-amber-100 text-amber-900' : 'text-gray-900'
-                                }`
-                              }
-                              value={option.value}
-                            >
-                              {({ selected }) => (
-                                <>
-                                  <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
-                                    {option.label}
-                                  </span>
-                                  {selected ? (
-                                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
-                                      <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                                    </span>
-                                  ) : null}
-                                </>
-                              )}
-                            </Listbox.Option>
-                          ))}
-                        </Listbox.Options>
-                      </Transition>
-                    </div>
-                  </Listbox>
-                </div>
-              )}
 
               {/* 科目選擇 - 只在選擇課程分類後顯示 */}
               {filters.category !== '' && shouldShowSubjects() && (
