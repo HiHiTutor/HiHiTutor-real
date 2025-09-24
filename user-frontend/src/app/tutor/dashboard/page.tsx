@@ -226,6 +226,7 @@ export default function TutorDashboardPage() {
     if (regions.length === 0 || regionOptions.length === 0) return;
     
     console.log('🔍 處理已選地區:', regions);
+    console.log('🔍 可用地區選項:', regionOptions);
     
     // 根據已選地區設置狀態
     const subRegionsByRegion: {[key: string]: string[]} = {};
@@ -302,6 +303,7 @@ export default function TutorDashboardPage() {
       // 如果還是沒有找到，記錄警告
       if (!found) {
         console.warn(`⚠️ 無法匹配地區: ${area}`);
+        console.warn(`⚠️ 可用地區選項:`, regionOptions.map(r => ({ value: r.value, label: r.label, regions: r.regions?.map(sr => ({ value: sr.value, label: sr.label })) })));
       }
     });
     
@@ -555,6 +557,8 @@ export default function TutorDashboardPage() {
     });
     
     console.log('🔍 準備保存的地區數據:', updatedTeachingAreas);
+    console.log('🔍 選中的子地區:', getAllSelectedSubRegions());
+    console.log('🔍 地區選項:', regionOptions);
     
     const completeFormData = {
       ...formData,
@@ -857,12 +861,19 @@ export default function TutorDashboardPage() {
   };
 
   const handleSubRegionToggle = (subRegion: string) => {
+    console.log('🔍 切換子地區:', subRegion);
+    
     // 找到這個子地區所屬的主要地區
     const parentRegion = Array.isArray(regionOptions) ? regionOptions.find(region => 
       region.regions?.some(sr => sr.value === subRegion)
     ) : null;
     
-    if (!parentRegion) return;
+    if (!parentRegion) {
+      console.warn('⚠️ 找不到父地區:', subRegion);
+      return;
+    }
+    
+    console.log('🔍 找到父地區:', parentRegion.value);
     
     setSelectedSubRegionsByRegion(prev => {
       const currentSubRegions = prev[parentRegion.value] || [];
@@ -870,10 +881,13 @@ export default function TutorDashboardPage() {
         ? currentSubRegions.filter((r: string) => r !== subRegion)
         : [...currentSubRegions, subRegion];
       
-      return {
+      const newState = {
         ...prev,
         [parentRegion.value]: newSubRegions
       };
+      
+      console.log('🔍 更新地區狀態:', newState);
+      return newState;
     });
   };
 
@@ -884,7 +898,10 @@ export default function TutorDashboardPage() {
 
   // 獲取所有選中的子地區
   const getAllSelectedSubRegions = () => {
-    return Object.values(selectedSubRegionsByRegion).flat();
+    const allSubRegions = Object.values(selectedSubRegionsByRegion).flat();
+    console.log('🔍 獲取所有選中的子地區:', allSubRegions);
+    console.log('🔍 當前地區狀態:', selectedSubRegionsByRegion);
+    return allSubRegions;
   };
 
 
