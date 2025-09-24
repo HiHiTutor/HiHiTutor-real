@@ -363,7 +363,7 @@ export default function TutorCasePage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">科目（可多選）</label>
               <div className="flex flex-wrap gap-2">
-                {getSubjectOptions().map(subj => (
+                {getSubjectOptions().map((subj: any) => (
                   <TagCheckbox
                     key={subj.value}
                     label={subj.label}
@@ -379,7 +379,7 @@ export default function TutorCasePage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">教學模式</label>
               <div className="flex flex-wrap gap-2">
-                {teachingModeOptions.map(mode => (
+                {teachingModeOptions.map((mode: any) => (
                   <TagCheckbox
                     key={mode.value}
                     label={mode.label}
@@ -397,7 +397,7 @@ export default function TutorCasePage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">地區</label>
                 <select value={formData.regions} onChange={e => setFormData({ ...formData, regions: e.target.value, subRegions: [] })} className="w-full px-3 py-2 border rounded-md">
                   <option value="">請選擇</option>
-                  {effectiveRegions.filter(opt => opt.value !== 'all-hong-kong').map(opt => (
+                  {effectiveRegions.filter((opt: any) => opt.value !== 'all-hong-kong').map((opt: any) => (
                     <option key={opt.value || opt.label} value={opt.value}>{opt.label}</option>
                   ))}
                 </select>
@@ -409,7 +409,7 @@ export default function TutorCasePage() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">細分地區（可多選）</label>
                 <div className="flex flex-wrap gap-2">
-                  {getSubRegionOptions().map(sub => (
+                  {getSubRegionOptions().map((sub: any) => (
                     <TagCheckbox
                       key={sub.value}
                       label={sub.label}
