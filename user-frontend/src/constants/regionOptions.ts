@@ -48,7 +48,9 @@ export const REGION_OPTIONS = [
       { value: 'diamond-hill', label: '鑽石山' },
       { value: 'lok-fu', label: '樂富' },
       { value: 'tsz-wan-shan', label: '慈雲山' },
+      { value: 'wong-tai-sin', label: '黃大仙' },
       { value: 'ngau-tau-kok', label: '牛頭角' },
+      { value: 'kowloon-bay', label: '九龍灣' },
       { value: 'lam-tin', label: '藍田' },
       { value: 'kwun-tong', label: '觀塘' },
       { value: 'yau-tong', label: '油塘' }
