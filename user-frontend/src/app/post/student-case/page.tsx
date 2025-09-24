@@ -506,6 +506,35 @@ function PostStudentCaseContent() {
                   {errors.regions && (
                     <p className="mt-1 text-sm text-red-600">{errors.regions.message as string}</p>
                   )}
+                  
+                  {/* 顯示選中的地區 */}
+                  {selectedRegions.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {selectedRegions.map(regionValue => {
+                        const region = REGION_OPTIONS.find(r => r.value === regionValue);
+                        return (
+                          <span
+                            key={regionValue}
+                            className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                          >
+                            {region?.label}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedRegions([]);
+                                setValue('regions', []);
+                                setSelectedSubRegions([]);
+                                setValue('subRegions', []);
+                              }}
+                              className="ml-1 text-green-600 hover:text-green-800"
+                            >
+                              ×
+                            </button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 {selectedRegions.length > 0 && (
