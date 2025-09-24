@@ -29,10 +29,11 @@ interface Category {
 
 // 分類 icon 映射
 const CATEGORY_ICONS: { [key: string]: string } = {
-  'preschool': '🧒',
-  'primary-secondary': '📘',
-  'tertiary': '🎓',
+  'early-childhood': '🧒',
+  'primary': '📘',
+  'secondary': '🎓',
   'interest': '🎨',
+  'tertiary': '🎓',
   'adult': '🧑‍🏫'
 };
 
@@ -109,7 +110,8 @@ const CategoryList: React.FC = () => {
   // 分類對應跳轉路徑
   const categoryLinks: Record<string, string> = {
     'early-childhood': '/tutors?target=find-tutor&category=early-childhood',
-    'primary-secondary': '/tutors?target=find-tutor&category=primary-secondary',
+    'primary': '/tutors?target=find-tutor&category=primary',
+    'secondary': '/tutors?target=find-tutor&category=secondary',
     'interest': '/tutors?target=find-tutor&category=interest',
     'tertiary': '/tutors?target=find-tutor&category=tertiary',
     'adult': '/tutors?target=find-tutor&category=adult',

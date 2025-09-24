@@ -149,7 +149,8 @@ export const REGION_MAP: { [key: string]: string } = {
 // 課程分類映射
 export const CATEGORY_MAP: { [key: string]: string } = {
   'early-childhood': '幼兒教育',
-  'primary-secondary': '中小學',
+  'primary': '小學教育',
+  'secondary': '中學教育',
   'interest': '興趣班',
   'tertiary': '大專院校',
   'adult': '成人教育'
