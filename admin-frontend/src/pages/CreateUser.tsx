@@ -14,100 +14,9 @@ import {
 import { usersAPI } from '../services/api';
 import api from '../services/api';
 import regionService, { Region } from '../services/regionService';
+import { CATEGORY_OPTIONS_OBJECT } from '../constants/categoryOptions';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://hi-hi-tutor-real-backend2.vercel.app/api';
-
-// 課程分類選項
-const CATEGORY_OPTIONS = {
-  'early-childhood': {
-    label: '幼兒教育',
-    subjects: [
-      { value: 'early-childhood-chinese', label: '幼兒中文' },
-      { value: 'early-childhood-english', label: '幼兒英文' },
-      { value: 'early-childhood-math', label: '幼兒數學' },
-      { value: 'early-childhood-phonics', label: '拼音／注音' },
-      { value: 'early-childhood-logic', label: '邏輯思維訓練' },
-      { value: 'early-childhood-interview', label: '面試技巧訓練' },
-      { value: 'early-childhood-homework', label: '幼稚園功課輔導' }
-    ]
-  },
-  'primary-secondary': {
-    label: '中小學教育',
-    subCategories: [
-      {
-        value: 'primary',
-        label: '小學教育',
-        subjects: [
-          { value: 'primary-chinese', label: '中文' },
-          { value: 'primary-english', label: '英文' },
-          { value: 'primary-math', label: '數學' },
-          { value: 'primary-general', label: '常識' },
-          { value: 'primary-mandarin', label: '普通話' },
-          { value: 'primary-stem', label: '常識／STEM' },
-          { value: 'primary-all', label: '全科補習' }
-        ]
-      },
-      {
-        value: 'secondary',
-        label: '中學教育',
-        subjects: [
-          { value: 'secondary-chinese', label: '中文' },
-          { value: 'secondary-english', label: '英文' },
-          { value: 'secondary-math', label: '數學' },
-          { value: 'secondary-ls', label: '通識教育' },
-          { value: 'secondary-physics', label: '物理' },
-          { value: 'secondary-chemistry', label: '化學' },
-          { value: 'secondary-biology', label: '生物' },
-          { value: 'secondary-economics', label: '經濟' },
-          { value: 'secondary-geography', label: '地理' },
-          { value: 'secondary-history', label: '歷史' },
-          { value: 'secondary-chinese-history', label: '中國歷史' },
-          { value: 'secondary-bafs', label: 'BAFS' },
-          { value: 'secondary-ict', label: 'ICT' },
-          { value: 'secondary-integrated-science', label: '綜合科學' },
-          { value: 'secondary-dse', label: '其他 DSE 專科補習' },
-          { value: 'secondary-all', label: '全科補習' }
-        ]
-      }
-    ]
-  },
-  'interest': {
-    label: '興趣班',
-    subjects: [
-      { value: 'art', label: '繪畫' },
-      { value: 'music', label: '音樂（鋼琴、結他、小提琴等）' },
-      { value: 'dance', label: '跳舞／舞蹈訓練' },
-      { value: 'drama', label: '戲劇／演講' },
-      { value: 'programming', label: '編程／STEM' },
-      { value: 'foreign-language', label: '外語（韓文／日文／法文／德文等）' },
-      { value: 'magic-chess', label: '魔術／棋藝' },
-      { value: 'photography', label: '攝影／影片剪接' }
-    ]
-  },
-  'tertiary': {
-    label: '大專補習課程',
-    subjects: [
-      { value: 'uni-liberal', label: '大學通識' },
-      { value: 'uni-math', label: '大學統計與數學' },
-      { value: 'uni-economics', label: '經濟學' },
-      { value: 'uni-it', label: '資訊科技' },
-      { value: 'uni-business', label: '商科（會計、管理、市場學等）' },
-      { value: 'uni-engineering', label: '工程科目' },
-      { value: 'uni-thesis', label: '論文指導／報告協助' }
-    ]
-  },
-  'adult': {
-    label: '成人教育',
-    subjects: [
-      { value: 'business-english', label: '商務英文' },
-      { value: 'conversation', label: '生活英語會話' },
-      { value: 'chinese-language', label: '廣東話／普通話' },
-      { value: 'second-language', label: '興趣／第二語言學習' },
-      { value: 'computer-skills', label: '電腦技能（Excel／Photoshop 等）' },
-      { value: 'exam-prep', label: '考試準備（IELTS／TOEFL／JLPT）' }
-    ]
-  }
-};
 
 // 教學模式選項 - 將從 API 獲取
 let TEACHING_MODE_OPTIONS: any[] = [];
@@ -348,11 +257,8 @@ const CreateUser: React.FC = () => {
     }
   };
 
-     // 獲取可用的子分類
+     // 獲取可用的子分類 (已簡化，不再需要)
    const getSubCategories = () => {
-     if (formData.tutorProfile.categories.includes('primary-secondary')) {
-       return CATEGORY_OPTIONS['primary-secondary'].subCategories || [];
-     }
      return [];
    };
  
@@ -364,26 +270,10 @@ const CreateUser: React.FC = () => {
      
      // 遍歷所有選擇的分類，收集科目
      formData.tutorProfile.categories.forEach(categoryKey => {
-       const category = CATEGORY_OPTIONS[categoryKey as keyof typeof CATEGORY_OPTIONS];
-       if (!category) return;
- 
-       if (categoryKey === 'primary-secondary') {
-         // 中小學教育：顯示所有子科目的科目
-         const categoryWithSubCategories = category as { subCategories?: Array<{ value: string; label: string; subjects: Array<{ value: string; label: string }> }> };
-         if (categoryWithSubCategories.subCategories) {
-           categoryWithSubCategories.subCategories.forEach((subCat: { value: string; label: string; subjects: Array<{ value: string; label: string }> }) => {
-             if (subCat.subjects) {
-               allSubjects.push(...subCat.subjects);
-             }
-           });
-         }
-       } else {
-         // 其他分類：直接添加科目
-         const categoryWithSubjects = category as { subjects: Array<{ value: string; label: string }> };
-         if (categoryWithSubjects.subjects) {
-           allSubjects.push(...categoryWithSubjects.subjects);
-         }
-       }
+       const category = CATEGORY_OPTIONS_OBJECT[categoryKey];
+       if (!category || !category.subjects) return;
+       
+       allSubjects.push(...category.subjects);
      });
      
      return allSubjects;
@@ -651,28 +541,11 @@ const CreateUser: React.FC = () => {
                    required
                    helperText="可多選，按住 Ctrl/Command 鍵選多個課程類型"
                  >
-                   {Object.entries(CATEGORY_OPTIONS).map(([key, category]) => (
+                   {Object.entries(CATEGORY_OPTIONS_OBJECT).map(([key, category]) => (
                      <MenuItem key={key} value={key}>{category.label}</MenuItem>
                    ))}
                  </TextField>
 
-                                 {/* 子科目 (僅中小學教育顯示，可選) */}
-                 {formData.tutorProfile.categories.includes('primary-secondary') && (
-                   <TextField
-                     select
-                     label="子科目 (可選)"
-                     name="subCategory"
-                     value={formData.tutorProfile.subCategory}
-                     onChange={handleChange}
-                     helperText="選擇特定教育階段，或留空表示可教授所有階段"
-                   >
-                     {Array.isArray(getSubCategories()) && getSubCategories().map((subCategory) => (
-                       <MenuItem key={subCategory.value} value={subCategory.value}>
-                         {subCategory.label}
-                       </MenuItem>
-                     ))}
-                   </TextField>
-                 )}
 
                                  {/* 科目選擇提示 */}
                  {formData.tutorProfile.categories.length > 0 && (
@@ -685,241 +558,38 @@ const CreateUser: React.FC = () => {
                    }}>
                      <Typography variant="body2" color="primary">
                        💡 提示：您現在可以選擇可教授的科目了
-                       {formData.tutorProfile.categories.includes('primary-secondary') && 
-                         (formData.tutorProfile.subCategory ? 
-                           `（${formData.tutorProfile.subCategory === 'primary' ? '小學' : '中學'}階段）` : 
-                           '（可跨階段選擇）'
-                         )
-                       }
                      </Typography>
                    </Box>
                  )}
 
                                  {/* 科目 (多選) */}
                  {formData.tutorProfile.categories.length > 0 && (
-                   <>
-                     {/* 幼兒教育科目 */}
-                     {formData.tutorProfile.categories.includes('early-childhood') && (
-                       <Box sx={{ mb: 2 }}>
-                         <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
-                           🍼 幼兒教育科目
-                         </Typography>
-                         <TextField
-                           select
-                           label="幼兒科目"
-                           SelectProps={{ multiple: true }}
-                           value={Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter(subject => subject.startsWith('early-childhood-')) : []}
-                           onChange={(e) => {
-                             const value = e.target.value;
-                             const selectedEarlyChildhoodSubjects = Array.isArray(value) ? value : [value];
-                             const otherSubjects = Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter(subject => !subject.startsWith('early-childhood-')) : [];
-                             const allSubjects = [...selectedEarlyChildhoodSubjects, ...otherSubjects];
-                             setFormData({
-                               ...formData,
-                               tutorProfile: {
-                                 ...formData.tutorProfile,
-                                 subjects: allSubjects
-                               }
-                             });
-                           }}
-                           helperText="可多選幼兒科目"
-                           fullWidth
-                         >
-                           {CATEGORY_OPTIONS['early-childhood'].subjects.map((subject) => (
-                             <MenuItem key={subject.value} value={subject.value}>
-                               {subject.label}
-                             </MenuItem>
-                           ))}
-                         </TextField>
-                       </Box>
-                     )}
-
-                     {/* 中小學教育科目 */}
-                     {formData.tutorProfile.categories.includes('primary-secondary') && (
-                       <Box>
-                         <Typography variant="subtitle1" color="primary" sx={{ mb: 1, fontWeight: 'bold' }}>
-                           可教授科目 (多選)
-                         </Typography>
-                         
-                         {/* 小學教育科目 */}
-                         <Box sx={{ mb: 2 }}>
-                           <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
-                             🏫 小學教育科目
-                           </Typography>
-                           <TextField
-                             select
-                             label="小學科目"
-                             SelectProps={{ multiple: true }}
-                             value={Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter(subject => subject.startsWith('primary-')) : []}
-                             onChange={(e) => {
-                               const value = e.target.value;
-                               const selectedPrimarySubjects = Array.isArray(value) ? value : [value];
-                               const otherSubjects = Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter(subject => !subject.startsWith('primary-')) : [];
-                               const allSubjects = [...selectedPrimarySubjects, ...otherSubjects];
-                               setFormData({
-                                 ...formData,
-                                 tutorProfile: {
-                                   ...formData.tutorProfile,
-                                   subjects: allSubjects
-                                 }
-                               });
-                             }}
-                             helperText="可多選小學科目"
-                             fullWidth
-                           >
-                             {CATEGORY_OPTIONS['primary-secondary'].subCategories?.find(sub => sub.value === 'primary')?.subjects && Array.isArray(CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'primary')?.subjects) && CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'primary')?.subjects?.map((subject) => (
-                               <MenuItem key={subject.value} value={subject.value}>
-                                 {subject.label}
-                               </MenuItem>
-                             ))}
-                           </TextField>
-                         </Box>
-
-                         {/* 中學教育科目 */}
-                         <Box sx={{ mb: 2 }}>
-                           <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
-                             🎓 中學教育科目
-                           </Typography>
-                           <TextField
-                             select
-                             label="中學科目"
-                             SelectProps={{ multiple: true }}
-                             value={Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter(subject => subject.startsWith('secondary-')) : []}
-                             onChange={(e) => {
-                               const value = e.target.value;
-                               const selectedSecondarySubjects = Array.isArray(value) ? value : [value];
-                               const otherSubjects = Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter(subject => !subject.startsWith('secondary-')) : [];
-                               const allSubjects = [...otherSubjects, ...selectedSecondarySubjects];
-                               setFormData({
-                                 ...formData,
-                                 tutorProfile: {
-                                   ...formData.tutorProfile,
-                                   subjects: allSubjects
-                                 }
-                               });
-                             }}
-                             helperText="可多選中學科目"
-                             fullWidth
-                           >
-                             {CATEGORY_OPTIONS['primary-secondary'].subCategories?.find(sub => sub.value === 'primary')?.subjects && Array.isArray(CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'secondary')?.subjects) && CATEGORY_OPTIONS['primary-secondary'].subCategories.find(sub => sub.value === 'secondary')?.subjects?.map((subject) => (
-                               <MenuItem key={subject.value} value={subject.value}>
-                                 {subject.label}
-                             </MenuItem>
-                             ))}
-                           </TextField>
-                         </Box>
-                       </Box>
-                     )}
-
-                     {/* 興趣班科目 */}
-                     {formData.tutorProfile.categories.includes('interest') && (
-                       <Box sx={{ mb: 2 }}>
-                         <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
-                           🎨 興趣班科目
-                         </Typography>
-                         <TextField
-                           select
-                           label="興趣班科目"
-                           SelectProps={{ multiple: true }}
-                           value={Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter(subject => !subject.startsWith('early-childhood-') && !subject.startsWith('primary-') && !subject.startsWith('secondary-') && !subject.startsWith('uni-') && !subject.startsWith('business-') && !subject.startsWith('conversation') && !subject.startsWith('chinese-language') && !subject.startsWith('second-language') && !subject.startsWith('computer-skills') && !subject.startsWith('exam-prep')) : []}
-                           onChange={(e) => {
-                             const value = e.target.value;
-                             const selectedInterestSubjects = Array.isArray(value) ? value : [value];
-                             const otherSubjects = Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter(subject => subject.startsWith('early-childhood-') || subject.startsWith('primary-') || subject.startsWith('secondary-') || subject.startsWith('uni-') || subject.startsWith('business-') || subject.startsWith('conversation') || subject.startsWith('chinese-language') || subject.startsWith('second-language') || subject.startsWith('computer-skills') || subject.startsWith('exam-prep')) : [];
-                             const allSubjects = [...otherSubjects, ...selectedInterestSubjects];
-                             setFormData({
-                               ...formData,
-                               tutorProfile: {
-                                 ...formData.tutorProfile,
-                                 subjects: allSubjects
-                               }
-                             });
-                           }}
-                           helperText="可多選興趣班科目"
-                           fullWidth
-                         >
-                           {CATEGORY_OPTIONS['interest'].subjects.map((subject) => (
-                             <MenuItem key={subject.value} value={subject.value}>
-                               {subject.label}
-                             </MenuItem>
-                           ))}
-                         </TextField>
-                       </Box>
-                     )}
-
-                     {/* 大專補習課程科目 */}
-                     {formData.tutorProfile.categories.includes('tertiary') && (
-                       <Box sx={{ mb: 2 }}>
-                         <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
-                           🎓 大專補習課程科目
-                         </Typography>
-                         <TextField
-                           select
-                           label="大專科目"
-                           SelectProps={{ multiple: true }}
-                           value={Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter(subject => subject.startsWith('uni-')) : []}
-                           onChange={(e) => {
-                             const value = e.target.value;
-                             const selectedTertiarySubjects = Array.isArray(value) ? value : [value];
-                             const otherSubjects = Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter(subject => !subject.startsWith('uni-')) : [];
-                             const allSubjects = [...otherSubjects, ...selectedTertiarySubjects];
-                             setFormData({
-                               ...formData,
-                               tutorProfile: {
-                                 ...formData.tutorProfile,
-                                 subjects: allSubjects
-                               }
-                             });
-                           }}
-                           helperText="可多選大專科目"
-                           fullWidth
-                         >
-                           {CATEGORY_OPTIONS['tertiary'].subjects.map((subject) => (
-                             <MenuItem key={subject.value} value={subject.value}>
-                               {subject.label}
-                             </MenuItem>
-                           ))}
-                         </TextField>
-                       </Box>
-                     )}
-
-                     {/* 成人教育科目 */}
-                     {formData.tutorProfile.categories.includes('adult') && (
-                       <Box sx={{ mb: 2 }}>
-                         <Typography variant="subtitle2" color="textSecondary" sx={{ mb: 1 }}>
-                           👨‍💼 成人教育科目
-                         </Typography>
-                         <TextField
-                           select
-                           label="成人教育科目"
-                           SelectProps={{ multiple: true }}
-                           value={Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter(subject => subject.startsWith('business-') || subject.startsWith('conversation') || subject.startsWith('chinese-language') || subject.startsWith('second-language') || subject.startsWith('computer-skills') || subject.startsWith('exam-prep')) : []}
-                           onChange={(e) => {
-                             const value = e.target.value;
-                             const selectedAdultSubjects = Array.isArray(value) ? value : [value];
-                             const otherSubjects = Array.isArray(formData.tutorProfile.subjects) ? formData.tutorProfile.subjects.filter(subject => !subject.startsWith('business-') && !subject.startsWith('conversation') && !subject.startsWith('chinese-language') && !subject.startsWith('second-language') && !subject.startsWith('computer-skills') && !subject.startsWith('exam-prep')) : [];
-                             const allSubjects = [...otherSubjects, ...selectedAdultSubjects];
-                             setFormData({
-                               ...formData,
-                               tutorProfile: {
-                                 ...formData.tutorProfile,
-                                 subjects: allSubjects
-                               }
-                             });
-                           }}
-                           helperText="可多選成人教育科目"
-                           fullWidth
-                         >
-                           {CATEGORY_OPTIONS['adult'].subjects.map((subject) => (
-                             <MenuItem key={subject.value} value={subject.value}>
-                               {subject.label}
-                             </MenuItem>
-                           ))}
-                         </TextField>
-                       </Box>
-                     )}
-                   </>
+                   <TextField
+                     select
+                     label="可教授科目"
+                     SelectProps={{ multiple: true }}
+                     value={formData.tutorProfile.subjects || []}
+                     onChange={(e) => {
+                       const value = e.target.value;
+                       setFormData({
+                         ...formData,
+                         tutorProfile: {
+                           ...formData.tutorProfile,
+                           subjects: Array.isArray(value) ? value : [value]
+                         }
+                       });
+                     }}
+                     helperText="可多選科目"
+                     fullWidth
+                   >
+                     {getAvailableSubjects().map((subject) => (
+                       <MenuItem key={subject.value} value={subject.value}>
+                         {subject.label}
+                       </MenuItem>
+                     ))}
+                   </TextField>
                  )}
+
 
                 {/* 已選科目顯示 */}
                 {Array.isArray(formData.tutorProfile.subjects) && formData.tutorProfile.subjects.length > 0 && (

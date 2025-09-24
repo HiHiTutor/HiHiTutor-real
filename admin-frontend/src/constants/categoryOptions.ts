@@ -60,4 +60,10 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
   }
 ];
 
-export default CATEGORY_OPTIONS; 
+// 為了向後兼容，也提供舊的對象格式
+export const CATEGORY_OPTIONS_OBJECT = CATEGORY_OPTIONS.reduce((acc, category) => {
+  acc[category.value] = category;
+  return acc;
+}, {} as Record<string, CategoryOption>);
+
+export default CATEGORY_OPTIONS;
