@@ -30,6 +30,7 @@ import {
   KeyboardArrowDown as DownIcon
 } from '@mui/icons-material';
 import api from '../services/api';
+import { REGION_OPTIONS } from '../constants/regionOptions';
 
 interface SubRegion {
   value: string;
@@ -63,9 +64,8 @@ const RegionManager: React.FC = () => {
   const loadRegions = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/admin/config/regions');
-      // 確保有 sortOrder，如果沒有則按索引設置
-      const regionsWithOrder = response.data.map((region: Region, index: number) => ({
+      // 使用靜態地區選項
+      const regionsWithOrder = REGION_OPTIONS.map((region: Region, index: number) => ({
         ...region,
         sortOrder: region.sortOrder !== undefined ? region.sortOrder : index,
         // 為子地區也設置 sortOrder
@@ -74,19 +74,8 @@ const RegionManager: React.FC = () => {
           sortOrder: subRegion.sortOrder !== undefined ? subRegion.sortOrder : subIndex
         }))
       }));
-      // 按 sortOrder 排序
-      const sortedRegions = regionsWithOrder.sort((a: Region, b: Region) => 
-        (a.sortOrder || 0) - (b.sortOrder || 0)
-      );
-      // 對每個地區的子地區也進行排序
-      sortedRegions.forEach((region: Region) => {
-        if (region.regions) {
-          region.regions.sort((a: SubRegion, b: SubRegion) => 
-            (a.sortOrder || 0) - (b.sortOrder || 0)
-          );
-        }
-      });
-      setRegions(sortedRegions);
+      setRegions(regionsWithOrder);
+      console.log('✅ 使用靜態地區選項載入成功');
     } catch (err) {
       setError('Failed to load regions');
       console.error('Error loading regions:', err);
