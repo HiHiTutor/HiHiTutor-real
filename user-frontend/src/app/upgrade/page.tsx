@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import CATEGORY_OPTIONS from '@/constants/categoryOptions';
-import { REGION_OPTIONS } from '@/shared/regionOptions';
+import { REGION_OPTIONS } from '@/constants/regionOptions';
 
 interface FormData {
   name: string;
