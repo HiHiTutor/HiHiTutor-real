@@ -7,9 +7,13 @@ import CATEGORY_OPTIONS from '@/constants/categoryOptions';
 import { REGION_OPTIONS } from '@/shared/regionOptions';
 
 interface FormData {
+  name: string;
+  gender: string;
+  birthDate: string;
   education: string;
   experience: string;
-  birthDate: string;
+  introduction: string;
+  courseFeatures: string;
   subjects: string[];
   regions: string[];
   teachingMode: string[];
@@ -20,9 +24,13 @@ interface FormData {
 export default function UpgradePage() {
   const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
+    name: "",
+    gender: "",
+    birthDate: "",
     education: "",
     experience: "",
-    birthDate: "",
+    introduction: "",
+    courseFeatures: "",
     subjects: [],
     regions: [],
     teachingMode: [],
@@ -119,8 +127,8 @@ export default function UpgradePage() {
   const handleFileChange = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setFormData(prev => ({
-        ...prev,
+    setFormData(prev => ({
+      ...prev,
         files: [...prev.files, file]
       }));
     }
@@ -136,15 +144,19 @@ export default function UpgradePage() {
     e.preventDefault();
     
     if (!checkLogin()) return;
-    
+
     setLoading(true);
     setError(null);
 
     try {
       const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('gender', formData.gender);
+      formDataToSend.append('birthDate', formData.birthDate);
       formDataToSend.append('education', formData.education);
       formDataToSend.append('experience', formData.experience);
-      formDataToSend.append('birthDate', formData.birthDate);
+      formDataToSend.append('introduction', formData.introduction);
+      formDataToSend.append('courseFeatures', formData.courseFeatures);
       formDataToSend.append('subjects', JSON.stringify(formData.subjects));
       formDataToSend.append('regions', JSON.stringify(formData.regions));
       formDataToSend.append('teachingMode', JSON.stringify(formData.teachingMode));
@@ -199,35 +211,51 @@ export default function UpgradePage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* 教育背景 */}
+            {/* 稱呼 */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                教育背景 *
+                稱呼 *
               </label>
-              <textarea
-                value={formData.education}
-                onChange={(e) => setFormData(prev => ({ ...prev, education: e.target.value }))}
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                rows={4}
-                placeholder="請描述您的教育背景，包括學歷、專業等"
+                placeholder="請輸入您的稱呼"
                 required
               />
             </div>
 
-            {/* 教學經驗 */}
+            {/* 性別 */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                教學經驗 *
+                性別 *
               </label>
-              <textarea
-                value={formData.experience}
-                onChange={(e) => setFormData(prev => ({ ...prev, experience: e.target.value }))}
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                rows={4}
-                placeholder="請描述您的教學經驗，包括教學對象、科目等"
-                required
-              />
-            </div>
+              <div className="flex gap-4">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="male"
+                    checked={formData.gender === "male"}
+                    onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value }))}
+                    className="text-indigo-600 focus:ring-indigo-500"
+                  />
+                  <span className="text-sm text-gray-700">男</span>
+                </label>
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="female"
+                    checked={formData.gender === "female"}
+                    onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value }))}
+                    className="text-indigo-600 focus:ring-indigo-500"
+                  />
+                  <span className="text-sm text-gray-700">女</span>
+                </label>
+              </div>
+                  </div>
 
             {/* 出生年月日 */}
             <div>
@@ -241,24 +269,88 @@ export default function UpgradePage() {
                 className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 required
               />
-            </div>
+              </div>
+
+            {/* 教育背景 */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                教育背景 *
+                </label>
+                <textarea
+                  value={formData.education}
+                  onChange={(e) => setFormData(prev => ({ ...prev, education: e.target.value }))}
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  rows={4}
+                placeholder="請描述您的教育背景，包括學歷、專業等"
+                required
+                />
+              </div>
+
+            {/* 教學經驗 */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                教學經驗 *
+                </label>
+                <textarea
+                  value={formData.experience}
+                  onChange={(e) => setFormData(prev => ({ ...prev, experience: e.target.value }))}
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  rows={4}
+                placeholder="請描述您的教學經驗，包括教學對象、科目等"
+                required
+                />
+              </div>
+
+            {/* 個人介紹 */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                個人介紹 *
+                </label>
+              <textarea
+                value={formData.introduction}
+                onChange={(e) => setFormData(prev => ({ ...prev, introduction: e.target.value }))}
+                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                rows={4}
+                placeholder="請介紹您的教學經驗、專長等..."
+                maxLength={1000}
+                required
+              />
+              <p className="text-sm text-gray-500 mt-1">{formData.introduction.length}/1000</p>
+                  </div>
+
+            {/* 課程特點 */}
+                    <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                課程特點 *
+                      </label>
+              <textarea
+                value={formData.courseFeatures}
+                onChange={(e) => setFormData(prev => ({ ...prev, courseFeatures: e.target.value }))}
+                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                rows={4}
+                placeholder="請描述您的課程特點..."
+                maxLength={800}
+                required
+              />
+              <p className="text-sm text-gray-500 mt-1">{formData.courseFeatures.length}/800</p>
+                    </div>
 
             {/* 教授科目 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
                 教授科目 *
-              </label>
+                      </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 max-h-60 overflow-y-auto border border-gray-300 rounded-md p-4">
                 {allSubjects.map((subject) => (
-                  <label key={subject.value} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={formData.subjects.includes(subject.value)}
-                      onChange={() => handleSubjectChange(subject.value)}
-                      className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <span className="text-sm text-gray-700">{subject.label}</span>
-                  </label>
+                          <label key={subject.value} className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              checked={formData.subjects.includes(subject.value)}
+                              onChange={() => handleSubjectChange(subject.value)}
+                              className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                            />
+                            <span className="text-sm text-gray-700">{subject.label}</span>
+                          </label>
                 ))}
               </div>
             </div>
@@ -349,10 +441,10 @@ export default function UpgradePage() {
                     >
                       {allRegions.find(r => r.value === region)?.label || region}
                     </span>
-                  ))}
-                </div>
-              </div>
-            )}
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
             {/* 已選上堂形式 */}
             {formData.teachingMode.length > 0 && (
@@ -372,20 +464,20 @@ export default function UpgradePage() {
             )}
 
             {/* 文件上傳 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                上傳證明文件
-              </label>
-              {fileInputs.map((inputIdx, idx) => (
-                <div key={inputIdx} className="flex items-center mb-2">
-                  <input
-                    type="file"
-                    onChange={(e) => handleFileChange(idx, e)}
-                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                  />
-                </div>
-              ))}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  上傳證明文件
+                </label>
+                {fileInputs.map((inputIdx, idx) => (
+                  <div key={inputIdx} className="flex items-center mb-2">
+                    <input
+                      type="file"
+                      onChange={(e) => handleFileChange(idx, e)}
+                      accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                    />
+                  </div>
+                ))}
               <button
                 type="button"
                 onClick={addFileInput}
@@ -412,7 +504,7 @@ export default function UpgradePage() {
               </Link>
               <button
                 type="submit"
-                disabled={loading || formData.subjects.length === 0 || formData.regions.length === 0 || formData.teachingMode.length === 0}
+                disabled={loading || !formData.name || !formData.gender || !formData.birthDate || !formData.education || !formData.experience || !formData.introduction || !formData.courseFeatures || formData.subjects.length === 0 || formData.regions.length === 0 || formData.teachingMode.length === 0 || !formData.hourlyRate}
                 className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "提交中..." : "提交申請"}
@@ -430,11 +522,11 @@ export default function UpgradePage() {
               <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
                 <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
+              </svg>
+            </div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">申請提交成功！</h3>
               <p className="text-gray-600 mb-6">{message}</p>
-              <button
+            <button
                 onClick={() => {
                   setShowSuccessModal(false);
                   router.push('/');
@@ -442,11 +534,11 @@ export default function UpgradePage() {
                 className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700"
               >
                 返回首頁
-              </button>
+            </button>
             </div>
           </div>
         </div>
       )}
     </div>
   );
-}
+} 
