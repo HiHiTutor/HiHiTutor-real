@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useState, useEffect, Fragment, useCallback } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Listbox, Transition } from '@headlessui/react';
 import { ChevronUpDownIcon, CheckIcon, XMarkIcon } from '@heroicons/react/20/solid';
@@ -213,7 +213,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
     return false; // 隱藏目標選單，改為自動設定
   };
 
-  const getAutoTarget = () => {
+  const getAutoTarget = useCallback(() => {
     // 如果有傳入currentTarget，優先使用
     if (currentTarget) {
       return currentTarget === 'tutors' ? 'find-tutor' : 'find-student';
@@ -227,7 +227,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
       return 'find-tutor'; // 導師要收學生
     }
     return 'find-tutor'; // 首頁預設為導師列表
-  };
+  }, [currentTarget, pathname]);
 
   // 從 URL 參數初始化篩選條件
   useEffect(() => {
@@ -260,7 +260,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
 
     console.log('🔍 設置的 filters:', newFilters);
     setFilters(newFilters);
-  }, [searchParams, pathname, currentTarget]);
+  }, [searchParams, pathname, currentTarget, getAutoTarget]);
 
   // 同步 filters.target 與 currentTarget
   useEffect(() => {
