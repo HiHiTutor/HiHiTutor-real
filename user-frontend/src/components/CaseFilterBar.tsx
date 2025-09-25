@@ -260,7 +260,7 @@ const CaseFilterBar: React.FC<CaseFilterBarProps> = ({ onFilter, fetchUrl, curre
 
     console.log('🔍 設置的 filters:', newFilters);
     setFilters(newFilters);
-  }, [searchParams, pathname]);
+  }, [searchParams, pathname, currentTarget]);
 
   // 同步 filters.target 與 currentTarget
   useEffect(() => {
