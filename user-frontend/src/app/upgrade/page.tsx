@@ -70,11 +70,16 @@ export default function UpgradePage() {
   const allRegions = REGION_OPTIONS.flatMap(region => {
     if (region.regions && region.regions.length > 0) {
       return region.regions.map(subRegion => ({
-        ...subRegion,
+        value: subRegion.value,
+        label: subRegion.label,
         parentRegion: region.label
       }));
     }
-    return [region];
+    return [{
+      value: region.value,
+      label: region.label,
+      parentRegion: ''
+    }];
   }).filter(region => region.value !== 'unlimited');
 
   // 上堂形式選項
