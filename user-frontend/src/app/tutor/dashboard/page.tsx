@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -211,25 +211,8 @@ export default function TutorDashboardPage() {
     }
   }, [user]);
 
-  // 當 regionOptions 載入完成後，處理已選地區
-  useEffect(() => {
-    if (regionOptions.length > 0 && formData.regions.length > 0) {
-      console.log('🔄 觸發地區處理:', { regionOptions: regionOptions.length, regions: formData.regions.length });
-      processRegions(formData.regions);
-    }
-  }, [regionOptions, formData.regions]);
-
-  // 確保在 formData 更新後重新處理地區
-  useEffect(() => {
-    if (regionOptions.length > 0 && formData.regions && formData.regions.length > 0) {
-      console.log('🔄 重新處理地區數據:', formData.regions);
-      processRegions(formData.regions);
-    }
-  }, [formData.regions, regionOptions]);
-
-
   // 處理地區狀態設置的函數
-  const processRegions = (regions: string[]) => {
+  const processRegions = useCallback((regions: string[]) => {
     if (regions.length === 0 || regionOptions.length === 0) {
       console.log('⚠️ 跳過地區處理:', { regionsLength: regions.length, regionOptionsLength: regionOptions.length });
       return;
@@ -319,7 +302,23 @@ export default function TutorDashboardPage() {
     
     console.log('🔍 設置的地區狀態:', subRegionsByRegion);
     setSelectedSubRegionsByRegion(subRegionsByRegion);
-  };
+  }, [regionOptions]);
+
+  // 當 regionOptions 載入完成後，處理已選地區
+  useEffect(() => {
+    if (regionOptions.length > 0 && formData.regions.length > 0) {
+      console.log('🔄 觸發地區處理:', { regionOptions: regionOptions.length, regions: formData.regions.length });
+      processRegions(formData.regions);
+    }
+  }, [regionOptions, formData.regions, processRegions]);
+
+  // 確保在 formData 更新後重新處理地區
+  useEffect(() => {
+    if (regionOptions.length > 0 && formData.regions && formData.regions.length > 0) {
+      console.log('🔄 重新處理地區數據:', formData.regions);
+      processRegions(formData.regions);
+    }
+  }, [formData.regions, regionOptions, processRegions]);
 
   // 使用靜態地區選項
   const fetchRegionOptions = async () => {
