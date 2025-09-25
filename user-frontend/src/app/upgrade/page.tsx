@@ -44,26 +44,17 @@ export default function UpgradePage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>("");
   const [availableSubjects, setAvailableSubjects] = useState<any[]>([]);
+  const [selectedRegion, setSelectedRegion] = useState<string>("");
+  const [availableSubRegions, setAvailableSubRegions] = useState<any[]>([]);
   const [fileInputs, setFileInputs] = useState([0]);
 
   // 過濾掉"不限"選項的課程分類
   const filteredCategories = CATEGORY_OPTIONS.filter(category => category.value !== 'unlimited');
 
-  // 統一的地區選項
-  const allRegions = REGION_OPTIONS.flatMap(region => {
-    if (region.regions && region.regions.length > 0) {
-      return region.regions.map(subRegion => ({
-        value: subRegion.value,
-        label: subRegion.label,
-        parentRegion: region.label
-      }));
-    }
-    return [{
-      value: region.value,
-      label: region.label,
-      parentRegion: ''
-    }];
-  }).filter(region => region.value !== 'unlimited');
+  // 過濾掉"不限"和"全香港"選項的地區
+  const filteredRegions = REGION_OPTIONS.filter(region => 
+    region.value !== 'unlimited' && region.value !== 'all-hong-kong'
+  );
 
   // 上堂形式選項
   const teachingModeOptions = [
@@ -125,10 +116,22 @@ export default function UpgradePage() {
 
   // 處理地區選擇
   const handleRegionChange = (regionValue: string) => {
+    setSelectedRegion(regionValue);
+    
+    const region = filteredRegions.find(reg => reg.value === regionValue);
+    if (region && region.regions && region.regions.length > 0) {
+      setAvailableSubRegions(region.regions);
+    } else {
+      setAvailableSubRegions([]);
+    }
+  };
+
+  // 處理子地區選擇
+  const handleSubRegionChange = (subRegionValue: string) => {
     setFormData(prev => {
-      const newRegions = prev.regions.includes(regionValue)
-        ? prev.regions.filter(r => r !== regionValue)
-        : [...prev.regions, regionValue];
+      const newRegions = prev.regions.includes(subRegionValue)
+        ? prev.regions.filter(r => r !== subRegionValue)
+        : [...prev.regions, subRegionValue];
       return { ...prev, regions: newRegions };
     });
   };
@@ -422,25 +425,81 @@ export default function UpgradePage() {
               </div>
             )}
 
+            {/* 已選科目 */}
+            {formData.subjects.length > 0 && (
+              <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                <h4 className="text-sm font-medium text-gray-700 mb-2">已選科目：</h4>
+                <div className="flex flex-wrap gap-2">
+                  {formData.subjects.map((subject) => (
+                    <span
+                      key={subject}
+                      className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800"
+                    >
+                      {availableSubjects.find(s => s.value === subject)?.label || subject}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* 上堂地區 */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 上堂地區 *
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 max-h-60 overflow-y-auto border border-gray-300 rounded-md p-4">
-                {allRegions.map((region) => (
-                  <label key={region.value} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={formData.regions.includes(region.value)}
-                      onChange={() => handleRegionChange(region.value)}
-                      className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <span className="text-sm text-gray-700">{region.label}</span>
-                  </label>
+              <select
+                value={selectedRegion}
+                onChange={(e) => handleRegionChange(e.target.value)}
+                className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                required
+              >
+                <option value="">請選擇地區</option>
+                {filteredRegions.map((region) => (
+                  <option key={region.value} value={region.value}>
+                    {region.label}
+                  </option>
                 ))}
-              </div>
+              </select>
             </div>
+
+            {/* 子地區（如果有） */}
+            {selectedRegion && availableSubRegions.length > 0 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  子地區 *
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 max-h-60 overflow-y-auto border border-gray-300 rounded-md p-4">
+                  {availableSubRegions.map((subRegion) => (
+                    <label key={subRegion.value} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={formData.regions.includes(subRegion.value)}
+                        onChange={() => handleSubRegionChange(subRegion.value)}
+                        className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                      />
+                      <span className="text-sm text-gray-700">{subRegion.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 已選地區 */}
+            {formData.regions.length > 0 && (
+              <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                <h4 className="text-sm font-medium text-gray-700 mb-2">已選地區：</h4>
+                <div className="flex flex-wrap gap-2">
+                  {formData.regions.map((region) => (
+                    <span
+                      key={region}
+                      className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800"
+                    >
+                      {availableSubRegions.find(r => r.value === region)?.label || region}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* 上堂形式 */}
             <div>
@@ -479,39 +538,7 @@ export default function UpgradePage() {
               />
             </div>
 
-            {/* 已選科目 */}
-            {formData.subjects.length > 0 && (
-              <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">已選科目：</h4>
-                <div className="flex flex-wrap gap-2">
-                  {formData.subjects.map((subject) => (
-                    <span
-                      key={subject}
-                      className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800"
-                    >
-                      {availableSubjects.find(s => s.value === subject)?.label || subject}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
 
-            {/* 已選地區 */}
-            {formData.regions.length > 0 && (
-              <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">已選地區：</h4>
-                <div className="flex flex-wrap gap-2">
-                  {formData.regions.map((region) => (
-                    <span
-                      key={region}
-                      className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800"
-                    >
-                      {allRegions.find(r => r.value === region)?.label || region}
-                    </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
 
             {/* 已選上堂形式 */}
             {formData.teachingMode.length > 0 && (
