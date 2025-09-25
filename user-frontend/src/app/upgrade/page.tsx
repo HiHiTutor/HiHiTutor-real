@@ -11,7 +11,7 @@ interface FormData {
   gender: string;
   birthDate: string;
   education: string;
-  experience: string;
+  experience: number;
   introduction: string;
   courseFeatures: string;
   subjects: string[];
@@ -28,7 +28,7 @@ export default function UpgradePage() {
     gender: "",
     birthDate: "",
     education: "",
-    experience: "",
+    experience: 0,
     introduction: "",
     courseFeatures: "",
     subjects: [],
@@ -46,25 +46,8 @@ export default function UpgradePage() {
   const [availableSubjects, setAvailableSubjects] = useState<any[]>([]);
   const [fileInputs, setFileInputs] = useState([0]);
 
-  // 統一的科目選項
-  const allSubjects = CATEGORY_OPTIONS.flatMap(category => {
-    if (category.subjects) {
-      return category.subjects.map(subject => ({
-        ...subject,
-        category: category.label
-      }));
-    }
-    if (category.subCategories) {
-      return category.subCategories.flatMap(subCategory => 
-        subCategory.subjects.map(subject => ({
-          ...subject,
-          category: category.label,
-          subCategory: subCategory.label
-        }))
-      );
-    }
-    return [];
-  }).filter(subject => subject.value !== 'unlimited');
+  // 過濾掉"不限"選項的課程分類
+  const filteredCategories = CATEGORY_OPTIONS.filter(category => category.value !== 'unlimited');
 
   // 統一的地區選項
   const allRegions = REGION_OPTIONS.flatMap(region => {
@@ -96,6 +79,38 @@ export default function UpgradePage() {
       return false;
     }
     return true;
+  };
+
+  // 處理分類選擇
+  const handleCategoryChange = (categoryValue: string) => {
+    setSelectedCategory(categoryValue);
+    setSelectedSubCategory("");
+    
+    const category = filteredCategories.find(cat => cat.value === categoryValue);
+    if (category) {
+      if (category.subCategories) {
+        // 如果有子分類，先清空科目列表
+        setAvailableSubjects([]);
+      } else {
+        // 如果沒有子分類，直接顯示科目
+        setAvailableSubjects(category.subjects || []);
+      }
+    } else {
+      setAvailableSubjects([]);
+    }
+  };
+
+  // 處理子分類選擇
+  const handleSubCategoryChange = (subCategoryValue: string) => {
+    setSelectedSubCategory(subCategoryValue);
+    
+    const category = filteredCategories.find(cat => cat.value === selectedCategory);
+    if (category?.subCategories) {
+      const subCategory = category.subCategories.find(sub => sub.value === subCategoryValue);
+      if (subCategory) {
+        setAvailableSubjects(subCategory.subjects || []);
+      }
+    }
   };
 
   // 處理科目選擇
@@ -292,19 +307,22 @@ export default function UpgradePage() {
               </div>
 
             {/* 教學經驗 */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 教學經驗 *
-                </label>
-                <textarea
-                  value={formData.experience}
-                  onChange={(e) => setFormData(prev => ({ ...prev, experience: e.target.value }))}
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  rows={4}
-                placeholder="請描述您的教學經驗，包括教學對象、科目等"
+              </label>
+              <input
+                type="number"
+                value={formData.experience}
+                onChange={(e) => setFormData(prev => ({ ...prev, experience: parseInt(e.target.value) || 0 }))}
+                className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                placeholder="請輸入教學年數"
+                min="0"
+                max="50"
                 required
-                />
-              </div>
+              />
+              <p className="text-sm text-gray-500 mt-1">請輸入您的教學經驗年數</p>
+            </div>
 
             {/* 個人介紹 */}
               <div>
@@ -340,25 +358,69 @@ export default function UpgradePage() {
               <p className="text-sm text-gray-500 mt-1">{formData.courseFeatures.length}/800</p>
                     </div>
 
-            {/* 教授科目 */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                教授科目 *
-                      </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 max-h-60 overflow-y-auto border border-gray-300 rounded-md p-4">
-                {allSubjects.map((subject) => (
-                          <label key={subject.value} className="flex items-center space-x-2">
-                            <input
-                              type="checkbox"
-                              checked={formData.subjects.includes(subject.value)}
-                              onChange={() => handleSubjectChange(subject.value)}
-                              className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                            />
-                            <span className="text-sm text-gray-700">{subject.label}</span>
-                          </label>
+            {/* 課程分類 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                課程分類 *
+              </label>
+              <select
+                value={selectedCategory}
+                onChange={(e) => handleCategoryChange(e.target.value)}
+                className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                required
+              >
+                <option value="">請選擇課程分類</option>
+                {filteredCategories.map((category) => (
+                  <option key={category.value} value={category.value}>
+                    {category.label}
+                  </option>
                 ))}
-              </div>
+              </select>
             </div>
+
+            {/* 子分類（如果有） */}
+            {selectedCategory && filteredCategories.find(cat => cat.value === selectedCategory)?.subCategories && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  子分類 *
+                </label>
+                <select
+                  value={selectedSubCategory}
+                  onChange={(e) => handleSubCategoryChange(e.target.value)}
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  required
+                >
+                  <option value="">請選擇子分類</option>
+                  {filteredCategories.find(cat => cat.value === selectedCategory)?.subCategories?.map((subCategory) => (
+                    <option key={subCategory.value} value={subCategory.value}>
+                      {subCategory.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* 教授科目 */}
+            {availableSubjects.length > 0 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  教授科目 *
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 max-h-60 overflow-y-auto border border-gray-300 rounded-md p-4">
+                  {availableSubjects.map((subject) => (
+                    <label key={subject.value} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={formData.subjects.includes(subject.value)}
+                        onChange={() => handleSubjectChange(subject.value)}
+                        className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                      />
+                      <span className="text-sm text-gray-700">{subject.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* 上堂地區 */}
             <div>
@@ -427,7 +489,7 @@ export default function UpgradePage() {
                       key={subject}
                       className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800"
                     >
-                      {allSubjects.find(s => s.value === subject)?.label || subject}
+                      {availableSubjects.find(s => s.value === subject)?.label || subject}
                     </span>
                   ))}
                 </div>
@@ -509,7 +571,7 @@ export default function UpgradePage() {
               </Link>
               <button
                 type="submit"
-                disabled={loading || !formData.name || !formData.gender || !formData.birthDate || !formData.education || !formData.experience || !formData.introduction || !formData.courseFeatures || formData.subjects.length === 0 || formData.regions.length === 0 || formData.teachingMode.length === 0 || !formData.hourlyRate}
+                disabled={loading || !formData.name || !formData.gender || !formData.birthDate || !formData.education || formData.experience === 0 || !formData.introduction || !formData.courseFeatures || formData.subjects.length === 0 || formData.regions.length === 0 || formData.teachingMode.length === 0 || !formData.hourlyRate}
                 className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "提交中..." : "提交申請"}
