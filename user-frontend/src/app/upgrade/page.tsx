@@ -20,7 +20,26 @@ interface SubjectOption {
 }
 
 export default function UpgradePage() {
-  const { categories: CATEGORY_OPTIONS, loading: categoriesLoading } = useCategories();
+  // 暫時使用靜態數據避免 useCategories hook 問題
+  const [CATEGORY_OPTIONS, setCategoryOptions] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  
+  useEffect(() => {
+    // 使用本地備用數據
+    const loadCategories = async () => {
+      try {
+        const { CATEGORY_OPTIONS_ARRAY } = await import('@/constants/categoryOptions');
+        setCategoryOptions(CATEGORY_OPTIONS_ARRAY);
+      } catch (error) {
+        console.error('載入分類失敗:', error);
+        setCategoryOptions([]);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+    
+    loadCategories();
+  }, []);
   const [formData, setFormData] = useState<FormData>({
     education: "",
     experience: "",
