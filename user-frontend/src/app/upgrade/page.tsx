@@ -524,7 +524,6 @@ export default function UpgradePage() {
                 </div>
               </div>
             )}
-            )}
 
             {/* 上堂形式 */}
             <div>
