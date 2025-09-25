@@ -80,10 +80,8 @@ export default function UpgradePage() {
     const category = filteredCategories.find(cat => cat.value === categoryValue);
     if (category) {
       if (category.subCategories) {
-        // 如果有子分類，先清空科目列表
         setAvailableSubjects([]);
       } else {
-        // 如果沒有子分類，直接顯示科目
         setAvailableSubjects(category.subjects || []);
       }
     } else {
@@ -196,7 +194,7 @@ export default function UpgradePage() {
     e.preventDefault();
     
     if (!checkLogin()) return;
-
+    
     setLoading(true);
     setError(null);
 
@@ -307,7 +305,7 @@ export default function UpgradePage() {
                   <span className="text-sm text-gray-700">女</span>
                 </label>
               </div>
-                  </div>
+            </div>
 
             {/* 出生年月日 */}
             <div>
@@ -321,22 +319,22 @@ export default function UpgradePage() {
                 className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 required
               />
-              </div>
+            </div>
 
             {/* 教育背景 */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 教育背景 *
-                </label>
-                <textarea
-                  value={formData.education}
-                  onChange={(e) => setFormData(prev => ({ ...prev, education: e.target.value }))}
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  rows={4}
+              </label>
+              <textarea
+                value={formData.education}
+                onChange={(e) => setFormData(prev => ({ ...prev, education: e.target.value }))}
+                className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                rows={4}
                 placeholder="請描述您的教育背景，包括學歷、專業等"
                 required
-                />
-              </div>
+              />
+            </div>
 
             {/* 教學經驗 */}
             <div>
@@ -357,38 +355,38 @@ export default function UpgradePage() {
             </div>
 
             {/* 個人介紹 */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 個人介紹 *
-                </label>
+              </label>
               <textarea
                 value={formData.introduction}
                 onChange={(e) => setFormData(prev => ({ ...prev, introduction: e.target.value }))}
-                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 rows={4}
                 placeholder="請介紹您的教學經驗、專長等..."
                 maxLength={1000}
                 required
               />
               <p className="text-sm text-gray-500 mt-1">{formData.introduction.length}/1000</p>
-                  </div>
+            </div>
 
             {/* 課程特點 */}
-                    <div>
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 課程特點 *
-                      </label>
+              </label>
               <textarea
                 value={formData.courseFeatures}
                 onChange={(e) => setFormData(prev => ({ ...prev, courseFeatures: e.target.value }))}
-                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 rows={4}
                 placeholder="請描述您的課程特點..."
                 maxLength={800}
                 required
               />
               <p className="text-sm text-gray-500 mt-1">{formData.courseFeatures.length}/800</p>
-                    </div>
+            </div>
 
             {/* 教授科目 */}
             <div>
@@ -413,9 +411,6 @@ export default function UpgradePage() {
             {/* 子分類（如果有） */}
             {selectedCategory && filteredCategories.find(cat => cat.value === selectedCategory)?.subCategories && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  子分類 *
-                </label>
                 <select
                   value={selectedSubCategory}
                   onChange={(e) => handleSubCategoryChange(e.target.value)}
@@ -474,20 +469,21 @@ export default function UpgradePage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   上堂地區 *
                 </label>
-              <select
-                value={selectedRegion}
-                onChange={(e) => handleRegionChange(e.target.value)}
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                required
-              >
-                <option value="">請選擇地區</option>
-                {filteredRegions.map((region) => (
-                  <option key={region.value} value={region.value}>
-                    {region.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+                <select
+                  value={selectedRegion}
+                  onChange={(e) => handleRegionChange(e.target.value)}
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  required
+                >
+                  <option value="">請選擇地區</option>
+                  {filteredRegions.map((region) => (
+                    <option key={region.value} value={region.value}>
+                      {region.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             {/* 子地區（如果有） */}
             {selectedRegion && availableSubRegions.length > 0 && (
@@ -579,24 +575,21 @@ export default function UpgradePage() {
               />
             </div>
 
-
-
-
             {/* 文件上傳 */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  上傳證明文件
-                </label>
-                {fileInputs.map((inputIdx, idx) => (
-                  <div key={inputIdx} className="flex items-center mb-2">
-                    <input
-                      type="file"
-                      onChange={(e) => handleFileChange(idx, e)}
-                      accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                    />
-                  </div>
-                ))}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                上傳證明文件
+              </label>
+              {fileInputs.map((inputIdx, idx) => (
+                <div key={inputIdx} className="flex items-center mb-2">
+                  <input
+                    type="file"
+                    onChange={(e) => handleFileChange(idx, e)}
+                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                  />
+                </div>
+              ))}
               <button
                 type="button"
                 onClick={addFileInput}
@@ -641,11 +634,11 @@ export default function UpgradePage() {
               <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
                 <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
+                </svg>
+              </div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">申請提交成功！</h3>
               <p className="text-gray-600 mb-6">{message}</p>
-            <button
+              <button
                 onClick={() => {
                   setShowSuccessModal(false);
                   router.push('/');
@@ -653,11 +646,11 @@ export default function UpgradePage() {
                 className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700"
               >
                 返回首頁
-            </button>
+              </button>
             </div>
           </div>
         </div>
       )}
     </div>
   );
-} 
+}
