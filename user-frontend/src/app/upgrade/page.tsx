@@ -334,7 +334,7 @@ export default function UpgradePage() {
                   <div className="mb-4 p-3 bg-gray-50 rounded-lg">
                     <h4 className="text-sm font-medium text-gray-700 mb-2">已選科目：</h4>
                     <div className="flex flex-wrap gap-2">
-                      {formData.subjects.map((subject) => (
+                      {formData.subjects.map((subject: any) => (
                         <span
                           key={subject}
                           className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800"
@@ -366,7 +366,7 @@ export default function UpgradePage() {
                       className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                     >
                       <option value="">請選擇課程分類</option>
-                      {filteredCategories.map((category) => (
+                      {filteredCategories.map((category: any) => (
                         <option key={category.value} value={category.value}>
                           {category.label}
                         </option>
@@ -392,7 +392,7 @@ export default function UpgradePage() {
                   {(() => {
                     const category = Array.isArray(filteredCategories) ? filteredCategories.find((cat: any) => cat.value === selectedCategory) : null;
                     return category?.subCategories;
-                  })()?.map((subCategory) => (
+                  })()?.map((subCategory: any) => (
                             <option key={subCategory.value} value={subCategory.value}>
                               {subCategory.label}
                             </option>
@@ -408,7 +408,7 @@ export default function UpgradePage() {
                         可選科目
                       </label>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                        {availableSubjects.map((subject) => (
+                        {availableSubjects.map((subject: any) => (
                           <label key={subject.value} className="flex items-center space-x-2">
                             <input
                               type="checkbox"
@@ -429,7 +429,7 @@ export default function UpgradePage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   上傳證明文件
                 </label>
-                {fileInputs.map((inputIdx, idx) => (
+                {fileInputs.map((inputIdx: any, idx: any) => (
                   <div key={inputIdx} className="flex items-center mb-2">
                     <input
                       type="file"
