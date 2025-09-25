@@ -35,14 +35,19 @@ router.get('/', async (req, res) => {
   } catch (error) {
     console.error('❌ 載入科目配置時發生錯誤:', error);
     // 如果數據庫錯誤，使用文件備用
-    const categoriesArray = Object.entries(CATEGORY_OPTIONS).map(([value, category]) => ({
-      value,
-      label: category.label,
-      subjects: category.subjects || [],
-      subCategories: category.subCategories || []
-    }));
-    
-    res.json(categoriesArray);
+    try {
+      const categoriesArray = Object.entries(CATEGORY_OPTIONS).map(([value, category]) => ({
+        value,
+        label: category.label,
+        subjects: category.subjects || [],
+        subCategories: category.subCategories || []
+      }));
+      
+      res.json(categoriesArray);
+    } catch (fallbackError) {
+      console.error('❌ 備用方案也失敗:', fallbackError);
+      res.status(500).json({ error: '無法載入科目配置' });
+    }
   }
 });
 

@@ -269,4 +269,7 @@ const CATEGORY_OPTIONS: CategoryOption[] = [
   }
 ];
 
+// 為了向後兼容，也導出數組格式
+export const CATEGORY_OPTIONS_ARRAY = CATEGORY_OPTIONS;
+
 export default CATEGORY_OPTIONS;

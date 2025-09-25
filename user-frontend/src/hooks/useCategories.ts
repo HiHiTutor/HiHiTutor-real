@@ -38,8 +38,15 @@ export function useCategories() {
       } catch (err) {
         console.error('❌ 載入科目資料失敗:', err);
         setError(err instanceof Error ? err.message : 'Failed to load categories');
-        // 如果API失敗，使用空數組
-        setCategories([]);
+        // 如果API失敗，使用本地備用數據
+        try {
+          const { CATEGORY_OPTIONS_ARRAY } = await import('@/constants/categoryOptions');
+          setCategories(CATEGORY_OPTIONS_ARRAY);
+          setError(null); // 清除錯誤，因為有備用數據
+        } catch (importError) {
+          console.error('❌ 載入本地備用數據也失敗:', importError);
+          setCategories([]);
+        }
       } finally {
         setLoading(false);
       }
