@@ -59,7 +59,7 @@ export default function UpgradePage() {
 
   // 過濾掉"不限"選項 - 使用 useMemo 避免無限重新渲染
   const filteredCategories = useMemo(() => 
-    CATEGORY_OPTIONS.filter(cat => cat.value !== 'unlimited'), 
+    CATEGORY_OPTIONS.filter((cat: any) => cat.value !== 'unlimited'), 
     [CATEGORY_OPTIONS]
   );
 
