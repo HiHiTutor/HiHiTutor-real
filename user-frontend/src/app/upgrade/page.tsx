@@ -87,7 +87,7 @@ export default function UpgradePage() {
   // 當選擇課程分類時，更新可選科目
   useEffect(() => {
     if (selectedCategory) {
-      const category = Array.isArray(filteredCategories) ? filteredCategories.find(cat => cat.value === selectedCategory) : null;
+      const category = Array.isArray(filteredCategories) ? filteredCategories.find((cat: any) => cat.value === selectedCategory) : null;
       if (category) {
         if (category.subCategories) {
           // 如果有子分類，先清空科目列表
@@ -111,9 +111,9 @@ export default function UpgradePage() {
   // 當選擇子分類時，更新可選科目
   useEffect(() => {
     if (selectedCategory && selectedSubCategory) {
-      const category = Array.isArray(filteredCategories) ? filteredCategories.find(cat => cat.value === selectedCategory) : null;
+      const category = Array.isArray(filteredCategories) ? filteredCategories.find((cat: any) => cat.value === selectedCategory) : null;
       if (category?.subCategories) {
-        const subCategory = Array.isArray(category.subCategories) ? category.subCategories.find(sub => sub.value === selectedSubCategory) : null;
+        const subCategory = Array.isArray(category.subCategories) ? category.subCategories.find((sub: any) => sub.value === selectedSubCategory) : null;
         if (subCategory) {
           const subjects = subCategory.subjects.map((subject: any) => ({
             ...subject,
@@ -167,12 +167,12 @@ export default function UpgradePage() {
   const getSubjectLabel = (subjectValue: string) => {
     for (const category of filteredCategories) {
       if (category.subjects) {
-        const subject = Array.isArray(category.subjects) ? category.subjects.find(s => s.value === subjectValue) : null;
+        const subject = Array.isArray(category.subjects) ? category.subjects.find((s: any) => s.value === subjectValue) : null;
         if (subject) return subject.label;
       }
       if (category.subCategories) {
         for (const subCategory of category.subCategories) {
-          const subject = Array.isArray(subCategory.subjects) ? subCategory.subjects.find(s => s.value === subjectValue) : null;
+          const subject = Array.isArray(subCategory.subjects) ? subCategory.subjects.find((s: any) => s.value === subjectValue) : null;
           if (subject) return subject.label;
         }
       }
@@ -376,7 +376,7 @@ export default function UpgradePage() {
 
                   {/* 子分類選擇（如果有） */}
                   {selectedCategory && (() => {
-                    const category = Array.isArray(filteredCategories) ? filteredCategories.find(cat => cat.value === selectedCategory) : null;
+                    const category = Array.isArray(filteredCategories) ? filteredCategories.find((cat: any) => cat.value === selectedCategory) : null;
                     return category?.subCategories;
                   })() && (
                     <div>
@@ -390,7 +390,7 @@ export default function UpgradePage() {
                       >
                         <option value="">請選擇子分類</option>
                   {(() => {
-                    const category = Array.isArray(filteredCategories) ? filteredCategories.find(cat => cat.value === selectedCategory) : null;
+                    const category = Array.isArray(filteredCategories) ? filteredCategories.find((cat: any) => cat.value === selectedCategory) : null;
                     return category?.subCategories;
                   })()?.map((subCategory) => (
                             <option key={subCategory.value} value={subCategory.value}>
