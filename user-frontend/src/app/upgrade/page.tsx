@@ -150,11 +150,40 @@ export default function UpgradePage() {
   const handleFileChange = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-    setFormData(prev => ({
-      ...prev,
+      setFormData(prev => ({
+        ...prev,
         files: [...prev.files, file]
       }));
     }
+  };
+
+  // 獲取科目標籤
+  const getSubjectLabel = (subjectValue: string) => {
+    for (const category of filteredCategories) {
+      if (category.subjects) {
+        const subject = category.subjects.find(s => s.value === subjectValue);
+        if (subject) return subject.label;
+      }
+      if (category.subCategories) {
+        for (const subCategory of category.subCategories) {
+          const subject = subCategory.subjects.find(s => s.value === subjectValue);
+          if (subject) return subject.label;
+        }
+      }
+    }
+    return subjectValue;
+  };
+
+  // 獲取地區標籤
+  const getRegionLabel = (regionValue: string) => {
+    for (const region of filteredRegions) {
+      if (region.regions) {
+        const subRegion = region.regions.find(r => r.value === regionValue);
+        if (subRegion) return subRegion.label;
+      }
+      if (region.value === regionValue) return region.label;
+    }
+    return regionValue;
   };
 
   // 添加文件輸入
@@ -361,10 +390,10 @@ export default function UpgradePage() {
               <p className="text-sm text-gray-500 mt-1">{formData.courseFeatures.length}/800</p>
                     </div>
 
-            {/* 課程分類 */}
+            {/* 教授科目 */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                課程分類 *
+                教授科目 *
               </label>
               <select
                 value={selectedCategory}
@@ -403,12 +432,9 @@ export default function UpgradePage() {
               </div>
             )}
 
-            {/* 教授科目 */}
+            {/* 科目選擇 */}
             {availableSubjects.length > 0 && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  教授科目 *
-                </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 max-h-60 overflow-y-auto border border-gray-300 rounded-md p-4">
                   {availableSubjects.map((subject) => (
                     <label key={subject.value} className="flex items-center space-x-2">
@@ -435,7 +461,7 @@ export default function UpgradePage() {
                       key={subject}
                       className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800"
                     >
-                      {availableSubjects.find(s => s.value === subject)?.label || subject}
+                      {getSubjectLabel(subject)}
                     </span>
                   ))}
                 </div>
@@ -443,10 +469,11 @@ export default function UpgradePage() {
             )}
 
             {/* 上堂地區 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                上堂地區 *
-              </label>
+            {!(formData.teachingMode.length === 1 && formData.teachingMode.includes('online')) && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  上堂地區 *
+                </label>
               <select
                 value={selectedRegion}
                 onChange={(e) => handleRegionChange(e.target.value)}
@@ -465,9 +492,6 @@ export default function UpgradePage() {
             {/* 子地區（如果有） */}
             {selectedRegion && availableSubRegions.length > 0 && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  子地區 *
-                </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 max-h-60 overflow-y-auto border border-gray-300 rounded-md p-4">
                   {availableSubRegions.map((subRegion) => (
                     <label key={subRegion.value} className="flex items-center space-x-2">
@@ -494,11 +518,12 @@ export default function UpgradePage() {
                       key={region}
                       className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800"
                     >
-                      {availableSubRegions.find(r => r.value === region)?.label || region}
+                      {getRegionLabel(region)}
                     </span>
                   ))}
                 </div>
               </div>
+            )}
             )}
 
             {/* 上堂形式 */}
@@ -521,6 +546,23 @@ export default function UpgradePage() {
               </div>
             </div>
 
+            {/* 已選上堂形式 */}
+            {formData.teachingMode.length > 0 && (
+              <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                <h4 className="text-sm font-medium text-gray-700 mb-2">已選上堂形式：</h4>
+                <div className="flex flex-wrap gap-2">
+                  {formData.teachingMode.map((mode) => (
+                    <span
+                      key={mode}
+                      className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
+                    >
+                      {teachingModeOptions.find(m => m.value === mode)?.label || mode}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* 要求時薪 */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -540,22 +582,6 @@ export default function UpgradePage() {
 
 
 
-            {/* 已選上堂形式 */}
-            {formData.teachingMode.length > 0 && (
-              <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">已選上堂形式：</h4>
-                <div className="flex flex-wrap gap-2">
-                  {formData.teachingMode.map((mode) => (
-                    <span
-                      key={mode}
-                      className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
-                    >
-                      {teachingModeOptions.find(m => m.value === mode)?.label || mode}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* 文件上傳 */}
               <div>
@@ -598,7 +624,7 @@ export default function UpgradePage() {
               </Link>
               <button
                 type="submit"
-                disabled={loading || !formData.name || !formData.gender || !formData.birthDate || !formData.education || formData.experience === 0 || !formData.introduction || !formData.courseFeatures || formData.subjects.length === 0 || formData.regions.length === 0 || formData.teachingMode.length === 0 || !formData.hourlyRate}
+                disabled={loading || !formData.name || !formData.gender || !formData.birthDate || !formData.education || formData.experience === 0 || !formData.introduction || !formData.courseFeatures || formData.subjects.length === 0 || (formData.teachingMode.length === 0) || (!(formData.teachingMode.length === 1 && formData.teachingMode.includes('online')) && formData.regions.length === 0) || !formData.hourlyRate}
                 className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "提交中..." : "提交申請"}
