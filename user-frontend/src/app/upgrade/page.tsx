@@ -3,11 +3,17 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import CATEGORY_OPTIONS from '@/constants/categoryOptions';
+import { REGION_OPTIONS } from '@/shared/regionOptions';
 
 interface FormData {
   education: string;
   experience: string;
+  birthDate: string;
   subjects: string[];
+  regions: string[];
+  teachingMode: string[];
+  hourlyRate: string;
   files: File[];
 }
 
@@ -16,7 +22,11 @@ export default function UpgradePage() {
   const [formData, setFormData] = useState<FormData>({
     education: "",
     experience: "",
+    birthDate: "",
     subjects: [],
+    regions: [],
+    teachingMode: [],
+    hourlyRate: "",
     files: []
   });
   const [message, setMessage] = useState("");
@@ -28,48 +38,41 @@ export default function UpgradePage() {
   const [availableSubjects, setAvailableSubjects] = useState<any[]>([]);
   const [fileInputs, setFileInputs] = useState([0]);
 
-  // 靜態科目選項
-  const categoryOptions = [
-    {
-      value: "primary",
-      label: "小學",
-      subjects: [
-        { value: "chinese", label: "中文" },
-        { value: "english", label: "英文" },
-        { value: "math", label: "數學" },
-        { value: "general-studies", label: "常識" }
-      ]
-    },
-    {
-      value: "secondary",
-      label: "中學",
-      subjects: [
-        { value: "chinese", label: "中文" },
-        { value: "english", label: "英文" },
-        { value: "math", label: "數學" },
-        { value: "physics", label: "物理" },
-        { value: "chemistry", label: "化學" },
-        { value: "biology", label: "生物" },
-        { value: "history", label: "歷史" },
-        { value: "geography", label: "地理" }
-      ]
-    },
-    {
-      value: "dse",
-      label: "DSE",
-      subjects: [
-        { value: "chinese", label: "中文" },
-        { value: "english", label: "英文" },
-        { value: "math", label: "數學" },
-        { value: "physics", label: "物理" },
-        { value: "chemistry", label: "化學" },
-        { value: "biology", label: "生物" },
-        { value: "history", label: "歷史" },
-        { value: "geography", label: "地理" },
-        { value: "economics", label: "經濟" },
-        { value: "accounting", label: "會計" }
-      ]
+  // 統一的科目選項
+  const allSubjects = CATEGORY_OPTIONS.flatMap(category => {
+    if (category.subjects) {
+      return category.subjects.map(subject => ({
+        ...subject,
+        category: category.label
+      }));
     }
+    if (category.subCategories) {
+      return category.subCategories.flatMap(subCategory => 
+        subCategory.subjects.map(subject => ({
+          ...subject,
+          category: category.label,
+          subCategory: subCategory.label
+        }))
+      );
+    }
+    return [];
+  }).filter(subject => subject.value !== 'unlimited');
+
+  // 統一的地區選項
+  const allRegions = REGION_OPTIONS.flatMap(region => {
+    if (region.regions && region.regions.length > 0) {
+      return region.regions.map(subRegion => ({
+        ...subRegion,
+        parentRegion: region.label
+      }));
+    }
+    return [region];
+  }).filter(region => region.value !== 'unlimited');
+
+  // 上堂形式選項
+  const teachingModeOptions = [
+    { value: 'in-person', label: '面授' },
+    { value: 'online', label: '網課' }
   ];
 
   // 檢查登入狀態
@@ -82,19 +85,6 @@ export default function UpgradePage() {
     return true;
   };
 
-  // 處理分類選擇
-  const handleCategoryChange = (categoryValue: string) => {
-    setSelectedCategory(categoryValue);
-    setSelectedSubCategory("");
-    
-    const category = categoryOptions.find(cat => cat.value === categoryValue);
-    if (category) {
-      setAvailableSubjects(category.subjects);
-    } else {
-      setAvailableSubjects([]);
-    }
-  };
-
   // 處理科目選擇
   const handleSubjectChange = (subjectValue: string) => {
     setFormData(prev => {
@@ -102,6 +92,26 @@ export default function UpgradePage() {
         ? prev.subjects.filter(s => s !== subjectValue)
         : [...prev.subjects, subjectValue];
       return { ...prev, subjects: newSubjects };
+    });
+  };
+
+  // 處理地區選擇
+  const handleRegionChange = (regionValue: string) => {
+    setFormData(prev => {
+      const newRegions = prev.regions.includes(regionValue)
+        ? prev.regions.filter(r => r !== regionValue)
+        : [...prev.regions, regionValue];
+      return { ...prev, regions: newRegions };
+    });
+  };
+
+  // 處理上堂形式選擇
+  const handleTeachingModeChange = (modeValue: string) => {
+    setFormData(prev => {
+      const newModes = prev.teachingMode.includes(modeValue)
+        ? prev.teachingMode.filter(m => m !== modeValue)
+        : [...prev.teachingMode, modeValue];
+      return { ...prev, teachingMode: newModes };
     });
   };
 
@@ -134,7 +144,11 @@ export default function UpgradePage() {
       const formDataToSend = new FormData();
       formDataToSend.append('education', formData.education);
       formDataToSend.append('experience', formData.experience);
+      formDataToSend.append('birthDate', formData.birthDate);
       formDataToSend.append('subjects', JSON.stringify(formData.subjects));
+      formDataToSend.append('regions', JSON.stringify(formData.regions));
+      formDataToSend.append('teachingMode', JSON.stringify(formData.teachingMode));
+      formDataToSend.append('hourlyRate', formData.hourlyRate);
       
       formData.files.forEach((file, index) => {
         formDataToSend.append(`file${index}`, file);
@@ -215,47 +229,96 @@ export default function UpgradePage() {
               />
             </div>
 
-            {/* 課程分類 */}
+            {/* 出生年月日 */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                課程分類 *
+                出生年月日 *
               </label>
-              <select
-                value={selectedCategory}
-                onChange={(e) => handleCategoryChange(e.target.value)}
+              <input
+                type="date"
+                value={formData.birthDate}
+                onChange={(e) => setFormData(prev => ({ ...prev, birthDate: e.target.value }))}
                 className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 required
-              >
-                <option value="">請選擇課程分類</option>
-                {categoryOptions.map((category) => (
-                  <option key={category.value} value={category.value}>
-                    {category.label}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
 
-            {/* 可選科目 */}
-            {availableSubjects.length > 0 && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  可選科目 *
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {availableSubjects.map((subject) => (
-                    <label key={subject.value} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={formData.subjects.includes(subject.value)}
-                        onChange={() => handleSubjectChange(subject.value)}
-                        className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                      />
-                      <span className="text-sm text-gray-700">{subject.label}</span>
-                    </label>
-                  ))}
-                </div>
+            {/* 教授科目 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                教授科目 *
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 max-h-60 overflow-y-auto border border-gray-300 rounded-md p-4">
+                {allSubjects.map((subject) => (
+                  <label key={subject.value} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.subjects.includes(subject.value)}
+                      onChange={() => handleSubjectChange(subject.value)}
+                      className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <span className="text-sm text-gray-700">{subject.label}</span>
+                  </label>
+                ))}
               </div>
-            )}
+            </div>
+
+            {/* 上堂地區 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                上堂地區 *
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 max-h-60 overflow-y-auto border border-gray-300 rounded-md p-4">
+                {allRegions.map((region) => (
+                  <label key={region.value} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.regions.includes(region.value)}
+                      onChange={() => handleRegionChange(region.value)}
+                      className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <span className="text-sm text-gray-700">{region.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* 上堂形式 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                上堂形式 *
+              </label>
+              <div className="grid grid-cols-2 gap-4">
+                {teachingModeOptions.map((mode) => (
+                  <label key={mode.value} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.teachingMode.includes(mode.value)}
+                      onChange={() => handleTeachingModeChange(mode.value)}
+                      className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <span className="text-sm text-gray-700">{mode.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* 要求時薪 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                要求時薪 *
+              </label>
+              <input
+                type="number"
+                value={formData.hourlyRate}
+                onChange={(e) => setFormData(prev => ({ ...prev, hourlyRate: e.target.value }))}
+                className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                placeholder="請輸入您期望的時薪（港幣）"
+                min="0"
+                step="10"
+                required
+              />
+            </div>
 
             {/* 已選科目 */}
             {formData.subjects.length > 0 && (
@@ -267,7 +330,41 @@ export default function UpgradePage() {
                       key={subject}
                       className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-indigo-100 text-indigo-800"
                     >
-                      {availableSubjects.find(s => s.value === subject)?.label || subject}
+                      {allSubjects.find(s => s.value === subject)?.label || subject}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 已選地區 */}
+            {formData.regions.length > 0 && (
+              <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                <h4 className="text-sm font-medium text-gray-700 mb-2">已選地區：</h4>
+                <div className="flex flex-wrap gap-2">
+                  {formData.regions.map((region) => (
+                    <span
+                      key={region}
+                      className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800"
+                    >
+                      {allRegions.find(r => r.value === region)?.label || region}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 已選上堂形式 */}
+            {formData.teachingMode.length > 0 && (
+              <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                <h4 className="text-sm font-medium text-gray-700 mb-2">已選上堂形式：</h4>
+                <div className="flex flex-wrap gap-2">
+                  {formData.teachingMode.map((mode) => (
+                    <span
+                      key={mode}
+                      className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
+                    >
+                      {teachingModeOptions.find(m => m.value === mode)?.label || mode}
                     </span>
                   ))}
                 </div>
@@ -315,7 +412,7 @@ export default function UpgradePage() {
               </Link>
               <button
                 type="submit"
-                disabled={loading || formData.subjects.length === 0}
+                disabled={loading || formData.subjects.length === 0 || formData.regions.length === 0 || formData.teachingMode.length === 0}
                 className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "提交中..." : "提交申請"}
