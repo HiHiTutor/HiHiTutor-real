@@ -174,7 +174,7 @@ export default function UpgradePage() {
       formDataToSend.append('gender', formData.gender);
       formDataToSend.append('birthDate', formData.birthDate);
       formDataToSend.append('education', formData.education);
-      formDataToSend.append('experience', formData.experience);
+      formDataToSend.append('experience', formData.experience.toString());
       formDataToSend.append('introduction', formData.introduction);
       formDataToSend.append('courseFeatures', formData.courseFeatures);
       formDataToSend.append('subjects', JSON.stringify(formData.subjects));
