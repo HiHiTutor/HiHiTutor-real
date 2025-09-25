@@ -95,7 +95,7 @@ export default function UpgradePage() {
           setSelectedSubCategory("");
         } else {
           // 如果沒有子分類，直接顯示科目
-          const subjects = category.subjects?.map(subject => ({
+          const subjects = category.subjects?.map((subject: any) => ({
             ...subject,
             category: category.label
           })) || [];
@@ -115,7 +115,7 @@ export default function UpgradePage() {
       if (category?.subCategories) {
         const subCategory = Array.isArray(category.subCategories) ? category.subCategories.find(sub => sub.value === selectedSubCategory) : null;
         if (subCategory) {
-          const subjects = subCategory.subjects.map(subject => ({
+          const subjects = subCategory.subjects.map((subject: any) => ({
             ...subject,
             category: category.label,
             subCategory: subCategory.label
