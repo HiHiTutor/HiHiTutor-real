@@ -84,7 +84,7 @@ export default function UpgradePage() {
       setAvailableSubjects([]);
       setSelectedSubCategory("");
     }
-  }, [selectedCategory]);
+  }, [selectedCategory, filteredCategories]);
 
   // 當選擇子分類時，更新可選科目
   useEffect(() => {
@@ -102,7 +102,7 @@ export default function UpgradePage() {
         }
       }
     }
-  }, [selectedCategory, selectedSubCategory]);
+  }, [selectedCategory, selectedSubCategory, filteredCategories]);
 
   const handleFileChange = (idx: number, e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
