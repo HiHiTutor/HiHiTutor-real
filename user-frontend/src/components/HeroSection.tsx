@@ -39,8 +39,8 @@ export default function HeroSection() {
         <HeroAd />
       </div>
 
-      {/* 右欄：熱門科目 */}
-      <div className="w-full lg:w-[400px] max-sm:w-full max-[700px]:w-full">
+      {/* 右欄：熱門科目 - 手機版隱藏 */}
+      <div className="w-full lg:w-[400px] max-sm:w-full max-[700px]:w-full hidden lg:block">
         <div className="bg-white shadow-md rounded-lg p-6 h-[400px] max-sm:h-auto max-sm:p-4 max-[700px]:h-auto max-[700px]:p-5">
           <h2 className="font-bold text-xl mb-6 max-sm:text-lg max-sm:mb-4 max-[700px]:text-lg max-[700px]:mb-4">熱門科目</h2>
           <div className="space-y-4 max-sm:space-y-3 max-[700px]:space-y-3">
