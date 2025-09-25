@@ -21,7 +21,7 @@ interface SubjectOption {
 
 export default function UpgradePage() {
   // 暫時使用靜態數據避免 useCategories hook 問題
-  const [CATEGORY_OPTIONS, setCategoryOptions] = useState([]);
+  const [CATEGORY_OPTIONS, setCategoryOptions] = useState<any[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   
   useEffect(() => {
