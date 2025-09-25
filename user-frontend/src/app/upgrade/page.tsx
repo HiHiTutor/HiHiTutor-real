@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCategories } from "@/hooks/useCategories";
@@ -38,8 +38,11 @@ export default function UpgradePage() {
   const router = useRouter();
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 
-  // 過濾掉"不限"選項
-  const filteredCategories = CATEGORY_OPTIONS.filter(cat => cat.value !== 'unlimited');
+  // 過濾掉"不限"選項 - 使用 useMemo 避免無限重新渲染
+  const filteredCategories = useMemo(() => 
+    CATEGORY_OPTIONS.filter(cat => cat.value !== 'unlimited'), 
+    [CATEGORY_OPTIONS]
+  );
 
   useEffect(() => {
     // 檢查用戶是否已登入
