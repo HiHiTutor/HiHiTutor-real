@@ -58,10 +58,10 @@ export default function UpgradePage() {
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 
   // 過濾掉"不限"選項 - 使用 useMemo 避免無限重新渲染
-  const filteredCategories = useMemo(() => 
-    CATEGORY_OPTIONS.filter((cat: any) => cat.value !== 'unlimited'), 
-    [CATEGORY_OPTIONS]
-  );
+  const filteredCategories = useMemo(() => {
+    if (!CATEGORY_OPTIONS || CATEGORY_OPTIONS.length === 0) return [];
+    return CATEGORY_OPTIONS.filter((cat: any) => cat.value !== 'unlimited');
+  }, [CATEGORY_OPTIONS.length, categoriesLoading]); // 依賴長度和載入狀態
 
   useEffect(() => {
     // 檢查用戶是否已登入
