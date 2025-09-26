@@ -215,10 +215,16 @@ const reviewTutorApplication = async (req, res) => {
   try {
     const appId = req.params.id;
     const { status, remarks } = req.body;
+    
+    console.log('🔍 開始審核申請:', { appId, status, remarks });
 
     // 1. 取得對應的 TutorApplication 記錄
+    console.log('🔍 查找申請記錄，appId:', appId);
     const application = await TutorApplication.findOne({ id: appId });
+    console.log('🔍 申請記錄查找結果:', application ? '找到申請' : '未找到申請');
+    
     if (!application) {
+      console.log('❌ 申請不存在，appId:', appId);
       return res.status(404).json({ 
         success: false,
         message: '申請不存在' 
@@ -238,6 +244,7 @@ const reviewTutorApplication = async (req, res) => {
       
       // 用 application.userId 去 User collection
       const userId = application.userId;
+      console.log('🔍 準備升級用戶，userId:', userId, '類型:', typeof userId);
       
       // 確保 userId 是有效的 ObjectId 格式
       if (!mongoose.Types.ObjectId.isValid(userId)) {
