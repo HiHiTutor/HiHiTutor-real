@@ -336,26 +336,26 @@ const UserDetail: React.FC = () => {
           businessRegistration: '',
           addressProof: ''
         },
-            tutorProfile: userData.tutorProfile || {
-      education: '',
-      experience: '',
-      specialties: [],
-      documents: [],
-      applicationStatus: 'pending',
-      gender: undefined,
-      birthDate: '',
-      teachingExperienceYears: 0,
-      educationLevel: '',
-      subjects: [],
-      examResults: [],
-      teachingAreas: [],
-      availableTime: [],
-      teachingMethods: [],
-      classType: [],
-      sessionRate: 0,
-      introduction: '',
-      courseFeatures: '',
-      avatarUrl: '',
+            tutorProfile: {
+      education: userData.tutorProfile?.educationLevel || userData.tutorProfile?.education || '',
+      experience: userData.tutorProfile?.teachingExperienceYears?.toString() || userData.tutorProfile?.experience || '',
+      specialties: userData.tutorProfile?.subjects || [],
+      documents: userData.tutorProfile?.documents || [],
+      applicationStatus: userData.tutorProfile?.applicationStatus || 'pending',
+      gender: userData.tutorProfile?.gender,
+      birthDate: userData.tutorProfile?.birthDate || '',
+      teachingExperienceYears: userData.tutorProfile?.teachingExperienceYears || 0,
+      educationLevel: userData.tutorProfile?.educationLevel || '',
+      subjects: userData.tutorProfile?.subjects || [],
+      examResults: userData.tutorProfile?.examResults || [],
+      teachingAreas: userData.tutorProfile?.teachingAreas || [],
+      availableTime: userData.tutorProfile?.availableTime || [],
+      teachingMethods: userData.tutorProfile?.teachingMethods || [],
+      classType: userData.tutorProfile?.classType || [],
+      sessionRate: userData.tutorProfile?.sessionRate || 0,
+      introduction: userData.tutorProfile?.introduction || '',
+      courseFeatures: userData.tutorProfile?.courseFeatures || '',
+      avatarUrl: userData.tutorProfile?.avatarUrl || '',
       // 新增課程相關字段
       category: userData.tutorProfile?.category || '',
       subCategory: userData.tutorProfile?.subCategory || '',
@@ -1328,23 +1328,29 @@ const UserDetail: React.FC = () => {
                     </Grid>
                     <Grid item xs={8}>
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                        {(selectedUser.tutorProfile as any).documents.map((doc: string, index: number) => (
-                          <Button
-                            key={index}
-                            variant="text"
-                            startIcon={<LinkIcon />}
-                            onClick={() => window.open(doc, '_blank')}
-                            sx={{ 
-                              justifyContent: 'flex-start',
-                              textTransform: 'none',
-                              '&:hover': {
-                                textDecoration: 'underline'
-                              }
-                            }}
-                          >
-                            文件 {index + 1}
-                          </Button>
-                        ))}
+                        {(selectedUser.tutorProfile as any).documents.map((doc: any, index: number) => {
+                          // 處理對象格式 {type: string, url: string} 或字符串格式
+                          const fileUrl = typeof doc === 'string' ? doc : doc.url;
+                          const fileName = typeof doc === 'string' ? `文件 ${index + 1}` : `文件 ${index + 1}`;
+                          
+                          return (
+                            <Button
+                              key={index}
+                              variant="text"
+                              startIcon={<LinkIcon />}
+                              onClick={() => window.open(fileUrl, '_blank')}
+                              sx={{ 
+                                justifyContent: 'flex-start',
+                                textTransform: 'none',
+                                '&:hover': {
+                                  textDecoration: 'underline'
+                                }
+                              }}
+                            >
+                              {fileName}
+                            </Button>
+                          );
+                        })}
                       </Box>
                     </Grid>
                   </>
