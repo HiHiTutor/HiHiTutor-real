@@ -33,6 +33,9 @@ const saveApplications = (applications) => {
 // 1. 提交導師申請
 const submitTutorApplication = async (req, res) => {
   console.log('收到申請資料:', req.body, req.files);
+  console.log('請求頭 Content-Type:', req.headers['content-type']);
+  console.log('用戶ID:', req.user?.id);
+  
   try {
     const { 
       name, 
@@ -49,8 +52,20 @@ const submitTutorApplication = async (req, res) => {
     } = req.body;
     const userId = req.user.id;
 
+    console.log('解析的字段:', {
+      name, gender, birthDate, education, experience, 
+      introduction, courseFeatures, subjects, regions, 
+      teachingMode, hourlyRate
+    });
+
     // 檢查必要欄位
     if (!name || !gender || !birthDate || !education || !experience || !introduction || !courseFeatures || !subjects || !teachingMode || !hourlyRate) {
+      console.log('缺少必要欄位:', {
+        name: !!name, gender: !!gender, birthDate: !!birthDate, 
+        education: !!education, experience: !!experience, 
+        introduction: !!introduction, courseFeatures: !!courseFeatures, 
+        subjects: !!subjects, teachingMode: !!teachingMode, hourlyRate: !!hourlyRate
+      });
       return res.status(400).json({
         success: false,
         message: '請提供所有必要欄位'
