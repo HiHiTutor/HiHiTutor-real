@@ -34,11 +34,23 @@ const saveApplications = (applications) => {
 const submitTutorApplication = async (req, res) => {
   console.log('收到申請資料:', req.body, req.files);
   try {
-    const { education, experience, subjects, documents } = req.body;
+    const { 
+      name, 
+      gender, 
+      birthDate, 
+      education, 
+      experience, 
+      introduction, 
+      courseFeatures, 
+      subjects, 
+      regions, 
+      teachingMode, 
+      hourlyRate 
+    } = req.body;
     const userId = req.user.id;
 
     // 檢查必要欄位
-    if (!education || !experience || !subjects || !documents) {
+    if (!name || !gender || !birthDate || !education || !experience || !introduction || !courseFeatures || !subjects || !teachingMode || !hourlyRate) {
       return res.status(400).json({
         success: false,
         message: '請提供所有必要欄位'
@@ -92,13 +104,20 @@ const submitTutorApplication = async (req, res) => {
       id: applicationId,
       userId,
       userNumber,
-      name: user.name,
+      name: name || user.name,
       email: user.email,
       phone: user.phone,
+      gender,
+      birthDate,
       education,
       experience,
-      subjects,
-      documents,
+      introduction,
+      courseFeatures,
+      subjects: JSON.parse(subjects),
+      regions: JSON.parse(regions),
+      teachingMode: JSON.parse(teachingMode),
+      hourlyRate,
+      documents: req.files || [],
       status: 'pending'
     });
 

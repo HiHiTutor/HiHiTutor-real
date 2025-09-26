@@ -26,11 +26,27 @@ const tutorApplicationSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  gender: {
+    type: String,
+    required: true
+  },
+  birthDate: {
+    type: String,
+    required: true
+  },
   education: {
     type: String,
     required: true
   },
   experience: {
+    type: Number,
+    required: true
+  },
+  introduction: {
+    type: String,
+    required: true
+  },
+  courseFeatures: {
     type: String,
     required: true
   },
@@ -38,9 +54,18 @@ const tutorApplicationSchema = new mongoose.Schema({
     type: String,
     required: true
   }],
-  documents: [{
+  regions: [{
+    type: String
+  }],
+  teachingMode: [{
+    type: String
+  }],
+  hourlyRate: {
     type: String,
     required: true
+  },
+  documents: [{
+    type: String
   }],
   status: {
     type: String,
