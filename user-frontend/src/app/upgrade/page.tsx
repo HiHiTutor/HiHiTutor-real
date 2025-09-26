@@ -216,21 +216,20 @@ export default function UpgradePage() {
         formDataToSend.append(`file${index}`, file);
       });
 
-      // 先測試不需要認證的路由
-      const testResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/tutor-applications/test`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ test: 'data' })
-      });
+      // 檢查認證令牌
+      const token = localStorage.getItem('token');
+      console.log('🔐 認證令牌:', token ? '存在' : '不存在');
       
-      console.log('測試路由響應:', await testResponse.json());
+      if (!token) {
+        setError('請先登入');
+        setLoading(false);
+        return;
+      }
       
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/tutor-applications/apply`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: formDataToSend
       });

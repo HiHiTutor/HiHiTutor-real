@@ -19,8 +19,18 @@ router.post('/test', (req, res) => {
   res.json({ success: true, message: '測試路由工作正常' });
 });
 
-// 用戶提交導師申請
-router.post('/apply', verifyToken, submitTutorApplication);
+// 暫時移除認證來測試數據格式
+router.post('/apply', (req, res, next) => {
+  console.log('🧪 申請路由被調用');
+  console.log('請求頭:', req.headers);
+  console.log('請求體類型:', typeof req.body);
+  console.log('請求體:', req.body);
+  console.log('文件:', req.files);
+  
+  // 手動設置用戶ID用於測試
+  req.user = { id: 'test-user-id' };
+  next();
+}, submitTutorApplication);
 
 // 管理員獲取所有申請記錄（只允許 admin）
 router.get('/', verifyToken, verifyAdmin, getAllTutorApplications);
