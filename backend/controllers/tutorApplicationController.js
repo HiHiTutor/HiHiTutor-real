@@ -279,7 +279,10 @@ const reviewTutorApplication = async (req, res) => {
             'tutorProfile.courseFeatures': application.courseFeatures, // 課程特點
             'tutorProfile.regions': application.regions, // 上堂地區
             'tutorProfile.teachingMode': application.teachingMode, // 上堂形式
-            'tutorProfile.documents': application.documents, // 上傳文件
+            'tutorProfile.documents': application.documents ? application.documents.map(doc => ({
+              type: 'application_file',
+              url: doc
+            })) : [], // 上傳文件 - 轉換為對象格式
             profileStatus: 'approved',
             remarks: remarks || '審核通過'
           }
@@ -440,7 +443,10 @@ const approveTutorApplication = async (req, res) => {
           'tutorProfile.courseFeatures': application.courseFeatures, // 課程特點
           'tutorProfile.regions': application.regions, // 上堂地區
           'tutorProfile.teachingMode': application.teachingMode, // 上堂形式
-          'tutorProfile.documents': application.documents, // 上傳文件
+          'tutorProfile.documents': application.documents ? application.documents.map(doc => ({
+            type: 'application_file',
+            url: doc
+          })) : [], // 上傳文件 - 轉換為對象格式
           profileStatus: 'approved',
           remarks: remarks || '審核通過'
         }
