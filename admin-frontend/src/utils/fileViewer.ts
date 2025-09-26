@@ -14,7 +14,30 @@ export const viewFileWithSignedUrl = async (fileUrl: string, fileName?: string) 
     
     // 檢查是否已經是完整的S3 URL
     if (fileUrl.startsWith('https://') && fileUrl.includes('s3.ap-southeast-2.amazonaws.com')) {
-      // 直接打開S3 URL
+      // 從S3 URL中提取相對路徑
+      const urlParts = fileUrl.split('/');
+      const bucketIndex = urlParts.findIndex(part => part.includes('s3.ap-southeast-2.amazonaws.com'));
+      
+      if (bucketIndex !== -1) {
+        // 提取bucket後的路徑部分
+        const relativePath = urlParts.slice(bucketIndex + 1).join('/');
+        console.log('🔍 從S3 URL提取路徑:', relativePath);
+        
+        // 調用簽名URL API
+        try {
+          const response = await api.get(`/files/${encodeURIComponent(relativePath)}/signed-url`);
+          
+          if (response.data && response.data.url) {
+            console.log('✅ 獲取簽名URL成功:', response.data.url);
+            window.open(response.data.url, '_blank');
+            return;
+          }
+        } catch (signedUrlError) {
+          console.log('⚠️ 簽名URL獲取失敗，嘗試直接訪問:', signedUrlError);
+        }
+      }
+      
+      // 如果簽名URL失敗，嘗試直接訪問
       console.log('✅ 直接打開S3文件URL:', fileUrl);
       window.open(fileUrl, '_blank');
       return;
