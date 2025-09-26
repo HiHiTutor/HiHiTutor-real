@@ -43,7 +43,6 @@ const submitTutorApplication = async (req, res) => {
       birthDate, 
       education, 
       experience, 
-      introduction, 
       courseFeatures, 
       subjects, 
       regions, 
@@ -54,16 +53,16 @@ const submitTutorApplication = async (req, res) => {
 
     console.log('解析的字段:', {
       name, gender, birthDate, education, experience, 
-      introduction, courseFeatures, subjects, regions, 
+      courseFeatures, subjects, regions, 
       teachingMode, hourlyRate
     });
 
     // 檢查必要欄位
-    if (!name || !gender || !birthDate || !education || !experience || !introduction || !courseFeatures || !subjects || !teachingMode || !hourlyRate) {
+    if (!name || !gender || !birthDate || !education || !experience || !courseFeatures || !subjects || !teachingMode || !hourlyRate) {
       console.log('缺少必要欄位:', {
         name: !!name, gender: !!gender, birthDate: !!birthDate, 
         education: !!education, experience: !!experience, 
-        introduction: !!introduction, courseFeatures: !!courseFeatures, 
+        courseFeatures: !!courseFeatures, 
         subjects: !!subjects, teachingMode: !!teachingMode, hourlyRate: !!hourlyRate
       });
       return res.status(400).json({
@@ -126,7 +125,6 @@ const submitTutorApplication = async (req, res) => {
       birthDate,
       education,
       experience,
-      introduction,
       courseFeatures,
       subjects: JSON.parse(subjects),
       regions: JSON.parse(regions),

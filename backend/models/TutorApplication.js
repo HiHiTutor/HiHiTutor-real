@@ -42,10 +42,6 @@ const tutorApplicationSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  introduction: {
-    type: String,
-    required: true
-  },
   courseFeatures: {
     type: String,
     required: true

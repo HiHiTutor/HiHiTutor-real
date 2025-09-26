@@ -12,7 +12,6 @@ interface FormData {
   birthDate: string;
   education: string;
   experience: number;
-  introduction: string;
   courseFeatures: string;
   subjects: string[];
   regions: string[];
@@ -29,7 +28,6 @@ export default function UpgradePage() {
     birthDate: "",
     education: "",
     experience: 0,
-    introduction: "",
     courseFeatures: "",
     subjects: [],
     regions: [],
@@ -205,7 +203,6 @@ export default function UpgradePage() {
       formDataToSend.append('birthDate', formData.birthDate);
       formDataToSend.append('education', formData.education);
       formDataToSend.append('experience', formData.experience.toString());
-      formDataToSend.append('introduction', formData.introduction);
       formDataToSend.append('courseFeatures', formData.courseFeatures);
       formDataToSend.append('subjects', JSON.stringify(formData.subjects));
       formDataToSend.append('regions', JSON.stringify(formData.regions));
@@ -331,10 +328,10 @@ export default function UpgradePage() {
               />
             </div>
 
-            {/* 教育背景 */}
+            {/* 個人簡介 */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                教育背景 *
+                個人簡介 *
               </label>
               <textarea
                 value={formData.education}
@@ -364,22 +361,6 @@ export default function UpgradePage() {
               <p className="text-sm text-gray-500 mt-1">請輸入您的教學經驗年數</p>
             </div>
 
-            {/* 個人介紹 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                個人介紹 *
-              </label>
-              <textarea
-                value={formData.introduction}
-                onChange={(e) => setFormData(prev => ({ ...prev, introduction: e.target.value }))}
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                rows={4}
-                placeholder="請介紹您的教學經驗、專長等..."
-                maxLength={1000}
-                required
-              />
-              <p className="text-sm text-gray-500 mt-1">{formData.introduction.length}/1000</p>
-            </div>
 
             {/* 課程特點 */}
             <div>
@@ -626,7 +607,7 @@ export default function UpgradePage() {
               </Link>
               <button
                 type="submit"
-                disabled={loading || !formData.name || !formData.gender || !formData.birthDate || !formData.education || formData.experience === 0 || !formData.introduction || !formData.courseFeatures || formData.subjects.length === 0 || (formData.teachingMode.length === 0) || (!(formData.teachingMode.length === 1 && formData.teachingMode.includes('online')) && formData.regions.length === 0) || !formData.hourlyRate}
+                disabled={loading || !formData.name || !formData.gender || !formData.birthDate || !formData.education || formData.experience === 0 || !formData.courseFeatures || formData.subjects.length === 0 || (formData.teachingMode.length === 0) || (!(formData.teachingMode.length === 1 && formData.teachingMode.includes('online')) && formData.regions.length === 0) || !formData.hourlyRate}
                 className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "提交中..." : "提交申請"}
