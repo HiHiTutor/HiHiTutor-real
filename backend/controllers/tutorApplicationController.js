@@ -132,7 +132,7 @@ const submitTutorApplication = async (req, res) => {
       regions: JSON.parse(regions),
       teachingMode: JSON.parse(teachingMode),
       hourlyRate,
-      documents: req.files || [],
+      documents: req.files ? req.files.map(file => file.originalname) : [],
       status: 'pending'
     });
 
