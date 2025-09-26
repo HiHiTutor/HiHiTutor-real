@@ -216,6 +216,17 @@ export default function UpgradePage() {
         formDataToSend.append(`file${index}`, file);
       });
 
+      // 先測試不需要認證的路由
+      const testResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/tutor-applications/test`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ test: 'data' })
+      });
+      
+      console.log('測試路由響應:', await testResponse.json());
+      
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/tutor-applications/apply`, {
         method: 'POST',
         headers: {

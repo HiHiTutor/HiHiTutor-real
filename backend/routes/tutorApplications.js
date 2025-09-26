@@ -11,6 +11,14 @@ const {
   getAllTutorApplications
 } = require('../controllers/tutorApplicationController');
 
+// 測試路由（不需要認證）
+router.post('/test', (req, res) => {
+  console.log('🧪 測試路由被調用');
+  console.log('請求頭:', req.headers);
+  console.log('請求體:', req.body);
+  res.json({ success: true, message: '測試路由工作正常' });
+});
+
 // 用戶提交導師申請
 router.post('/apply', verifyToken, submitTutorApplication);
 
