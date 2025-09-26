@@ -1296,15 +1296,25 @@ const UserDetail: React.FC = () => {
                     </Grid>
                     <Grid item xs={8}>
                       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                        {(selectedUser.tutorProfile as any).teachingMode.map((mode: string, index: number) => {
-                          let modeLabel = mode;
-                          if (mode === 'online') modeLabel = '網課';
-                          else if (mode === 'in-person') modeLabel = '面授';
-                          else if (mode === 'both') modeLabel = '網課 + 面授';
-                          return (
-                            <Chip key={index} label={modeLabel} size="small" variant="outlined" />
-                          );
-                        })}
+                        {(() => {
+                          const teachingMode = (selectedUser.tutorProfile as any).teachingMode;
+                          // 處理字符串格式（逗號分隔）或數組格式
+                          const modes = typeof teachingMode === 'string' 
+                            ? teachingMode.split(',').map(m => m.trim())
+                            : Array.isArray(teachingMode) 
+                              ? teachingMode 
+                              : [];
+                          
+                          return modes.map((mode: string, index: number) => {
+                            let modeLabel = mode;
+                            if (mode === 'online') modeLabel = '網課';
+                            else if (mode === 'in-person') modeLabel = '面授';
+                            else if (mode === 'both') modeLabel = '網課 + 面授';
+                            return (
+                              <Chip key={index} label={modeLabel} size="small" variant="outlined" />
+                            );
+                          });
+                        })()}
                       </Box>
                     </Grid>
                   </>
