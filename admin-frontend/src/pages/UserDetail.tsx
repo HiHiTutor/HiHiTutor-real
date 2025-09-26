@@ -1338,7 +1338,16 @@ const UserDetail: React.FC = () => {
                               key={index}
                               variant="text"
                               startIcon={<LinkIcon />}
-                              onClick={() => window.open(fileUrl, '_blank')}
+                              onClick={async () => {
+                                try {
+                                  // 使用簽名URL查看文件
+                                  const { viewFileWithSignedUrl } = await import('../utils/fileViewer');
+                                  await viewFileWithSignedUrl(fileUrl, fileName);
+                                } catch (error) {
+                                  console.error('文件查看失敗:', error);
+                                  alert('無法打開文件，請稍後再試');
+                                }
+                              }}
                               sx={{ 
                                 justifyContent: 'flex-start',
                                 textTransform: 'none',
