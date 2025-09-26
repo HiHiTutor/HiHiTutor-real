@@ -499,24 +499,34 @@ const TutorApplications: React.FC = () => {
                                   <Typography variant="subtitle2" color="textSecondary" gutterBottom>
                                     上傳文件
                                   </Typography>
+                                  {/* 調試信息 */}
+                                  <Typography variant="caption" color="textSecondary" sx={{ mb: 1 }}>
+                                    調試: documents = {JSON.stringify(application.documents)}
+                                  </Typography>
                                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                    {application.documents.map((doc, index) => (
-                                      <Button
-                                        key={index}
-                                        variant="text"
-                                        startIcon={<LinkIcon />}
-                                        onClick={() => viewFileWithSignedUrl(doc, `文件 ${index + 1}`)}
-                                        sx={{ 
-                                          justifyContent: 'flex-start',
-                                          textTransform: 'none',
-                                          '&:hover': {
-                                            textDecoration: 'underline'
-                                          }
-                                        }}
-                                      >
-                                        文件 {index + 1}
-                                      </Button>
-                                    ))}
+                                    {application.documents && application.documents.length > 0 ? (
+                                      application.documents.map((doc, index) => (
+                                        <Button
+                                          key={index}
+                                          variant="text"
+                                          startIcon={<LinkIcon />}
+                                          onClick={() => viewFileWithSignedUrl(doc, `文件 ${index + 1}`)}
+                                          sx={{ 
+                                            justifyContent: 'flex-start',
+                                            textTransform: 'none',
+                                            '&:hover': {
+                                              textDecoration: 'underline'
+                                            }
+                                          }}
+                                        >
+                                          文件 {index + 1}
+                                        </Button>
+                                      ))
+                                    ) : (
+                                      <Typography variant="body2" color="textSecondary">
+                                        沒有上傳文件
+                                      </Typography>
+                                    )}
                                   </Box>
                                   
                                   {application.status !== 'pending' && (
