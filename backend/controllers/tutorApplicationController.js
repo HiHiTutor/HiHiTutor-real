@@ -278,7 +278,9 @@ const reviewTutorApplication = async (req, res) => {
             'tutorProfile.birthDate': application.birthDate, // 出生日期
             'tutorProfile.courseFeatures': application.courseFeatures, // 課程特點
             'tutorProfile.regions': application.regions, // 上堂地區
-            'tutorProfile.teachingMode': application.teachingMode, // 上堂形式
+            'tutorProfile.teachingMode': Array.isArray(application.teachingMode) 
+              ? application.teachingMode.join(',') 
+              : application.teachingMode, // 上堂形式 - 轉換數組為字符串
             'tutorProfile.documents': application.documents ? application.documents.map(doc => ({
               type: 'application_file',
               url: doc
@@ -442,7 +444,9 @@ const approveTutorApplication = async (req, res) => {
           'tutorProfile.birthDate': application.birthDate, // 出生日期
           'tutorProfile.courseFeatures': application.courseFeatures, // 課程特點
           'tutorProfile.regions': application.regions, // 上堂地區
-          'tutorProfile.teachingMode': application.teachingMode, // 上堂形式
+          'tutorProfile.teachingMode': Array.isArray(application.teachingMode) 
+            ? application.teachingMode.join(',') 
+            : application.teachingMode, // 上堂形式 - 轉換數組為字符串
           'tutorProfile.documents': application.documents ? application.documents.map(doc => ({
             type: 'application_file',
             url: doc
