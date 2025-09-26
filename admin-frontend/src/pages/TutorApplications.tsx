@@ -33,6 +33,7 @@ import {
 } from '@mui/icons-material';
 import api from '../services/api';
 import { viewFileWithSignedUrl } from '../utils/fileViewer';
+import { CATEGORY_OPTIONS_OBJECT } from '../constants/categoryOptions';
 
 interface TutorApplication {
   _id: string;
@@ -42,9 +43,15 @@ interface TutorApplication {
   name: string;
   email: string;
   phone: string;
+  gender?: string;
+  birthDate?: string;
   education: string;
   experience: string;
+  courseFeatures?: string;
   subjects: string[];
+  regions?: string[];
+  teachingMode?: string[];
+  hourlyRate?: string;
   documents: string[];
   status: 'pending' | 'approved' | 'rejected';
   reviewedAt?: string;
@@ -207,6 +214,29 @@ const TutorApplications: React.FC = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
+  // 科目映射函數
+  const getSubjectLabel = (subjectValue: string): string => {
+    // 遍歷所有分類
+    for (const category of Object.values(CATEGORY_OPTIONS_OBJECT)) {
+      // 檢查主分類的科目
+      if (category.subjects) {
+        const subject = category.subjects.find(s => s.value === subjectValue);
+        if (subject) return subject.label;
+      }
+      
+      // 檢查子分類的科目
+      if (category.subCategories) {
+        for (const subCategory of category.subCategories) {
+          const subject = subCategory.subjects.find(s => s.value === subjectValue);
+          if (subject) return subject.label;
+        }
+      }
+    }
+    
+    // 如果找不到映射，返回原始值
+    return subjectValue;
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
@@ -279,7 +309,7 @@ const TutorApplications: React.FC = () => {
                         {application.subjects.slice(0, 2).map((subject, index) => (
                           <Chip
                             key={index}
-                            label={subject}
+                            label={getSubjectLabel(subject)}
                             size="small"
                             variant="outlined"
                             color="primary"
@@ -391,8 +421,19 @@ const TutorApplications: React.FC = () => {
                                 </Grid>
                                 
                                 <Grid item xs={12} md={6}>
+                                  {application.birthDate && (
+                                    <>
+                                      <Typography variant="subtitle2" color="textSecondary">
+                                        出生日期
+                                      </Typography>
+                                      <Typography variant="body1" sx={{ mb: 2 }}>
+                                        {application.birthDate}
+                                      </Typography>
+                                    </>
+                                  )}
+                                  
                                   <Typography variant="subtitle2" color="textSecondary">
-                                    學歷背景
+                                    個人簡介
                                   </Typography>
                                   <Typography variant="body1" sx={{ mb: 2 }}>
                                     {application.education}
@@ -402,8 +443,30 @@ const TutorApplications: React.FC = () => {
                                     教學經驗
                                   </Typography>
                                   <Typography variant="body1" sx={{ mb: 2 }}>
-                                    {application.experience}
+                                    {application.experience} 年
                                   </Typography>
+                                  
+                                  {application.courseFeatures && (
+                                    <>
+                                      <Typography variant="subtitle2" color="textSecondary">
+                                        課程特點
+                                      </Typography>
+                                      <Typography variant="body1" sx={{ mb: 2 }}>
+                                        {application.courseFeatures}
+                                      </Typography>
+                                    </>
+                                  )}
+                                  
+                                  {application.hourlyRate && (
+                                    <>
+                                      <Typography variant="subtitle2" color="textSecondary">
+                                        要求時薪
+                                      </Typography>
+                                      <Typography variant="body1" sx={{ mb: 2 }}>
+                                        HK$ {application.hourlyRate}
+                                      </Typography>
+                                    </>
+                                  )}
                                 </Grid>
                                 
                                 <Grid item xs={12}>
@@ -415,7 +478,7 @@ const TutorApplications: React.FC = () => {
                                     {application.subjects.map((subject, index) => (
                                       <Chip
                                         key={index}
-                                        label={subject}
+                                        label={getSubjectLabel(subject)}
                                         variant="outlined"
                                         color="primary"
                                       />

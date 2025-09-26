@@ -7,24 +7,28 @@ import api from '../services/api';
  */
 export const viewFileWithSignedUrl = async (fileUrl: string, fileName?: string) => {
   try {
-    // 從完整URL中提取相對路徑
-    // 例如: https://hihitutor-uploads.s3.ap-southeast-2.amazonaws.com/uploads/user-docs/1000006/xxx.jpg
-    // 提取: uploads/user-docs/1000006/xxx.jpg
-    const urlParts = fileUrl.split('/');
-    const bucketIndex = urlParts.findIndex(part => part.includes('s3.ap-southeast-2.amazonaws.com'));
-    
-    if (bucketIndex === -1) {
-      throw new Error('無法解析S3文件路徑');
-    }
-    
-    // 提取bucket後的路徑部分
-    const relativePath = urlParts.slice(bucketIndex + 1).join('/');
-    
     console.log('🔍 文件查看請求:', {
       originalUrl: fileUrl,
-      relativePath: relativePath,
       fileName: fileName
     });
+    
+    // 檢查是否已經是完整的URL
+    if (fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
+      // 直接打開URL
+      console.log('✅ 直接打開文件URL:', fileUrl);
+      window.open(fileUrl, '_blank');
+      return;
+    }
+    
+    // 如果是文件名，嘗試構建完整路徑
+    let relativePath = fileUrl;
+    
+    // 如果只是文件名，添加默認路徑
+    if (!fileUrl.includes('/')) {
+      relativePath = `uploads/tutor-applications/${fileUrl}`;
+    }
+    
+    console.log('🔍 構建的文件路徑:', relativePath);
     
     // 調用簽名URL API
     const response = await api.get(`/files/${encodeURIComponent(relativePath)}/signed-url`);
