@@ -42,8 +42,8 @@ router.post('/apply', upload.any(), (req, res, next) => {
   console.log('請求體:', req.body);
   console.log('文件:', req.files);
   
-  // 手動設置用戶ID用於測試
-  req.user = { id: 'test-user-id' };
+  // 手動設置用戶ID用於測試 - 使用真實的ObjectId格式
+  req.user = { id: '68d49673870448389f6d3602' };
   next();
 }, submitTutorApplication);
 
