@@ -237,6 +237,19 @@ const TutorApplications: React.FC = () => {
     return subjectValue;
   };
 
+  // 地區映射函數
+  const getRegionLabel = (regionValue: string): string => {
+    const regionMap: { [key: string]: string } = {
+      'all-hong-kong': '全港',
+      'hong-kong-island': '香港島',
+      'kowloon': '九龍',
+      'new-territories': '新界',
+      'islands': '離島'
+    };
+    
+    return regionMap[regionValue] || regionValue;
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
@@ -279,6 +292,7 @@ const TutorApplications: React.FC = () => {
                 <TableCell>Email</TableCell>
                 <TableCell>電話</TableCell>
                 <TableCell>可教授科目</TableCell>
+                <TableCell>授課地區</TableCell>
                 <TableCell>狀態</TableCell>
                 <TableCell>申請時間</TableCell>
                 <TableCell>操作</TableCell>
@@ -318,6 +332,33 @@ const TutorApplications: React.FC = () => {
                         {application.subjects.length > 2 && (
                           <Chip
                             label={`+${application.subjects.length - 2}`}
+                            size="small"
+                            variant="outlined"
+                            color="secondary"
+                          />
+                        )}
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {application.regions && application.regions.length > 0 ? (
+                          application.regions.slice(0, 2).map((region, index) => (
+                            <Chip
+                              key={index}
+                              label={getRegionLabel(region)}
+                              size="small"
+                              variant="outlined"
+                              color="secondary"
+                            />
+                          ))
+                        ) : (
+                          <Typography variant="body2" color="textSecondary">
+                            未設定
+                          </Typography>
+                        )}
+                        {application.regions && application.regions.length > 2 && (
+                          <Chip
+                            label={`+${application.regions.length - 2}`}
                             size="small"
                             variant="outlined"
                             color="secondary"
@@ -381,7 +422,7 @@ const TutorApplications: React.FC = () => {
                     </TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
+                    <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={10}>
                       <Collapse in={expandedRows.has(application._id)} timeout="auto" unmountOnExit>
                         <Box sx={{ margin: 1 }}>
                           <Card variant="outlined">
@@ -495,6 +536,24 @@ const TutorApplications: React.FC = () => {
                                       />
                                     ))}
                                   </Box>
+                                  
+                                  {application.regions && application.regions.length > 0 && (
+                                    <>
+                                      <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                                        授課地區
+                                      </Typography>
+                                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                                        {application.regions.map((region, index) => (
+                                          <Chip
+                                            key={index}
+                                            label={getRegionLabel(region)}
+                                            variant="outlined"
+                                            color="secondary"
+                                          />
+                                        ))}
+                                      </Box>
+                                    </>
+                                  )}
                                   
                                   <Typography variant="subtitle2" color="textSecondary" gutterBottom>
                                     上傳文件

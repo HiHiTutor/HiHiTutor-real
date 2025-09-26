@@ -1,0 +1,104 @@
+[
+  {
+    "id": "TA001",
+    "userId": "user_1",
+    "userNumber": "U001",
+    "name": "申請人姓名",
+    "email": "applicant@example.com",
+    "phone": "0912345678",
+    "gender": "male",
+    "birthDate": "1990-01-01",
+    "education": "學歷背景",
+    "experience": 3,
+    "courseFeatures": "專注於數學和英文教學",
+    "subjects": [
+      "secondary-math",
+      "secondary-english"
+    ],
+    "regions": [
+      "hong-kong-island",
+      "kowloon"
+    ],
+    "teachingMode": [
+      "in-person",
+      "online"
+    ],
+    "hourlyRate": "300",
+    "documents": [
+      "document1.pdf",
+      "document2.pdf"
+    ],
+    "status": "approved",
+    "createdAt": "2024-03-20T10:00:00Z",
+    "updatedAt": "2024-03-20T10:00:00Z",
+    "reviewedAt": "2025-05-02T17:49:07.963Z",
+    "remarks": "資料齊全，審核通過"
+  },
+  {
+    "id": "TA002",
+    "userId": "user_1745516152304",
+    "userNumber": "U002",
+    "name": "Try01",
+    "email": "try1@example.com",
+    "phone": "91111111",
+    "gender": "female",
+    "birthDate": "1985-05-15",
+    "education": "大學畢業",
+    "experience": 5,
+    "courseFeatures": "專精於小學和中學數學",
+    "subjects": [
+      "primary-math",
+      "secondary-math"
+    ],
+    "regions": [
+      "all-hong-kong",
+      "new-territories"
+    ],
+    "teachingMode": [
+      "online"
+    ],
+    "hourlyRate": "250",
+    "documents": [
+      "/uploads/user_1745516152304/1746200611862-HiHiTutor_API_è¨­è¨è¡¨.pdf",
+      "/uploads/user_1745516152304/1746200611868-TestIcon.jpg"
+    ],
+    "status": "approved",
+    "createdAt": "2025-05-02T15:43:31.877Z",
+    "updatedAt": "2025-05-02T15:43:31.877Z",
+    "reviewedAt": "2025-05-03T12:43:41.846Z",
+    "remarks": "資料齊全，審核通過"
+  },
+  {
+    "id": "TA003",
+    "userId": "user_1745516742657",
+    "userNumber": "U003",
+    "name": "Try02",
+    "email": "try2@example.com",
+    "phone": "91111112",
+    "gender": "male",
+    "birthDate": "1988-08-20",
+    "education": "碩士畢業",
+    "experience": 4,
+    "courseFeatures": "專精於物理和化學教學",
+    "subjects": [
+      "secondary-physics",
+      "secondary-chemistry"
+    ],
+    "regions": [
+      "kowloon",
+      "islands"
+    ],
+    "teachingMode": [
+      "in-person",
+      "online"
+    ],
+    "hourlyRate": "350",
+    "documents": [
+      "/uploads/user_1745516742657/1746201142816-HiHiTutor-real(23April).pdf",
+      "/uploads/user_1745516742657/1746201142846-é¦­é¢.jpg"
+    ],
+    "status": "pending",
+    "createdAt": "2025-05-02T15:52:22.853Z",
+    "updatedAt": "2025-05-02T15:52:22.853Z"
+  }
+]

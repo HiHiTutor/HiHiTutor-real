@@ -11,6 +11,14 @@
       "數學",
       "英文"
     ],
+    "regions": [
+      "hong-kong-island",
+      "kowloon"
+    ],
+    "teachingMode": [
+      "in-person",
+      "online"
+    ],
     "documents": [
       "document1.pdf",
       "document2.pdf"
