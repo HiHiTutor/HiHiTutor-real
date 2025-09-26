@@ -19,6 +19,10 @@ const upload = multer({
   limits: {
     fileSize: 10 * 1024 * 1024, // 10MB limit
     files: 5 // Maximum 5 files
+  },
+  fileFilter: (req, file, cb) => {
+    console.log('📁 處理文件:', file.fieldname, file.originalname);
+    cb(null, true);
   }
 });
 
@@ -31,7 +35,7 @@ router.post('/test', (req, res) => {
 });
 
 // 暫時移除認證來測試數據格式，添加 multer 中間件
-router.post('/apply', upload.array('files', 5), (req, res, next) => {
+router.post('/apply', upload.any(), (req, res, next) => {
   console.log('🧪 申請路由被調用');
   console.log('請求頭:', req.headers);
   console.log('請求體類型:', typeof req.body);
