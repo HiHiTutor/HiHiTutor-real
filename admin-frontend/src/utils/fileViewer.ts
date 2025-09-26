@@ -12,15 +12,15 @@ export const viewFileWithSignedUrl = async (fileUrl: string, fileName?: string) 
       fileName: fileName
     });
     
-    // 檢查是否已經是完整的URL
-    if (fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
-      // 直接打開URL
-      console.log('✅ 直接打開文件URL:', fileUrl);
+    // 檢查是否已經是完整的S3 URL
+    if (fileUrl.startsWith('https://') && fileUrl.includes('s3.ap-southeast-2.amazonaws.com')) {
+      // 直接打開S3 URL
+      console.log('✅ 直接打開S3文件URL:', fileUrl);
       window.open(fileUrl, '_blank');
       return;
     }
     
-    // 如果是文件名，嘗試構建完整路徑
+    // 如果是相對路徑，嘗試構建完整路徑
     let relativePath = fileUrl;
     
     // 如果只是文件名，添加默認路徑

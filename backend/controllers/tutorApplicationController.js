@@ -5,6 +5,8 @@ const TutorApplication = require('../models/TutorApplication');
 const User = require('../models/User');
 const mongoose = require('mongoose');
 const { generateUniqueTutorId } = require('../utils/tutorUtils');
+const { PutObjectCommand } = require('@aws-sdk/client-s3');
+const { s3Client, BUCKET_NAME } = require('../config/s3');
 
 // 載入申請記錄（保留作為備用）
 const loadApplications = () => {
@@ -113,6 +115,40 @@ const submitTutorApplication = async (req, res) => {
     const applicationCount = await TutorApplication.countDocuments();
     const applicationId = `TA${String(applicationCount + 1).padStart(3, '0')}`;
 
+    // 處理文件上傳到S3
+    let uploadedDocuments = [];
+    if (req.files && req.files.length > 0) {
+      console.log('📁 開始處理文件上傳，共', req.files.length, '個文件');
+      
+      for (let i = 0; i < req.files.length; i++) {
+        const file = req.files[i];
+        try {
+          const timestamp = Date.now();
+          const sanitizedFileName = file.originalname.replace(/[^a-zA-Z0-9\u4e00-\u9fa5.]/g, '_');
+          const key = `uploads/tutor-applications/${userNumber}/${timestamp}-${sanitizedFileName}`;
+          
+          console.log('📁 上傳文件到S3:', { originalname: file.originalname, key });
+          
+          const command = new PutObjectCommand({
+            Bucket: BUCKET_NAME,
+            Key: key,
+            Body: file.buffer,
+            ContentType: file.mimetype
+          });
+
+          await s3Client.send(command);
+          
+          const fileUrl = `https://${BUCKET_NAME}.s3.ap-southeast-2.amazonaws.com/${key}`;
+          uploadedDocuments.push(fileUrl);
+          
+          console.log('✅ 文件上傳成功:', fileUrl);
+        } catch (uploadError) {
+          console.error('❌ 文件上傳失敗:', file.originalname, uploadError);
+          // 繼續處理其他文件，不中斷整個流程
+        }
+      }
+    }
+
     // 創建新申請
     const newApplication = new TutorApplication({
       id: applicationId,
@@ -130,7 +166,7 @@ const submitTutorApplication = async (req, res) => {
       regions: JSON.parse(regions),
       teachingMode: JSON.parse(teachingMode),
       hourlyRate,
-      documents: req.files ? req.files.map(file => file.originalname) : [],
+      documents: uploadedDocuments, // 使用上傳到S3的URL
       status: 'pending'
     });
 
