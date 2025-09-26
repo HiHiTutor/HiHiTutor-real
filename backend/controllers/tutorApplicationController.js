@@ -133,7 +133,8 @@ const submitTutorApplication = async (req, res) => {
             Bucket: BUCKET_NAME,
             Key: key,
             Body: file.buffer,
-            ContentType: file.mimetype
+            ContentType: file.mimetype,
+            ACL: 'public-read' // 設置為公開讀取
           });
 
           await s3Client.send(command);

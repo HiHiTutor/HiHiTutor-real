@@ -421,6 +421,17 @@ const TutorApplications: React.FC = () => {
                                 </Grid>
                                 
                                 <Grid item xs={12} md={6}>
+                                  {application.gender && (
+                                    <>
+                                      <Typography variant="subtitle2" color="textSecondary">
+                                        性別
+                                      </Typography>
+                                      <Typography variant="body1" sx={{ mb: 2 }}>
+                                        {application.gender === 'male' ? '男' : application.gender === 'female' ? '女' : application.gender}
+                                      </Typography>
+                                    </>
+                                  )}
+                                  
                                   {application.birthDate && (
                                     <>
                                       <Typography variant="subtitle2" color="textSecondary">
