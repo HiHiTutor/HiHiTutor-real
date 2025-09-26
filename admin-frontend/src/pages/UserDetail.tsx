@@ -42,6 +42,7 @@ import {
   Image as ImageIcon,
   PictureAsPdf as PdfIcon,
   Description as DocIcon,
+  Link as LinkIcon,
 } from '@mui/icons-material';
 import { usePermissions } from '../hooks/usePermissions';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
