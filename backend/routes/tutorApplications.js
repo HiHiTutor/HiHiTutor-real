@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const { verifyToken } = require('../middleware/authMiddleware');
 const { verifyAdmin } = require('../middleware/adminMiddleware');
 const {
@@ -11,6 +12,16 @@ const {
   getAllTutorApplications
 } = require('../controllers/tutorApplicationController');
 
+// Configure multer for file uploads
+const storage = multer.memoryStorage(); // Use memory storage for Vercel
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+    files: 5 // Maximum 5 files
+  }
+});
+
 // 測試路由（不需要認證）
 router.post('/test', (req, res) => {
   console.log('🧪 測試路由被調用');
@@ -19,8 +30,8 @@ router.post('/test', (req, res) => {
   res.json({ success: true, message: '測試路由工作正常' });
 });
 
-// 暫時移除認證來測試數據格式
-router.post('/apply', (req, res, next) => {
+// 暫時移除認證來測試數據格式，添加 multer 中間件
+router.post('/apply', upload.array('files', 5), (req, res, next) => {
   console.log('🧪 申請路由被調用');
   console.log('請求頭:', req.headers);
   console.log('請求體類型:', typeof req.body);
