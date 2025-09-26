@@ -145,8 +145,8 @@ const submitTutorApplication = async (req, res) => {
             Bucket: BUCKET_NAME,
             Key: key,
             Body: file.buffer,
-            ContentType: file.mimetype,
-            ACL: 'public-read' // 設置為公開讀取
+            ContentType: file.mimetype
+            // 移除ACL設置，使用bucket policy控制權限
           });
 
           await s3Client.send(command);
