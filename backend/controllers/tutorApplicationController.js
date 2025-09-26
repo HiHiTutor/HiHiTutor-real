@@ -117,6 +117,12 @@ const submitTutorApplication = async (req, res) => {
 
     // 處理文件上傳到S3
     let uploadedDocuments = [];
+    console.log('🔍 調試文件上傳:', {
+      hasFiles: !!req.files,
+      filesLength: req.files ? req.files.length : 0,
+      files: req.files ? req.files.map(f => ({ fieldname: f.fieldname, originalname: f.originalname, size: f.size })) : []
+    });
+    
     if (req.files && req.files.length > 0) {
       console.log('📁 開始處理文件上傳，共', req.files.length, '個文件');
       
@@ -127,7 +133,13 @@ const submitTutorApplication = async (req, res) => {
           const sanitizedFileName = file.originalname.replace(/[^a-zA-Z0-9\u4e00-\u9fa5.]/g, '_');
           const key = `uploads/tutor-applications/${userNumber}/${timestamp}-${sanitizedFileName}`;
           
-          console.log('📁 上傳文件到S3:', { originalname: file.originalname, key });
+          console.log('📁 上傳文件到S3:', { 
+            originalname: file.originalname, 
+            key,
+            size: file.size,
+            mimetype: file.mimetype,
+            hasBuffer: !!file.buffer
+          });
           
           const command = new PutObjectCommand({
             Bucket: BUCKET_NAME,
@@ -148,7 +160,11 @@ const submitTutorApplication = async (req, res) => {
           // 繼續處理其他文件，不中斷整個流程
         }
       }
+    } else {
+      console.log('⚠️ 沒有文件需要上傳');
     }
+    
+    console.log('📋 最終上傳的文件列表:', uploadedDocuments);
 
     // 創建新申請
     const newApplication = new TutorApplication({
