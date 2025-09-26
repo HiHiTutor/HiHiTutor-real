@@ -257,11 +257,19 @@ const reviewTutorApplication = async (req, res) => {
             userType: 'tutor',
             tutorId: tutorId,
             'tutorProfile.applicationStatus': 'approved',
+            // 保存所有申請資料
             'tutorProfile.subjects': application.subjects, // 保存申請中的科目信息
             'tutorProfile.educationLevel': application.education, // 保存教育背景
-            'tutorProfile.teachingExperienceYears': 1, // 默認教學經驗
-            'tutorProfile.sessionRate': 200, // 默認堂費
+            'tutorProfile.teachingExperienceYears': application.experience || 1, // 保存實際教學經驗
+            'tutorProfile.sessionRate': application.hourlyRate || 200, // 保存要求時薪
             'tutorProfile.displayPublic': true, // 公開顯示
+            // 新增保存的申請資料
+            'tutorProfile.gender': application.gender, // 性別
+            'tutorProfile.birthDate': application.birthDate, // 出生日期
+            'tutorProfile.courseFeatures': application.courseFeatures, // 課程特點
+            'tutorProfile.regions': application.regions, // 上堂地區
+            'tutorProfile.teachingMode': application.teachingMode, // 上堂形式
+            'tutorProfile.documents': application.documents, // 上傳文件
             profileStatus: 'approved',
             remarks: remarks || '審核通過'
           }
@@ -410,11 +418,19 @@ const approveTutorApplication = async (req, res) => {
           userType: 'tutor',
           tutorId: tutorId,
           'tutorProfile.applicationStatus': 'approved',
+          // 保存所有申請資料
           'tutorProfile.subjects': application.subjects, // 保存申請中的科目信息
           'tutorProfile.educationLevel': application.education, // 保存教育背景
-          'tutorProfile.teachingExperienceYears': 1, // 默認教學經驗
-          'tutorProfile.sessionRate': 200, // 默認堂費
+          'tutorProfile.teachingExperienceYears': application.experience || 1, // 保存實際教學經驗
+          'tutorProfile.sessionRate': application.hourlyRate || 200, // 保存要求時薪
           'tutorProfile.displayPublic': true, // 公開顯示
+          // 新增保存的申請資料
+          'tutorProfile.gender': application.gender, // 性別
+          'tutorProfile.birthDate': application.birthDate, // 出生日期
+          'tutorProfile.courseFeatures': application.courseFeatures, // 課程特點
+          'tutorProfile.regions': application.regions, // 上堂地區
+          'tutorProfile.teachingMode': application.teachingMode, // 上堂形式
+          'tutorProfile.documents': application.documents, // 上傳文件
           profileStatus: 'approved',
           remarks: remarks || '審核通過'
         }

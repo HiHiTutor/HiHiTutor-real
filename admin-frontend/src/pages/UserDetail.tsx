@@ -1254,6 +1254,91 @@ const UserDetail: React.FC = () => {
                   </>
                 )}
                 
+                {/* 上堂地區 */}
+                {(selectedUser.tutorProfile as any).regions && (selectedUser.tutorProfile as any).regions.length > 0 && (
+                  <>
+                    <Grid item xs={4}>
+                      <Typography color="textSecondary">上堂地區</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {(selectedUser.tutorProfile as any).regions.map((region: string, index: number) => {
+                          // 查找地區的中文標籤
+                          let regionLabel = region;
+                          for (const option of regionOptions) {
+                            if (option.value === region) {
+                              regionLabel = option.label;
+                              break;
+                            }
+                            if (option.regions) {
+                              const foundSubRegion = option.regions.find(r => r.value === region);
+                              if (foundSubRegion) {
+                                regionLabel = foundSubRegion.label;
+                                break;
+                              }
+                            }
+                          }
+                          return (
+                            <Chip key={index} label={regionLabel} size="small" variant="outlined" />
+                          );
+                        })}
+                      </Box>
+                    </Grid>
+                  </>
+                )}
+                
+                {/* 上堂形式 */}
+                {(selectedUser.tutorProfile as any).teachingMode && (selectedUser.tutorProfile as any).teachingMode.length > 0 && (
+                  <>
+                    <Grid item xs={4}>
+                      <Typography color="textSecondary">上堂形式</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {(selectedUser.tutorProfile as any).teachingMode.map((mode: string, index: number) => {
+                          let modeLabel = mode;
+                          if (mode === 'online') modeLabel = '網課';
+                          else if (mode === 'in-person') modeLabel = '面授';
+                          else if (mode === 'both') modeLabel = '網課 + 面授';
+                          return (
+                            <Chip key={index} label={modeLabel} size="small" variant="outlined" />
+                          );
+                        })}
+                      </Box>
+                    </Grid>
+                  </>
+                )}
+                
+                {/* 申請時上傳的文件 */}
+                {(selectedUser.tutorProfile as any).documents && (selectedUser.tutorProfile as any).documents.length > 0 && (
+                  <>
+                    <Grid item xs={4}>
+                      <Typography color="textSecondary">申請文件</Typography>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                        {(selectedUser.tutorProfile as any).documents.map((doc: string, index: number) => (
+                          <Button
+                            key={index}
+                            variant="text"
+                            startIcon={<LinkIcon />}
+                            onClick={() => window.open(doc, '_blank')}
+                            sx={{ 
+                              justifyContent: 'flex-start',
+                              textTransform: 'none',
+                              '&:hover': {
+                                textDecoration: 'underline'
+                              }
+                            }}
+                          >
+                            文件 {index + 1}
+                          </Button>
+                        ))}
+                      </Box>
+                    </Grid>
+                  </>
+                )}
+                
                                  {/* 教育模式 */}
                  {(selectedUser.tutorProfile as any).teachingMode && (
                    <>
