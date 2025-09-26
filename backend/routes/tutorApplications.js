@@ -34,18 +34,8 @@ router.post('/test', (req, res) => {
   res.json({ success: true, message: '測試路由工作正常' });
 });
 
-// 暫時移除認證來測試數據格式，添加 multer 中間件
-router.post('/apply', upload.any(), (req, res, next) => {
-  console.log('🧪 申請路由被調用');
-  console.log('請求頭:', req.headers);
-  console.log('請求體類型:', typeof req.body);
-  console.log('請求體:', req.body);
-  console.log('文件:', req.files);
-  
-  // 手動設置用戶ID用於測試 - 使用真實的ObjectId格式
-  req.user = { id: '68d49673870448389f6d3602' };
-  next();
-}, submitTutorApplication);
+// 恢復認證中間件
+router.post('/apply', verifyToken, upload.any(), submitTutorApplication);
 
 // 管理員獲取所有申請記錄（只允許 admin）
 router.get('/', verifyToken, verifyAdmin, getAllTutorApplications);

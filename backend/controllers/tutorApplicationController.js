@@ -87,9 +87,12 @@ const submitTutorApplication = async (req, res) => {
     }
 
     // 載入用戶資料
+    console.log('🔍 嘗試查找用戶，userId:', userId, '類型:', typeof userId);
     const user = await userRepository.getUserById(userId);
+    console.log('🔍 查找結果:', user ? '找到用戶' : '未找到用戶');
 
     if (!user) {
+      console.log('❌ 找不到用戶資料，userId:', userId);
       return res.status(404).json({
         success: false,
         message: '找不到用戶資料'
