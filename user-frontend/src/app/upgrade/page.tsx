@@ -216,7 +216,7 @@ export default function UpgradePage() {
         formDataToSend.append(`file${index}`, file);
       });
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/tutor-applications/apply`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/tutor-applications/apply`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
